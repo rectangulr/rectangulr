@@ -26,17 +26,13 @@ export class KeyValueEditor {
   blackOnWhite = blackOnWhite
 }
 
-export function factoryFormGroup(objectEditor: ObjectEditor) {
-  return objectEditor.form
-}
-
 @Component({
   selector: 'object-editor',
   template: ` <list [items]="keyValues" [displayComponent]="KeyValueEditor"></list> `,
   providers: [
     {
       provide: FormGroup,
-      useFactory: factoryFormGroup,
+      useFactory: (objectEditor: ObjectEditor) => objectEditor.form,
       deps: [ObjectEditor],
     },
   ],
@@ -66,7 +62,10 @@ export class ObjectEditor {
     public keybindService: KeybindService
   ) {
     this._object = new State(null, this.destroy$)
-    this._object.$.pipe(filterNulls).subscribe(object => {
+    this._object.$.subscribe(object => {
+      if (!object) {
+        object = {}
+      }
       const simpleObject = simplifyObject(object)
       this.keyValues = Object.entries(simpleObject).map(([key, value]) => ({
         key: key,

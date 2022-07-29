@@ -161,7 +161,7 @@ function simplifyViewTree(node) {
       res.text = node.textContent
     }
 
-    res.style = _.mapValues(_.pick(node.style.$, ['display', 'overflow']), i => i.serialize())
+    res.style = _.mapValues(_.pick(node, ['scrollRect', 'elementRect']), i => i)
     res.style.scrollTop = node.scrollTop
 
     // Prevent infinite loop

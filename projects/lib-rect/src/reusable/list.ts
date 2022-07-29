@@ -9,7 +9,7 @@ import {
   SkipSelf,
   ViewChildren,
 } from '@angular/core'
-import json5 from 'json5'
+import * as json5 from 'json5'
 import _ from 'lodash'
 import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
@@ -28,7 +28,7 @@ interface Range {
 @Component({
   selector: 'list',
   template: `
-    <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ _items.value.length }}</box>
+    <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ _items.value?.length || 0 }}</box>
     <box [style]="{ flexGrow: 1, flexShrink: 1 }">
       <box
         #elementRef
@@ -70,8 +70,7 @@ export class List {
 
   constructor(
     @SkipSelf() public keybindService: KeybindService,
-    @Inject('itemComponent') @Optional() public itemComponentInjected: any,
-    private hostRef: ElementRef
+    @Inject('itemComponent') @Optional() public itemComponentInjected: any
   ) {
     this._items = new State([], this.destroy$)
   }
@@ -129,7 +128,7 @@ export class List {
   }
 
   selectIndex(value) {
-    if (this._items.value.length == 0) {
+    if (!this._items.value || this._items.value.length == 0) {
       this.selectedItem.next({ value: null, ref: null })
       return
     }
@@ -190,7 +189,7 @@ function clampRange(range, min, max) {
 }
 
 @Component({
-  template: `<box [style]="{ height: 1 }">{{ text }}<box></box></box>`,
+  template: `<box [style]="{ height: 1 }">{{ text }}</box>`,
 })
 export class BasicObjectDisplay {
   @Input() object: any
@@ -210,6 +209,10 @@ export class BasicObjectDisplay {
         const newObject = mapKeyValue(this.object, (key, value) => {
           if (this.includeKeys.includes(key)) {
             if (!this.excludeKeys.includes(key)) {
+              // json can't contain bigint
+              if (typeof value == 'bigint') {
+                value = Number(value)
+              }
               return [key, value]
             }
           }

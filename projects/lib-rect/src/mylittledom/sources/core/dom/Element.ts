@@ -39,9 +39,9 @@ export class Element extends Node {
   focusList: Element[] = []
   renderList: TermElement[] = []
   activeElement: Element = null
-  /** Position & size of the whole element inside its parent */
+  /** Position & size of the whole element inside its parent. Comes from Yoga.getComputed{Left,Top,Width,Height} */
   elementRect: Rect = new Rect()
-  /** Position & size of the content box inside the element */
+  /** Position & size of the content box inside the element. Comes from Yoga.getComputedBorder(...) */
   contentRect: Rect = new Rect()
   /** Position & size of the element children box | note: both 'x' and 'y' are "wrong", in that they are not the actual box offset (which would always be 0;0), but rather the scroll offset (ie = scrollLeft / scrollTop) */
   scrollRect: Rect = new Rect()

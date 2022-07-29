@@ -44,17 +44,15 @@ export class State<T> {
   subscribeSource(source) {
     this.source = source
 
-    if (source) {
-      this._unsubscribeSource()
+    this._unsubscribeSource()
 
-      // Subscribe to the new source if observable
-      if (isObservable(this.source)) {
-        this.subscription = this.source.subscribe(value => {
-          this.value = value
-        })
-      } else {
-        this.value = this.source
-      }
+    // Subscribe to the new source if observable
+    if (isObservable(this.source)) {
+      this.subscription = this.source.subscribe(value => {
+        this.value = value
+      })
+    } else {
+      this.value = this.source
     }
   }
 
@@ -94,11 +92,11 @@ export class State<T> {
  * 		}
  * }
  */
-export function onChange(
-  object,
-  key,
+export function onChange<T, K extends keyof T>(
+  object: T,
+  key: K,
   func: (value) => void,
-  transformValue?: (value, oldValue) => any | undefined
+  transformValue?: (value: T, oldValue: T) => any | undefined
 ) {
   let storedValue = object[key]
 
@@ -109,7 +107,7 @@ export function onChange(
     set: newValue => {
       let res = undefined
       if (transformValue) {
-        res = transformValue(newValue, storedValue)
+        res = transformValue(newValue, storedValue as any)
       }
       if (res === undefined) {
         storedValue = newValue
@@ -177,3 +175,9 @@ export function onChangeEmit<T, K extends keyof T>(object: T, key: K, observable
 //     super.next(value)
 //   }
 // }
+
+// export function awaitAndRefresh() {}
+
+export function forceRefresh() {
+  globalThis['angularZone'].run(() => {})
+}

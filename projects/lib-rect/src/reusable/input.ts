@@ -2,7 +2,7 @@ import { Component, ElementRef, forwardRef, Input, Output, ViewChild } from '@an
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { Point, Element } from '../mylittledom'
+import { Element, Point } from '../mylittledom'
 import { onChange } from '../utils/reactivity'
 import { KeybindService, registerKeybinds } from './keybind-service'
 
@@ -17,6 +17,7 @@ let globalId = 0
       useExisting: forwardRef(() => TuiInput),
       multi: true,
     },
+    { provide: KeybindService },
   ],
 })
 export class TuiInput implements ControlValueAccessor {
@@ -25,10 +26,9 @@ export class TuiInput implements ControlValueAccessor {
   @Input() text = ''
   @Output() textChange = new BehaviorSubject(this.text)
 
-  @ViewChild('box') boxRef: ElementRef<Element>
-
-  // textBuffer: TextBuffer
   caretIndex = 0
+  @ViewChild('box') boxRef: ElementRef<Element>
+  termTextRef: Element
 
   constructor(public keybindService: KeybindService) {
     this.textChange.next(this.text)
@@ -37,11 +37,12 @@ export class TuiInput implements ControlValueAccessor {
       this.onChange(value)
     })
 
-    onChange(this, 'caretIndex', value => {
-      this.updateNativeCaret()
-    })
-
-    // this.textBuffer = new TextBuffer()
+    onChange(
+      this,
+      'caretIndex',
+      value => this.updateNativeCaret(),
+      value => _.clamp(value, 0, this.text.length)
+    )
   }
 
   ngOnInit() {
@@ -52,14 +53,12 @@ export class TuiInput implements ControlValueAccessor {
         keys: 'left',
         func: () => {
           this.caretIndex--
-          this.caretIndex = _.clamp(this.caretIndex, 0, this.text.length)
         },
       },
       {
         keys: 'right',
         func: () => {
           this.caretIndex++
-          this.caretIndex = _.clamp(this.caretIndex, 0, this.text.length)
         },
       },
       {
@@ -80,14 +79,27 @@ export class TuiInput implements ControlValueAccessor {
           this.text =
             this.text.substring(0, this.caretIndex - 1) + this.text.substring(this.caretIndex)
           this.caretIndex--
-          this.caretIndex = _.clamp(this.caretIndex, 0, this.text.length)
+        },
+      },
+      {
+        keys: 'ctrl+left',
+        func: () => {
+          this.caretIndex = searchFromIndex(this.text, this.caretIndex, -1)
+        },
+      },
+      {
+        keys: 'ctrl+right',
+        func: () => {
+          this.caretIndex = searchFromIndex(this.text, this.caretIndex, +1)
         },
       },
       {
         /* ctrl+backspace */ keys: 'ctrl+h',
         func: () => {
-          this.text = ''
-          this.caretIndex = 0
+          const index = searchFromIndex(this.text, this.caretIndex, -1)
+          this.text =
+            this.text.substring(0, index) + this.text.substring(this.caretIndex, this.text.length)
+          this.caretIndex = index
         },
       },
       {
@@ -95,7 +107,6 @@ export class TuiInput implements ControlValueAccessor {
         func: () => {
           this.text =
             this.text.substring(0, this.caretIndex) + this.text.substring(this.caretIndex + 1)
-          this.caretIndex = _.clamp(this.caretIndex, 0, this.text.length)
         },
       },
       {
@@ -107,7 +118,6 @@ export class TuiInput implements ControlValueAccessor {
               key.name +
               this.text.substring(this.caretIndex)
             this.caretIndex++
-            this.caretIndex = _.clamp(this.caretIndex, 0, this.text.length)
           } else {
             return key
           }
@@ -120,14 +130,15 @@ export class TuiInput implements ControlValueAccessor {
   }
 
   ngAfterViewInit() {
-    this.keybindService.requestCaret(this.boxRef.nativeElement)
+    this.termTextRef = this.boxRef.nativeElement.childNodes[0]
     this.updateNativeCaret()
+    this.keybindService.requestCaret(this.termTextRef)
   }
 
   updateNativeCaret() {
-    if (this.boxRef) {
-      const boxNode = this.boxRef.nativeElement
-      boxNode.caret = new Point({ x: this.caretIndex, y: 0 })
+    if (this.termTextRef) {
+      this.termTextRef.caret = new Point({ x: this.caretIndex, y: 0 })
+      this.termTextRef.scrollCellIntoView(this.termTextRef.caret)
     }
   }
 
@@ -159,4 +170,31 @@ export class TuiInput implements ControlValueAccessor {
   disabled: boolean
   onChange = (value: string) => {}
   onTouched = () => {}
+}
+
+function searchFromIndex(
+  text: string,
+  startIndex: number,
+  incrementBy = 1,
+  characters = ` \t\`~!@#$%^&*()-=+[{]}\|;:'",.<>/?`
+) {
+  const spaces = ` \t`
+  let index = startIndex + incrementBy
+  if (spaces.includes(text[index])) {
+    index += incrementBy
+  }
+  while (true) {
+    if (index <= 0 || index >= text.length) {
+      return index
+    } else if (characters.includes(text[index])) {
+      if (incrementBy == 1) {
+        return index
+      } else {
+        index -= incrementBy
+        return index
+      }
+    } else {
+      index += incrementBy
+    }
+  }
 }

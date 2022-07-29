@@ -11,51 +11,64 @@ import { borderTop } from './styles'
   selector: 'search-list',
   template: `
     <box [style]="{ flexDirection: 'column' }">
+      <tui-input
+        [text]="searchText"
+        (textChange)="searchTextChange.next($event)"
+        [style]="{ backgroundColor: 'gray', color: 'white' }"></tui-input>
       <list
         [items]="matchingItems.$"
         (selectedItem)="selectedItem.next($event)"
         [showIndex]="showIndex"
         [trackByFn]="trackByFn"
         [style]="{ flexShrink: 1 }"></list>
-      <box [style]="{ backgroundColor: 'red', flexGrow: 1 }"></box>
-      <tui-input
-        [text]="searchText"
-        (textChange)="searchTextChange.next($event)"
-        [style]="{ backgroundColor: 'gray', color: 'white' }"></tui-input>
+      <!-- <box [style]="{ backgroundColor: 'red', flexGrow: 1 }"></box> -->
     </box>
   `,
 })
 export class SearchList {
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next()
-    this.destroy$.complete()
-  }
-
   @Input() set items(items) {
     this._items.subscribeSource(items)
   }
-  _items = new State([], this.destroy$)
   @Input() searchText = ''
   @Input() showIndex = false
   @Input() searchKeys = []
   @Input() trackByFn = (index, item) => item
+  @Input() searchInputVisible = true
 
   @Output() searchTextChange = new EventEmitter<string>()
   @Output() selectedItem = new BehaviorSubject({ value: null, ref: null })
 
+  _items: State<any[]>
+  searchEnabled = true
   searchIndex = new Fuse([], {
     keys: this.searchKeys,
   })
-  matchingItems = new State([], this.destroy$)
+  matchingItems: State<any[]>
 
-  constructor(public logger: Logger) {}
+  constructor(public logger: Logger) {
+    this._items = new State([], this.destroy$)
+    this.matchingItems = new State([], this.destroy$)
+  }
 
   ngOnInit() {
     this._items.$.pipe(filterNulls, takeUntil(this.destroy$)).subscribe(items => {
-      if (items.length <= 0) return
+      if (items.length <= 0) {
+        this.searchEnabled = false
+        this.searchIndex = new Fuse([])
+        return
+      }
+
+      if (items.length > 20000) {
+        this.searchEnabled = false
+        this.searchIndex = new Fuse([])
+        this.searchText = 'search disabled. list too long'
+        return
+      }
+
+      this.searchEnabled = true
       this.searchKeys = []
-      Object.entries(items[0]).forEach(([key, value]) => {
+      const firstItem = items[0]
+      Object.entries(firstItem).forEach(([key, value]) => {
         if (['string', 'number'].includes(typeof value)) {
           this.searchKeys.push(key)
         }
@@ -67,7 +80,7 @@ export class SearchList {
       combineLatest([this._items.$, this.searchTextChange]).pipe(
         debounceTime(100),
         map(([items, searchText]) => {
-          if (searchText && searchText.length >= 2) {
+          if (this.searchEnabled && searchText && searchText.length >= 2) {
             return this.searchIndex.search(searchText).map(result => result.item)
           } else {
             return items
@@ -78,4 +91,10 @@ export class SearchList {
   }
 
   borderTop = borderTop
+
+  destroy$ = new Subject()
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
 }

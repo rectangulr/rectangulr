@@ -353,7 +353,20 @@ export class TermScreen extends TermElement {
       }
     }
 
-    if (this.activeElement?.caret) {
+    // if (this.activeElement?.caret) {
+    //   let x =
+    //     this.activeElement.contentWorldRect.x -
+    //     this.activeElement.scrollRect.x +
+    //     this.activeElement.caret.x
+    //   let y =
+    //     this.activeElement.contentWorldRect.y -
+    //     this.activeElement.scrollRect.y +
+    //     this.activeElement.caret.y
+    //   buffer += cursor.moveTo({ x, y })
+    //   buffer += cursor.normal
+    // }
+
+    if (this.activeElement && this.activeElement.contentClipRect && this.activeElement.caret) {
       let x =
         this.activeElement.contentWorldRect.x -
         this.activeElement.scrollRect.x +
@@ -362,28 +375,21 @@ export class TermScreen extends TermElement {
         this.activeElement.contentWorldRect.y -
         this.activeElement.scrollRect.y +
         this.activeElement.caret.y
-      buffer += cursor.moveTo({ x, y })
-      buffer += cursor.normal
+
+      if (
+        x >= this.activeElement.contentClipRect.x &&
+        x < this.activeElement.contentClipRect.x + this.activeElement.contentClipRect.width &&
+        y >= this.activeElement.contentClipRect.y &&
+        y < this.activeElement.contentClipRect.y + this.activeElement.contentClipRect.height
+      ) {
+        let visibleElement = this.getElementAt(new Point({ x, y }))
+
+        if (visibleElement === this.activeElement) {
+          buffer += cursor.moveTo({ x, y })
+          buffer += cursor.normal
+        }
+      }
     }
-
-    // if (this.activeElement && this.activeElement.contentClipRect && this.activeElement.caret) {
-
-    //     let x = this.activeElement.contentWorldRect.x - this.activeElement.scrollRect.x + this.activeElement.caret.x
-    //     let y = this.activeElement.contentWorldRect.y - this.activeElement.scrollRect.y + this.activeElement.caret.y
-
-    //     if (x >= this.activeElement.contentClipRect.x && x < this.activeElement.contentClipRect.x + this.activeElement.contentClipRect.width
-    //         && y >= this.activeElement.contentClipRect.y && y < this.activeElement.contentClipRect.y + this.activeElement.contentClipRect.height) {
-
-    //         let visibleElement = this.getElementAt(new Point({ x, y }))
-
-    //         if (visibleElement === this.activeElement) {
-    //             buffer += cursor.moveTo({ x, y })
-    //             buffer += cursor.normal
-    //         }
-
-    //     }
-
-    // }
 
     this.stdout.write(buffer)
   }

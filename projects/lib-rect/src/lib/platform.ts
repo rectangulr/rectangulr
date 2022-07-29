@@ -10,22 +10,22 @@ import { platformBrowser as basePlatform } from '@angular/platform-browser'
 import { TerminalSanitizer } from './sanitizer'
 import { TerminalElementSchemaRegistry } from './schema-registry'
 import { patchGlobalConsole } from './logger'
-import { registerGlobalNgtDebug } from './debug'
+import { registerGlobalRgDebug } from './debug'
 
 export const platformTerminal = createPlatformFactory(basePlatform, 'terminal', [
-    { provide: DOCUMENT, useValue: {} },
-    { provide: Sanitizer, useClass: TerminalSanitizer, deps: [] },
-    {
-        provide: COMPILER_OPTIONS,
-        useValue: {
-            providers: [
-                // Only used in JIT mode
-                { provide: ElementSchemaRegistry, useClass: TerminalElementSchemaRegistry },
-            ],
-        },
-        multi: true,
+  { provide: DOCUMENT, useValue: {} },
+  { provide: Sanitizer, useClass: TerminalSanitizer, deps: [] },
+  {
+    provide: COMPILER_OPTIONS,
+    useValue: {
+      providers: [
+        // Only used in JIT mode
+        { provide: ElementSchemaRegistry, useClass: TerminalElementSchemaRegistry },
+      ],
     },
+    multi: true,
+  },
 ])
 
 patchGlobalConsole()
-registerGlobalNgtDebug()
+registerGlobalRgDebug()
