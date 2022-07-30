@@ -9,7 +9,7 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "paths": {
-      "lib-rect": ["dist/lib-rect/lib-rect", "dist/lib-rect"]
+      "rectangulr": ["dist/rectangulr/rectangulr", "dist/rectangulr"]
     },
     "moduleResolution": "node",
     "importHelpers": true,

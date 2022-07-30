@@ -1,5 +1,5 @@
 {
-  "name": "lib-rect",
+  "name": "rectangulr",
   "version": "0.0.1",
   "dependencies": {
     "tslib": "^2.0.0"

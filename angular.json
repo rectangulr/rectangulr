@@ -3,38 +3,38 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "lib-rect": {
+    "rectangulr": {
       "projectType": "library",
-      "root": "projects/lib-rect",
-      "sourceRoot": "projects/lib-rect/src",
+      "root": "projects/rectangulr",
+      "sourceRoot": "projects/rectangulr/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "tsConfig": "projects/lib-rect/tsconfig.lib.json",
-            "project": "projects/lib-rect/ng-package.json"
+            "tsConfig": "projects/rectangulr/tsconfig.lib.json",
+            "project": "projects/rectangulr/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/lib-rect/tsconfig.lib.prod.json"
+              "tsConfig": "projects/rectangulr/tsconfig.lib.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/lib-rect/src/test.ts",
-            "tsConfig": "projects/lib-rect/tsconfig.spec.json",
-            "karmaConfig": "projects/lib-rect/karma.conf.js"
+            "main": "projects/rectangulr/src/test.ts",
+            "tsConfig": "projects/rectangulr/tsconfig.spec.json",
+            "karmaConfig": "projects/rectangulr/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/lib-rect/tsconfig.lib.json",
-              "projects/lib-rect/tsconfig.spec.json"
+              "projects/rectangulr/tsconfig.lib.json",
+              "projects/rectangulr/tsconfig.spec.json"
             ],
             "exclude": ["**/node_modules/**"]
           }
@@ -42,5 +42,5 @@
       }
     }
   },
-  "defaultProject": "lib-rect"
+  "defaultProject": "rectangulr"
 }

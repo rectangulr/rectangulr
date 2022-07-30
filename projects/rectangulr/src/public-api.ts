@@ -1,5 +1,5 @@
 /*
- * Public API Surface of lib-rect
+ * Public API Surface of rectangulr
  */
 
 export { platformTerminal } from './lib/platform'
