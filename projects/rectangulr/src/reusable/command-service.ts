@@ -10,28 +10,30 @@ import { Destroyable } from '../utils/mixins'
 import { onChange, onChangeEmit } from '../utils/reactivity'
 import { moveToLast, remove } from '../utils/utils'
 
-export interface Keybind {
-  keys: string
+export interface Command {
+  id?: string
+  keys?: string | string[]
   func: (key: Key) => Key[] | void | Promise<Key[]> | Promise<void>
 }
-export type MultiKeybind = Keybind & { keys: string[] }
 
 let globalId = 0
 
 @Injectable({
   providedIn: 'root',
 })
-export class KeybindService {
+export class CommandService {
   _id = ++globalId
 
-  keybinds: { [x: string]: Function[] } = {}
+  commands: { [id: string]: { id: string; func: Function } } = {}
+
+  keybinds: { [keys: string]: string[] } = {}
   wildcard: Function = null
 
-  focusStack: KeybindService[] = []
-  focusedChild: KeybindService = null
-  children: KeybindService[] = []
+  focusStack: CommandService[] = []
+  focusedChild: CommandService = null
+  children: CommandService[] = []
   components = []
-  rootNode: KeybindService = null
+  rootNode: CommandService = null
 
   receivedFocusRequestRecently = false
   receivedCaretRequestRecently = false
@@ -42,14 +44,14 @@ export class KeybindService {
   isInFocusPath = false
   isInFocusPathChanges = new EventEmitter<boolean>()
 
-  before: KeybindService = null
+  before: CommandService = null
 
   constructor(
     @Optional() public elementRef: ElementRef,
     public screen: Screen,
     public logger: Logger,
     public commandsService: CommandsService,
-    @SkipSelf() @Optional() public parent: KeybindService
+    @SkipSelf() @Optional() public parent: CommandService
   ) {
     if (isRoot(this)) {
       this.rootNode = this
@@ -96,14 +98,14 @@ export class KeybindService {
   /**
    * Called by children to signal their creation.
    */
-  childCreated(child: KeybindService) {
+  childCreated(child: CommandService) {
     this.children.push(child)
   }
 
   /**
    * Called by children to signal their destruction.
    */
-  childDestroyed(child: KeybindService) {
+  childDestroyed(child: CommandService) {
     remove(this.focusStack, child)
     remove(this.children, child)
   }
@@ -164,42 +166,40 @@ export class KeybindService {
    * }})
    * ```
    */
-  register({ keys, func }: Keybind) {
-    // this.logger.log(`${padding(this)}register keys: ${keys}`)
+  registerCommand(command: Command) {
+    const { id, keys, func } = sanitizeCommand(command)
+    this.commands[id] = { ...command, id }
+    this.registerKeys(keys, id)
+  }
 
+  registerKeys(keys, commandId) {
     // Else
     if (keys == 'else') {
-      this.wildcard = func
+      this.wildcard = commandId
       return
     }
 
     // Keybind
     this.keybinds[keys] ??= []
-    this.keybinds[keys].push(func)
+    this.keybinds[keys].push(commandId)
   }
 
-  registerCommand(commandBind: { id; keys; func }) {
-    let command = this.commandsService.register(commandBind)
-    this.register({
-      ...commandBind,
-      func: () => {
-        this.commandsService.executeCommand({ id: command.id, args: null })
-      },
-    })
-  }
-
-  remove({ keys, func }) {
-    // this.logger.log(`${padding(this)}remove keys: ${keys}`)
-
-    const funcs = this.keybinds[keys]
-    if (funcs) {
-      remove(funcs, func)
-      return
+  removeKeys(keys, commandId) {
+    const ids = this.keybinds[keys]
+    if (ids) {
+      remove(ids, commandId)
     }
 
     if (keys == 'else') {
-      remove(this.wildcard, func)
+      remove(this.wildcard, commandId)
     }
+  }
+
+  removeCommand(command: Command) {
+    const { id, keys, func } = sanitizeCommand(command)
+    this.commands[id] = null
+
+    this.removeKeys(keys, id)
   }
 
   /**
@@ -207,35 +207,30 @@ export class KeybindService {
    * If it doesn't know what to do with it, it can pass it to its parent.
    * Usually called after a user interaction.
    */
-  focus(child?: KeybindService): boolean {
-    // this.logger.log(`${padding(this)}focus`)
-
-    // To be able to call focus() without arguments
+  focus(child?: CommandService) {
+    // To be able to call requestFocus() without arguments
     if (!child) {
-      const granted = this.parent?.focus(this)
-      if (granted) {
-        this.screen.screen.activeElement = this.caretElement
-      }
-      return granted
+      return this.parent?.focus(this)
     }
 
-    let focusGranted: boolean
+    let granted = false
     if (isRoot(this)) {
-      focusGranted = true
+      granted = true
     } else {
-      focusGranted = this.parent.focus(this)
+      granted = this.parent?.focus(this)
     }
-    if (focusGranted) {
+
+    if (granted) {
       moveToLast(this.focusStack, child)
       this.focusedChild = _.last(this.focusStack)
     }
-    return focusGranted
+    return granted
   }
 
   /**
    * Remove itself from its parent's focus stack.
    */
-  unfocus(child?: KeybindService) {
+  unfocus(child?: CommandService) {
     // To be able to call unfocus() without arguments
     if (!child) {
       return this.parent?.unfocus(this)
@@ -250,33 +245,38 @@ export class KeybindService {
    * Usually called inside `ngOnInit`.
    * If the component should get focused not matter what, use `focus` instead.
    */
-  requestFocus(child?: KeybindService): boolean {
+  requestFocus(child?: CommandService): boolean {
     const receivedFocusRequestRecently = this.receivedFocusRequestRecently
     this.receivedFocusRequestRecently = true
     setTimeout(() => {
       this.receivedFocusRequestRecently = false
     }, 0)
 
-    // To be able to call requestFocus() without arguments
-    if (!child) {
-      if (isRoot(this)) {
-        return true
-      } else {
-        return this.parent?.requestFocus(this)
-      }
-    }
-
     if (receivedFocusRequestRecently) return false
 
-    moveToLast(this.focusStack, child)
-    this.focusedChild = _.last(this.focusStack)
-    return true
+    // To be able to call requestFocus() without arguments
+    if (!child) {
+      return this.parent?.focus(this)
+    }
+
+    let granted = false
+    if (isRoot(this)) {
+      granted = true
+    } else {
+      granted = this.parent?.focus(this)
+    }
+
+    if (granted) {
+      moveToLast(this.focusStack, child)
+      this.focusedChild = _.last(this.focusStack)
+    }
+    return granted
   }
 
   /**
    * If multiple components request the caret at the same time, the first one to request wins.
    * Usually called inside `ngOnInit`.
-   * */
+   */
   requestCaret(element) {
     const receivedCaretRequestRecently = this.receivedCaretRequestRecently
     this.receivedCaretRequestRecently = true
@@ -292,10 +292,18 @@ export class KeybindService {
   }
 }
 
+function sanitizeCommand(command: Command) {
+  const { id, keys } = command
+  if (id) return command
+  if (Array.isArray(keys) && keys.length > 0) return { ...command, id: keys[0] }
+  if (typeof keys == 'string') return { ...command, id: keys }
+  throw new Error('command definition is wrong')
+}
+
 /**
  * Is this the root keybind service?
  */
-function isRoot(keybindService: KeybindService) {
+function isRoot(keybindService: CommandService) {
   return !keybindService.parent
 }
 
@@ -316,72 +324,54 @@ export function keyToString(key: Key) {
 /**
  * Register keybinds for the lifetime of the component
  */
-export function registerKeybinds(
-  component: Destroyable & { keybindService: KeybindService },
-  keybinds: (Keybind | { keys: string[] })[]
+export function registerCommands(
+  component: Destroyable & { keybindService: CommandService },
+  commands: Command[]
 ) {
-  moveToLast(component.keybindService.components, component)
+  commands.forEach(command => {
+    component.keybindService.registerCommand(command)
+  })
 
-  // Register
-  {
-    keybinds.forEach(keybind => {
-      if (typeof keybind.keys === 'string') {
-        component.keybindService.register(<Keybind>keybind)
-      } else if (Array.isArray(keybind.keys)) {
-        registerMultiKeybind(component, <MultiKeybind>keybind)
-      }
+  component.destroy$.subscribe(() => {
+    commands.forEach(keybind => {
+      component.keybindService.removeCommand(keybind)
     })
-  }
-
-  // Remove when destroyed
-  {
-    component.destroy$.subscribe(() => {
-      keybinds.forEach(keybind => {
-        if (typeof keybind.keys === 'string') {
-          component.keybindService.remove(<Keybind>keybind)
-        } else if (Array.isArray(keybind.keys)) {
-          removeMultiKeybind(component, <MultiKeybind>keybind)
-        }
-      })
-
-      remove(component.keybindService.components, component)
-    })
-  }
+  })
 }
 
 function registerMultiKeybind(
-  component: Destroyable & { keybindService: KeybindService },
-  multiKeybind: Keybind & { keys: string[] }
+  component: Destroyable & { keybindService: CommandService },
+  multiKeybind: Command & { keys: string[] }
 ) {
   multiKeybind.keys.forEach(key => {
-    component.keybindService.register({ keys: key, func: multiKeybind.func })
+    component.keybindService.registerCommand({ keys: key, func: multiKeybind.func })
   })
 }
 
 function removeMultiKeybind(
-  component: Destroyable & { keybindService: KeybindService },
-  multiKeybind: Keybind & { keys: string[] }
+  component: Destroyable & { keybindService: CommandService },
+  multiKeybind: Command & { keys: string[] }
 ) {
   multiKeybind.keys.forEach(key => {
-    component.keybindService.remove({ keys: key, func: multiKeybind.func })
+    component.keybindService.removeCommand({ keys: key, func: multiKeybind.func })
   })
 }
 
-function forEachChild(keybindService: KeybindService, func) {
+function forEachChild(keybindService: CommandService, func) {
   keybindService.children.forEach(child => {
     func(child)
     forEachChild(child, func)
   })
 }
 
-function forEachChildInFocusPath(keybindService: KeybindService, func) {
+function forEachChildInFocusPath(keybindService: CommandService, func) {
   func(keybindService)
   if (keybindService.focusedChild) {
     forEachChildInFocusPath(keybindService.focusedChild, func)
   }
 }
 
-function forFocusedChild(keybindService: KeybindService, func) {
+function forFocusedChild(keybindService: CommandService, func) {
   if (keybindService.focusedChild) {
     forEachChildInFocusPath(keybindService.focusedChild, func)
   } else {
@@ -389,14 +379,14 @@ function forFocusedChild(keybindService: KeybindService, func) {
   }
 }
 
-function updateTree(rootNode: KeybindService) {
+function updateTree(rootNode: CommandService) {
   if (!isRoot(rootNode)) throw new Error('should only be called on the keybind root')
 
   forEachChild(rootNode, child => {
     child.isFocused = false
   })
 
-  forEachChildInFocusPath(rootNode, (child: KeybindService) => {
+  forEachChildInFocusPath(rootNode, (child: CommandService) => {
     child.isFocused = true
   })
 
@@ -415,7 +405,7 @@ export function registerKeyDebug() {
 
 export function rgDebugKeybinds() {
   const ng = globalThis.rgDebug() as Debug
-  const rootKeybindService = ng.more.injector.get(KeybindService)
+  const rootKeybindService = ng.more.injector.get(CommandService)
   return rootKeybindService
   // let keybindService = rootKeybindService
   // while (true) {
@@ -428,7 +418,7 @@ export function rgDebugKeybinds() {
   // }
 }
 
-export function padding(keybindService: KeybindService) {
+export function padding(keybindService: CommandService) {
   let spaces = ''
   for (let d = depth(keybindService); d > 0; d--) {
     spaces += '  '
@@ -436,7 +426,7 @@ export function padding(keybindService: KeybindService) {
   return `${keybindService._id} ${spaces}`
 }
 
-export function depth(keybindService: KeybindService) {
+export function depth(keybindService: CommandService) {
   let depth = 0
   while (true) {
     if (keybindService.parent) {

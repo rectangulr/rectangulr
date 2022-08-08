@@ -17,7 +17,7 @@ import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../mylittledom'
 import { onChangeEmit, State } from '../utils/reactivity'
 import { filterNulls, mapKeyValue } from '../utils/utils'
-import { KeybindService, registerKeybinds } from './keybind-service'
+import { CommandService, registerCommands } from './command-service'
 import { whiteOnGray } from './styles'
 
 interface Range {
@@ -69,7 +69,7 @@ export class List {
   @Output() selectedItem = new BehaviorSubject({ value: null, ref: null })
 
   constructor(
-    @SkipSelf() public keybindService: KeybindService,
+    @SkipSelf() public keybindService: CommandService,
     @Inject('itemComponent') @Optional() public itemComponentInjected: any
   ) {
     this._items = new State([], this.destroy$)
@@ -111,7 +111,7 @@ export class List {
         },
       },
     ]
-    registerKeybinds(this, keybinds)
+    registerCommands(this, keybinds)
 
     onChangeEmit(this, 'createdRange', 'createdRangeChanges')
 
@@ -144,7 +144,7 @@ export class List {
 
     const afterIndexSelected = () => {
       const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
-        .instance as { keybindService: KeybindService }
+        .instance as { keybindService: CommandService }
       selectedComponent?.keybindService?.focus()
 
       if (this.elementRefs?.length > 0) {

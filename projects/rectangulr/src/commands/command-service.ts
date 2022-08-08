@@ -14,7 +14,7 @@ export class CommandsService {
   commands: State<{ [key: string]: Command }>
 
   constructor(public logger: Logger) {
-    this.commands = new State({})
+    this.commands
   }
 
   register({ id, func }) {

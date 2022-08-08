@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core'
+import { Component, Input, Output } from '@angular/core'
 import Fuse from 'fuse.js'
-import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
 import { debounceTime, map, takeUntil } from 'rxjs/operators'
 import { Logger } from '../lib/logger'
 import { State } from '../utils/reactivity'
@@ -12,7 +12,9 @@ import { borderTop } from './styles'
   template: `
     <box [style]="{ flexDirection: 'column' }">
       <tui-input
+        *ngIf="searchInputVisible"
         [text]="searchText"
+        [focus]="focusInput"
         (textChange)="searchTextChange.next($event)"
         [style]="{ backgroundColor: 'gray', color: 'white' }"></tui-input>
       <list
@@ -34,8 +36,9 @@ export class SearchList {
   @Input() searchKeys = []
   @Input() trackByFn = (index, item) => item
   @Input() searchInputVisible = true
+  @Input() focusInput: Observable<any> = null
 
-  @Output() searchTextChange = new EventEmitter<string>()
+  @Output() searchTextChange = new BehaviorSubject(this.searchText)
   @Output() selectedItem = new BehaviorSubject({ value: null, ref: null })
 
   _items: State<any[]>

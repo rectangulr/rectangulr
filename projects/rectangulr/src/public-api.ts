@@ -21,7 +21,11 @@ export { CommandsDisplay } from './commands/commands'
 
 export * from './commands/commands'
 export * from './commands/command-service'
-export { KeybindService, registerKeybinds, Keybind } from './reusable/keybind-service'
+export {
+  CommandService as KeybindService,
+  registerCommands as registerKeybinds,
+  Command as Keybind,
+} from './reusable/command-service'
 
 export { Logger } from './lib/logger'
 export { State, forceRefresh, onChange, onChangeEmit } from './utils/reactivity'

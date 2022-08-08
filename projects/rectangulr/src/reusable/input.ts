@@ -1,10 +1,10 @@
 import { Component, ElementRef, forwardRef, Input, Output, ViewChild } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
-import { BehaviorSubject, Subject } from 'rxjs'
+import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { Element, Point } from '../mylittledom'
 import { onChange } from '../utils/reactivity'
-import { KeybindService, registerKeybinds } from './keybind-service'
+import { CommandService, registerCommands } from './command-service'
 
 let globalId = 0
 
@@ -17,7 +17,7 @@ let globalId = 0
       useExisting: forwardRef(() => TuiInput),
       multi: true,
     },
-    { provide: KeybindService },
+    { provide: CommandService },
   ],
 })
 export class TuiInput implements ControlValueAccessor {
@@ -30,7 +30,7 @@ export class TuiInput implements ControlValueAccessor {
   @ViewChild('box') boxRef: ElementRef<Element>
   termTextRef: Element
 
-  constructor(public keybindService: KeybindService) {
+  constructor(public keybindService: CommandService) {
     this.textChange.next(this.text)
     onChange(this, 'text', value => {
       this.textChange.next(value)
@@ -88,13 +88,20 @@ export class TuiInput implements ControlValueAccessor {
         },
       },
       {
+        keys: 'ctrl+u',
+        func: () => {
+          this.text = ''
+          this.caretIndex = 0
+        },
+      },
+      {
         keys: 'ctrl+right',
         func: () => {
           this.caretIndex = searchFromIndex(this.text, this.caretIndex, +1)
         },
       },
       {
-        /* ctrl+backspace */ keys: 'ctrl+h',
+        /* ctrl+backspace */ keys: ['ctrl+h', 'ctrl+w'],
         func: () => {
           const index = searchFromIndex(this.text, this.caretIndex, -1)
           this.text =
@@ -125,8 +132,11 @@ export class TuiInput implements ControlValueAccessor {
       },
     ]
 
-    registerKeybinds(this, keybinds)
+    registerCommands(this, keybinds)
     this.keybindService.requestFocus()
+    this.destroy$.subscribe(() => {
+      this.keybindService.unfocus()
+    })
   }
 
   ngAfterViewInit() {
@@ -144,6 +154,7 @@ export class TuiInput implements ControlValueAccessor {
 
   destroy$ = new Subject()
   ngOnDestroy() {
+    this.textChange.next('')
     this.destroy$.next()
     this.destroy$.complete()
   }
@@ -178,9 +189,8 @@ function searchFromIndex(
   incrementBy = 1,
   characters = ` \t\`~!@#$%^&*()-=+[{]}\|;:'",.<>/?`
 ) {
-  const spaces = ` \t`
   let index = startIndex + incrementBy
-  if (spaces.includes(text[index])) {
+  if (characters.includes(text[index])) {
     index += incrementBy
   }
   while (true) {

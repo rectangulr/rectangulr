@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core'
 import { Subject } from 'rxjs'
 import { map } from 'rxjs/internal/operators/map'
-import { KeybindService, registerKeybinds } from '../reusable/keybind-service'
+import { CommandService, registerCommands } from '../reusable/command-service'
 import { SearchList } from '../reusable/search-list'
 import { CommandsService } from './command-service'
 
@@ -15,7 +15,7 @@ import { CommandsService } from './command-service'
       [style]="{ border: 'modern', backgroundColor: 'darkgray' }">
     </search-list>
   `,
-  providers: [KeybindService],
+  providers: [CommandService],
 })
 export class CommandsDisplay {
   commands = this.commandsService.commands.$.pipe(map(commands => Object.keys(commands)))
@@ -51,12 +51,12 @@ export class CommandsDisplay {
 
   @ViewChild('searchList') list: SearchList
 
-  constructor(public commandsService: CommandsService, public keybindService: KeybindService) {}
+  constructor(public commandsService: CommandsService, public keybindService: CommandService) {}
 
   ngOnInit() {
     this.keybindService.rootNode.before = this.keybindService
 
-    registerKeybinds(this, this.globalKeybinds)
+    registerCommands(this, this.globalKeybinds)
   }
 
   setVisible(visible) {
@@ -64,11 +64,11 @@ export class CommandsDisplay {
 
     if (visible) {
       this.keybinds.forEach(k => {
-        this.keybindService.register(k)
+        // this.keybindService.registerCommand(k)
       })
     } else {
       this.keybinds.forEach(k => {
-        this.keybindService.remove(k)
+        // this.keybindService.removeCommand(k)
       })
       this.keybindService.unfocus()
     }

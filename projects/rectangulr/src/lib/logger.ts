@@ -4,44 +4,44 @@ import fs from 'fs'
 const logFile = './log.json'
 
 export function clear_log() {
-    fs.writeFileSync(logFile, '', { flag: 'w' })
+  fs.writeFileSync(logFile, '', { flag: 'w' })
 }
 
 export function log(thing) {
-    if (typeof thing == 'object') {
-        fs.writeFileSync(logFile, stringify(thing) + '\n', { flag: 'a+' })
-    } else {
-        fs.writeFileSync(logFile, thing + '\n\n', { flag: 'a+' })
-    }
+  if (typeof thing == 'string') {
+    fs.writeFileSync(logFile, stringify({ message: thing }) + '\n\n', { flag: 'a+' })
+  } else {
+    fs.writeFileSync(logFile, stringify(thing) + '\n', { flag: 'a+' })
+  }
 }
 
 // As a service
 @Injectable({ providedIn: 'root' })
 export class Logger {
-    log = log
+  log = log
 }
 
 function stringify(thing: any) {
-    var cache = []
+  var cache = []
 
-    if (thing instanceof Error) {
-        const property = Object.getOwnPropertyDescriptor(thing, 'message')
-        Object.defineProperty(thing, 'message', { ...property, enumerable: true })
-    }
+  if (thing instanceof Error) {
+    const property = Object.getOwnPropertyDescriptor(thing, 'message')
+    Object.defineProperty(thing, 'message', { ...property, enumerable: true })
+  }
 
-    return JSON.stringify(
-        thing,
-        function (key, value) {
-            if (typeof value === 'object' && value !== null) {
-                if (cache.indexOf(value) !== -1) {
-                    return
-                }
-                cache.push(value)
-            }
-            return value
-        },
-        2
-    )
+  return JSON.stringify(
+    thing,
+    function (key, value) {
+      if (typeof value === 'object' && value !== null) {
+        if (cache.indexOf(value) !== -1) {
+          return
+        }
+        cache.push(value)
+      }
+      return value
+    },
+    2
+  )
 }
 
 /**
@@ -49,23 +49,23 @@ function stringify(thing: any) {
  * This patches the console.* functions to write to a file instead.
  * */
 export function patchGlobalConsole() {
-    // Save original
-    globalThis['original_console'] = {
-        error: console.error,
-        log: console.log,
-        info: console.info,
-        debug: console.debug,
-        warn: console.warn,
-    }
+  // Save original
+  globalThis['original_console'] = {
+    error: console.error,
+    log: console.log,
+    info: console.info,
+    debug: console.debug,
+    warn: console.warn,
+  }
 
-    // Replace
-    console.error = log
-    console.log = log
-    console.info = log
-    console.debug = log
-    console.warn = log
+  // Replace
+  console.error = log
+  console.log = log
+  console.info = log
+  console.debug = log
+  console.warn = log
 
-    clear_log()
+  clear_log()
 }
 
 // function caller_location() {

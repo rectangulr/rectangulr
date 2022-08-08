@@ -1,11 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core'
+import { Component, Input, Output } from '@angular/core'
 import { FormBuilder, FormGroup } from '@angular/forms'
+import _ from 'lodash'
+import * as json5 from 'json5'
 import { Subject } from 'rxjs'
 import { Logger } from '../lib/logger'
-import { blackOnWhite } from './styles'
 import { State } from '../utils/reactivity'
-import { filterNulls, longest, mapKeyValue } from '../utils/utils'
-import { KeybindService, registerKeybinds } from './keybind-service'
+import { longest, mapKeyValue } from '../utils/utils'
+import { CommandService, registerCommands } from './command-service'
+import { blackOnWhite } from './styles'
 
 @Component({
   selector: 'keyvalue-editor',
@@ -15,10 +17,10 @@ import { KeybindService, registerKeybinds } from './keybind-service'
       <tui-input [formControlName]="keyValue.key" #input [text]="keyValue.value"></tui-input>
     </box>
   `,
-  providers: [KeybindService],
+  providers: [CommandService],
 })
 export class KeyValueEditor {
-  constructor(public keybindService: KeybindService, public formGroup: FormGroup) {}
+  constructor(public keybindService: CommandService, public formGroup: FormGroup) {}
 
   @Input('object') keyValue: { key: string; value: any }
   @Input() keyWidth = 8
@@ -41,7 +43,7 @@ export class ObjectEditor {
   @Input() set object(object) {
     this._object.subscribeSource(object)
   }
-  @Output() onSubmit = new EventEmitter()
+  @Output() onSubmit = new Subject()
 
   _object: State<any>
   keyValues: { key: string; value: any }[]
@@ -51,7 +53,11 @@ export class ObjectEditor {
     {
       keys: 'enter',
       func: () => {
-        this.onSubmit.emit(this.form.value)
+        const value = mapBackToOriginalTypes({
+          formObject: this.form.value,
+          originalObject: this._object.value,
+        })
+        this.onSubmit.next(value)
       },
     },
   ]
@@ -59,7 +65,7 @@ export class ObjectEditor {
   constructor(
     public logger: Logger,
     public fb: FormBuilder,
-    public keybindService: KeybindService
+    public keybindService: CommandService
   ) {
     this._object = new State(null, this.destroy$)
     this._object.$.subscribe(object => {
@@ -69,13 +75,13 @@ export class ObjectEditor {
       const simpleObject = simplifyObject(object)
       this.keyValues = Object.entries(simpleObject).map(([key, value]) => ({
         key: key,
-        value: String(value),
+        value: value,
       }))
       this.longestKey = longest(this.keyValues)
       this.form = this.fb.group(simpleObject)
     })
 
-    registerKeybinds(this, this.keybinds)
+    registerCommands(this, this.keybinds)
   }
 
   blackOnWhite = blackOnWhite
@@ -93,8 +99,35 @@ function simplifyObject(object) {
   return mapKeyValue(object, (key, value) => {
     if (Array.isArray(value)) {
       return undefined
+    } else if (value === null) {
+      return [key, '']
     } else {
       return [key, String(value)]
+    }
+  })
+}
+
+function mapBackToOriginalTypes(args: { formObject: any; originalObject: any }) {
+  const { formObject, originalObject } = args
+  return _.mapValues(formObject, (value, key) => {
+    if (_.has(originalObject, key)) {
+      const originalValue = originalObject[key]
+      const originalType = typeof originalValue
+      if (originalValue === null && ['', 'null'].includes(value)) {
+        return null
+      } else if (originalType === 'boolean') {
+        return !['null', 'no', 'false', '0'].includes(value as string)
+      } else if (originalType === 'string') {
+        return value
+      } else if (originalType === 'number') {
+        return Number(value as string)
+      } else if (originalType === 'bigint') {
+        return BigInt(value as string)
+      } else if (originalType === 'object') {
+        return json5.parse(value as string)
+      }
+    } else {
+      return value
     }
   })
 }
