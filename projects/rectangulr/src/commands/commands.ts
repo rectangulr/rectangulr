@@ -1,9 +1,8 @@
 import { Component, ViewChild } from '@angular/core'
 import { Subject } from 'rxjs'
 import { map } from 'rxjs/internal/operators/map'
-import { CommandService, registerCommands } from '../reusable/command-service'
+import { CommandService, registerCommands } from '../commands/command-service'
 import { SearchList } from '../reusable/search-list'
-import { CommandsService } from './command-service'
 
 @Component({
   selector: 'commands',
@@ -18,7 +17,7 @@ import { CommandsService } from './command-service'
   providers: [CommandService],
 })
 export class CommandsDisplay {
-  commands = this.commandsService.commands.$.pipe(map(commands => Object.keys(commands)))
+  commands = this.commandService.commandsChange.pipe(map(commands => Object.keys(commands)))
 
   visible = false
 
@@ -37,7 +36,7 @@ export class CommandsDisplay {
       keys: 'enter',
       func: () => {
         let commandId = this.list.selectedItem.value.value
-        this.commandsService.executeCommand({ id: commandId })
+        this.commandService.callCommand({ id: commandId })
         this.setVisible(false)
       },
     },
@@ -51,7 +50,7 @@ export class CommandsDisplay {
 
   @ViewChild('searchList') list: SearchList
 
-  constructor(public commandsService: CommandsService, public keybindService: CommandService) {}
+  constructor(public commandService: CommandService, public keybindService: CommandService) {}
 
   ngOnInit() {
     this.keybindService.rootNode.before = this.keybindService

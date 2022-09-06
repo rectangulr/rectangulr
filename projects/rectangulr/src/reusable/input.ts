@@ -1,10 +1,10 @@
 import { Component, ElementRef, forwardRef, Input, Output, ViewChild } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
-import { BehaviorSubject, Observable, Subject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
+import { CommandService, registerCommands } from '../commands/command-service'
 import { Element, Point } from '../mylittledom'
 import { onChange } from '../utils/reactivity'
-import { CommandService, registerCommands } from './command-service'
 
 let globalId = 0
 
@@ -30,7 +30,7 @@ export class TuiInput implements ControlValueAccessor {
   @ViewChild('box') boxRef: ElementRef<Element>
   termTextRef: Element
 
-  constructor(public keybindService: CommandService) {
+  constructor(public commandService: CommandService) {
     this.textChange.next(this.text)
     onChange(this, 'text', value => {
       this.textChange.next(value)
@@ -133,16 +133,13 @@ export class TuiInput implements ControlValueAccessor {
     ]
 
     registerCommands(this, keybinds)
-    this.keybindService.requestFocus()
-    this.destroy$.subscribe(() => {
-      this.keybindService.unfocus()
-    })
+    this.commandService.requestFocus()
   }
 
   ngAfterViewInit() {
     this.termTextRef = this.boxRef.nativeElement.childNodes[0]
     this.updateNativeCaret()
-    this.keybindService.requestCaret(this.termTextRef)
+    this.commandService.requestCaret(this.termTextRef)
   }
 
   updateNativeCaret() {
@@ -155,6 +152,7 @@ export class TuiInput implements ControlValueAccessor {
   destroy$ = new Subject()
   ngOnDestroy() {
     this.textChange.next('')
+    this.commandService.unfocus()
     this.destroy$.next()
     this.destroy$.complete()
   }

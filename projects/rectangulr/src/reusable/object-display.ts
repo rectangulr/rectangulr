@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core'
+import json5 from 'json5'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../lib/logger'
-import { blackOnWhite } from './styles'
 import { State } from '../utils/reactivity'
-import { filterNulls, longest } from '../utils/utils'
-import json5 from 'json5'
+import { longest } from '../utils/utils'
+import { blackOnWhite } from './styles'
 
 @Component({
   selector: 'object-display',

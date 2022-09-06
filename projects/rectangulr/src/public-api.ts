@@ -17,15 +17,15 @@ export { List, BasicObjectDisplay } from './reusable/list'
 export { SearchList } from './reusable/search-list'
 export { ObjectDisplay } from './reusable/object-display'
 export { ObjectEditor, KeyValueEditor } from './reusable/object-editor'
+
 export { CommandsDisplay } from './commands/commands'
 
-export * from './commands/commands'
-export * from './commands/command-service'
 export {
-  CommandService as KeybindService,
-  registerCommands as registerKeybinds,
-  Command as Keybind,
-} from './reusable/command-service'
+  Command,
+  CommandService,
+  registerCommands,
+  globalKeyDebug,
+} from './commands/command-service'
 
 export { Logger } from './lib/logger'
 export { State, forceRefresh, onChange, onChangeEmit } from './utils/reactivity'

@@ -14,10 +14,14 @@ import _ from 'lodash'
 import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
+import {
+  CommandService,
+  CommandService as KeybindService,
+  registerCommands,
+} from '../commands/command-service'
 import { Element, makeRuleset } from '../mylittledom'
 import { onChangeEmit, State } from '../utils/reactivity'
 import { filterNulls, mapKeyValue } from '../utils/utils'
-import { CommandService, registerCommands } from './command-service'
 import { whiteOnGray } from './styles'
 
 interface Range {
@@ -69,7 +73,7 @@ export class List {
   @Output() selectedItem = new BehaviorSubject({ value: null, ref: null })
 
   constructor(
-    @SkipSelf() public keybindService: CommandService,
+    @SkipSelf() public commandService: CommandService,
     @Inject('itemComponent') @Optional() public itemComponentInjected: any
   ) {
     this._items = new State([], this.destroy$)
@@ -144,7 +148,7 @@ export class List {
 
     const afterIndexSelected = () => {
       const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
-        .instance as { keybindService: CommandService }
+        .instance as { keybindService: KeybindService }
       selectedComponent?.keybindService?.focus()
 
       if (this.elementRefs?.length > 0) {

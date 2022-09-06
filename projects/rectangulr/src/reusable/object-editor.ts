@@ -6,8 +6,8 @@ import { Subject } from 'rxjs'
 import { Logger } from '../lib/logger'
 import { State } from '../utils/reactivity'
 import { longest, mapKeyValue } from '../utils/utils'
-import { CommandService, registerCommands } from './command-service'
 import { blackOnWhite } from './styles'
+import { CommandService, registerCommands } from '../commands/command-service'
 
 @Component({
   selector: 'keyvalue-editor',
@@ -20,12 +20,16 @@ import { blackOnWhite } from './styles'
   providers: [CommandService],
 })
 export class KeyValueEditor {
-  constructor(public keybindService: CommandService, public formGroup: FormGroup) {}
-
   @Input('object') keyValue: { key: string; value: any }
   @Input() keyWidth = 8
 
+  constructor(public commandService: CommandService, public formGroup: FormGroup) {}
+
   blackOnWhite = blackOnWhite
+
+  ngOnDestroy() {
+    this.commandService.unfocus()
+  }
 }
 
 @Component({
@@ -65,7 +69,7 @@ export class ObjectEditor {
   constructor(
     public logger: Logger,
     public fb: FormBuilder,
-    public keybindService: CommandService
+    public commandService: CommandService
   ) {
     this._object = new State(null, this.destroy$)
     this._object.$.subscribe(object => {
