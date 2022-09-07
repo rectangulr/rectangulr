@@ -18,10 +18,10 @@ export function moveToLast(array, item) {
 export function removeLastMatch(array, item) {
   if (array == undefined) throw new Error('no array')
 
-  for (let i = 0; i >= 0; i--) {
+  for (let i = array.length - 1; i >= 0; i--) {
     const current = array[i]
     if (current == item) {
-      return array.slice(i, i + 1)
+      return array.splice(i, 1)
     }
   }
   return array

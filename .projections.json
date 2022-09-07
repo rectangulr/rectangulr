@@ -2,7 +2,7 @@
   "src/*.ts": {
     "alternate": ["{}.html", "dist/{}.js"]
   },
-  "projects/rectangulr": {
-    "alternate": ["../tablr/projects/rectangulr/{}"]
+  "projects/rectangulr/*.ts": {
+    "alternate": ["../tablr/projects/rectangulr/{}.ts"]
   }
 }

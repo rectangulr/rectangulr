@@ -14,11 +14,7 @@ import _ from 'lodash'
 import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
-import {
-  CommandService,
-  CommandService as KeybindService,
-  registerCommands,
-} from '../commands/command-service'
+import { CommandService, registerCommands } from '../commands/command-service'
 import { Element, makeRuleset } from '../mylittledom'
 import { onChangeEmit, State } from '../utils/reactivity'
 import { filterNulls, mapKeyValue } from '../utils/utils'
@@ -148,8 +144,8 @@ export class List {
 
     const afterIndexSelected = () => {
       const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
-        .instance as { keybindService: KeybindService }
-      selectedComponent?.keybindService?.focus()
+        .instance as { commandService: CommandService }
+      selectedComponent?.commandService?.focus()
 
       if (this.elementRefs?.length > 0) {
         const element: Element = this.elementRefs.get(

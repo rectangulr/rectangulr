@@ -50,10 +50,10 @@ export class CommandsDisplay {
 
   @ViewChild('searchList') list: SearchList
 
-  constructor(public commandService: CommandService, public keybindService: CommandService) {}
+  constructor(public commandService: CommandService) {}
 
   ngOnInit() {
-    this.keybindService.rootNode.before = this.keybindService
+    this.commandService.rootNode.before = this.commandService
 
     registerCommands(this, this.globalKeybinds)
   }
@@ -63,13 +63,13 @@ export class CommandsDisplay {
 
     if (visible) {
       this.keybinds.forEach(k => {
-        // this.keybindService.registerCommand(k)
+        // this.commandService.registerCommand(k)
       })
     } else {
       this.keybinds.forEach(k => {
-        // this.keybindService.removeCommand(k)
+        // this.commandService.removeCommand(k)
       })
-      this.keybindService.unfocus()
+      this.commandService.unfocus()
     }
   }
 

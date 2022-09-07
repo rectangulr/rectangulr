@@ -172,7 +172,8 @@ export class CommandService {
     if (!command) {
       throw new Error(`command '${id}' not found`)
     }
-    return command.func(keys)
+    const res = command.func(keys)
+    return res
   }
 
   /**
@@ -296,24 +297,23 @@ function retrieveLast(map, id) {
   return last(items)
 }
 
-function sanitizeCommand(command: Partial<Command>): Command {
-  const { id, keys } = command
-  let res = { ...command }
-  if (typeof keys == 'string') {
-    res.keys = [keys]
+function sanitizeCommand(_command: Partial<Command>): Command {
+  let command = { ..._command }
+  if (typeof _command.keys == 'string') {
+    command.keys = [_command.keys]
   }
-  if (!id) {
-    res.id = keys[0]
+  if (!_command.id) {
+    command.id = command.keys[0]
   }
   // @ts-ignore
-  return res
+  return command
 }
 
 /**
  * Is this the root keybind service?
  */
-function isRoot(keybindService: CommandService) {
-  return !keybindService.parent
+function isRoot(commandService: CommandService) {
+  return !commandService.parent
 }
 
 /**
@@ -427,20 +427,20 @@ function simplifyCommandService(commandService: CommandService) {
   return res
 }
 
-export function padding(keybindService: CommandService) {
+export function padding(commandService: CommandService) {
   let spaces = ''
-  for (let d = depth(keybindService); d > 0; d--) {
+  for (let d = depth(commandService); d > 0; d--) {
     spaces += '  '
   }
-  return `${keybindService._id} ${spaces}`
+  return `${commandService._id} ${spaces}`
 }
 
-export function depth(keybindService: CommandService) {
+export function depth(commandService: CommandService) {
   let depth = 0
   while (true) {
-    if (keybindService.parent) {
+    if (commandService.parent) {
       depth++
-      keybindService = keybindService.parent
+      commandService = commandService.parent
     } else {
       return depth
     }
