@@ -341,10 +341,8 @@ export function registerCommands(
     return component.commandService.registerCommand(command)
   })
 
-  const disposable = Disposable.from(...disposables)
-
   component.destroy$.subscribe(() => {
-    disposable.dispose()
+    Disposable.from(...disposables).dispose()
   })
 }
 
