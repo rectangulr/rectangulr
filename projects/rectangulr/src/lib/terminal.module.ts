@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ErrorHandler, NgModule, NgZone, RendererFactory2 } from '@angular/core'
+import { APP_INITIALIZER, ErrorHandler, NgModule, RendererFactory2 } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { BrowserModule } from '@angular/platform-browser'
 import { DynamicModule } from 'ng-dynamic-component'
