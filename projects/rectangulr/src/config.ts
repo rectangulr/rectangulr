@@ -5,7 +5,7 @@ import * as json5 from 'json5'
 @Injectable({
   providedIn: 'root',
 })
-export class RgConfig {
+export class ConfigLoader {
   fileName = 'config.json'
   config: any
 

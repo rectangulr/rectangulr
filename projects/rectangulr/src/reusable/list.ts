@@ -56,6 +56,33 @@ export class List {
     value: null,
   }
 
+  commands = [
+    {
+      keys: 'down',
+      func: () => {
+        this.selectIndex(this.selected.index + 1)
+      },
+    },
+    {
+      keys: 'up',
+      func: () => {
+        this.selectIndex(this.selected.index - 1)
+      },
+    },
+    {
+      keys: 'pgup',
+      func: () => {
+        this.selectIndex(0)
+      },
+    },
+    {
+      keys: 'pgdown',
+      func: () => {
+        this.selectIndex(this._items.value.length - 1)
+      },
+    },
+  ]
+
   windowSize = 20
   createdRange: Range = { start: 0, end: this.windowSize }
   createdRangeChanges = new BehaviorSubject<Range>(null)
@@ -85,33 +112,7 @@ export class List {
       this.selectIndex(0)
     })
 
-    const keybinds = [
-      {
-        keys: 'down',
-        func: () => {
-          this.selectIndex(this.selected.index + 1)
-        },
-      },
-      {
-        keys: 'up',
-        func: () => {
-          this.selectIndex(this.selected.index - 1)
-        },
-      },
-      {
-        keys: 'pgup',
-        func: () => {
-          this.selectIndex(0)
-        },
-      },
-      {
-        keys: 'pgdown',
-        func: () => {
-          this.selectIndex(this._items.value.length - 1)
-        },
-      },
-    ]
-    registerCommands(this, keybinds)
+    registerCommands(this, this.commands)
 
     onChangeEmit(this, 'createdRange', 'createdRangeChanges')
 
@@ -199,7 +200,9 @@ export class BasicObjectDisplay {
 
   ngOnInit() {
     const type = typeof this.object
-    if (type == 'string' || type == 'number') {
+    if (this.object == null) {
+      this.text = 'null'
+    } else if (type == 'string' || type == 'number') {
       this.text = this.object
     } else if (type == 'object') {
       this.includeKeys = this.includeKeys || Object.keys(this.object)

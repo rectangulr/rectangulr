@@ -40,16 +40,16 @@ const declarations = [
   exports: [...declarations, BrowserModule, DynamicModule, ReactiveFormsModule],
   providers: [
     Screen,
-    { provide: RendererFactory2, useClass: TerminalRendererFactory, deps: [Screen] },
+    { provide: RendererFactory2, useClass: TerminalRendererFactory },
     { provide: ErrorHandler, useClass: TerminalErrorHandler },
     {
       // used by ./utils/reactivity.ts -> forceRefresh()
       provide: APP_INITIALIZER,
       useValue: () => {
         // @ts-ignore
-        global['angularZone'] = Zone.current
+        globalThis['angularZone'] = Zone.current
         // @ts-ignore
-        global['rootZone'] = Zone.current.parent
+        globalThis['rootZone'] = Zone.current.parent
       },
       multi: true,
     },

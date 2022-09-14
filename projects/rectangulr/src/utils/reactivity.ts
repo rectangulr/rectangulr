@@ -129,15 +129,15 @@ export function onChange<T, K extends keyof T>(
  * onChangeEmit(this, 'text', 'textChange')
  * ```
  */
-export function onChangeEmit<T, K extends keyof T>(object: T, key: K, observableKey: K) {
-  const obj = object as any
+export function onChangeEmit<T, K extends keyof T>(_object: T, key: K, observableKey: K) {
+  const object = _object as any
 
   // Emit initial value
-  obj[observableKey].next(object[key])
+  object[observableKey].next(object[key])
 
   // Emit following values
-  onChange(obj, key, value => {
-    obj[observableKey].next(value)
+  onChange(object, key, value => {
+    object[observableKey].next(value)
   })
 }
 

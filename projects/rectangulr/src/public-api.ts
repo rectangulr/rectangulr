@@ -30,5 +30,5 @@ export {
 export { Logger } from './lib/logger'
 export { State, forceRefresh, onChange, onChangeEmit } from './utils/reactivity'
 export { makeRuleset, Element, Event } from './mylittledom'
-export { RgConfig } from './config'
+export { ConfigLoader } from './config'
 export { TerminalRendererFactory } from './lib/renderer'
