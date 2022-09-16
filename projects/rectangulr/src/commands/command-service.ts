@@ -2,7 +2,7 @@ import { ElementRef, EventEmitter, Injectable, Optional, SkipSelf } from '@angul
 import _ from 'lodash'
 import { BehaviorSubject } from 'rxjs'
 import { Key } from '../commands/key-sequence'
-import { Debug } from '../lib/debug'
+import { ComponentDebug } from '../lib/debug'
 import { Logger } from '../lib/logger'
 import { Screen } from '../lib/screen-service'
 import { Element } from '../mylittledom'
@@ -411,7 +411,7 @@ export function globalKeyDebug() {
 }
 
 export function rgDebugKeybinds() {
-  const ng = globalThis.rgDebug() as Debug
+  const ng = globalThis.rgDebug() as ComponentDebug
   const rootKeybindService = ng.more.injector.get(CommandService)
 
   return simplifyCommandService(rootKeybindService)

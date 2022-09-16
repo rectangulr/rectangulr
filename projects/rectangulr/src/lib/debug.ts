@@ -1,11 +1,20 @@
-export interface globalThis {
-  rgDebug: Debug
-  rgDebugView: Debug
+import { addToGlobal } from '../utils/utils'
+
+export function addGlobalRgDebug() {
+  addToGlobal({
+    debug: {
+      component: debugComponent,
+    },
+  })
 }
 
-export function registerGlobalRgDebug() {
-  globalThis['rgDebug'] = rgDebug
-  globalThis['rgDebugView'] = debugLView
+export function debugComponent(arg: any) {
+  if (typeof arg == 'string') {
+    return debugComponentByName(arg)
+  } else if (typeof arg == 'object') {
+    return debugLView(arg.__ngContext__.debug)
+  }
+  throw new Error('unreachable')
 }
 
 /**
@@ -13,31 +22,35 @@ export function registerGlobalRgDebug() {
  * @example rgDebug() // The whole application
  * rgDebug('AppComponent') // A specific component
  */
-export function rgDebug(name?: string) {
+export function debugComponentByName(name?: string) {
   const renderer = globalThis['renderer']
   const ng = globalThis['ng']
-  const appLView = ng.getRootComponents(renderer)[0].__ngContext__.debug.childViews[0]
+  const rootLView = ng.getRootComponents(renderer)[0].__ngContext__.debug.childViews[0]
 
   let cache = {}
   if (name) {
-    debugLView(appLView, cache)
+    debugLView(rootLView, cache)
     return cache[name]
   } else {
-    return debugLView(appLView, cache)
+    return debugLView(rootLView, cache)
   }
 }
 
-export type Debug = { name: string; more: More; children: any; context: any }
-export type More = { lView: any; lContainer: any; injector: any; host: any }
+export type ComponentDebug = {
+  name: string
+  context: any
+  children: any
+  more: { lView: any; lContainer: any; injector: any; host: any }
+}
 
-export function debugLView(lView, cache = {}): Debug {
-  const output = {} as Debug
+export function debugLView(lView, cache = {}): ComponentDebug {
+  const output = {} as ComponentDebug
 
   const name = lView.context.constructor.name
   output.name = name
 
-  // To be able to debug a component by name
-  // rgDebug('MyComponentClassName')
+  // To be able to debug a component by name "rgDebug('MyComponentClassName')"
+  // we index the components by name as we traverse the component tree
   if (cache[name]) {
     if (!cache[name].includes(output)) {
       cache[name].push(output)
@@ -54,13 +67,6 @@ export function debugLView(lView, cache = {}): Debug {
     }
   }
 
-  // More info
-  const more = {} as More
-  more.lView = lView
-  more.injector = lView.injector
-  more.host = lView._raw_lView[0]
-  output.more = more
-
   // Children (recursively)
   const children = lView.childViews.map(debugView => {
     if (debugView.constructor.name == 'LViewDebug') {
@@ -71,6 +77,13 @@ export function debugLView(lView, cache = {}): Debug {
       debugger
     }
   })
+
+  // More info
+  const more = {} as ComponentDebug['more']
+  more.lView = lView
+  more.injector = lView.injector
+  more.host = lView._raw_lView[0]
+  output.more = more
 
   output.children = children
 

@@ -93,7 +93,7 @@ export class List {
   @ViewChildren(ComponentOutletInjectorDirective, { emitDistinctChangesOnly: true })
   componentRefs: QueryList<ComponentOutletInjectorDirective>
 
-  @Output() selectedItem = new BehaviorSubject({ value: null, ref: null })
+  @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })
 
   constructor(
     @SkipSelf() public commandService: CommandService,
@@ -130,7 +130,7 @@ export class List {
 
   selectIndex(value) {
     if (!this._items.value || this._items.value.length == 0) {
-      this.selectedItem.next({ value: null, ref: null })
+      this.selectedItem.next({ value: null, viewRef: null })
       return
     }
 
@@ -141,7 +141,7 @@ export class List {
       this.windowSize,
       this._items.value.length
     )
-    this.selectedItem.next({ value: this.selected.value, ref: null })
+    this.selectedItem.next({ value: this.selected.value, viewRef: null })
 
     const afterIndexSelected = () => {
       const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef

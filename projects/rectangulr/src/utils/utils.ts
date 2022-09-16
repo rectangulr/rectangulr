@@ -55,3 +55,17 @@ export function mapKeyValue(object, func: (key, value) => [key: string, value: a
   }
   return newObject
 }
+
+export function mergeDeep(object, other) {
+  function customizer(objValue, srcValue) {
+    if (_.isArray(objValue)) {
+      return objValue.concat(srcValue)
+    }
+  }
+
+  return _.mergeWith(object, other, customizer)
+}
+
+export function addToGlobal(obj) {
+  globalThis['rg'] = mergeDeep(globalThis['rg'] || {}, obj)
+}

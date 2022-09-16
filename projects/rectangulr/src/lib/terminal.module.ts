@@ -9,6 +9,7 @@ import {
   NativeClassesDirective,
   StyleDirective,
 } from '../components/component'
+import { OnEnterDirective } from '../directives/on_enter'
 import { TuiInput } from '../reusable/input'
 import { BasicObjectDisplay, List } from '../reusable/list'
 import { ObjectDisplay } from '../reusable/object-display'
@@ -22,6 +23,7 @@ const declarations = [
   BoxDirective,
   List,
   SearchList,
+  OnEnterDirective,
   TuiInput,
   ObjectDisplay,
   ObjectEditor,

@@ -11,6 +11,7 @@ export {
   ClassesDirective,
   NativeClassesDirective,
 } from './components/component'
+export { OnEnterDirective } from './directives/on_enter'
 
 export { TuiInput } from './reusable/input'
 export { List, BasicObjectDisplay } from './reusable/list'
@@ -19,6 +20,7 @@ export { ObjectDisplay } from './reusable/object-display'
 export { ObjectEditor, KeyValueEditor } from './reusable/object-editor'
 
 export { CommandsDisplay } from './commands/commands'
+export { ViewService, View } from './views/view.service'
 
 export {
   Command,

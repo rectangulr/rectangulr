@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import fs from 'fs'
+import * as fs from 'fs'
 
 const logFile = './log.json'
 

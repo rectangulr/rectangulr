@@ -1,6 +1,4 @@
-// (globalThis as any).__Zone_disable_nextTick = true
 import 'zone.js/dist/zone-node'
-// import 'zone.js/dist/zone-patch-rxjs'
 
 import { DOCUMENT } from '@angular/common'
 import { ElementSchemaRegistry } from '@angular/compiler'
@@ -10,7 +8,7 @@ import { platformBrowser as basePlatform } from '@angular/platform-browser'
 import { TerminalSanitizer } from './sanitizer'
 import { TerminalElementSchemaRegistry } from './schema-registry'
 import { patchGlobalConsole } from './logger'
-import { registerGlobalRgDebug } from './debug'
+import { addGlobalRgDebug } from './debug'
 
 export const platformTerminal = createPlatformFactory(basePlatform, 'terminal', [
   { provide: DOCUMENT, useValue: {} },
@@ -28,4 +26,4 @@ export const platformTerminal = createPlatformFactory(basePlatform, 'terminal', 
 ])
 
 patchGlobalConsole()
-registerGlobalRgDebug()
+addGlobalRgDebug()
