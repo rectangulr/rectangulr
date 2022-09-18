@@ -66,6 +66,13 @@ export function mergeDeep(object, other) {
   return _.mergeWith(object, other, customizer)
 }
 
+/**
+ * Add something to the `rectangulr` global variable `rg`.
+ * @example addToGlobal({
+ *  myGlobalFunction: (text)=>{console.log(text)}
+ * })
+ * globalThis['rg'].myGlobalFunction("print this")
+ */
 export function addToGlobal(obj) {
   globalThis['rg'] = mergeDeep(globalThis['rg'] || {}, obj)
 }

@@ -8,32 +8,36 @@ export function addGlobalRgDebug() {
   })
 }
 
+export function rootLView() {
+  const renderer = globalThis['renderer']
+  const ng = globalThis['ng']
+  return ng.getRootComponents(renderer)[0].__ngContext__.debug.childViews[0]
+}
+
+/**
+ * Analyze your components at runtime in your debug console.
+ * @example rg.debug.component() // The whole application.
+ * @example rg.debug.component('MyComponentName') // A specific component.
+ * @example rg.debug.component(this) // The component the debugger stopped in.
+ */
 export function debugComponent(arg: any) {
   if (typeof arg == 'string') {
     return debugComponentByName(arg)
   } else if (typeof arg == 'object') {
     return debugLView(arg.__ngContext__.debug)
+  } else if (typeof arg == 'undefined') {
+    return debugLView(rootLView())
   }
   throw new Error('unreachable')
 }
 
 /**
- * Analyze your Angular application at runtime in your debug console.
- * @example rgDebug() // The whole application
- * rgDebug('AppComponent') // A specific component
+ * @example rg.debug.component('AppComponent') // A specific component
  */
-export function debugComponentByName(name?: string) {
-  const renderer = globalThis['renderer']
-  const ng = globalThis['ng']
-  const rootLView = ng.getRootComponents(renderer)[0].__ngContext__.debug.childViews[0]
-
+export function debugComponentByName(name: string) {
   let cache = {}
-  if (name) {
-    debugLView(rootLView, cache)
-    return cache[name]
-  } else {
-    return debugLView(rootLView, cache)
-  }
+  debugLView(rootLView(), cache)
+  return cache[name]
 }
 
 export type ComponentDebug = {

@@ -5,10 +5,11 @@ import {
   RendererStyleFlags2,
   RendererType2,
 } from '@angular/core'
-import fs from 'fs'
-import json5 from 'json5'
+import * as fs from 'fs'
+import * as json5 from 'json5'
 import _ from 'lodash'
 import { TermElement, TermScreen } from '../mylittledom'
+import { addToGlobal } from '../utils/utils'
 import { Screen } from './screen-service'
 
 @Injectable({ providedIn: 'root' })
@@ -149,7 +150,7 @@ function serializeViewNode(node) {
   return `#${node.id}`
 }
 
-function simplifyViewTree(node) {
+function debugNode(node) {
   const cache = new Set()
 
   function _simplifyViewTree(node, cache) {
@@ -161,8 +162,9 @@ function simplifyViewTree(node) {
       res.text = node.textContent
     }
 
-    res.style = _.mapValues(_.pick(node, ['scrollRect', 'elementRect']), i => i)
-    res.style.scrollTop = node.scrollTop
+    // res.style = _.mapValues(_.pick(node, ['scrollRect', 'elementRect']), i => i)
+    // res.style.scrollTop = node.scrollTop
+    res.style = _.mapValues(_.pick(node, ['flexDirection', 'display']), i => i)
 
     // Prevent infinite loop
     if (!cache.has(node)) {
@@ -201,5 +203,17 @@ function serializeViewTree(node, depth = 0) {
   return `${' '.repeat(depth * 4)}${serialized}\n${serializedSubTree}`
 }
 
-globalThis['inspectViewTree'] = simplifyViewTree
-globalThis['serializeViewTree'] = serializeViewTree
+function globalDebugView(node) {
+  if (node) {
+    return debugNode(node)
+  } else {
+    const rootNode = globalThis['renderer']
+    return debugNode(rootNode)
+  }
+}
+
+addToGlobal({
+  debug: {
+    view: globalDebugView,
+  },
+})

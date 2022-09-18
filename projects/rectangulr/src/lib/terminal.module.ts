@@ -15,6 +15,7 @@ import { BasicObjectDisplay, List } from '../reusable/list'
 import { ObjectDisplay } from '../reusable/object-display'
 import { KeyValueEditor, ObjectEditor } from '../reusable/object-editor'
 import { SearchList } from '../reusable/search-list'
+import { ViewSwitcher } from '../views/view_switcher.component'
 import { TerminalErrorHandler } from './error-handler'
 import { TerminalRendererFactory } from './renderer'
 import { Screen } from './screen-service'
@@ -34,6 +35,7 @@ const declarations = [
   KeyValueEditor,
   SearchList,
   CommandsDisplay,
+  ViewSwitcher,
 ]
 
 @NgModule({

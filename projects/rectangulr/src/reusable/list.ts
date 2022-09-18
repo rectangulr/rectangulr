@@ -44,7 +44,7 @@ interface Range {
 export class List {
   @Input() displayComponent: any
   _displayComponent: any
-  @Input() set items(items: Observable<any[]> | any[]) {
+  @Input() set items(items: Observable<ArrayLike<any>> | ArrayLike<any>) {
     this._items.subscribeSource(items)
   }
   _items: State<any[]>

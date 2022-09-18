@@ -20,7 +20,8 @@ export { ObjectDisplay } from './reusable/object-display'
 export { ObjectEditor, KeyValueEditor } from './reusable/object-editor'
 
 export { CommandsDisplay } from './commands/commands'
-export { ViewService, View } from './views/view.service'
+export { ViewSwitcherService, View } from './views/view_switcher.service'
+export { ViewSwitcher } from './views/view_switcher.component'
 
 export {
   Command,

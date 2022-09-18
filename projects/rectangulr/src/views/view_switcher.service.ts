@@ -11,7 +11,7 @@ export abstract class View {
 @Injectable({
   providedIn: 'root',
 })
-export class ViewService {
+export class ViewSwitcherService {
   currentView: View = this.views.find(v => v)
   currentViewChanges = new BehaviorSubject(null)
 

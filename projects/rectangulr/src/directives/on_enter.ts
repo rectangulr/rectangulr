@@ -1,4 +1,4 @@
-import { Directive, Input } from '@angular/core'
+import { Directive, EventEmitter, Output } from '@angular/core'
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { List, registerCommands } from '../public-api'
@@ -7,13 +7,15 @@ import { List, registerCommands } from '../public-api'
   selector: '[onEnter]',
 })
 export class OnEnterDirective {
-  @Input() onEnter: any = null
+  @Output() onEnter = new EventEmitter()
+
   selectedItem = null
+
   commands = [
     {
       keys: 'enter',
       func: () => {
-        this.onEnter(this.selectedItem)
+        this.onEnter.emit(this.selectedItem)
       },
     },
   ]
