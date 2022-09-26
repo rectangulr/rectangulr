@@ -34,7 +34,7 @@ export class TuiInput implements ControlValueAccessor {
     this.textChange.next(this.text)
     onChange(this, 'text', value => {
       this.textChange.next(value)
-      this.onChange(value)
+      this.ControlValueAccessorData.onChange(value)
     })
 
     onChange(
@@ -157,28 +157,30 @@ export class TuiInput implements ControlValueAccessor {
     this.destroy$.complete()
   }
 
-  // implements ControlValueAccessor, so a form can retrieve the value of the input
+  // implements ControlValueAccessor, so a form can read/write the value of this input
 
   writeValue(value: string) {
     this.text = value
-    this.onChange(value)
+    this.ControlValueAccessorData.onChange(value)
   }
 
   registerOnChange(fn: (value: string) => void) {
-    this.onChange = fn
+    this.ControlValueAccessorData.onChange = fn
   }
 
   registerOnTouched(fn: () => void) {
-    this.onTouched = fn
+    this.ControlValueAccessorData.onTouched = fn
   }
 
   setDisabledState(disabled: boolean) {
-    this.disabled = disabled
+    this.ControlValueAccessorData.disabled = disabled
   }
 
-  disabled: boolean
-  onChange = (value: string) => {}
-  onTouched = () => {}
+  ControlValueAccessorData = {
+    disabled: false,
+    onChange: (value: string) => {},
+    onTouched: () => {},
+  }
 }
 
 function searchFromIndex(

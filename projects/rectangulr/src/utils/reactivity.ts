@@ -1,4 +1,5 @@
 import { BehaviorSubject, isObservable, Observable, Subject, Subscription } from 'rxjs'
+import { addToGlobal } from './utils'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.
@@ -123,9 +124,11 @@ export function onChange<T, K extends keyof T>(
 }
 
 /**
- * Listen for changes on an object property and expose it as an EventEmitter.
- * Example: listen for a component property `text` and create an EventEmitter `textChange`.
+ * Listen for changes on an object property and expose it as an Observable.
+ * Example: listen for a component property `text` and create an Observable `textChange`.
  * ```ts
+ * this.text = 'blabla'
+ * this.textChange = new BehaviorSubject(null)
  * onChangeEmit(this, 'text', 'textChange')
  * ```
  */
@@ -181,3 +184,7 @@ export function onChangeEmit<T, K extends keyof T>(_object: T, key: K, observabl
 export function forceRefresh() {
   globalThis['angularZone'].run(() => {})
 }
+
+addToGlobal({
+  forceRefresh,
+})

@@ -1,24 +1,39 @@
 import { Injectable } from '@angular/core'
 import * as fs from 'fs'
+import { addToGlobal } from '../utils/utils'
 
 const logFile = './log.json'
 
-export function clear_log() {
-  fs.writeFileSync(logFile, '', { flag: 'w' })
+let logs = []
+
+addToGlobal({
+  debug: {
+    logs: () => logs.slice(-100),
+  },
+})
+
+export function logFunction(thing) {
+  let logObject = null
+  if (typeof thing == 'string') {
+    logObject = { message: thing }
+  } else {
+    logObject = thing
+  }
+  logs.push(logObject)
+  if (logs.length > 200) {
+    logs = logs.slice(-100)
+  }
+  fs.writeFileSync(logFile, stringify(logObject) + '\n', { flag: 'a+' })
 }
 
-export function log(thing) {
-  if (typeof thing == 'string') {
-    fs.writeFileSync(logFile, stringify({ message: thing }) + '\n\n', { flag: 'a+' })
-  } else {
-    fs.writeFileSync(logFile, stringify(thing) + '\n', { flag: 'a+' })
-  }
+export function clearLogFile() {
+  fs.writeFileSync(logFile, '', { flag: 'w' })
 }
 
 // As a service
 @Injectable({ providedIn: 'root' })
 export class Logger {
-  log = log
+  log = logFunction
 }
 
 function stringify(thing: any) {
@@ -59,13 +74,13 @@ export function patchGlobalConsole() {
   }
 
   // Replace
-  console.error = log
-  console.log = log
-  console.info = log
-  console.debug = log
-  console.warn = log
+  console.error = logFunction
+  console.log = logFunction
+  console.info = logFunction
+  console.debug = logFunction
+  console.warn = logFunction
 
-  clear_log()
+  clearLogFile()
 }
 
 // function caller_location() {
