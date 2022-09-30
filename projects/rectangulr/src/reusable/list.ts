@@ -25,6 +25,10 @@ interface Range {
   end: number
 }
 
+/**
+ * Display a list of items and highlight the current item.
+ * Go up and down with the keyboard.
+ */
 @Component({
   selector: 'list',
   template: `

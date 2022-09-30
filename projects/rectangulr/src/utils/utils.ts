@@ -67,7 +67,7 @@ export function mergeDeep(object, other) {
 }
 
 /**
- * Add something to the `rectangulr` global variable `rg`.
+ * Add something to the global variable `rg` from `rectangulr`.
  * @example addToGlobal({
  *  myGlobalFunction: (text)=>{console.log(text)}
  * })

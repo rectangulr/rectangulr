@@ -23,12 +23,7 @@ export { CommandsDisplay } from './commands/commands'
 export { ViewSwitcherService, View } from './views/view_switcher.service'
 export { ViewSwitcher } from './views/view_switcher.component'
 
-export {
-  Command,
-  CommandService,
-  registerCommands,
-  globalKeyDebug,
-} from './commands/command-service'
+export { Command, CommandService, registerCommands } from './commands/command-service'
 
 export { Logger } from './lib/logger'
 export { State, forceRefresh, onChange, onChangeEmit } from './utils/reactivity'

@@ -8,7 +8,7 @@ import { Screen } from '../lib/screen-service'
 import { Element } from '../mylittledom'
 import { Destroyable } from '../utils/mixins'
 import { onChange, onChangeEmit } from '../utils/reactivity'
-import { last, moveToLast, remove, removeLastMatch } from '../utils/utils'
+import { addToGlobal, last, moveToLast, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 
 /**
@@ -404,14 +404,14 @@ function updateTree(rootNode: CommandService) {
   })
 }
 
-globalKeyDebug()
-
-export function globalKeyDebug() {
-  globalThis['rgDebugKeybinds'] = rgDebugKeybinds
-}
+addToGlobal({
+  debug: {
+    keybinds: rgDebugKeybinds,
+  },
+})
 
 export function rgDebugKeybinds() {
-  const ng = globalThis.rgDebug() as ComponentDebug
+  const ng = globalThis.rg.debug.component() as ComponentDebug
   const rootKeybindService = ng.more.injector.get(CommandService)
 
   return simplifyCommandService(rootKeybindService)
