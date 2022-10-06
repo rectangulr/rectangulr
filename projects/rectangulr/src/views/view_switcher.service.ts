@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core'
-import { BehaviorSubject, Subject } from 'rxjs'
+import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs'
 import { CommandService, registerCommands } from '../commands/command-service'
 import { onChangeEmit } from '../utils/reactivity'
 
@@ -13,7 +13,7 @@ export abstract class View {
 })
 export class ViewSwitcherService {
   currentView: View = this.views.find(v => v)
-  currentViewChanges = new BehaviorSubject(null)
+  $currentView = new BehaviorSubject<View>(null)
 
   commands = [
     {
@@ -27,7 +27,7 @@ export class ViewSwitcherService {
 
   constructor(public commandService: CommandService, @Inject(View) public views: View[]) {
     registerCommands(this, this.commands)
-    onChangeEmit(this, 'currentView', 'currentViewChanges')
+    onChangeEmit(this, 'currentView', '$currentView')
   }
 
   switchTo(viewName: string) {

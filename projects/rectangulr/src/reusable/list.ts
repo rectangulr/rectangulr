@@ -1,5 +1,7 @@
 import {
   Component,
+  ContentChild,
+  Directive,
   ElementRef,
   Inject,
   Input,
@@ -7,6 +9,7 @@ import {
   Output,
   QueryList,
   SkipSelf,
+  TemplateRef,
   ViewChildren,
 } from '@angular/core'
 import * as json5 from 'json5'
@@ -38,22 +41,26 @@ interface Range {
         #elementRef
         *ngFor="let item of createdItems; index as index; trackBy: trackByFn"
         [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
+        <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
         <ng-container
+          *ngIf="_displayComponent"
           [ngComponentOutlet]="_displayComponent"
           [ndcDynamicInputs]="{ object: item }"></ng-container>
       </box>
     </box>
   `,
 })
-export class List {
+export class List<T> {
   @Input() displayComponent: any
   _displayComponent: any
-  @Input() set items(items: Observable<ArrayLike<any>> | ArrayLike<any>) {
+  @Input() set items(items: Observable<ArrayLike<T>> | ArrayLike<T>) {
     this._items.subscribeSource(items)
   }
-  _items: State<any[]>
+  _items: State<T[]>
   @Input() trackByFn = (index, item) => item
   @Input() showIndex = false
+
+  @ContentChild('listItem') itemTemplate: TemplateRef<{ $implicit: { test: number } }>
 
   selected = {
     index: 0,
@@ -90,7 +97,7 @@ export class List {
   windowSize = 20
   createdRange: Range = { start: 0, end: this.windowSize }
   createdRangeChanges = new BehaviorSubject<Range>(null)
-  createdItems = []
+  createdItems = [] as string[]
 
   @ViewChildren('elementRef', { emitDistinctChangesOnly: true })
   elementRefs: QueryList<ElementRef>
@@ -229,5 +236,16 @@ export class BasicObjectDisplay {
     } else {
       throw new Error(`can't display this`)
     }
+  }
+}
+
+@Directive({
+  selector: '[listItem]',
+})
+export class ListItem<T> {
+  constructor(private list: List<T>) {}
+
+  static ngTemplateContextGuard<T>(directive, context): context is { $implicit: T } {
+    return true
   }
 }

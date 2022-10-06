@@ -20,7 +20,7 @@ export class OnEnterDirective {
     },
   ]
 
-  constructor(private list: List) {
+  constructor(private list: List<any>) {
     registerCommands(list, this.commands)
 
     this.list.selectedItem.pipe(takeUntil(this.destroy$)).subscribe(selectedItem => {

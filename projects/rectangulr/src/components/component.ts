@@ -85,6 +85,19 @@ export class StyleDirective {
 }
 
 /**
+ * Does nothing. Just there for autocompletion and type checking.
+ * This behavior is handled by the renderer.
+ * @example
+ * <box [styles]="{color: 'red'}">Some red text</box>
+ */
+@Directive({
+  selector: '[styles]',
+})
+export class StylesDirective {
+  @Input() style: IStyle
+}
+
+/**
  *
  */
 @Directive({

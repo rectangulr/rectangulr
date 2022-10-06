@@ -151,7 +151,6 @@ export class TuiInput implements ControlValueAccessor {
 
   destroy$ = new Subject()
   ngOnDestroy() {
-    this.textChange.next('')
     this.commandService.unfocus()
     this.destroy$.next()
     this.destroy$.complete()
@@ -161,6 +160,7 @@ export class TuiInput implements ControlValueAccessor {
 
   writeValue(value: string) {
     this.text = value
+    this.caretIndex = _.clamp(this.caretIndex, 0, this.text.length)
     this.ControlValueAccessorData.onChange(value)
   }
 

@@ -39,7 +39,7 @@ export class SearchList {
   @Input() focusInput: Observable<any> = null
 
   @Output() searchTextChange = new BehaviorSubject(this.searchText)
-  @Output() selectedItem = new BehaviorSubject({ value: null, ref: null })
+  @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })
 
   _items: State<any[]>
   searchEnabled = true
