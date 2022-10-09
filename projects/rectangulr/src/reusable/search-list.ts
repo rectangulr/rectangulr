@@ -1,6 +1,6 @@
 import { Component, Input, Output } from '@angular/core'
 import Fuse from 'fuse.js'
-import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
+import { BehaviorSubject, combineLatest, NEVER, Subject } from 'rxjs'
 import { debounceTime, map, takeUntil } from 'rxjs/operators'
 import { Logger } from '../lib/logger'
 import { State } from '../utils/reactivity'
@@ -23,7 +23,6 @@ import { borderTop } from './styles'
         [showIndex]="showIndex"
         [trackByFn]="trackByFn"
         [style]="{ flexShrink: 1 }"></list>
-      <!-- <box [style]="{ backgroundColor: 'red', flexGrow: 1 }"></box> -->
     </box>
   `,
 })
@@ -36,7 +35,7 @@ export class SearchList {
   @Input() searchKeys = []
   @Input() trackByFn = (index, item) => item
   @Input() searchInputVisible = true
-  @Input() focusInput: Observable<any> = null
+  @Input() focusInput = NEVER
 
   @Output() searchTextChange = new BehaviorSubject(this.searchText)
   @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })

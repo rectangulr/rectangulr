@@ -4,6 +4,7 @@ export function addGlobalRgDebug() {
   addToGlobal({
     debug: {
       component: debugComponent,
+      lView: debugLView,
     },
   })
 }

@@ -1,6 +1,7 @@
 import { Directive, Input } from '@angular/core'
-import { CommandService } from './command-service'
+import { assert } from 'console'
 import { Observable, Subscription } from 'rxjs'
+import { CommandService } from './command-service'
 
 @Directive({
   selector: '[focus]',
@@ -13,6 +14,7 @@ export class FocusDirective {
   constructor(public commandService: CommandService) {}
 
   ngOnInit() {
+    assert(this.focus)
     this.subscription = this.focus.subscribe(() => {
       this.commandService.focus()
     })

@@ -8,14 +8,14 @@ import { View, ViewSwitcherService } from './view_switcher.service'
 @Component({
   selector: 'view-switcher',
   template: `
-    <!-- <ng-container [ngComponentOutlet]="currentView.component"></ng-container> -->
-    <ng-container *ngFor="let view of viewService.views">
+    <box [style]="{ display: 'flex' }" [ngComponentOutlet]="currentView.component"></box>
+    <!-- <ng-container *ngFor="let view of viewService.views">
       <box
         [style]="{ display: currentView == view ? 'flex' : 'none' }"
         [focusSeparate]="focusEmitters.get(view)">
         <ng-container [ngComponentOutlet]="view.component"></ng-container>
       </box>
-    </ng-container>
+    </ng-container> -->
 
     <box [style]="{ flexGrow: 1 }"></box>
     <box *ngFor="let view of viewService.views" [style]="{ flexDirection: 'row', height: 1 }">
@@ -25,7 +25,7 @@ import { View, ViewSwitcherService } from './view_switcher.service'
 })
 export class ViewSwitcher {
   currentView: View = null
-  focusEmitters: WeakMap<View, Subject<void>> = null
+  focusEmitters: WeakMap<View, Subject<boolean>> = null
 
   constructor(@Inject(ViewSwitcherService) public viewService: ViewSwitcherService) {
     this.focusEmitters = new WeakMap()
@@ -39,7 +39,7 @@ export class ViewSwitcher {
   }
 
   ngAfterViewInit() {
-    this.focusEmitters.get(this.currentView).next()
+    this.focusEmitters.get(this.currentView).next(true)
   }
 
   whiteOnGray = whiteOnGray
