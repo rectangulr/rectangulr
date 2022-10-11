@@ -11,6 +11,7 @@ import {
   StyleDirective,
   StylesDirective,
 } from '../components/component'
+import { Debug } from '../directives/debug'
 import { OnEnterDirective } from '../directives/on_enter'
 import { TuiInput } from '../reusable/input'
 import { BasicObjectDisplay, List, ListItem } from '../reusable/list'
@@ -28,6 +29,7 @@ const declarations = [
   ListItem,
   SearchList,
   OnEnterDirective,
+  Debug,
   TuiInput,
   ObjectDisplay,
   ObjectEditor,

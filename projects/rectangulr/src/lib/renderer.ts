@@ -9,7 +9,7 @@ import * as fs from 'fs'
 import * as json5 from 'json5'
 import _ from 'lodash'
 import { TermElement, TermScreen } from '../mylittledom'
-import { addToGlobal } from '../utils/utils'
+import { addToGlobal, mergeDeep } from '../utils/utils'
 import { Screen } from './screen-service'
 
 @Injectable({ providedIn: 'root' })
@@ -61,17 +61,17 @@ export class TerminalRenderer implements Renderer2 {
   }
 
   appendChild(parent: TermElement, newChild: TermElement): void {
-    // log(`appendChild: ${serializeViewNode(parent)} -> ${serializeViewNode(newChild)}`);
+    // log(`appendChild: ${serializeDOMNode(parent)} -> ${serializeDOMNode(newChild)}`);
     parent.appendChild(newChild)
   }
 
   insertBefore(parent: TermElement, newChild: any, refChild: any): void {
-    // log(`insertBefore: ${serializeViewNode(parent)} -> ${serializeViewNode(newChild)},${serializeViewNode(refChild)}`);
+    // log(`insertBefore: ${serializeDOMNode(parent)} -> ${serializeDOMNode(newChild)},${serializeDOMNode(refChild)}`);
     parent.insertBefore(newChild, refChild)
   }
 
   removeChild(parent: TermElement, oldChild: any): void {
-    // log(`removeChild: ${serializeViewNode(parent)} -> ${JSON.stringify(simplifyViewTree(oldChild), null, 2)}`);
+    // log(`removeChild: ${serializeDOMNode(parent)} -> ${JSON.stringify(simplifyViewTree(oldChild), null, 2)}`);
     parent.removeChild(oldChild)
   }
 
@@ -94,7 +94,7 @@ export class TerminalRenderer implements Renderer2 {
   }
 
   setValue(node: TermElement, value: string): void {
-    // log(`setValue: ${serializeViewNode(node)} -> "${value}"`);
+    // log(`setValue: ${serializeDOMNode(node)} -> "${value}"`);
     //@ts-ignore
     node.textContent = value
   }
@@ -142,78 +142,80 @@ export class TerminalRenderer implements Renderer2 {
   }
 }
 
-function log(message) {
-  fs.writeFile('./log.txt', message + '\n', { flag: 'a+' }, err => {})
-}
-
-function serializeViewNode(node) {
-  return `#${node.id}`
-}
-
-function debugNode(node) {
+function stringifyDomNode(node, options?: { parent: boolean }) {
+  options ??= { parent: false }
   const cache = new Set()
 
-  function _simplifyViewTree(node, cache) {
-    let res: any = {
-      name: node.nodeName + ' #' + node.id,
-    }
+  function _stringifyDomNode(node, cache, options: { parent: boolean }) {
+    let res: any = {}
 
-    if (node.nodeName == 'TermText2') {
+    if (node.nodeName == 'TermText2' || node.nodeName == 'TermComment') {
       res.text = node.textContent
     }
 
-    // res.style = _.mapValues(_.pick(node, ['scrollRect', 'elementRect']), i => i)
-    // res.style.scrollTop = node.scrollTop
-    res.style = _.mapValues(_.pick(node, ['flexDirection', 'display']), i => i)
+    res.infos = {}
+    res.infos = mergeDeep(
+      res.infos,
+      _.mapValues(
+        _.pick(node.style.$, ['flexGrow', 'flexShrink', 'height']),
+        i => i.serialize?.() ?? i
+      )
+    )
+    res.infos = mergeDeep(res.infos, _.pick(node, ['elementRect', 'scrollRect']))
+    res.ref = node
 
     // Prevent infinite loop
     if (!cache.has(node)) {
       cache.add(node)
 
-      if (node.childNodes.length > 0) {
+      if (node.childNodes.length > 0 && !options.parent) {
         res.children = node.childNodes.map(n => {
-          return _simplifyViewTree(n, cache)
+          return _stringifyDomNode(n, cache, options)
         })
+      } else if (node.parentNode) {
+        res.parent = _stringifyDomNode(node.parentNode, cache, options)
       }
+    }
+
+    res.toString = () => {
+      return node.nodeName + ' #' + node.id + '  ' + json5.stringify(res.infos)
     }
 
     return res
   }
 
-  return _simplifyViewTree(node, cache)
+  return _stringifyDomNode(node, cache, options)
 }
 
-function showSize(element) {
-  if (element == null) return null
-
-  const extract = _.pick(element, ['y', 'height'])
-  return json5.stringify(extract)
-}
-
-function serializeViewTree(node, depth = 0) {
-  let serializedSubTree = ''
-  if (node.childNodes) {
-    serializedSubTree = node.childNodes.map(n => serializeViewTree(n, depth + 1)).join('')
-  }
-
-  let serialized = `${node.nodeName}#${node.id} ${node.textContent ? ': ' + node.textContent : ''}`
-  serialized += ' ' + showSize(node?.elementRect)
-  serialized += ' ' + showSize(node?.elementClipRect)
-
-  return `${' '.repeat(depth * 4)}${serialized}\n${serializedSubTree}`
-}
-
-function globalDebugView(node) {
+function globalDebugDOM(node) {
   if (node) {
-    return debugNode(node)
+    return stringifyDomNode(node)
   } else {
-    const rootNode = globalThis['renderer']
-    return debugNode(rootNode)
+    const rootNode = globalThis['DOM']
+    return stringifyDomNode(rootNode)
   }
+}
+
+function globalDebugDOMSearch(text) {
+  const rootNode = globalThis['DOM']
+  let result = []
+  function searchRecursive(node, text, result) {
+    if (node.nodeName == 'TermText2') {
+      if (node.textContent.includes(text)) {
+        result.push(node)
+      }
+    }
+    for (const child of [...node.childNodes]) {
+      searchRecursive(child, text, result)
+    }
+  }
+  searchRecursive(rootNode, text, result)
+  return result.map(node => stringifyDomNode(node, { parent: true }))
 }
 
 addToGlobal({
   debug: {
-    view: globalDebugView,
+    dom: globalDebugDOM,
+    domSearch: globalDebugDOMSearch,
   },
 })

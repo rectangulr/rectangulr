@@ -8,18 +8,25 @@ import { View, ViewSwitcherService } from './view_switcher.service'
 @Component({
   selector: 'view-switcher',
   template: `
-    <box [style]="{ display: 'flex' }" [ngComponentOutlet]="currentView.component"></box>
-    <!-- <ng-container *ngFor="let view of viewService.views">
-      <box
-        [style]="{ display: currentView == view ? 'flex' : 'none' }"
-        [focusSeparate]="focusEmitters.get(view)">
-        <ng-container [ngComponentOutlet]="view.component"></ng-container>
-      </box>
-    </ng-container> -->
+    <!-- <box [style]="{ display: 'flex' }" [ngComponentOutlet]="currentView.component"></box> -->
+    <box
+      *ngFor="let view of viewService.views"
+      [style]="{ display: currentView == view ? 'flex' : 'none' }"
+      [focusSeparate]="focusEmitters.get(view)">
+      <ng-container [ngComponentOutlet]="view.component"></ng-container>
+    </box>
 
     <box [style]="{ flexGrow: 1 }"></box>
-    <box *ngFor="let view of viewService.views" [style]="{ flexDirection: 'row', height: 1 }">
-      <box [classes]="[nullOnNull, [whiteOnGray, view == currentView]]">{{ view.name }}</box>
+    <!-- <box [style]="{}">
+      <box
+        *ngFor="let view of viewService.views"
+        [classes]="[nullOnNull, [whiteOnGray, view == currentView]]"
+        >{{ view.name }}</box
+      >
+    </box> -->
+
+    <box [style]="{ flexDirection: 'row' }">
+      <box *ngFor="let item of [1, 2]">test {{ item }}</box>
     </box>
   `,
 })

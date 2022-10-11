@@ -180,7 +180,7 @@ export let styleProperties: { [name: string]: StyleProperty } = {
   flexShrink: {
     parsers: [number],
     triggers: [dirtyLayout, forwardToYoga('setFlexShrink', identity)],
-    initial: 0,
+    initial: 1,
   },
 
   flexBasis: {

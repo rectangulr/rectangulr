@@ -21,8 +21,7 @@ import { borderTop } from './styles'
         [items]="matchingItems.$"
         (selectedItem)="selectedItem.next($event)"
         [showIndex]="showIndex"
-        [trackByFn]="trackByFn"
-        [style]="{ flexShrink: 1 }"></list>
+        [trackByFn]="trackByFn"></list>
     </box>
   `,
 })

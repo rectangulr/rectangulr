@@ -132,8 +132,9 @@ export class TermScreen extends TermElement {
 
     // Automatically resize the screen when its output changes
     if (this.trackOutputSize) {
-      this.style.assign({ width: this.stdout.columns, height: this.stdout.rows })
+      // this.style.assign({ width: this.stdout.columns, height: this.stdout.rows })
       this.stdout.on(`resize`, this.handleStdoutResize)
+      this.handleStdoutResize()
     }
 
     // If we can operate in raw mode, we do
@@ -176,7 +177,7 @@ export class TermScreen extends TermElement {
 
     // Stop resizing the screen
     if (this.trackOutputSize) {
-      this.style.assign({ width: undefined, height: undefined })
+      // this.style.assign({ width: undefined, height: undefined })
       this.stdout.removeListener(`resize`, this.handleStdoutResize)
     }
 
@@ -505,6 +506,11 @@ export class TermScreen extends TermElement {
     let width = this.stdout.columns
     let height = this.stdout.rows
 
-    this.style.assign({ width, height })
+    this.style.assign({
+      maxWidth: width,
+      maxHeight: height,
+      width: width,
+      height: height,
+    })
   }
 }

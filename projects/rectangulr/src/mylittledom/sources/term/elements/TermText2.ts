@@ -1,5 +1,3 @@
-import Yoga from 'yoga-layout'
-import { Point, Rect, StyleManager } from '../../core'
 import { TermElement } from './TermElement'
 
 export class TextLayout2 {
@@ -44,22 +42,14 @@ export class TextLayout2 {
 
 export class TermText2 extends TermElement {
   textContent: string
-  styleManager: StyleManager
   textLayout: TextLayout2
-  yogaNode: Yoga.YogaNode
-  contentWorldRect: Rect
-  scrollRect: Rect
-  caretIndex: number
-  activeElement: TermElement
-  caret: Point
-  caretMaxColumn: number
-  contentRect: Rect
-  elementRect: Rect
-  enterIsNewline: boolean
-  readOnly: boolean
 
   constructor() {
     super()
+
+    this.style.assign({
+      minHeight: 1,
+    })
 
     this.textLayout = new TextLayout2()
     this.textLayout.update()

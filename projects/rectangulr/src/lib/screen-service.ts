@@ -24,7 +24,7 @@ export class Screen {
       trackOutputSize: true,
       throttleMouseMoveEvents: 1000 / 60,
     })
-    globalThis['renderer'] = this.screen
+    globalThis['DOM'] = this.screen
   }
 
   createElement(name: string, options: any = {}): TermElement {

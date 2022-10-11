@@ -10,7 +10,7 @@ export function addGlobalRgDebug() {
 }
 
 export function rootLView() {
-  const renderer = globalThis['renderer']
+  const renderer = globalThis['DOM']
   const ng = globalThis['ng']
   return ng.getRootComponents(renderer)[0].__ngContext__.debug.childViews[0]
 }

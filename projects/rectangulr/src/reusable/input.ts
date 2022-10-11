@@ -31,7 +31,6 @@ export class TuiInput implements ControlValueAccessor {
   termTextRef: Element
 
   constructor(public commandService: CommandService) {
-    this.textChange.next(this.text)
     onChange(this, 'text', value => {
       this.textChange.next(value)
       this.ControlValueAccessorData.onChange(value)

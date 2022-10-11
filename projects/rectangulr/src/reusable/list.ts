@@ -36,7 +36,7 @@ interface Range {
   selector: 'list',
   template: `
     <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ _items.value?.length || 0 }}</box>
-    <box [style]="{ flexGrow: 1, flexShrink: 1 }">
+    <box [style]="{ flexShrink: 0 }">
       <box
         #elementRef
         *ngFor="let item of createdItems; index as index; trackBy: trackByFn"
@@ -163,7 +163,7 @@ export class List<T> {
         const element: Element = this.elementRefs.get(
           this.selected.index - this.createdRange.start
         )?.nativeElement
-        element.scrollIntoView()
+        // element.scrollIntoView()
       }
     }
 
@@ -217,7 +217,7 @@ export class BasicObjectDisplay {
       this.text = this.object
     } else if (type == 'object') {
       this.includeKeys = this.includeKeys || Object.keys(this.object)
-      if (this.object.name) {
+      if (this.object.name != undefined) {
         this.text = this.object.name
       } else {
         const newObject = mapKeyValue(this.object, (key, value) => {

@@ -13,6 +13,7 @@ export {
   NativeClassesDirective,
 } from './components/component'
 export { OnEnterDirective } from './directives/on_enter'
+export { Debug } from './directives/debug'
 
 export { TuiInput } from './reusable/input'
 export { List, ListItem, BasicObjectDisplay } from './reusable/list'

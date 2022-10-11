@@ -12,7 +12,7 @@ import { onChange } from '../utils/reactivity'
 })
 export class BoxDirective {}
 
-export interface IStyle extends Object {
+export interface IStyle {
   display?: 'flex' | 'none'
   alignContent?: 'flexStart' | 'flexEnd' | 'center' | 'spaceBetween' | 'spaceAround' | 'stretch'
   alignItems?: 'flexStart' | 'flexEnd' | 'center' | 'baseline' | 'stretch'
@@ -94,7 +94,15 @@ export class StyleDirective {
   selector: '[styles]',
 })
 export class StylesDirective {
-  @Input() style: IStyle
+  @Input() styles: IStyle
+
+  constructor(public element: ElementRef) {
+    onChange(this, 'styles', styles => {
+      Object.entries(styles).forEach(([key, value]) => {
+        this.element.nativeElement.style[key] = value
+      })
+    })
+  }
 }
 
 /**

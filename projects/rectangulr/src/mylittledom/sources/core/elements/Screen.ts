@@ -1,16 +1,16 @@
 import { Element } from '../dom/Element'
 
 export class Screen extends Element {
-    constructor(props) {
-        super(props)
+  constructor(props) {
+    super(props)
 
-        this.style.when(`:element`).assign({
-            position: `relative`,
-        })
+    this.style.when(`:element`).assign({
+      position: `relative`,
+    })
 
-        Reflect.defineProperty(this, `parentNode`, {
-            value: null,
-            writable: false,
-        })
-    }
+    Reflect.defineProperty(this, `parentNode`, {
+      value: null,
+      writable: false,
+    })
+  }
 }
