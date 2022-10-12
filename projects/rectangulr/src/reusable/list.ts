@@ -163,7 +163,7 @@ export class List<T> {
         const element: Element = this.elementRefs.get(
           this.selected.index - this.createdRange.start
         )?.nativeElement
-        // element.scrollIntoView()
+        element.scrollIntoView()
       }
     }
 
@@ -180,16 +180,16 @@ export class List<T> {
   }
 }
 
-function rangeCenteredAroundIndex(index, rangeSize, max) {
-  if (rangeSize < max) {
+function rangeCenteredAroundIndex(index, rangeSize, length) {
+  if (rangeSize < length) {
     let range = { start: index - rangeSize / 2, end: index + rangeSize / 2 }
     if (range.start < 0) return { start: 0, end: rangeSize }
-    if (range.end > max) {
-      return { start: max - rangeSize, end: max }
+    if (range.end > length) {
+      return { start: length - rangeSize, end: length }
     }
-    return clampRange(range, 0, max)
+    return clampRange(range, 0, length)
   } else {
-    return { start: 0, end: max }
+    return { start: 0, end: length }
   }
 }
 

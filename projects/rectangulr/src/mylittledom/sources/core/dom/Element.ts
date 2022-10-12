@@ -1055,6 +1055,7 @@ export class Element extends Node {
   }
 
   getPreferredSize(maxWidth, widthMode, maxHeight, heightMode) {
+    debugger
     return { width: maxWidth, height: 0 }
   }
 

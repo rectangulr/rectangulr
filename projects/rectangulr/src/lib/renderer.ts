@@ -7,8 +7,8 @@ import {
 } from '@angular/core'
 import * as fs from 'fs'
 import * as json5 from 'json5'
-import _ from 'lodash'
-import { TermElement, TermScreen } from '../mylittledom'
+import _, { merge } from 'lodash'
+import { Rect, TermElement, TermScreen } from '../mylittledom'
 import { addToGlobal, mergeDeep } from '../utils/utils'
 import { Screen } from './screen-service'
 
@@ -142,11 +142,16 @@ export class TerminalRenderer implements Renderer2 {
   }
 }
 
-function stringifyDomNode(node, options?: { parent: boolean }) {
-  options ??= { parent: false }
+interface StringifyOptions {
+  parent?: boolean
+  children?: boolean
+}
+
+function stringifyDomNode(node, options?: StringifyOptions) {
+  options = { parent: false, children: true, ...options }
   const cache = new Set()
 
-  function _stringifyDomNode(node, cache, options: { parent: boolean }) {
+  function _stringifyDomNode(node, cache, options: StringifyOptions) {
     let res: any = {}
 
     if (node.nodeName == 'TermText2' || node.nodeName == 'TermComment') {
@@ -168,11 +173,12 @@ function stringifyDomNode(node, options?: { parent: boolean }) {
     if (!cache.has(node)) {
       cache.add(node)
 
-      if (node.childNodes.length > 0 && !options.parent) {
+      if (options.children && node.childNodes.length > 0) {
         res.children = node.childNodes.map(n => {
           return _stringifyDomNode(n, cache, options)
         })
-      } else if (node.parentNode) {
+      }
+      if (options.parent && node.parentNode) {
         res.parent = _stringifyDomNode(node.parentNode, cache, options)
       }
     }
@@ -213,9 +219,28 @@ function globalDebugDOMSearch(text) {
   return result.map(node => stringifyDomNode(node, { parent: true }))
 }
 
+function globalDebugDOMSize(text) {
+  const rootNode = globalThis['DOM']
+  let result = []
+  function searchRecursive(node, text, result) {
+    if (
+      node.elementRect.width != node.scrollRect.width ||
+      node.elementRect.height != node.scrollRect.height
+    ) {
+      result.push(node)
+    }
+    for (const child of [...node.childNodes]) {
+      searchRecursive(child, text, result)
+    }
+  }
+  searchRecursive(rootNode, text, result)
+  return result.map(node => stringifyDomNode(node, { parent: true }))
+}
+
 addToGlobal({
   debug: {
     dom: globalDebugDOM,
     domSearch: globalDebugDOMSearch,
+    domSize: globalDebugDOMSize,
   },
 })

@@ -2,10 +2,10 @@
   "src/*.ts": {
     "alternate": ["{}.html", "dist/{}.js"]
   },
-  "projects/rectangulr/src/*.ts": {
+  "lalalprojects/rectangulr/src/*.ts": {
     "alternate": ["./dist/rectangulr/esm2015/{}.js"]
   },
-  "//projects/rectangulr/src/*.ts": {
-    "alternate": ["../tablr/projects/rectangulr/{}.ts"]
+  "projects/rectangulr/src/*.ts": {
+    "alternate": ["../tablr/projects/rectangulr/src/{}.ts"]
   }
 }

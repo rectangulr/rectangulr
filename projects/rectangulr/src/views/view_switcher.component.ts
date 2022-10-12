@@ -8,7 +8,7 @@ import { View, ViewSwitcherService } from './view_switcher.service'
 @Component({
   selector: 'view-switcher',
   template: `
-    <!-- <box [style]="{ display: 'flex' }" [ngComponentOutlet]="currentView.component"></box> -->
+    <!-- <box [ngComponentOutlet]="currentView.component"></box> -->
     <box
       *ngFor="let view of viewService.views"
       [style]="{ display: currentView == view ? 'flex' : 'none' }"
@@ -17,16 +17,13 @@ import { View, ViewSwitcherService } from './view_switcher.service'
     </box>
 
     <box [style]="{ flexGrow: 1 }"></box>
-    <!-- <box [style]="{}">
+
+    <box [style]="{ flexDirection: 'row', flexShrink: 0 }">
       <box
         *ngFor="let view of viewService.views"
         [classes]="[nullOnNull, [whiteOnGray, view == currentView]]"
         >{{ view.name }}</box
       >
-    </box> -->
-
-    <box [style]="{ flexDirection: 'row' }">
-      <box *ngFor="let item of [1, 2]">test {{ item }}</box>
     </box>
   `,
 })
