@@ -17,11 +17,11 @@ import _ from 'lodash'
 import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
-import { CommandService, registerCommands } from '../commands/command-service'
-import { Element, makeRuleset } from '../mylittledom'
-import { onChangeEmit, State } from '../utils/reactivity'
-import { filterNulls, mapKeyValue } from '../utils/utils'
-import { whiteOnGray } from './styles'
+import { CommandService, registerCommands } from '../../../commands/command-service'
+import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { onChangeEmit, State } from '../../../lib/reactivity'
+import { assert, filterNulls, mapKeyValue } from '../../../lib/utils'
+import { whiteOnGray } from '../styles'
 
 interface Range {
   start: number
@@ -53,6 +53,7 @@ interface Range {
 export class List<T> {
   @Input() displayComponent: any
   _displayComponent: any
+  stats: { [prop: string]: { nb: number; total: number } }
   @Input() set items(items: Observable<ArrayLike<T>> | ArrayLike<T>) {
     this._items.subscribeSource(items)
   }
@@ -136,6 +137,14 @@ export class List<T> {
       )
       .subscribe(createdItems => {
         this.createdItems = createdItems
+        this.stats = {}
+        for (const item of createdItems) {
+          for (const [key, value] of Object.entries(item)) {
+            this.stats[key] ??= { nb: 0, total: 0 }
+            this.stats[key].nb++
+            this.stats[key].total += String(value).length
+          }
+        }
       })
   }
 
@@ -209,6 +218,8 @@ export class BasicObjectDisplay {
   @Input() excludeKeys: string[] = []
   text = 'error'
 
+  constructor(public list: List<any>) {}
+
   ngOnInit() {
     const type = typeof this.object
     if (this.object == null) {
@@ -236,6 +247,47 @@ export class BasicObjectDisplay {
     } else {
       throw new Error(`can't display this`)
     }
+  }
+}
+
+@Component({
+  template: `<box [style]="{ height: 1 }">{{ text }}</box>`,
+})
+export class TableObjectDisplay {
+  @Input() object: any
+  @Input() includeKeys: string[]
+  @Input() excludeKeys: string[] = []
+  text = 'error'
+
+  constructor(public list: List<any>) {
+    list.stats
+  }
+
+  ngOnInit() {
+    assert(this.object)
+    assert(typeof this.object == 'object')
+    assert(this.list.stats)
+
+    this.includeKeys = this.includeKeys || Object.keys(this.object)
+    const newObject = mapKeyValue(this.object, (key, value) => {
+      if (this.includeKeys.includes(key)) {
+        if (!this.excludeKeys.includes(key)) {
+          // json can't contain bigint
+          if (typeof value == 'bigint') {
+            value = Number(value)
+          }
+          return [key, value]
+        }
+      }
+    })
+
+    this.text = Object.entries(newObject)
+      .map(([key, value]) => {
+        const keyStats = this.list.stats[key]
+        const averageLength = keyStats.total / keyStats.nb
+        return String(value).slice(0, averageLength)
+      })
+      .join('')
   }
 }
 

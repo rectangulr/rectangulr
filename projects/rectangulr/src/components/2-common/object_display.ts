@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core'
-import json5 from 'json5'
+import * as json5 from 'json5'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
-import { Logger } from '../lib/logger'
-import { State } from '../utils/reactivity'
-import { longest } from '../utils/utils'
+import { Logger } from '../../angular-terminal/logger'
+import { State } from '../../lib/reactivity'
+import { longest } from '../../lib/utils'
 import { blackOnWhite } from './styles'
 
 @Component({

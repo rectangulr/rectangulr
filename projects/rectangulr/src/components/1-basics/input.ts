@@ -2,9 +2,9 @@ import { Component, ElementRef, forwardRef, Input, Output, ViewChild } from '@an
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { CommandService, registerCommands } from '../commands/command-service'
-import { Element, Point } from '../mylittledom'
-import { onChange } from '../utils/reactivity'
+import { CommandService, registerCommands } from '../../commands/command-service'
+import { Element, Point } from '../../angular-terminal/dom-terminal'
+import { onChange } from '../../lib/reactivity'
 
 let globalId = 0
 

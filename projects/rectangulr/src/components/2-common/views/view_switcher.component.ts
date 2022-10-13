@@ -1,25 +1,26 @@
 import { Component, Inject } from '@angular/core'
 import { ReplaySubject, Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
-import { makeRuleset } from '../mylittledom'
-import { whiteOnGray } from '../reusable/styles'
+import { makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { whiteOnGray } from '../styles'
 import { View, ViewSwitcherService } from './view_switcher.service'
 
 @Component({
   selector: 'view-switcher',
   template: `
-    <!-- <box [ngComponentOutlet]="currentView.component"></box> -->
-    <box
+    <box [ngComponentOutlet]="currentView.component"></box>
+    <!-- <box
       *ngFor="let view of viewService.views"
       [style]="{ display: currentView == view ? 'flex' : 'none' }"
       [focusSeparate]="focusEmitters.get(view)">
       <ng-container [ngComponentOutlet]="view.component"></ng-container>
-    </box>
+    </box> -->
 
     <box [style]="{ flexGrow: 1 }"></box>
 
     <box [style]="{ flexDirection: 'row', flexShrink: 0 }">
       <box
+        [style]="{ marginRight: 1 }"
         *ngFor="let view of viewService.views"
         [classes]="[nullOnNull, [whiteOnGray, view == currentView]]"
         >{{ view.name }}</box

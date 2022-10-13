@@ -2,9 +2,9 @@ import { Component, Input, Output } from '@angular/core'
 import Fuse from 'fuse.js'
 import { BehaviorSubject, combineLatest, NEVER, Subject } from 'rxjs'
 import { debounceTime, map, takeUntil } from 'rxjs/operators'
-import { Logger } from '../lib/logger'
-import { State } from '../utils/reactivity'
-import { filterNulls } from '../utils/utils'
+import { Logger } from '../../angular-terminal/logger'
+import { State } from '../../lib/reactivity'
+import { filterNulls } from '../../lib/utils'
 import { borderTop } from './styles'
 
 @Component({

@@ -1,6 +1,17 @@
 import _ from 'lodash'
 import { filter } from 'rxjs/operators'
 
+/**
+ * @example
+ * assert(false, "throw this error message")
+ * assert(true, "nothing happens")
+ */
+export function assert(condition?, message?) {
+  if (!condition) {
+    throw new Error(message || 'assert failed')
+  }
+}
+
 export const filterNulls = filter((i: any) => i != null)
 
 export function longest(array) {

@@ -2,38 +2,38 @@ import { APP_INITIALIZER, ErrorHandler, NgModule, RendererFactory2 } from '@angu
 import { ReactiveFormsModule } from '@angular/forms'
 import { BrowserModule } from '@angular/platform-browser'
 import { DynamicModule } from 'ng-dynamic-component'
+import { ObjectDisplay } from '../components/2-common/object_display'
+import { KeyValueEditor, ObjectEditor } from '../components/2-common/object_editor'
+import { SearchList } from '../components/2-common/search_list'
+import { ViewSwitcher } from '../components/2-common/views/view_switcher.component'
 import { CommandsDisplay } from '../commands/commands'
 import { FocusDirective, FocusSeparateDirective } from '../commands/focus'
+import { ClassesDirective, NativeClassesDirective } from '../components/1-basics/classes'
+import { StyleDirective, StylesDirective } from '../components/1-basics/style'
+import { TuiInput } from '../components/1-basics/input'
 import {
-  BoxDirective,
-  ClassesDirective,
-  NativeClassesDirective,
-  StyleDirective,
-  StylesDirective,
-} from '../components/component'
-import { Debug } from '../directives/debug'
-import { OnEnterDirective } from '../directives/on_enter'
-import { TuiInput } from '../reusable/input'
-import { BasicObjectDisplay, List, ListItem } from '../reusable/list'
-import { ObjectDisplay } from '../reusable/object-display'
-import { KeyValueEditor, ObjectEditor } from '../reusable/object-editor'
-import { SearchList } from '../reusable/search-list'
-import { ViewSwitcher } from '../views/view_switcher.component'
+  BasicObjectDisplay,
+  List,
+  ListItem,
+  TableObjectDisplay,
+} from '../components/2-common/list/list'
+import { OnEnterDirective } from '../components/2-common/list/list_on_enter'
 import { TerminalErrorHandler } from './error-handler'
-import { TerminalRendererFactory } from './renderer'
+import { TerminalRendererFactory } from './angular-dom'
 import { Screen } from './screen-service'
+import { Box } from '../components/1-basics/box'
 
 const declarations = [
-  BoxDirective,
+  Box,
   List,
   ListItem,
   SearchList,
   OnEnterDirective,
-  Debug,
   TuiInput,
   ObjectDisplay,
   ObjectEditor,
   BasicObjectDisplay,
+  TableObjectDisplay,
   StyleDirective,
   StylesDirective,
   ClassesDirective,
@@ -55,7 +55,7 @@ const declarations = [
     { provide: RendererFactory2, useClass: TerminalRendererFactory },
     { provide: ErrorHandler, useClass: TerminalErrorHandler },
     {
-      // used by ./utils/reactivity.ts -> forceRefresh()
+      // used by ./lib/reactivity.ts -> forceRefresh()
       provide: APP_INITIALIZER,
       useValue: () => {
         // @ts-ignore

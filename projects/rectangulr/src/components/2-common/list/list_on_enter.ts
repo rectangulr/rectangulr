@@ -1,7 +1,8 @@
 import { Directive, EventEmitter, Output } from '@angular/core'
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
-import { List, registerCommands } from '../public-api'
+import { registerCommands } from '../../../commands/command-service'
+import { List } from './list'
 
 @Directive({
   selector: '[onEnter]',

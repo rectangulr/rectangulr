@@ -1,4 +1,4 @@
-import { makeRuleset } from '../mylittledom'
+import { makeRuleset } from '../../angular-terminal/dom-terminal'
 
 export const blackOnWhite = makeRuleset({ backgroundColor: 'white', color: 'black' })
 export const blackOnGray = makeRuleset({ backgroundColor: 'dimgray', color: 'black' })

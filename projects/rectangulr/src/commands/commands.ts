@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core'
 import { Subject } from 'rxjs'
 import { map } from 'rxjs/internal/operators/map'
 import { CommandService, registerCommands } from '../commands/command-service'
-import { SearchList } from '../reusable/search-list'
+import { SearchList } from '../components/2-common/search_list'
 
 @Component({
   selector: 'commands',

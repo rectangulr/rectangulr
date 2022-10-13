@@ -3,11 +3,11 @@ import { FormBuilder, FormGroup } from '@angular/forms'
 import _ from 'lodash'
 import * as json5 from 'json5'
 import { Subject } from 'rxjs'
-import { Logger } from '../lib/logger'
-import { State } from '../utils/reactivity'
-import { longest, mapKeyValue } from '../utils/utils'
+import { Logger } from '../../angular-terminal/logger'
+import { State } from '../../lib/reactivity'
+import { longest, mapKeyValue } from '../../lib/utils'
 import { blackOnWhite } from './styles'
-import { CommandService, registerCommands } from '../commands/command-service'
+import { CommandService, registerCommands } from '../../commands/command-service'
 
 @Component({
   selector: 'keyvalue-editor',

@@ -1,7 +1,7 @@
 import { override } from 'core-decorators'
 import { isBoolean, isEmpty, isNull, pick } from 'lodash'
 import Yoga from 'yoga-layout'
-import { IStyle } from '../../../../components/component'
+import { IStyle } from '../../../../../components/1-basics/style'
 import { TermElement } from '../../term'
 import { Event } from '../misc/Event'
 import { EventSource } from '../misc/EventSource'
@@ -1055,7 +1055,6 @@ export class Element extends Node {
   }
 
   getPreferredSize(maxWidth, widthMode, maxHeight, heightMode) {
-    debugger
     return { width: maxWidth, height: 0 }
   }
 

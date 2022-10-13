@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core'
-import { TermElement, TermScreen } from '../mylittledom'
+import { TermElement, TermScreen } from './dom-terminal'
 import { elementsFactory } from './elements-registry'
 
 @Injectable({ providedIn: 'root' })

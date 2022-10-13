@@ -5,11 +5,10 @@ import {
   RendererStyleFlags2,
   RendererType2,
 } from '@angular/core'
-import * as fs from 'fs'
 import * as json5 from 'json5'
-import _, { merge } from 'lodash'
-import { Rect, TermElement, TermScreen } from '../mylittledom'
-import { addToGlobal, mergeDeep } from '../utils/utils'
+import _ from 'lodash'
+import { addToGlobal, mergeDeep } from '../lib/utils'
+import { TermElement, TermScreen } from './dom-terminal'
 import { Screen } from './screen-service'
 
 @Injectable({ providedIn: 'root' })
