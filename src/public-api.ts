@@ -2,6 +2,8 @@
  * Public API Surface of rectangulr
  */
 
+import 'zone.js/dist/zone-node'
+
 // Basics
 export { Box } from './components/1-basics/box'
 export { TuiInput } from './components/1-basics/input'

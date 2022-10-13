@@ -1,5 +1,3 @@
-import 'zone.js/dist/zone-node'
-
 import { DOCUMENT } from '@angular/common'
 import { ElementSchemaRegistry } from '@angular/compiler'
 import { COMPILER_OPTIONS, createPlatformFactory, Sanitizer } from '@angular/core'
