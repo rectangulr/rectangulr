@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core'
 import * as json5 from 'json5'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'
 import { State } from '../../lib/reactivity'

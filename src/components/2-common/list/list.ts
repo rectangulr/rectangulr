@@ -13,7 +13,7 @@ import {
   ViewChildren,
 } from '@angular/core'
 import * as json5 from 'json5'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'

@@ -1,4 +1,4 @@
-import Yoga from 'yoga-layout'
+import * as Yoga from 'yoga-layout'
 
 export class StyleDisplay {
   static flex: StyleDisplay = null

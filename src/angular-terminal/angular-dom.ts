@@ -6,7 +6,7 @@ import {
   RendererType2,
 } from '@angular/core'
 import * as json5 from 'json5'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { addToGlobal, mergeDeep } from '../lib/utils'
 import { TermElement, TermScreen } from './dom-terminal'
 import { Screen } from './screen-service'

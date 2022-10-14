@@ -1,6 +1,6 @@
 import { Component, Input, Output } from '@angular/core'
 import { FormBuilder, FormGroup } from '@angular/forms'
-import _ from 'lodash'
+import * as  _ from 'lodash'
 import * as json5 from 'json5'
 import { Subject } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'

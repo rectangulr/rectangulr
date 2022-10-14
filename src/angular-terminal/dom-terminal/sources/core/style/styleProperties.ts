@@ -1,5 +1,5 @@
 import { identity, pick } from 'lodash'
-import Yoga from 'yoga-layout'
+import * as Yoga from 'yoga-layout'
 import { character, color, length, list, number, optional, repeat } from './styleParsers'
 import {
   dirtyClipping,

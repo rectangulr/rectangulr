@@ -1,6 +1,6 @@
 import { override } from 'core-decorators'
 import { isBoolean, isEmpty, isNull, pick } from 'lodash'
-import Yoga from 'yoga-layout'
+import * as Yoga from 'yoga-layout'
 import { IStyle } from '../../../../../components/1-basics/style'
 import { TermElement } from '../../term'
 import { Event } from '../misc/Event'
@@ -17,7 +17,7 @@ import { isChildOf } from './traverse'
 
 let yogaConfig = Yoga.Config.create()
 
-yogaConfig.setExperimentalFeatureEnabled(Yoga.EXPERIMENTAL_FEATURE_ROUNDING, true)
+// yogaConfig.setExperimentalFeatureEnabled(Yoga.EXPE, true)
 
 function getPreferredSize(node, ...args) {
   return node.getPreferredSize(...args)
@@ -66,7 +66,7 @@ export class Element extends Node {
 
     EventSource.setup(this, { getParentInstance: () => this.parentNode })
 
-    this.yogaNode = Yoga.Node.create(yogaConfig)
+    this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
     this.yogaNode.setMeasureFunc(getPreferredSize.bind(null, this))
 
     this.styleManager = new StyleManager(this)

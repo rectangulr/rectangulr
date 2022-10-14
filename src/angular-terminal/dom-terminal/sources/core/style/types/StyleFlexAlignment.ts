@@ -1,4 +1,4 @@
-import Yoga from 'yoga-layout'
+import * as Yoga from 'yoga-layout'
 
 export class StyleFlexAlignment {
   static auto: StyleFlexAlignment = null

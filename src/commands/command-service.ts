@@ -1,5 +1,5 @@
 import { ElementRef, EventEmitter, Injectable, Optional, SkipSelf } from '@angular/core'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { BehaviorSubject } from 'rxjs'
 import { Key } from './keypress-parser'
 import { ComponentDebug } from '../angular-terminal/debug'

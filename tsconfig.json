@@ -6,16 +6,17 @@
     "baseUrl": "./",
     "outDir": "./dist/",
     "sourceMap": true,
-    "declaration": false,
+    "declaration": true,
     "downlevelIteration": true,
     "paths": {
       "rectangulr": ["dist/rectangulr/rectangulr", "dist/rectangulr"]
     },
     "moduleResolution": "node",
     "importHelpers": true,
+    "target": "ES2015",
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2015",
-    "module": "es2020",
+    "module": "CommonJS",
     "experimentalDecorators": true,
     "types": ["node"],
     "lib": ["es2019", "dom"]
