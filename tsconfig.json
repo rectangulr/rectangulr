@@ -1,16 +1,13 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
-  "files": ["src/public-api.ts"],
+  "files": ["package/src/public-api.ts"],
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "./dist/",
+    "outDir": "package/dist/",
     "sourceMap": true,
     "declaration": true,
     "downlevelIteration": true,
-    "paths": {
-      "rectangulr": ["dist/rectangulr/rectangulr", "dist/rectangulr"]
-    },
     "moduleResolution": "node",
     "importHelpers": true,
     "target": "ES2015",

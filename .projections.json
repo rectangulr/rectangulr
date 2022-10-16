@@ -1,11 +1,11 @@
 {
-  "src/*.ts": {
+  "lalasrc/*.ts": {
     "alternate": ["{}.html", "dist/{}.js"]
   },
   "lalalprojects/rectangulr/src/*.ts": {
     "alternate": ["./dist/rectangulr/esm2015/{}.js"]
   },
-  "projects/rectangulr/src/*.ts": {
+  "src/*.ts": {
     "alternate": ["../tablr/projects/rectangulr/src/{}.ts"]
   }
 }

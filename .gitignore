@@ -46,3 +46,6 @@ testem.log
 Thumbs.db
 rescue
 private
+package/dist
+dist-angular
+# dist
