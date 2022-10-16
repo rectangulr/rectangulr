@@ -1,11 +1,10 @@
-import { Component, ContentChild, Input, Output, TemplateRef } from '@angular/core'
+import { Component, Input, Output, TemplateRef } from '@angular/core'
 import Fuse from 'fuse.js'
 import { BehaviorSubject, combineLatest, NEVER, Subject } from 'rxjs'
 import { debounceTime, map, takeUntil } from 'rxjs/operators'
 import { Logger } from '../../angular-terminal/logger'
 import { State } from '../../lib/reactivity'
 import { filterNulls } from '../../lib/utils'
-import { List } from './list/list'
 import { borderTop } from './styles'
 
 @Component({

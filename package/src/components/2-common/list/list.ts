@@ -9,20 +9,17 @@ import {
   SkipSelf,
   TemplateRef,
   ViewChildren,
-} from "@angular/core"
-import * as json5 from "json5"
-import * as _ from "lodash"
-import { ComponentOutletInjectorDirective } from "ng-dynamic-component"
-import { BehaviorSubject, combineLatest, Observable, Subject } from "rxjs"
-import { map, takeUntil } from "rxjs/operators"
-import { Element, makeRuleset } from "../../../angular-terminal/dom-terminal"
-import {
-  CommandService,
-  registerCommands,
-} from "../../../commands/command-service"
-import { onChange, onChangeEmit, State } from "../../../lib/reactivity"
-import { assert, filterNulls, mapKeyValue } from "../../../lib/utils"
-import { whiteOnGray } from "../styles"
+} from '@angular/core'
+import * as json5 from 'json5'
+import * as _ from 'lodash'
+import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
+import { map, takeUntil } from 'rxjs/operators'
+import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { CommandService, registerCommands } from '../../../commands/command-service'
+import { onChangeEmit, State } from '../../../lib/reactivity'
+import { assert, filterNulls, mapKeyValue } from '../../../lib/utils'
+import { whiteOnGray } from '../styles'
 
 interface Range {
   start: number
@@ -34,26 +31,20 @@ interface Range {
  * Go up and down with the keyboard.
  */
 @Component({
-  selector: "list",
+  selector: 'list',
   template: `
-    <box *ngIf="showIndex"
-      >{{ selected.index + 1 }}/{{ _items.value?.length || 0 }}</box
-    >
+    <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ _items.value?.length || 0 }}</box>
     <box [style]="{ flexShrink: 0 }">
       <box
         #elementRef
         *ngFor="let item of createdItems; index as index; trackBy: trackByFn"
-        [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]"
-      >
-        <ng-container
-          *ngTemplateOutlet="template; context: { $implicit: item }"
-        ></ng-container>
+        [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
+        <ng-container *ngTemplateOutlet="template; context: { $implicit: item }"></ng-container>
 
         <ng-container
           *ngIf="!template && _displayComponent"
           [ngComponentOutlet]="_displayComponent"
-          [ndcDynamicInputs]="{ object: item }"
-        ></ng-container>
+          [ndcDynamicInputs]="{ object: item }"></ng-container>
       </box>
     </box>
   `,
@@ -66,59 +57,59 @@ export class List<T> {
     this._items.subscribeSource(items)
   }
   _items: State<T[]>
-  @Input() trackByFn = (index, item) => item;
-  @Input() showIndex = false;
+  @Input() trackByFn = (index, item) => item
+  @Input() showIndex = false
   @Input() template: TemplateRef<any>
 
   selected = {
     index: 0,
     value: null,
-  };
+  }
 
-  windowSize = 20;
-  createdRange: Range = { start: 0, end: this.windowSize };
-  createdRangeChanges = new BehaviorSubject<Range>(null);
-  createdItems = [] as string[];
+  windowSize = 20
+  createdRange: Range = { start: 0, end: this.windowSize }
+  createdRangeChanges = new BehaviorSubject<Range>(null)
+  createdItems = [] as string[]
 
-  @ViewChildren("elementRef", { emitDistinctChangesOnly: true })
+  @ViewChildren('elementRef', { emitDistinctChangesOnly: true })
   elementRefs: QueryList<ElementRef>
   @ViewChildren(ComponentOutletInjectorDirective, {
     emitDistinctChangesOnly: true,
   })
   componentRefs: QueryList<ComponentOutletInjectorDirective>
 
-  @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null });
+  @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })
 
   commands = [
     {
-      keys: "down",
+      keys: 'down',
       func: () => {
         this.selectIndex(this.selected.index + 1)
       },
     },
     {
-      keys: "up",
+      keys: 'up',
       func: () => {
         this.selectIndex(this.selected.index - 1)
       },
     },
     {
-      keys: "pgup",
+      keys: 'pgup',
       func: () => {
         this.selectIndex(0)
       },
     },
     {
-      keys: "pgdown",
+      keys: 'pgdown',
       func: () => {
         this.selectIndex(this._items.value.length - 1)
       },
     },
-  ];
+  ]
 
   constructor(
     @SkipSelf() public commandService: CommandService,
-    @Inject("itemComponent") @Optional() public itemComponentInjected: any
+    @Inject('itemComponent') @Optional() public itemComponentInjected: any
   ) {
     this._items = new State([], this.destroy$)
   }
@@ -135,7 +126,7 @@ export class List<T> {
 
     registerCommands(this, this.commands)
 
-    onChangeEmit(this, "createdRange", "createdRangeChanges")
+    onChangeEmit(this, 'createdRange', 'createdRangeChanges')
 
     combineLatest([this._items.$.pipe(filterNulls), this.createdRangeChanges])
       .pipe(
@@ -144,7 +135,7 @@ export class List<T> {
           return items.slice(createdRange.start, createdRange.end)
         })
       )
-      .subscribe((createdItems) => {
+      .subscribe(createdItems => {
         this.createdItems = createdItems
         this.stats = {}
         for (const item of createdItems) {
@@ -173,8 +164,8 @@ export class List<T> {
     this.selectedItem.next({ value: this.selected.value, viewRef: null })
 
     const afterIndexSelected = () => {
-      const selectedComponent = this.componentRefs?.get(this.selected.index)
-        ?.componentRef.instance as { commandService: CommandService }
+      const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
+        .instance as { commandService: CommandService }
       selectedComponent?.commandService?.focus()
 
       if (this.elementRefs?.length > 0) {
@@ -188,10 +179,10 @@ export class List<T> {
     setTimeout(afterIndexSelected, 0)
   }
 
-  whiteOnGray = whiteOnGray;
-  nullOnNull = makeRuleset({ backgroundColor: null, color: null });
+  whiteOnGray = whiteOnGray
+  nullOnNull = makeRuleset({ backgroundColor: null, color: null })
 
-  destroy$ = new Subject();
+  destroy$ = new Subject()
   ngOnDestroy() {
     this.destroy$.next()
     this.destroy$.complete()
@@ -224,18 +215,18 @@ function clampRange(range, min, max) {
 export class BasicObjectDisplay {
   @Input() object: any
   @Input() includeKeys: string[]
-  @Input() excludeKeys: string[] = [];
-  text = "error";
+  @Input() excludeKeys: string[] = []
+  text = 'error'
 
-  constructor(public list: List<any>) { }
+  constructor(public list: List<any>) {}
 
   ngOnInit() {
     const type = typeof this.object
     if (this.object == null) {
-      this.text = "null"
-    } else if (type == "string" || type == "number") {
+      this.text = 'null'
+    } else if (type == 'string' || type == 'number') {
       this.text = this.object
-    } else if (type == "object") {
+    } else if (type == 'object') {
       this.includeKeys = this.includeKeys || Object.keys(this.object)
       if (this.object.name != undefined) {
         this.text = this.object.name
@@ -244,7 +235,7 @@ export class BasicObjectDisplay {
           if (this.includeKeys.includes(key)) {
             if (!this.excludeKeys.includes(key)) {
               // json can't contain bigint
-              if (typeof value == "bigint") {
+              if (typeof value == 'bigint') {
                 value = Number(value)
               }
               return [key, value]
@@ -265,8 +256,8 @@ export class BasicObjectDisplay {
 export class TableObjectDisplay {
   @Input() object: any
   @Input() includeKeys: string[]
-  @Input() excludeKeys: string[] = [];
-  text = "error";
+  @Input() excludeKeys: string[] = []
+  text = 'error'
 
   constructor(public list: List<any>) {
     list.stats
@@ -274,7 +265,7 @@ export class TableObjectDisplay {
 
   ngOnInit() {
     assert(this.object)
-    assert(typeof this.object == "object")
+    assert(typeof this.object == 'object')
     assert(this.list.stats)
 
     this.includeKeys = this.includeKeys || Object.keys(this.object)
@@ -282,7 +273,7 @@ export class TableObjectDisplay {
       if (this.includeKeys.includes(key)) {
         if (!this.excludeKeys.includes(key)) {
           // json can't contain bigint
-          if (typeof value == "bigint") {
+          if (typeof value == 'bigint') {
             value = Number(value)
           }
           return [key, value]
@@ -296,8 +287,6 @@ export class TableObjectDisplay {
         const averageLength = keyStats.total / keyStats.nb
         return String(value).slice(0, averageLength)
       })
-      .join("")
+      .join('')
   }
 }
-
-
