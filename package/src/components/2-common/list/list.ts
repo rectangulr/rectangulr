@@ -1,5 +1,6 @@
 import {
   Component,
+  ContentChild,
   ElementRef,
   Inject,
   Injector,
@@ -9,6 +10,7 @@ import {
   QueryList,
   SkipSelf,
   TemplateRef,
+  ViewChild,
   ViewChildren,
 } from '@angular/core'
 import * as json5 from 'json5'
@@ -21,6 +23,7 @@ import { CommandService, registerCommands } from '../../../commands/command-serv
 import { onChangeEmit, State } from '../../../lib/reactivity'
 import { assert, filterNulls, mapKeyValue } from '../../../lib/utils'
 import { whiteOnGray } from '../styles'
+import { ListItem } from './list_item'
 
 interface Range {
   start: number
@@ -41,39 +44,41 @@ interface Range {
         *ngFor="let item of createdItems; index as index; trackBy: trackByFn"
         [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
         <ng-container
-          [ngTemplateOutlet]="template"
+          [ngTemplateOutlet]="template || template2"
           [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
 
         <ng-container
-          *ngIf="!template && _displayComponent"
+          *ngIf="!template && !template2 && _displayComponent"
           [ngComponentOutlet]="_displayComponent"
           [ndcDynamicInputs]="{ object: item }"></ng-container>
       </box>
     </box>
   `,
-  providers: [List],
 })
 export class List<T> {
   @Input() displayComponent: any
-  _displayComponent: any
-  stats: { [prop: string]: { nb: number; total: number } }
   @Input() set items(items: Observable<ArrayLike<T>> | ArrayLike<T>) {
     this._items.subscribeSource(items)
   }
-  _items: State<T[]>
   @Input() trackByFn = (index, item) => item
   @Input() showIndex = false
   @Input() template: TemplateRef<any>
+  @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
+
+  @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })
 
   selected = {
     index: 0,
     value: null,
   }
 
+  _items: State<T[]>
+  _displayComponent: any
   windowSize = 20
   createdRange: Range = { start: 0, end: this.windowSize }
   createdRangeChanges = new BehaviorSubject<Range>(null)
   createdItems = [] as string[]
+  stats: { [prop: string]: { nb: number; total: number } }
 
   @ViewChildren('elementRef', { emitDistinctChangesOnly: true })
   elementRefs: QueryList<ElementRef>
@@ -81,8 +86,6 @@ export class List<T> {
     emitDistinctChangesOnly: true,
   })
   componentRefs: QueryList<ComponentOutletInjectorDirective>
-
-  @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })
 
   commands = [
     {
@@ -120,6 +123,8 @@ export class List<T> {
   }
 
   ngOnInit() {
+    // assert(this.items == undefined)
+
     // The way the item is displayed can be customized via an Input, and Injected value, or defaults to a basic json stringify
     this._displayComponent =
       this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay

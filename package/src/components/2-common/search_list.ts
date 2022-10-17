@@ -1,10 +1,11 @@
-import { Component, Input, Output, TemplateRef } from '@angular/core'
+import { Component, ContentChild, Input, Output, TemplateRef } from '@angular/core'
 import Fuse from 'fuse.js'
 import { BehaviorSubject, combineLatest, NEVER, Subject } from 'rxjs'
 import { debounceTime, map, takeUntil } from 'rxjs/operators'
 import { Logger } from '../../angular-terminal/logger'
 import { State } from '../../lib/reactivity'
 import { filterNulls } from '../../lib/utils'
+import { ListItem } from './list/list_item'
 import { borderTop } from './styles'
 
 @Component({
@@ -22,7 +23,7 @@ import { borderTop } from './styles'
         (selectedItem)="selectedItem.next($event)"
         [showIndex]="showIndex"
         [trackByFn]="trackByFn"
-        [template]="template">
+        [template]="template || template2">
       </list>
     </box>
   `,
@@ -37,6 +38,8 @@ export class SearchList {
   @Input() trackByFn = (index, item) => item
   @Input() searchInputVisible = true
   @Input() focusInput = NEVER
+  @Input() template: TemplateRef<any>
+  @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any>
 
   @Output() searchTextChange = new BehaviorSubject(this.searchText)
   @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })
@@ -47,8 +50,6 @@ export class SearchList {
     keys: this.searchKeys,
   })
   matchingItems: State<any[]>
-
-  @Input() template: TemplateRef<any>
 
   constructor(public logger: Logger) {
     this._items = new State([], this.destroy$)

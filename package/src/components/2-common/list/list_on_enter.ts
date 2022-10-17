@@ -1,4 +1,5 @@
-import { Directive, EventEmitter, Output } from '@angular/core'
+import { Directive, EventEmitter, Output, Self } from '@angular/core'
+import { assert } from 'console'
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { registerCommands } from '../../../commands/command-service'
@@ -21,7 +22,9 @@ export class OnEnterDirective {
     },
   ]
 
-  constructor(private list: List<any>) {
+  constructor(@Self() private list: List<any>) {
+    assert(list)
+
     registerCommands(list, this.commands)
 
     this.list.selectedItem.pipe(takeUntil(this.destroy$)).subscribe(selectedItem => {

@@ -1,11 +1,18 @@
 {
   "lalasrc/*.ts": {
-    "alternate": ["{}.html", "dist/{}.js"]
+    "alternate": [
+      "{}.html",
+      "dist/{}.js"
+    ]
   },
   "lalalprojects/rectangulr/src/*.ts": {
-    "alternate": ["./dist/rectangulr/esm2015/{}.js"]
+    "alternate": [
+      "./dist/rectangulr/esm2015/{}.js"
+    ]
   },
-  "src/*.ts": {
-    "alternate": ["../tablr/projects/rectangulr/src/{}.ts"]
+  "package/src/*.ts": {
+    "alternate": [
+      "../tablr/node_modules/rectangulr/src/{}.ts"
+    ]
   }
 }
