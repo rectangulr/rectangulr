@@ -3,8 +3,8 @@ import * as json5 from 'json5'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'
-import { State } from '../../lib/reactivity'
-import { longest } from '../../lib/utils'
+import { State } from '../../utils/reactivity'
+import { longest } from '../../utils/utils'
 import { blackOnWhite } from './styles'
 
 @Component({

@@ -6,9 +6,9 @@ import { ComponentDebug } from '../angular-terminal/debug'
 import { Logger } from '../angular-terminal/logger'
 import { Screen } from '../angular-terminal/screen-service'
 import { Element } from '../angular-terminal/dom-terminal'
-import { Destroyable } from '../lib/mixins'
-import { onChange, onChangeEmit } from '../lib/reactivity'
-import { addToGlobal, last, moveToLast, remove, removeLastMatch } from '../lib/utils'
+import { Destroyable } from '../utils/mixins'
+import { onChange, onChangeEmit } from '../utils/reactivity'
+import { addToGlobal, last, moveToLast, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 
 /**

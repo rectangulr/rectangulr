@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import * as fs from 'fs'
-import { addToGlobal } from '../lib/utils'
+import { addToGlobal } from '../utils/utils'
 
 const logFile = './log.json'
 

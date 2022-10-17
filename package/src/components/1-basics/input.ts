@@ -4,7 +4,7 @@ import * as _ from 'lodash'
 import { BehaviorSubject, Subject } from 'rxjs'
 import { CommandService, registerCommands } from '../../commands/command-service'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
-import { onChange } from '../../lib/reactivity'
+import { onChange } from '../../utils/reactivity'
 
 let globalId = 0
 

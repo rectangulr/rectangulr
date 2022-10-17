@@ -12,11 +12,7 @@ export { ClassesDirective, NativeClassesDirective } from './components/1-basics/
 
 // Common
 export { OnEnterDirective } from './components/2-common/list/list_on_enter'
-export {
-  List,
-  BasicObjectDisplay,
-  TableObjectDisplay,
-} from './components/2-common/list/list'
+export { List, BasicObjectDisplay, TableObjectDisplay } from './components/2-common/list/list'
 export { ListItem } from './components/2-common/list/list_item'
 export { SearchList } from './components/2-common/search_list'
 export { ObjectDisplay } from './components/2-common/object_display'
@@ -29,7 +25,7 @@ export { Command, CommandService, registerCommands } from './commands/command-se
 export { ConfigLoader } from './components/2-common/config_loader'
 
 // Lib
-export { State, forceRefresh, onChange, onChangeEmit } from './lib/reactivity'
+export { State, forceRefresh, onChange, onChangeEmit } from './utils/reactivity'
 
 // Platform
 export { platformTerminal } from './angular-terminal/platform'

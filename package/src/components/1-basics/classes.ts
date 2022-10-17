@@ -1,5 +1,5 @@
 import { Directive, Input, ElementRef } from '@angular/core'
-import { onChange } from '../../lib/reactivity'
+import { onChange } from '../../utils/reactivity'
 import { IStyle } from './style'
 
 /**

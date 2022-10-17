@@ -1,4 +1,4 @@
-import { addToGlobal } from '../lib/utils'
+import { addToGlobal } from '../utils/utils'
 
 export function addGlobalRgDebug() {
   addToGlobal({

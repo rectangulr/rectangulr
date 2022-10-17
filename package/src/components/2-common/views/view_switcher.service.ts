@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core'
 import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs'
 import { CommandService, registerCommands } from '../../../commands/command-service'
-import { onChangeEmit } from '../../../lib/reactivity'
+import { onChangeEmit } from '../../../utils/reactivity'
 
 export abstract class View {
   name: string

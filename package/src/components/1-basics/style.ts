@@ -1,5 +1,5 @@
 import { Directive, ElementRef, Input } from '@angular/core'
-import { onChange } from '../../lib/reactivity'
+import { onChange } from '../../utils/reactivity'
 
 export interface IStyle {
   display?: 'flex' | 'none'

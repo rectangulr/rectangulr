@@ -7,7 +7,7 @@ import {
 } from '@angular/core'
 import * as json5 from 'json5'
 import * as _ from 'lodash'
-import { addToGlobal, mergeDeep } from '../lib/utils'
+import { addToGlobal, mergeDeep } from '../utils/utils'
 import { TermElement, TermScreen } from './dom-terminal'
 import { Screen } from './screen-service'
 
