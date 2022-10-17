@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   Inject,
+  Injector,
   Input,
   Optional,
   Output,
@@ -39,7 +40,9 @@ interface Range {
         #elementRef
         *ngFor="let item of createdItems; index as index; trackBy: trackByFn"
         [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
-        <ng-container *ngTemplateOutlet="template; context: { $implicit: item }"></ng-container>
+        <ng-container
+          [ngTemplateOutlet]="template"
+          [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
 
         <ng-container
           *ngIf="!template && _displayComponent"
@@ -48,6 +51,7 @@ interface Range {
       </box>
     </box>
   `,
+  providers: [List],
 })
 export class List<T> {
   @Input() displayComponent: any
@@ -109,7 +113,8 @@ export class List<T> {
 
   constructor(
     @SkipSelf() public commandService: CommandService,
-    @Inject('itemComponent') @Optional() public itemComponentInjected: any
+    @Inject('itemComponent') @Optional() public itemComponentInjected: any,
+    public injector: Injector
   ) {
     this._items = new State([], this.destroy$)
   }

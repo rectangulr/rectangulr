@@ -22,8 +22,7 @@ import { borderTop } from './styles'
         (selectedItem)="selectedItem.next($event)"
         [showIndex]="showIndex"
         [trackByFn]="trackByFn"
-        [template]="template"
-        >
+        [template]="template">
       </list>
     </box>
   `,
