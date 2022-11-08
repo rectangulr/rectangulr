@@ -1,11 +1,11 @@
-import { Directive, EventEmitter, Inject, InjectionToken, Output, Self } from '@angular/core'
+import { Directive, EventEmitter, inject, InjectionToken, Output } from '@angular/core'
 import { Observable, Subject } from 'rxjs'
 import { registerCommands } from '../../../commands/command-service'
 import { subscribe } from '../../../utils/reactivity'
 import { assert } from '../../../utils/utils'
 import { List } from './list'
 
-export const LIST_TOKEN = new InjectionToken<Observable<List<any>>>('List Token')
+export const INJECT_LIST = new InjectionToken<Observable<List<any>>>('List Token')
 
 @Directive({
   selector: '[onEnter]',
@@ -28,7 +28,8 @@ export class OnEnterDirective {
     },
   ]
 
-  constructor(@Self() @Inject(LIST_TOKEN) public $list: Observable<List<any>>) {
+  constructor() {
+    const $list = inject(INJECT_LIST, { self: true })
     assert($list)
 
     subscribe(this, $list, list => {

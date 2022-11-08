@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser'
 import { ObjectDisplay } from '../components/2-common/object_display'
 import { KeyValueEditor, ObjectEditor } from '../components/2-common/object_editor'
 import { SearchList } from '../components/2-common/search_list'
-import { ViewSwitcher } from '../components/2-common/views/view_switcher.component'
+import { ViewServiceComponent } from '../components/2-common/viewService/view_service.component'
 import { CommandsDisplay } from '../commands/commands'
 import { FocusDirective, FocusSeparateDirective } from '../commands/focus'
 import { ClassesDirective, NativeClassesDirective } from '../components/1-basics/classes'
@@ -40,7 +40,7 @@ const declarations = [
   KeyValueEditor,
   SearchList,
   CommandsDisplay,
-  ViewSwitcher,
+  ViewServiceComponent,
   ComponentOutletInputs,
 ]
 

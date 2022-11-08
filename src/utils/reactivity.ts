@@ -127,7 +127,7 @@ export function onChange<T, K extends keyof T>(
 
 /**
  * Listen for changes on an object property and expose it as an Observable.
- * Replaces the property with a getter/setter so we can detect changes.
+ * Replaces the property with a getter/setter so it can detect changes.
  *
  * Example: listen for a component property `text` and create an Observable `$text`.
  * ```ts

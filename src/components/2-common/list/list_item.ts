@@ -1,15 +1,16 @@
 import { Directive, Input } from '@angular/core'
+import { Observable } from 'rxjs'
 
 @Directive({
   selector: '[listItem]',
 })
 export class ListItem<T> {
-  @Input() listItemType: ArrayLike<T>
+  @Input() listItemType: T | ArrayLike<T> | Observable<ArrayLike<T>>
 
-  static ngTemplatextGuard<T>(
+  static ngTemplateContextGuard<T>(
     directive: ListItem<T>,
     context: any
-  ): context is { listItemType: ArrayLike<T>; $implicit: T } {
+  ): context is { $implicit: T } {
     return true
   }
 }

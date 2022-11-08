@@ -24,7 +24,7 @@ import { makeObservable, State } from '../../../utils/reactivity'
 import { assert, filterNulls, mapKeyValue } from '../../../utils/utils'
 import { whiteOnGray } from '../styles'
 import { ListItem } from './list_item'
-import { LIST_TOKEN } from './list_on_enter'
+import { INJECT_LIST } from './list_on_enter'
 
 /**
  * Display a list of items and highlight the current item.
@@ -54,7 +54,7 @@ import { LIST_TOKEN } from './list_on_enter'
   `,
   providers: [
     {
-      provide: LIST_TOKEN,
+      provide: INJECT_LIST,
       useFactory: () => {
         return of(inject(List))
       },

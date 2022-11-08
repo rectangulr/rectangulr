@@ -6,29 +6,29 @@ import { whiteOnGray } from '../styles'
 import { View, ViewService } from './view.service'
 
 @Component({
-  selector: 'view-switcher',
+  selector: 'view-service-component',
   template: `
-    <!-- <box [ngComponentOutlet]="currentView.component"></box> -->
-    <box
+    <box [ngComponentOutlet]="currentView.component"></box>
+    <!-- <box
       *ngFor="let view of viewService.views"
       [style]="{ display: currentView == view ? 'flex' : 'none' }"
       [focusSeparate]="focusEmitters.get(view)">
       <ng-container [ngComponentOutlet]="view.component"></ng-container>
-    </box>
+    </box> -->
 
     <box [style]="{ flexGrow: 1 }"></box>
 
     <box [style]="{ flexDirection: 'row', flexShrink: 0 }">
       <box
-        [style]="{ marginRight: 1 }"
         *ngFor="let view of viewService.views"
         [classes]="[nullOnNull, [whiteOnGray, view == currentView]]"
+        [style]="{ marginRight: 1 }"
         >{{ view.name }}</box
       >
     </box>
   `,
 })
-export class ViewSwitcher {
+export class ViewServiceComponent {
   currentView: View = null
   focusEmitters: WeakMap<View, Subject<boolean>> = null
 
