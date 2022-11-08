@@ -10,7 +10,7 @@
       "./dist/rectangulr/esm2015/{}.js"
     ]
   },
-  "package/src/*.ts": {
+  "src/*.ts": {
     "alternate": [
       "../tablr/node_modules/rectangulr/src/{}.ts"
     ]

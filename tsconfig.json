@@ -1,22 +1,49 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-  "compileOnSave": false,
-  "files": ["package/src/public-api.ts"],
+  "files": [
+    "src/public-api.ts"
+  ],
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "package/dist/",
+    "outDir": "./dist",
     "sourceMap": true,
     "declaration": true,
     "downlevelIteration": true,
-    "moduleResolution": "node",
+    "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2015",
-    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "module": "CommonJS",
-    "experimentalDecorators": true,
-    "types": ["node"],
-    "lib": ["es2019", "dom"]
+    "paths": {
+      "rectangulr": [
+        "./dist-angular"
+      ]
+    },
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "es2019",
+      "dom"
+    ],
+    "preserveSymlinks": true,
+    "plugins": [
+      {
+        "transform": "ts-transform-esm-import",
+        "after": true,
+        "afterDeclarations": true,
+        "type": "config",
+        "rootDir": "./src",
+        "outDir": "./dist",
+        "resolvers": [
+          {
+            "dir": "./src",
+            "sourceDir": true
+          }
+        ]
+      }
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false

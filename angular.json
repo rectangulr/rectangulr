@@ -1,12 +1,11 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
-  "newProjectRoot": "projects",
   "projects": {
     "rectangulr": {
       "projectType": "library",
       "root": "./",
-      "sourceRoot": "src",
+      "sourceRoot": "./src",
       "prefix": "lib",
       "architect": {
         "build": {
@@ -32,12 +31,16 @@
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": ["tsconfig.lib.json", "tsconfig.spec.json"],
-            "exclude": ["**/node_modules/**"]
+            "tsConfig": [
+              "tsconfig.lib.json",
+              "tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
           }
         }
       }
     }
-  },
-  "defaultProject": "rectangulr"
+  }
 }
