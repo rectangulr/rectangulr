@@ -42,11 +42,7 @@ export interface StyleProperty {
 export let styleProperties: { [name: string]: StyleProperty } = {
   display: {
     parsers: [_.pick(StyleDisplay, 'flex', 'none')],
-    triggers: [
-      dirtyLayout,
-      onNullSwitch(dirtyRenderList),
-      forwardToYoga('setDisplay', forwardToYoga.value),
-    ],
+    triggers: [dirtyLayout, dirtyRenderList, forwardToYoga('setDisplay', forwardToYoga.value)],
     initial: 'flex',
     default: 'flex',
   },

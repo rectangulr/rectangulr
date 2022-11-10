@@ -47,17 +47,22 @@ export class TermText2 extends TermElement {
   constructor() {
     super()
 
-    this.style.assign({
-      minHeight: 1,
-    })
-
     this.textLayout = new TextLayout2()
     this.textLayout.update()
+    this.style.assign({
+      minHeight: 1,
+      width: this.textLayout.getColumnCount(),
+      height: this.textLayout.getRowCount(),
+    })
 
     this.setPropertyTrigger('textContent', '', {
       trigger: value => {
         this.textLayout.setText(value)
         this.textLayout.update()
+        this.style.assign({
+          width: this.textLayout.getColumnCount(),
+          height: this.textLayout.getRowCount(),
+        })
         this.setDirtyLayoutFlag()
       },
     })
@@ -66,6 +71,10 @@ export class TermText2 extends TermElement {
       if (this.style.$.display.serialize() == 'flex') {
         this.textLayout.configuration.width = this.contentRect.width
         this.textLayout.update()
+        this.style.assign({
+          width: this.textLayout.getColumnCount(),
+          height: this.textLayout.getRowCount(),
+        })
       }
     })
   }
@@ -86,27 +95,28 @@ export class TermText2 extends TermElement {
     if (!this.textLayout) return
 
     this.textLayout.update()
+    this.style.assign({
+      width: this.textLayout.getColumnCount(),
+      height: this.textLayout.getRowCount(),
+    })
 
     this.setDirtyLayoutFlag()
   }
 
   getPreferredSize(maxWidth) {
-    this.textLayout.setConfiguration({ width: maxWidth })
-    this.textLayout.update()
+    let width = this.textLayout.getColumnCount()
 
-    let width = this.textLayout ? this.textLayout.getColumnCount() : 0
-
-    let height = this.textLayout ? this.textLayout.getRowCount() : 0
+    let height = this.textLayout.getRowCount()
 
     return { width, height }
   }
 
   getInternalContentWidth() {
-    return this.textLayout ? this.textLayout.getColumnCount() : 0
+    return this.textLayout.getColumnCount()
   }
 
   getInternalContentHeight() {
-    return this.textLayout ? this.textLayout.getRowCount() : 0
+    return this.textLayout.getRowCount()
   }
 
   renderContent(x, y, l) {

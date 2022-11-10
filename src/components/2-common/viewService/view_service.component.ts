@@ -1,20 +1,21 @@
 import { Component, Inject } from '@angular/core'
+import * as _ from 'lodash'
 import { ReplaySubject, Subject } from 'rxjs'
-import { takeUntil } from 'rxjs/operators'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { subscribe } from '../../../utils/reactivity'
 import { whiteOnGray } from '../styles'
 import { View, ViewService } from './view.service'
 
 @Component({
   selector: 'view-service-component',
   template: `
-    <box [ngComponentOutlet]="currentView.component"></box>
-    <!-- <box
+    <!-- <box [ngComponentOutlet]="currentView.component"></box> -->
+    <box
       *ngFor="let view of viewService.views"
-      [style]="{ display: currentView == view ? 'flex' : 'none' }"
-      [focusSeparate]="focusEmitters.get(view)">
+      [focusSeparate]="focusEmitters.get(view)"
+      [style]="{ display: currentView == view ? 'flex' : 'none', height: '100%', width: '100%' }">
       <ng-container [ngComponentOutlet]="view.component"></ng-container>
-    </box> -->
+    </box>
 
     <box [style]="{ flexGrow: 1 }"></box>
 
@@ -37,7 +38,7 @@ export class ViewServiceComponent {
     this.viewService.views.forEach(view => {
       this.focusEmitters.set(view, new ReplaySubject(1))
     })
-    this.viewService.$currentView.pipe(takeUntil(this.destroy$)).subscribe(currentView => {
+    subscribe(this, this.viewService.$currentView, currentView => {
       this.currentView = currentView
       this.focusEmitters.get(currentView).next(null)
     })

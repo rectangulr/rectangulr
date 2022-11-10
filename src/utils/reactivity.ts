@@ -158,6 +158,12 @@ export function subscribeValue<T, K extends keyof T>(
   })
 }
 
+/**
+ * Helper function to subscribe to an observable for the lifetime of the component.
+ * @param component The subscription gets cleaned up when this component gets destroyed.
+ * @param observable The observable to subscribe to.
+ * @param func A function that gets called whenever the observable changes.
+ */
 export function subscribe<T>(
   component: Destroyable,
   observable: Observable<T>,

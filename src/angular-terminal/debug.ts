@@ -25,7 +25,10 @@ export function debugComponent(arg: any) {
   if (typeof arg == 'string') {
     return debugComponentByName(arg)
   } else if (typeof arg == 'object') {
-    return debugLView(arg.__ngContext__.debug)
+    if (typeof arg.__ngContext__ == 'number') {
+      globalThis['ng'].getComponent(arg)
+    }
+    return debugLView(arg.__ngContext__.lView.debug)
   } else if (typeof arg == 'undefined') {
     return debugLView(rootLView())
   }

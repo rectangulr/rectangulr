@@ -161,7 +161,7 @@ function stringifyDomNode(node, options?: StringifyOptions) {
     res.infos = mergeDeep(
       res.infos,
       _.mapValues(
-        _.pick(node.style.$, ['flexGrow', 'flexShrink', 'height']),
+        _.pick(node.style.$, ['flexGrow', 'flexShrink', 'height', 'width']),
         i => i.serialize?.() ?? i
       )
     )
@@ -192,30 +192,36 @@ function stringifyDomNode(node, options?: StringifyOptions) {
   return _stringifyDomNode(node, cache, options)
 }
 
-function globalDebugDOM(node) {
+function globalDebugDOM(node, options?: StringifyOptions) {
   if (node) {
-    return stringifyDomNode(node)
+    return stringifyDomNode(node, options)
   } else {
     const rootNode = globalThis['DOM']
-    return stringifyDomNode(rootNode)
+    return stringifyDomNode(rootNode, options)
   }
 }
 
-function globalDebugDOMSearch(text) {
+function globalDebugDOMSearch(condition: string | Function, options?: StringifyOptions) {
   const rootNode = globalThis['DOM']
   let result = []
-  function searchRecursive(node, text, result) {
+  function searchRecursive(node, condition, result) {
     if (node.nodeName == 'TermText2') {
-      if (node.textContent.includes(text)) {
-        result.push(node)
+      if (typeof condition == 'string') {
+        if (node.textContent.includes(condition)) {
+          result.push(node)
+        }
+      } else {
+        if (condition(node)) {
+          result.push(node)
+        }
       }
     }
     for (const child of [...node.childNodes]) {
-      searchRecursive(child, text, result)
+      searchRecursive(child, condition, result)
     }
   }
-  searchRecursive(rootNode, text, result)
-  return result.map(node => stringifyDomNode(node, { parent: true }))
+  searchRecursive(rootNode, condition, result)
+  return result.map(node => stringifyDomNode(node, { parent: true, ...options }))
 }
 
 function globalDebugDOMSize(text) {

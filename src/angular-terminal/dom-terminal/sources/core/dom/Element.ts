@@ -1,3 +1,4 @@
+import { assert } from 'console'
 import { override } from 'core-decorators'
 import _ from 'lodash'
 import * as Yoga from 'yoga-layout-prebuilt'
@@ -126,12 +127,12 @@ export class Element extends Node {
 
   toString({ depth = 0 } = {}) {
     // let tag = '${this.nodeName}#${this.id}${Array.from(this.classList).map(className => '.${className}').join('')}'
-    let tag = '${this.nodeName}#${this.id}'
+    let tag = `${this.nodeName}#${this.id}`
 
     if (depth <= 0) {
-      return '<${tag}>'
+      return `<${tag}>`
     } else if (this.childNodes.length === 0) {
-      return '<${tag} />'
+      return `<${tag} />`
     } else {
       let children = []
 
@@ -956,13 +957,13 @@ export class Element extends Node {
         let prevScrollY = this.scrollRect.y
 
         if (this.style.$.overflow?.doesHideOverflow) {
-          this.scrollRect.x = Math.min(
-            this.scrollRect.x,
-            this.scrollRect.width - this.elementRect.width
+          this.scrollRect.x = Math.max(
+            0,
+            Math.min(this.scrollRect.x, this.scrollRect.width - this.elementRect.width)
           )
-          this.scrollRect.y = Math.min(
-            this.scrollRect.y,
-            this.scrollRect.height - this.elementRect.height
+          this.scrollRect.y = Math.max(
+            0,
+            Math.min(this.scrollRect.y, this.scrollRect.height - this.elementRect.height)
           )
         } else {
           this.scrollRect.x = 0

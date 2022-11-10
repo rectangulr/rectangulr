@@ -507,8 +507,8 @@ export class TermScreen extends TermElement {
     let height = this.stdout.rows
 
     this.style.assign({
-      maxWidth: width,
-      maxHeight: height,
+      // maxWidth: width,
+      // maxHeight: height,
       width: width,
       height: height,
     })
