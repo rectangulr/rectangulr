@@ -890,21 +890,9 @@ export class Element extends Node {
         let prevScrollWidth = this.scrollRect.width
         let prevScrollHeight = this.scrollRect.height
 
-        this.scrollRect.width = Math.max(
-          this.elementRect.width,
-          this.getInternalContentWidth(),
-          ...this.childNodes.map(child => {
-            return child.elementRect.x + child.elementRect.width
-          })
-        )
+        this.scrollRect.width = Math.max(this.elementRect.width, this.getInternalContentWidth())
 
-        this.scrollRect.height = Math.max(
-          this.elementRect.height,
-          this.getInternalContentHeight(),
-          ...this.childNodes.map(child => {
-            return child.elementRect.y + child.elementRect.height
-          })
-        )
+        this.scrollRect.height = Math.max(this.elementRect.height, this.getInternalContentHeight())
 
         this.contentRect.x =
           this.yogaNode.getComputedBorder(Yoga.EDGE_LEFT) +
@@ -1060,10 +1048,18 @@ export class Element extends Node {
   }
 
   getInternalContentWidth() {
-    return 0
+    return Math.max(
+      ...this.childNodes.map(child => {
+        return child.elementRect.x + child.elementRect.width
+      })
+    )
   }
 
   getInternalContentHeight() {
-    return 0
+    return Math.max(
+      ...this.childNodes.map(child => {
+        return child.elementRect.y + child.elementRect.height
+      })
+    )
   }
 }

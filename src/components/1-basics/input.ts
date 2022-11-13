@@ -2,7 +2,7 @@ import { Component, ElementRef, forwardRef, Input, Output, ViewChild } from '@an
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { CommandService, registerCommands } from '../../commands/command-service'
+import { CommandService, registerCommands } from '../../commands/command_service'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
 import { onChange } from '../../utils/reactivity'
 
@@ -10,7 +10,7 @@ let globalId = 0
 
 @Component({
   selector: 'tui-input',
-  template: `<box #box>{{ text }}</box>`,
+  template: ` <box #box>{{ text }}</box> `,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

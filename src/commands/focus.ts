@@ -1,7 +1,7 @@
 import { Directive, Input } from '@angular/core'
 import { assert } from 'console'
 import { Observable, Subscription } from 'rxjs'
-import { CommandService } from './command-service'
+import { CommandService } from './command_service'
 
 @Directive({
   selector: '[focus]',

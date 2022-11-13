@@ -7,7 +7,7 @@ import { Logger } from '../../angular-terminal/logger'
 import { State } from '../../utils/reactivity'
 import { longest, mapKeyValue } from '../../utils/utils'
 import { blackOnWhite } from './styles'
-import { CommandService, registerCommands } from '../../commands/command-service'
+import { CommandService, registerCommands } from '../../commands/command_service'
 
 @Component({
   selector: 'keyvalue-editor',

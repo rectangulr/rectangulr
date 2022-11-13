@@ -1,15 +1,15 @@
-import { ElementRef, EventEmitter, Injectable, Optional, SkipSelf } from '@angular/core'
+import { EventEmitter, Injectable, Optional, SkipSelf } from '@angular/core'
 import _ from 'lodash'
 import { BehaviorSubject } from 'rxjs'
-import { Key } from './keypress-parser'
 import { ComponentDebug } from '../angular-terminal/debug'
+import { Element } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { Screen } from '../angular-terminal/screen-service'
-import { Element } from '../angular-terminal/dom-terminal'
 import { Destroyable } from '../utils/mixins'
-import { onChange, makeObservable } from '../utils/reactivity'
-import { addToGlobal, last, moveToLast, remove, removeLastMatch } from '../utils/utils'
+import { makeObservable, onChange } from '../utils/reactivity'
+import { addToGlobal, assert, last, moveToLast, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
+import { Key } from './keypress-parser'
 
 /**
  * Commands are a function with an `id`.
@@ -17,9 +17,22 @@ import { Disposable } from './disposable'
  */
 export interface Command {
   id: string
+  name: string
   keys: string | string[]
   func: (key: Key) => Key[] | void | Promise<Key[]> | Promise<void>
   context?: any
+  keywords: string
+  hidden: boolean
+}
+
+export const EmptyCommand: Command = {
+  id: null,
+  name: null,
+  keys: [],
+  func: null,
+  context: null,
+  keywords: null,
+  hidden: true,
 }
 
 let globalId = 0
@@ -36,7 +49,7 @@ export class CommandService {
    * When the second component is destroyed the first command can be restored.
    */
   commands: { [id: string]: Command[] } = {}
-  commandsChange = new BehaviorSubject(null)
+  $commands = new BehaviorSubject(null)
 
   /**
    * Links a key (ex: ctrl+r) with a command id (ex: reload)
@@ -54,15 +67,14 @@ export class CommandService {
   caretElement: Element = null
 
   isFocused = false
-  isFocusedChange = new EventEmitter<boolean>()
+  $isFocused = new EventEmitter<boolean>()
   isInFocusPath = false
-  isInFocusPathChange = new EventEmitter<boolean>()
+  $isInFocusPath = new EventEmitter<boolean>()
 
   before: CommandService = null
 
   constructor(
-    @Optional() public elementRef: ElementRef,
-    public screen: Screen,
+    @Optional() public screen: Screen,
     public logger: Logger,
     @SkipSelf() @Optional() public parent: CommandService
   ) {
@@ -70,12 +82,12 @@ export class CommandService {
       this.rootNode = this
       this.isFocused = true
       this.isInFocusPath = true
-      this.screen.screen.addEventListener('keypress', (keyEvent: KeyboardEvent) => {
-        // this.logger.log(`key: ${keyToString(keyEvent.key as any)}`)
+      this.screen?.screen.addEventListener('keypress', (keyEvent: KeyboardEvent) => {
+        // this.logger.log(`key: ${keyToString(key as any)}`)
 
         let key = keyEvent.key as unknown as Key
         if (this.before) {
-          key = this.before.propagateKeypress(keyEvent.key)
+          key = this.before.propagateKeypress(key)
         }
         if (key) {
           const unhandledKeypress = this.propagateKeypress(key)
@@ -91,9 +103,9 @@ export class CommandService {
 
     updateTree(this.rootNode)
 
-    makeObservable(this, 'isFocused', 'isFocusedChange')
-    makeObservable(this, 'isInFocusPath', 'isInFocusPathChange')
-    makeObservable(this, 'commands', 'commandsChange')
+    makeObservable(this, 'isFocused', '$isFocused')
+    makeObservable(this, 'isInFocusPath', '$isInFocusPath')
+    makeObservable(this, 'commands', '$commands')
     onChange(this, 'focusedChild', value => {
       updateTree(this.rootNode)
     })
@@ -169,12 +181,22 @@ export class CommandService {
 
   callCommand(arg: { id: string; keys?: string; args?: any[] }) {
     const { id, keys, args } = arg
-    const command = retrieveLast(this.commands, id)
-    if (!command) {
-      throw new Error(`command '${id}' not found`)
-    }
+    const command = this.findCommand(id)
     const res = command.func(keys)
     return res
+  }
+
+  findCommand(id: string) {
+    const command = retrieveLast(this.commands, id)
+    if (command) {
+      return command
+    } else {
+      if (this.parent) {
+        return this.parent.findCommand(id)
+      } else {
+        assert(command, `could not find command: ${id}`)
+      }
+    }
   }
 
   /**
@@ -292,19 +314,22 @@ export class CommandService {
   }
 }
 
-function retrieveLast(map, id) {
+export function retrieveLast(map, id) {
   const items = map[id]
-  if (!items) return undefined
+  if (!items) return null
   return last(items)
 }
 
 function sanitizeCommand(_command: Partial<Command>): Command {
-  let command = { ..._command }
+  let command = { ...EmptyCommand, ..._command }
   if (typeof _command.keys == 'string') {
     command.keys = [_command.keys]
   }
   if (!_command.id) {
     command.id = command.keys[0]
+  }
+  if (_command.name) {
+    command.hidden = false
   }
   // @ts-ignore
   return command
@@ -400,7 +425,9 @@ function updateTree(rootNode: CommandService) {
 
   forFocusedChild(rootNode, child => {
     if (!child.focusedChild) {
-      rootNode.screen.screen.activeElement = child.caretElement
+      if (rootNode.screen) {
+        rootNode.screen.screen.activeElement = child.caretElement
+      }
     }
   })
 }

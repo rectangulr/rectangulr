@@ -17,13 +17,16 @@ export { ListItem } from './components/2-common/list/list_item'
 export { SearchList } from './components/2-common/search_list'
 export { ObjectDisplay } from './components/2-common/object_display'
 export { ObjectEditor, KeyValueEditor } from './components/2-common/object_editor'
-export { CommandsDisplay } from './commands/commands'
 export { FocusDirective, FocusSeparateDirective } from './commands/focus'
 export { ViewService, View } from './components/2-common/viewService/view.service'
-export { ViewServiceComponent } from './components/2-common/viewService/view_service.component'
-export { Command, CommandService, registerCommands } from './commands/command-service'
+export { AppShell } from './components/2-common/viewService/app_shell.component'
 export { ConfigLoader } from './components/2-common/config_loader'
 export { ComponentOutletInputs } from './utils/componentOutletInput'
+
+export { CommandsDisplay } from './commands/commands.component'
+export { Command, CommandService, registerCommands } from './commands/command_service'
+export { DetachedCommandServiceDirective } from './commands/commands_detach'
+
 // Lib
 export { State, forceRefresh, onChange, makeObservable } from './utils/reactivity'
 
