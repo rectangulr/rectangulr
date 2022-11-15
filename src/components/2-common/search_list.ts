@@ -15,7 +15,7 @@ import { makeObservable, State } from '../../utils/reactivity'
 import { filterNulls } from '../../utils/utils'
 import { List } from './list/list'
 import { ListItem } from './list/list_item'
-import { INJECT_LIST as LIST } from './list/list_on_enter'
+import { PROVIDE_LIST } from './list/list_on_enter'
 import { borderTop } from './styles'
 
 @Component({
@@ -39,7 +39,7 @@ import { borderTop } from './styles'
   `,
   providers: [
     {
-      provide: LIST,
+      provide: PROVIDE_LIST,
       useFactory: () => {
         const searchList = inject(SearchList)
         return searchList.$list

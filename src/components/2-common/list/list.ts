@@ -20,11 +20,11 @@ import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { CommandService, registerCommands } from '../../../commands/command_service'
-import { makeObservable, State } from '../../../utils/reactivity'
-import { assert, filterNulls, mapKeyValue } from '../../../utils/utils'
+import { makeObservable, State, subscribe } from '../../../utils/reactivity'
+import { filterNulls, mapKeyValue } from '../../../utils/utils'
 import { whiteOnGray } from '../styles'
 import { ListItem } from './list_item'
-import { INJECT_LIST } from './list_on_enter'
+import { PROVIDE_LIST } from './list_on_enter'
 
 /**
  * Display a list of items and highlight the current item.
@@ -54,7 +54,7 @@ import { INJECT_LIST } from './list_on_enter'
   `,
   providers: [
     {
-      provide: INJECT_LIST,
+      provide: PROVIDE_LIST,
       useFactory: () => {
         return of(inject(List))
       },
@@ -82,7 +82,7 @@ export class List<T> {
   _displayComponent: any
   windowSize = 20
   createdRange: Range = { start: 0, end: this.windowSize }
-  createdRangeChanges = new BehaviorSubject<Range>(null)
+  $createdRange = new BehaviorSubject<Range>(null)
   createdItems = [] as string[]
   stats: { [prop: string]: { nb: number; total: number } }
 
@@ -136,15 +136,15 @@ export class List<T> {
       this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay
 
     this.selectIndex(0)
-    this._items.$.pipe(filterNulls, takeUntil(this.destroy$)).subscribe(() => {
+    subscribe(this, this._items.$, items => {
       this.selectIndex(0)
     })
 
     registerCommands(this, this.commands)
 
-    makeObservable(this, 'createdRange', 'createdRangeChanges')
+    makeObservable(this, 'createdRange', '$createdRange')
 
-    combineLatest([this._items.$.pipe(filterNulls), this.createdRangeChanges])
+    combineLatest([this._items.$.pipe(filterNulls), this.$createdRange])
       .pipe(
         takeUntil(this.destroy$),
         map(([items, createdRange]) => {
@@ -166,6 +166,8 @@ export class List<T> {
 
   selectIndex(value) {
     if (!this._items.value || this._items.value.length == 0) {
+      this.selected.index = 0
+      this.selected.value = null
       this.selectedItem.next({ value: null, viewRef: null })
       return
     }
@@ -268,46 +270,5 @@ export class BasicObjectDisplay {
     } else {
       throw new Error(`can't display this`)
     }
-  }
-}
-
-@Component({
-  template: `<box [style]="{ height: 1 }">{{ text }}</box>`,
-})
-export class TableObjectDisplay {
-  @Input() object: any
-  @Input() includeKeys: string[]
-  @Input() excludeKeys: string[] = []
-  text = 'error'
-
-  constructor(public list: List<any>) {
-    list.stats
-  }
-
-  ngOnInit() {
-    assert(this.object)
-    assert(typeof this.object == 'object')
-    assert(this.list.stats)
-
-    this.includeKeys = this.includeKeys || Object.keys(this.object)
-    const newObject = mapKeyValue(this.object, (key, value) => {
-      if (this.includeKeys.includes(key)) {
-        if (!this.excludeKeys.includes(key)) {
-          // json can't contain bigint
-          if (typeof value == 'bigint') {
-            value = Number(value)
-          }
-          return [key, value]
-        }
-      }
-    })
-
-    this.text = Object.entries(newObject)
-      .map(([key, value]) => {
-        const keyStats = this.list.stats[key]
-        const averageLength = keyStats.total / keyStats.nb
-        return String(value).slice(0, averageLength)
-      })
-      .join('')
   }
 }

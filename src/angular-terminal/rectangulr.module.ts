@@ -10,7 +10,8 @@ import { FocusDirective, FocusSeparateDirective } from '../commands/focus'
 import { ClassesDirective, NativeClassesDirective } from '../components/1-basics/classes'
 import { StyleDirective, StylesDirective } from '../components/1-basics/style'
 import { TuiInput } from '../components/1-basics/input'
-import { BasicObjectDisplay, List, TableObjectDisplay } from '../components/2-common/list/list'
+import { BasicObjectDisplay, List } from '../components/2-common/list/list'
+import { RowComponent } from '../components/2-common/table/row.component'
 import { ListItem } from '../components/2-common/list/list_item'
 import { OnEnterDirective } from '../components/2-common/list/list_on_enter'
 import { TerminalErrorHandler } from './error-handler'
@@ -20,6 +21,7 @@ import { Box } from '../components/1-basics/box'
 import { ComponentOutletInputs } from '../utils/componentOutletInput'
 import { DynamicModule } from 'ng-dynamic-component'
 import { DetachedCommandServiceDirective } from '../commands/commands_detach'
+import { TableComponent } from '../components/2-common/table/table.component'
 
 const exports = [
   Box,
@@ -31,7 +33,8 @@ const exports = [
   ObjectDisplay,
   ObjectEditor,
   BasicObjectDisplay,
-  TableObjectDisplay,
+  TableComponent,
+  RowComponent,
   StyleDirective,
   StylesDirective,
   ClassesDirective,

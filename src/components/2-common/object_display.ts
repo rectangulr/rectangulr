@@ -10,8 +10,10 @@ import { blackOnWhite } from './styles'
 @Component({
   selector: 'object-display',
   template: `
-    <box [style]="{ flexDirection: 'row' }" *ngFor="let keyValue of keyValues">
-      <box [style]="{ width: longestKey + 1 }" [classes]="[blackOnWhite]">{{ keyValue.key }}</box>
+    <box [style]="{ flexDirection: 'row' }" *ngFor="let keyValue of keyValues; trackBy: trackByFn">
+      <box [style]="{ flexShrink: 0, width: longestKey + 1 }" [classes]="[blackOnWhite]">{{
+        keyValue.key
+      }}</box>
       <box>{{ keyValue.value }}</box>
     </box>
   `,
@@ -21,8 +23,9 @@ export class ObjectDisplay {
     this._object.subscribeSource(object)
   }
   _object: State<any>
-  keyValues: { key: string; value: any }[]
+  keyValues: KeyValue[]
   longestKey = 0
+  trackByFn = (index, keyValue: KeyValue) => keyValue.key
 
   constructor(public logger: Logger) {
     this._object = new State('', this.destroy$)
@@ -47,4 +50,9 @@ export class ObjectDisplay {
     this.destroy$.next(null)
     this.destroy$.complete()
   }
+}
+
+interface KeyValue {
+  key: string
+  value: any
 }

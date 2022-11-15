@@ -52,7 +52,7 @@ export function last(array) {
 }
 
 /**
- * Loop over an object [key,value] and change anything.
+ * Loop over an object [key,value] and the key or the value.
  * Creates a new object.
  * If `undefined` is returned, the key is removed from the object.
  */
@@ -88,14 +88,4 @@ export function mergeDeep(object, other) {
 export function addToGlobal(obj) {
   globalThis['rg'] ||= {}
   globalThis['rg'] = mergeDeep(globalThis['rg'], obj)
-}
-
-export function provideProperty<T, K extends keyof T>(
-  injectToken: ProviderToken<T>,
-  field: K
-): Function {
-  return () => {
-    const object = inject(injectToken)
-    return object[field]
-  }
 }

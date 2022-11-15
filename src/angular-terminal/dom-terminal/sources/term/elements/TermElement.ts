@@ -362,8 +362,8 @@ export class TermElement extends Element {
     let prefix = ``
     let suffix = ``
 
-    if (this.style.$.fontWeight < 400) prefix += style.fainted.in
-    else if (this.style.$.fontWeight > 400) prefix += style.emboldened.in
+    if (this.style.$.fontWeight.size < 400) prefix += style.fainted.in
+    else if (this.style.$.fontWeight.size > 400) prefix += style.emboldened.in
 
     if (this.style.$.textDecoration && this.style.$.textDecoration.isUnderlined)
       prefix += style.underlined.in

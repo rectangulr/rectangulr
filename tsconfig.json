@@ -1,7 +1,7 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "files": [
-    "src/public-api.ts"
+    "src/public-api.ts",
   ],
   "compilerOptions": {
     "baseUrl": "./",

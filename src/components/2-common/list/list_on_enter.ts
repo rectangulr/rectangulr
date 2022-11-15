@@ -5,7 +5,7 @@ import { subscribe } from '../../../utils/reactivity'
 import { assert } from '../../../utils/utils'
 import { List } from './list'
 
-export const INJECT_LIST = new InjectionToken<Observable<List<any>>>('List Token')
+export const PROVIDE_LIST = new InjectionToken<Observable<List<any>>>('List Token')
 
 @Directive({
   selector: '[onEnter]',
@@ -29,7 +29,7 @@ export class OnEnterDirective {
   ]
 
   constructor() {
-    const $list = inject(INJECT_LIST, { self: true })
+    const $list = inject(PROVIDE_LIST, { self: true })
     assert($list)
 
     subscribe(this, $list, list => {

@@ -148,16 +148,6 @@ export function makeObservable<T, K extends keyof T>(_component: T, key: K, obse
   })
 }
 
-export function subscribeValue<T, K extends keyof T>(
-  component: Destroyable & T,
-  observable: Observable<any>,
-  key: K
-) {
-  observable.pipe(takeUntil(component.destroy$)).subscribe(value => {
-    component[key] = value
-  })
-}
-
 /**
  * Helper function to subscribe to an observable for the lifetime of the component.
  * @param component The subscription gets cleaned up when this component gets destroyed.
@@ -170,6 +160,23 @@ export function subscribe<T>(
   func: (value: T) => void
 ) {
   observable.pipe(takeUntil(component.destroy$)).subscribe(func)
+}
+
+/**
+ * Subscribes to an observable and makes it into a property of a component.
+ * Subscribes for the lifetime of the component.
+ * @param component The subscription gets cleaned up when this component gets destroyed.
+ * @param observable The observable to subscribe to.
+ * @param key Name of the property that gets updated when the observable changes.
+ */
+export function makeProperty<T, K extends keyof T>(
+  component: Destroyable & T,
+  observable: Observable<any>,
+  key: K
+) {
+  observable.pipe(takeUntil(component.destroy$)).subscribe(value => {
+    component[key] = value
+  })
 }
 
 // export function onChangeSubscribe<T extends Destroyable, K extends keyof T>(object: T, key: K, observableKey: K) {

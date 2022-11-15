@@ -25,16 +25,6 @@ export interface Command {
   hidden: boolean
 }
 
-export const EmptyCommand: Command = {
-  id: null,
-  name: null,
-  keys: [],
-  func: null,
-  context: null,
-  keywords: null,
-  hidden: true,
-}
-
 let globalId = 0
 
 @Injectable({
@@ -320,17 +310,30 @@ export function retrieveLast(map, id) {
   return last(items)
 }
 
+export const EmptyCommand: Command = {
+  id: null,
+  name: null,
+  keys: [],
+  func: null,
+  context: null,
+  keywords: null,
+  hidden: false,
+}
+
 function sanitizeCommand(_command: Partial<Command>): Command {
   let command = { ...EmptyCommand, ..._command }
+
   if (typeof _command.keys == 'string') {
     command.keys = [_command.keys]
   }
-  if (!_command.id) {
+
+  if (_command.id) {
+    command.name = _.startCase(_command.id)
+  } else {
     command.id = command.keys[0]
+    command.hidden = true
   }
-  if (_command.name) {
-    command.hidden = false
-  }
+
   // @ts-ignore
   return command
 }
@@ -446,7 +449,7 @@ export function rgDebugKeybinds() {
 }
 
 function simplifyCommandService(commandService: CommandService) {
-  let res = _.pick(commandService, ['commands', 'keybinds', '_id'])
+  let res = _.pick(commandService, ['commands', 'keybinds', '_id']) as any
   if (commandService.focusedChild) {
     res.focusedChild = simplifyCommandService(commandService.focusedChild)
   }

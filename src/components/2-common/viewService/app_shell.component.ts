@@ -10,7 +10,7 @@ import { View, ViewService } from './view.service'
   selector: 'app-shell',
   host: { '[style]': "{width: '100%', height: '100%'}" },
   template: `
-    <!-- All views. Only the currentView is displayed. -->
+    <!-- Display the currentView. The others are 'display: none'. -->
     <box
       *ngFor="let view of viewService.views"
       [focusSeparate]="focusEmitters.get(view)"
@@ -37,8 +37,7 @@ import { View, ViewService } from './view.service'
     <commands
       *ngIf="showCommands"
       [commandService]="commandService"
-      (onClose)="onCommandsClose()"
-      [style]="{ position: 'fixed', top: 0, left: '25%', width: '50%' }">
+      (onClose)="showCommands = false">
     </commands>
   `,
 })
@@ -50,10 +49,17 @@ export class AppShell {
   commands: Partial<Command>[] = [
     {
       keys: 'alt+p',
-      name: 'Toggle commands',
+      id: 'toggleCommands',
       keywords: 'commands shortcuts help',
       func: () => {
         this.showCommands = !this.showCommands
+      },
+    },
+    {
+      keys: 'alt+o',
+      id: 'nextView',
+      func: () => {
+        this.viewService.nextView()
       },
     },
     {
@@ -84,11 +90,6 @@ export class AppShell {
 
   ngAfterViewInit() {
     this.focusEmitters.get(this.currentView).next(null)
-  }
-
-  onCommandsClose() {
-    this.showCommands = false
-    this.commandService.before = null
   }
 
   whiteOnGray = whiteOnGray

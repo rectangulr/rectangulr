@@ -5,8 +5,8 @@
   "dependencies": {
     "@manaflair/term-strings": "^0.9.1",
     "ng-dynamic-component": "^10.5.1",
-    "yoga-layout-prebuilt": "^1.10.0",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "yoga-layout-prebuilt": "^1.10.0"
   },
   "peerDependencies": {
     "@angular/common": "^14.2.6",
@@ -33,6 +33,7 @@
     "@angular/forms": "^14.2.6",
     "@angular/platform-browser": "^14.2.6",
     "@babel/cli": "^7.19.3",
+    "@types/lodash": "^4.14.189",
     "@types/node": "^12.11.1",
     "core-decorators": "^0.13.0",
     "fuse.js": "^6.4.6",

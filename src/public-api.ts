@@ -12,10 +12,12 @@ export { ClassesDirective, NativeClassesDirective } from './components/1-basics/
 
 // Common
 export { OnEnterDirective } from './components/2-common/list/list_on_enter'
-export { List, BasicObjectDisplay, TableObjectDisplay } from './components/2-common/list/list'
+export { List, BasicObjectDisplay } from './components/2-common/list/list'
 export { ListItem } from './components/2-common/list/list_item'
 export { SearchList } from './components/2-common/search_list'
 export { ObjectDisplay } from './components/2-common/object_display'
+export { RowComponent } from './components/2-common/table/row.component'
+export { TableComponent } from './components/2-common/table/table.component'
 export { ObjectEditor, KeyValueEditor } from './components/2-common/object_editor'
 export { FocusDirective, FocusSeparateDirective } from './commands/focus'
 export { ViewService, View } from './components/2-common/viewService/view.service'
@@ -28,7 +30,14 @@ export { Command, CommandService, registerCommands } from './commands/command_se
 export { DetachedCommandServiceDirective } from './commands/commands_detach'
 
 // Lib
-export { State, forceRefresh, onChange, makeObservable } from './utils/reactivity'
+export {
+  State,
+  forceRefresh,
+  subscribe,
+  onChange,
+  makeObservable,
+  makeProperty,
+} from './utils/reactivity'
 
 // Platform
 export { platform } from './angular-terminal/platform'

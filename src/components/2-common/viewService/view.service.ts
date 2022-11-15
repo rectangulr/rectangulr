@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@angular/core'
-import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import { Command, CommandService, registerCommands } from '../../../commands/command_service'
 import { makeObservable } from '../../../utils/reactivity'
 
 /**
- * Allows to switch to another view.
+ * A service for switching to another view.
  */
 @Injectable({
   providedIn: 'root',
@@ -13,19 +13,7 @@ export class ViewService {
   currentView: View = this.views.find(v => v)
   $currentView = new BehaviorSubject<View>(null)
 
-  commands: Partial<Command>[] = [
-    {
-      keys: 'alt+o',
-      id: 'nextView',
-      name: 'Next view',
-      func: () => {
-        this.nextView()
-      },
-    },
-  ]
-
-  constructor(public commandService: CommandService, @Inject(View) public views: View[]) {
-    registerCommands(this, this.commands)
+  constructor(@Inject(View) public views: View[]) {
     makeObservable(this, 'currentView', '$currentView')
   }
 
