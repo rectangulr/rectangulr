@@ -1,7 +1,7 @@
 import { Directive, EventEmitter, inject, InjectionToken, Output } from '@angular/core'
 import { Observable, Subject } from 'rxjs'
 import { registerCommands } from '../../../commands/command_service'
-import { subscribe } from '../../../utils/reactivity'
+import { makeProperty, subscribe } from '../../../utils/reactivity'
 import { assert } from '../../../utils/utils'
 import { List } from './list'
 
@@ -39,9 +39,7 @@ export class OnEnterDirective {
 
       registerCommands(list, this.commands)
 
-      subscribe(this, list.selectedItem, selectedItem => {
-        this.selectedItem = selectedItem.value
-      })
+      makeProperty(this, list.$selectedItem, 'selectedItem')
     })
   }
 

@@ -1,6 +1,6 @@
-import { ProviderToken, inject } from '@angular/core'
 import _ from 'lodash'
-import { filter } from 'rxjs/operators'
+import { Observable } from 'rxjs'
+import { filter, first } from 'rxjs/operators'
 
 /**
  * @example
@@ -88,4 +88,21 @@ export function mergeDeep(object, other) {
 export function addToGlobal(obj) {
   globalThis['rg'] ||= {}
   globalThis['rg'] = mergeDeep(globalThis['rg'], obj)
+}
+
+export interface Anything {
+  [prop: string]: any
+}
+
+/**
+ * Waits for an observable to become "truthy"
+ * @example await waitFor(observable)
+ */
+export function waitFor(observable: Observable<any>) {
+  return observable
+    .pipe(
+      filter(t => !!t),
+      first()
+    )
+    .toPromise()
 }

@@ -46,32 +46,6 @@ export class AppShell {
   focusEmitters: Map<View, Subject<null>> = null
   showCommands: boolean = false
 
-  commands: Partial<Command>[] = [
-    {
-      keys: 'alt+p',
-      id: 'toggleCommands',
-      keywords: 'commands shortcuts help',
-      func: () => {
-        this.showCommands = !this.showCommands
-      },
-    },
-    {
-      keys: 'alt+o',
-      id: 'nextView',
-      func: () => {
-        this.viewService.nextView()
-      },
-    },
-    {
-      keys: 'escape',
-      func: () => {
-        if (this.showCommands) {
-          this.showCommands = false
-        }
-      },
-    },
-  ]
-
   constructor(
     @Inject(ViewService) public viewService: ViewService,
     public commandService: CommandService
@@ -94,6 +68,33 @@ export class AppShell {
 
   whiteOnGray = whiteOnGray
   nullOnNull = makeRuleset({ backgroundColor: null, color: null })
+
+  commands: Partial<Command>[] = [
+    {
+      keys: 'alt+p',
+      id: 'toggleCommands',
+      keywords: 'commands shortcuts help',
+      func: () => {
+        this.showCommands = !this.showCommands
+      },
+    },
+    {
+      keys: 'alt+o',
+      id: 'nextView',
+      keywords: 'next tab',
+      func: () => {
+        this.viewService.nextView()
+      },
+    },
+    {
+      keys: 'escape',
+      func: () => {
+        if (this.showCommands) {
+          this.showCommands = false
+        }
+      },
+    },
+  ]
 
   destroy$ = new Subject()
   ngOnDestroy() {

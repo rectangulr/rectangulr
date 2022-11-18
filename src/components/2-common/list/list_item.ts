@@ -5,7 +5,7 @@ import { Observable } from 'rxjs'
   selector: '[listItem]',
 })
 export class ListItem<T> {
-  @Input() listItemType: T | ArrayLike<T> | Observable<ArrayLike<T>>
+  @Input() listItemType: T | T[] | Observable<T[]>
 
   static ngTemplateContextGuard<T>(
     directive: ListItem<T>,

@@ -4,14 +4,14 @@ import { BrowserModule } from '@angular/platform-browser'
 import { ObjectDisplay } from '../components/2-common/object_display'
 import { KeyValueEditor, ObjectEditor } from '../components/2-common/object_editor'
 import { SearchList } from '../components/2-common/search_list'
-import { AppShell } from '../components/2-common/viewService/app_shell.component'
+import { AppShell } from '../components/2-common/viewService/app-shell.component'
 import { CommandsDisplay } from '../commands/commands.component'
 import { FocusDirective, FocusSeparateDirective } from '../commands/focus'
 import { ClassesDirective, NativeClassesDirective } from '../components/1-basics/classes'
 import { StyleDirective, StylesDirective } from '../components/1-basics/style'
 import { TuiInput } from '../components/1-basics/input'
 import { BasicObjectDisplay, List } from '../components/2-common/list/list'
-import { RowComponent } from '../components/2-common/table/row.component'
+import { Row } from '../components/2-common/table/row.component'
 import { ListItem } from '../components/2-common/list/list_item'
 import { OnEnterDirective } from '../components/2-common/list/list_on_enter'
 import { TerminalErrorHandler } from './error-handler'
@@ -21,7 +21,7 @@ import { Box } from '../components/1-basics/box'
 import { ComponentOutletInputs } from '../utils/componentOutletInput'
 import { DynamicModule } from 'ng-dynamic-component'
 import { DetachedCommandServiceDirective } from '../commands/commands_detach'
-import { TableComponent } from '../components/2-common/table/table.component'
+import { Table } from '../components/2-common/table/table.component'
 
 const exports = [
   Box,
@@ -33,8 +33,8 @@ const exports = [
   ObjectDisplay,
   ObjectEditor,
   BasicObjectDisplay,
-  TableComponent,
-  RowComponent,
+  Table,
+  Row,
   StyleDirective,
   StylesDirective,
   ClassesDirective,

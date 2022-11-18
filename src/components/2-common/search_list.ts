@@ -62,7 +62,7 @@ export class SearchList<T> {
   @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any>
 
   @Output() searchTextChange = new BehaviorSubject(this.searchText)
-  @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })
+  @Output() selectedItem = new BehaviorSubject(null)
 
   _items: State<T[]>
   searchEnabled = true

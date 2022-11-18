@@ -1,45 +1,28 @@
 import { Component, Input } from '@angular/core'
-import { assert, mapKeyValue } from '../../../utils/utils'
-import { List } from '../list/list'
+import { assert } from '../../../utils/utils'
+import { Table } from './table.component'
 
 @Component({
   selector: 'row',
-  template: `<box [style]="{ height: 1 }">{{ text }}</box>`,
+  host: { '[style]': '{ height: 1 }' },
+  template: ` {{ text }}`,
 })
-export class RowComponent {
-  @Input() data: any
-  @Input() includeKeys: string[]
-  @Input() excludeKeys: string[] = []
-  text = 'error'
+export class Row<T> {
+  @Input() data: T
+  text: string
 
-  constructor(public list: List<any>) {
-    list.stats
-  }
+  constructor(public table: Table<T>) {}
 
   ngOnInit() {
     assert(this.data)
     assert(typeof this.data == 'object')
-    assert(this.list.stats)
+    assert(this.table.columns)
 
-    this.includeKeys = this.includeKeys || Object.keys(this.data)
-    const newObject = mapKeyValue(this.data, (key, value) => {
-      if (this.includeKeys.includes(key)) {
-        if (!this.excludeKeys.includes(key)) {
-          // json can't contain bigint
-          if (typeof value == 'bigint') {
-            value = Number(value)
-          }
-          return [key, value]
-        }
-      }
-    })
-
-    this.text = Object.entries(newObject)
-      .map(([key, value]) => {
-        const keyStats = this.list.stats[key]
-        const averageLength = keyStats.total / keyStats.nb
-        return String(value).slice(0, averageLength).padEnd(averageLength, ' ')
+    this.text = this.table.columns
+      .map(column => {
+        const value = this.data[column.name]
+        return String(value).slice(0, column.width).padEnd(column.width)
       })
-      .join('|')
+      .join(' | ')
   }
 }

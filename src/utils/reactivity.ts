@@ -8,6 +8,7 @@ import { addToGlobal } from './utils'
  * Similar to a BehaviorSubject but:
  * 	- the source of new values can be changed while retaining the local value and downstream subscriptions
  * 	- it's easy to unsubscribe upstream/downstream when the component is destroyed
+ * @deprecated
  */
 export class State<T> {
   $: BehaviorSubject<T>
@@ -99,7 +100,7 @@ export function onChange<T, K extends keyof T>(
   object: T,
   key: K,
   func: (value) => void,
-  transformValue?: (value: T, oldValue: T) => any | undefined
+  transformValue?: (value: any, oldValue: any) => any | undefined
 ) {
   let storedValue = object[key]
 
@@ -126,10 +127,10 @@ export function onChange<T, K extends keyof T>(
 }
 
 /**
- * Listen for changes on an object property and expose it as an Observable.
+ * Listens for changes on a property and exposes it as an Observable.
  * Replaces the property with a getter/setter so it can detect changes.
  *
- * Example: listen for a component property `text` and create an Observable `$text`.
+ * Example: listens for a property `text` and creates an Observable `$text`.
  * ```ts
  * this.text = 'blabla'
  * this.$text = new BehaviorSubject(null)
@@ -149,7 +150,7 @@ export function makeObservable<T, K extends keyof T>(_component: T, key: K, obse
 }
 
 /**
- * Helper function to subscribe to an observable for the lifetime of the component.
+ * Subscribes to an observable for the lifetime of the component.
  * @param component The subscription gets cleaned up when this component gets destroyed.
  * @param observable The observable to subscribe to.
  * @param func A function that gets called whenever the observable changes.

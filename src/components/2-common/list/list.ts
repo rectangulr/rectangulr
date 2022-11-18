@@ -27,7 +27,7 @@ import { ListItem } from './list_item'
 import { PROVIDE_LIST } from './list_on_enter'
 
 /**
- * Display a list of items and highlight the current item.
+ * Displays a list of items and highlights the current item.
  * Go up and down with the keyboard.
  */
 @Component({
@@ -37,7 +37,7 @@ import { PROVIDE_LIST } from './list_on_enter'
     <box [style]="{ flexShrink: 0 }">
       <box
         #elementRef
-        *ngFor="let item of createdItems; index as index; trackBy: trackByFn"
+        *ngFor="let item of visibleItems; index as index; trackBy: trackByFn"
         [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
         <ng-container
           [ngTemplateOutlet]="template || template2"
@@ -62,16 +62,16 @@ import { PROVIDE_LIST } from './list_on_enter'
   ],
 })
 export class List<T> {
-  @Input() displayComponent: any
-  @Input() set items(items: Observable<ArrayLike<T>> | ArrayLike<T>) {
+  @Input() set items(items: Observable<T[]> | T[]) {
     this._items.subscribeSource(items)
   }
   @Input() trackByFn = (index, item) => item
   @Input() showIndex = false
+  @Input() displayComponent: any
   @Input() template: TemplateRef<any>
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
-
-  @Output() selectedItem = new BehaviorSubject({ value: null, viewRef: null })
+  @Output('selectedItem') $selectedItem = new BehaviorSubject(null)
+  @Output('visibleItems') $visibleItems: Observable<T[]>
 
   selected = {
     index: 0,
@@ -81,17 +81,87 @@ export class List<T> {
   _items: State<T[]>
   _displayComponent: any
   windowSize = 20
-  createdRange: Range = { start: 0, end: this.windowSize }
-  $createdRange = new BehaviorSubject<Range>(null)
-  createdItems = [] as string[]
-  stats: { [prop: string]: { nb: number; total: number } }
+  visibleRange: Range = { start: 0, end: this.windowSize }
+  $visibleRange = new BehaviorSubject<Range>(this.visibleRange)
+  visibleItems = []
 
-  @ViewChildren('elementRef', { emitDistinctChangesOnly: true })
-  elementRefs: QueryList<ElementRef>
-  @ViewChildren(ComponentOutletInjectorDirective, {
-    emitDistinctChangesOnly: true,
-  })
+  @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs: QueryList<ElementRef>
+  @ViewChildren(ComponentOutletInjectorDirective, { emitDistinctChangesOnly: true })
   componentRefs: QueryList<ComponentOutletInjectorDirective>
+
+  constructor(
+    @SkipSelf() public commandService: CommandService,
+    @Inject('itemComponent') @Optional() public itemComponentInjected: any,
+    public injector: Injector
+  ) {
+    this._items = new State([], this.destroy$)
+    this.$visibleItems = combineLatest([
+      this._items.$.pipe(filterNulls),
+      this.$visibleRange.pipe(filterNulls),
+    ]).pipe(
+      takeUntil(this.destroy$),
+      map(([items, visibleRange]) => {
+        return items.slice(visibleRange.start, visibleRange.end)
+      })
+    )
+  }
+
+  ngOnInit() {
+    // assert(this.items == undefined)
+
+    // The way the item is displayed can be customized via an Input, and Injected value, or defaults to a basic json stringify
+    this._displayComponent =
+      this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay
+
+    this.selectIndex(0)
+    subscribe(this, this._items.$, items => {
+      this.selectIndex(0)
+    })
+
+    registerCommands(this, this.commands)
+
+    makeObservable(this, 'visibleRange', '$visibleRange')
+
+    subscribe(this, this.$visibleItems, visibleItems => {
+      this.visibleItems = visibleItems
+    })
+  }
+
+  selectIndex(value) {
+    if (!this._items.value || this._items.value.length == 0) {
+      this.selected.index = 0
+      this.selected.value = null
+      this.$selectedItem.next(null)
+      return
+    }
+
+    this.selected.index = _.clamp(value, 0, this._items.value.length - 1)
+    this.selected.value = this._items.value[this.selected.index]
+    this.visibleRange = rangeCenteredAroundIndex(
+      this.selected.index,
+      this.windowSize,
+      this._items.value.length
+    )
+    this.$selectedItem.next(this.selected.value)
+
+    const afterIndexSelected = () => {
+      const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
+        .instance as { commandService: CommandService }
+      selectedComponent?.commandService?.focus()
+
+      if (this.elementRefs?.length > 0) {
+        const element: Element = this.elementRefs.get(
+          this.selected.index - this.visibleRange.start
+        )?.nativeElement
+        element.scrollIntoView()
+      }
+    }
+
+    setTimeout(afterIndexSelected, 0)
+  }
+
+  whiteOnGray = whiteOnGray
+  nullOnNull = makeRuleset({ backgroundColor: null, color: null })
 
   commands = [
     {
@@ -119,86 +189,6 @@ export class List<T> {
       },
     },
   ]
-
-  constructor(
-    @SkipSelf() public commandService: CommandService,
-    @Inject('itemComponent') @Optional() public itemComponentInjected: any,
-    public injector: Injector
-  ) {
-    this._items = new State([], this.destroy$)
-  }
-
-  ngOnInit() {
-    // assert(this.items == undefined)
-
-    // The way the item is displayed can be customized via an Input, and Injected value, or defaults to a basic json stringify
-    this._displayComponent =
-      this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay
-
-    this.selectIndex(0)
-    subscribe(this, this._items.$, items => {
-      this.selectIndex(0)
-    })
-
-    registerCommands(this, this.commands)
-
-    makeObservable(this, 'createdRange', '$createdRange')
-
-    combineLatest([this._items.$.pipe(filterNulls), this.$createdRange])
-      .pipe(
-        takeUntil(this.destroy$),
-        map(([items, createdRange]) => {
-          return items.slice(createdRange.start, createdRange.end)
-        })
-      )
-      .subscribe(createdItems => {
-        this.createdItems = createdItems
-        this.stats = {}
-        for (const item of createdItems) {
-          for (const [key, value] of Object.entries(item)) {
-            this.stats[key] ??= { nb: 0, total: 0 }
-            this.stats[key].nb++
-            this.stats[key].total += String(value).length
-          }
-        }
-      })
-  }
-
-  selectIndex(value) {
-    if (!this._items.value || this._items.value.length == 0) {
-      this.selected.index = 0
-      this.selected.value = null
-      this.selectedItem.next({ value: null, viewRef: null })
-      return
-    }
-
-    this.selected.index = _.clamp(value, 0, this._items.value.length - 1)
-    this.selected.value = this._items.value[this.selected.index]
-    this.createdRange = rangeCenteredAroundIndex(
-      this.selected.index,
-      this.windowSize,
-      this._items.value.length
-    )
-    this.selectedItem.next({ value: this.selected.value, viewRef: null })
-
-    const afterIndexSelected = () => {
-      const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
-        .instance as { commandService: CommandService }
-      selectedComponent?.commandService?.focus()
-
-      if (this.elementRefs?.length > 0) {
-        const element: Element = this.elementRefs.get(
-          this.selected.index - this.createdRange.start
-        )?.nativeElement
-        element.scrollIntoView()
-      }
-    }
-
-    setTimeout(afterIndexSelected, 0)
-  }
-
-  whiteOnGray = whiteOnGray
-  nullOnNull = makeRuleset({ backgroundColor: null, color: null })
 
   destroy$ = new Subject()
   ngOnDestroy() {
