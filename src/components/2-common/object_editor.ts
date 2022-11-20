@@ -14,7 +14,7 @@ import { CommandService, registerCommands } from '../../commands/command_service
   template: `
     <box [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
       <box [style]="{ width: keyWidth + 1 }" [classes]="[blackOnWhite]">{{ keyValue.key }}</box>
-      <tui-input [formControlName]="keyValue.key" #input [text]="keyValue.value"></tui-input>
+      <text-input [formControlName]="keyValue.key" #input [text]="keyValue.value"></text-input>
     </box>
   `,
   providers: [CommandService],

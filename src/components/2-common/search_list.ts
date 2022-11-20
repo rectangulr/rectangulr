@@ -22,12 +22,12 @@ import { borderTop } from './styles'
   selector: 'search-list',
   template: `
     <box [style]="{ flexDirection: 'column' }">
-      <tui-input
+      <text-input
         *ngIf="searchInputVisible"
         [text]="searchText"
         (textChange)="searchTextChange.next($event)"
         [focus]="focusInput"
-        [style]="{ backgroundColor: 'gray', color: 'white' }"></tui-input>
+        [style]="{ backgroundColor: 'gray', color: 'white' }"></text-input>
       <list
         [items]="matchingItems.$"
         (selectedItem)="selectedItem.next($event)"

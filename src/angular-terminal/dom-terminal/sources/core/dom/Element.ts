@@ -1,4 +1,3 @@
-import { assert } from 'console'
 import { override } from 'core-decorators'
 import _ from 'lodash'
 import * as Yoga from 'yoga-layout-prebuilt'
@@ -32,7 +31,7 @@ function mergeNewStyles(node) {
 }
 
 export class Element extends Node {
-  yogaNode: any
+  yogaNode: Yoga.YogaNode
   flags = flags.ELEMENT_HAS_DIRTY_NODE_LIST | flags.ELEMENT_HAS_DIRTY_LAYOUT
   styleManager: StyleManager
   dirtyRects: Rect[] = []

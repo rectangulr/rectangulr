@@ -18,9 +18,7 @@ import { PROVIDE_LIST } from '../list/list_on_enter'
 @Component({
   selector: 'table',
   template: `
-    <box>
-      {{ headers }}
-    </box>
+    <box [style]="{ maxHeight: 1 }">{{ headers }}</box>
     <list
       [items]="_items.$"
       [trackByFn]="trackByFn"

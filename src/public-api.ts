@@ -6,7 +6,7 @@ import 'zone.js/dist/zone-node.js'
 
 // Basics
 export { Box } from './components/1-basics/box'
-export { TuiInput } from './components/1-basics/input'
+export { TextInput as TuiInput } from './components/1-basics/input'
 export { StyleDirective, StylesDirective } from './components/1-basics/style'
 export { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'
 

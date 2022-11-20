@@ -9,7 +9,7 @@ import { CommandsDisplay } from '../commands/commands.component'
 import { FocusDirective, FocusSeparateDirective } from '../commands/focus'
 import { ClassesDirective, NativeClassesDirective } from '../components/1-basics/classes'
 import { StyleDirective, StylesDirective } from '../components/1-basics/style'
-import { TuiInput } from '../components/1-basics/input'
+import { TextInput } from '../components/1-basics/input'
 import { BasicObjectDisplay, List } from '../components/2-common/list/list'
 import { Row } from '../components/2-common/table/row.component'
 import { ListItem } from '../components/2-common/list/list_item'
@@ -29,7 +29,7 @@ const exports = [
   ListItem,
   SearchList,
   OnEnterDirective,
-  TuiInput,
+  TextInput,
   ObjectDisplay,
   ObjectEditor,
   BasicObjectDisplay,

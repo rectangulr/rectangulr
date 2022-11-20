@@ -5,7 +5,7 @@ import { Table } from './table.component'
 @Component({
   selector: 'row',
   host: { '[style]': '{ height: 1 }' },
-  template: ` {{ text }}`,
+  template: `{{ text }}`,
 })
 export class Row<T> {
   @Input() data: T

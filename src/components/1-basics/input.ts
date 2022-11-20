@@ -9,18 +9,18 @@ import { onChange } from '../../utils/reactivity'
 let globalId = 0
 
 @Component({
-  selector: 'tui-input',
+  selector: 'text-input',
   template: ` <box #box>{{ text }}</box> `,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => TuiInput),
+      useExisting: forwardRef(() => TextInput),
       multi: true,
     },
     { provide: CommandService },
   ],
 })
-export class TuiInput implements ControlValueAccessor {
+export class TextInput implements ControlValueAccessor {
   _id = ++globalId
 
   @Input() text = ''

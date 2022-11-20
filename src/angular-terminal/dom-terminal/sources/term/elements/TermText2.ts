@@ -1,44 +1,5 @@
+import { assert } from '../../../../../utils/utils'
 import { TermElement } from './TermElement'
-
-export class TextLayout2 {
-  text = ''
-  configuration = {
-    width: 10,
-  }
-
-  lines = []
-
-  setText(text) {
-    this.text = text
-  }
-
-  update() {
-    // const nbOfLines = this.text.length / this.configuration.width
-    // this.lines = []
-    // for (let i = 0; i < nbOfLines; i++) {
-    //     const newLine = this.text.slice(this.configuration.width * i, this.configuration.width * (i + 1))
-    //     this.lines.push(newLine)
-    // }
-    this.lines = [this.text]
-    this.configuration.width = this.text.length
-  }
-
-  setConfiguration(configuration) {
-    this.configuration = configuration
-  }
-
-  getLine(y: string) {
-    return this.lines[y]
-  }
-
-  getRowCount() {
-    return this.lines.length
-  }
-
-  getColumnCount() {
-    return this.configuration.width
-  }
-}
 
 export class TermText2 extends TermElement {
   textContent: string
@@ -48,81 +9,40 @@ export class TermText2 extends TermElement {
     super()
 
     this.textLayout = new TextLayout2()
-    this.textLayout.update()
-    this.style.assign({
-      minHeight: 1,
-      width: this.textLayout.getColumnCount(),
-      height: this.textLayout.getRowCount(),
-    })
 
     this.setPropertyTrigger('textContent', '', {
       trigger: value => {
-        this.textLayout.setText(value)
+        this.textLayout.text = value
         this.textLayout.update()
-        this.style.assign({
-          width: this.textLayout.getColumnCount(),
-          height: this.textLayout.getRowCount(),
-        })
+        this.yogaNode.markDirty()
         this.setDirtyLayoutFlag()
+        this.queueDirtyRect()
       },
     })
-
-    this.addEventListener(`layout`, () => {
-      if (this.style.$.display.serialize() == 'flex') {
-        this.textLayout.configuration.width = this.contentRect.width
-        this.textLayout.update()
-        this.style.assign({
-          width: this.textLayout.getColumnCount(),
-          height: this.textLayout.getRowCount(),
-        })
-      }
-    })
   }
 
-  appendChild(node) {
-    throw new Error(`Failed to execute 'appendChild': This node does not support this method.`)
-  }
-
-  insertBefore(node) {
-    throw new Error(`Failed to execute 'insertBefore': This node does not support this method.`)
-  }
-
-  removeChild(node) {
-    throw new Error(`Failed to execute 'removeChild': This node does not support this method.`)
-  }
-
-  clearTextLayoutCache() {
-    if (!this.textLayout) return
-
+  getPreferredSize(maxWidth, widthMode, maxHeight, heightMode) {
+    this.textLayout.maxWidth = maxWidth
     this.textLayout.update()
-    this.style.assign({
-      width: this.textLayout.getColumnCount(),
-      height: this.textLayout.getRowCount(),
-    })
 
-    this.setDirtyLayoutFlag()
-  }
-
-  getPreferredSize(maxWidth) {
-    let width = this.textLayout.getColumnCount()
-
-    let height = this.textLayout.getRowCount()
+    let width = this.textLayout.getWidth()
+    let height = this.textLayout.getHeight()
 
     return { width, height }
   }
 
   getInternalContentWidth() {
-    return this.textLayout.getColumnCount()
+    return this.textLayout.getWidth()
   }
 
   getInternalContentHeight() {
-    return this.textLayout.getRowCount()
+    return this.textLayout.getHeight()
   }
 
   renderContent(x, y, l) {
-    if (this.textLayout.getRowCount() <= y) return this.renderBackground(l)
+    if (this.textLayout.getHeight() <= y) return this.renderBackground(l)
 
-    let fullLine = y < this.textLayout.getRowCount() ? this.textLayout.getLine(y) : ``
+    let fullLine = y < this.textLayout.getHeight() ? this.textLayout.getLine(y) : ``
     let fullLineLength = fullLine.length
 
     let fullLineStart = 0
@@ -143,5 +63,46 @@ export class TermText2 extends TermElement {
     let suffix = this.renderBackground(suffixLength)
 
     return prefix + text + suffix
+  }
+}
+
+/**
+ * Defines how text is laid-out inside a rectangle.
+ * If the rectangle is too small it should go to the next line.
+ * If the rectanglr is big enough, fine. Just inform the parent of its size.
+ */
+export class TextLayout2 {
+  text = ''
+  maxWidth = Infinity
+  lines = []
+
+  update() {
+    this.lines = []
+
+    const nbOfLines = Number(this.text.length / this.maxWidth)
+    assert(nbOfLines < 10_000)
+
+    for (let i = 0; i < nbOfLines; i++) {
+      const nextLine = this.text.slice(this.maxWidth * i, this.maxWidth * (i + 1))
+      this.lines.push(nextLine)
+    }
+  }
+
+  getLine(y: number) {
+    return this.lines[y]
+  }
+
+  getHeight() {
+    return this.lines.length
+  }
+
+  getWidth() {
+    if (this.lines.length > 1) {
+      return this.maxWidth
+    } else if (this.lines.length == 1) {
+      return this.lines[0].length
+    } else {
+      return 0
+    }
   }
 }
