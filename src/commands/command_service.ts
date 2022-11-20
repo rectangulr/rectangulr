@@ -436,9 +436,7 @@ function updateTree(rootNode: CommandService) {
 }
 
 addToGlobal({
-  debug: {
-    keybinds: rgDebugKeybinds,
-  },
+  keybinds: rgDebugKeybinds,
 })
 
 export function rgDebugKeybinds() {

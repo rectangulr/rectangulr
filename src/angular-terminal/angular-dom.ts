@@ -12,7 +12,7 @@ import { TermElement, TermScreen } from './dom-terminal'
 import { Screen } from './screen-service'
 
 @Injectable({ providedIn: 'root' })
-export class TerminalRendererFactory implements RendererFactory2 {
+export class RectangulrRendererFactory implements RendererFactory2 {
   protected renderer: Renderer2
 
   constructor(private screen: Screen) {
@@ -243,9 +243,6 @@ function globalDebugDOMSize(text) {
 }
 
 addToGlobal({
-  debug: {
-    dom: globalDebugDOM,
-    domSearch: globalDebugDOMSearch,
-    domSize: globalDebugDOMSize,
-  },
+  dom: globalDebugDOM,
+  domSearch: globalDebugDOMSearch,
 })

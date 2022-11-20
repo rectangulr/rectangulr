@@ -80,7 +80,7 @@ export class Table<T> {
         const valuesLengths = visibleItems.map(item => String(item[key]).length)
         const averageLength = _.sum(valuesLengths) / visibleItems.length
         const headerSize = _.clamp(key.length, 2, 15)
-        const res = { name: key, width: _.clamp(averageLength, headerSize, 20) }
+        const res = { name: key, width: _.clamp(averageLength, headerSize, 30) }
         return res
       })
       this.headers = _.map(this.columns, column => {

@@ -51,6 +51,7 @@ export class CommandsDisplay {
       keys: 'enter',
       func: () => {
         let command = this.list.selectedItem.value
+        if (!command) return
         const focused = focusedCommandService(this.commandService)
         focused.callCommand({ id: command.id })
         this.onClose.emit(null)

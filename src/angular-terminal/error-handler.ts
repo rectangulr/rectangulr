@@ -3,7 +3,7 @@ import { Logger } from './logger'
 import { Screen } from './screen-service'
 
 @Injectable()
-export class TerminalErrorHandler implements ErrorHandler {
+export class RectangulrErrorHandler implements ErrorHandler {
   constructor(public screen: Screen, public logger: Logger) {}
 
   handleError(error: Error): void {

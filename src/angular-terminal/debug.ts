@@ -2,10 +2,8 @@ import { addToGlobal, assert } from '../utils/utils'
 
 export function addGlobalRgDebug() {
   addToGlobal({
-    debug: {
-      component: debugComponent,
-      lView: debugLView,
-    },
+    component: debugComponent,
+    lView: debugLView,
   })
 }
 

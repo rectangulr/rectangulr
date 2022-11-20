@@ -2,14 +2,19 @@ import { Injectable } from '@angular/core'
 import * as fs from 'fs'
 import { addToGlobal } from '../utils/utils'
 
+@Injectable({ providedIn: 'root' })
+export class Logger {
+  log(thing) {
+    logFunction({})
+  }
+}
+
 const logFile = './log.json'
 
 let logs = []
 
 addToGlobal({
-  debug: {
-    logs: () => logs.slice(-100),
-  },
+  logs: () => logs.slice(-100),
 })
 
 export function logFunction(thing) {
@@ -28,12 +33,6 @@ export function logFunction(thing) {
 
 export function clearLogFile() {
   fs.writeFileSync(logFile, '', { flag: 'w' })
-}
-
-// As a service
-@Injectable({ providedIn: 'root' })
-export class Logger {
-  log = logFunction
 }
 
 function stringify(thing: any) {

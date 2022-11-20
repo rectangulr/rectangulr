@@ -14,8 +14,8 @@ import { BasicObjectDisplay, List } from '../components/2-common/list/list'
 import { Row } from '../components/2-common/table/row.component'
 import { ListItem } from '../components/2-common/list/list_item'
 import { OnEnterDirective } from '../components/2-common/list/list_on_enter'
-import { TerminalErrorHandler } from './error-handler'
-import { TerminalRendererFactory } from './angular-dom'
+import { RectangulrErrorHandler } from './error-handler'
+import { RectangulrRendererFactory } from './angular-dom'
 import { Screen } from './screen-service'
 import { Box } from '../components/1-basics/box'
 import { ComponentOutletInputs } from '../utils/componentOutletInput'
@@ -55,8 +55,8 @@ const exports = [
   exports: [...exports, BrowserModule, ReactiveFormsModule, DynamicModule],
   providers: [
     Screen,
-    { provide: RendererFactory2, useClass: TerminalRendererFactory },
-    { provide: ErrorHandler, useClass: TerminalErrorHandler },
+    { provide: RendererFactory2, useClass: RectangulrRendererFactory },
+    { provide: ErrorHandler, useClass: RectangulrErrorHandler },
     {
       // used by ./lib/reactivity.ts -> forceRefresh()
       provide: APP_INITIALIZER,
