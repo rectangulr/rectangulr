@@ -1,4 +1,4 @@
-import { Component, inject, Inject, InjectFlags } from '@angular/core'
+import { Component, inject, Inject } from '@angular/core'
 import { ReplaySubject, Subject } from 'rxjs'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
@@ -12,7 +12,7 @@ import { View, ViewService } from './view.service'
   selector: 'app-shell',
   host: { '[style]': "{width: '100%', height: '100%'}" },
   template: `
-    <!-- Display the currentView. The others are 'display: none'. -->
+    <!-- Display the currentView. The others are styled 'display: none'. -->
     <box
       *ngFor="let view of viewService.views"
       [focusSeparate]="focusEmitters.get(view)"
@@ -20,7 +20,7 @@ import { View, ViewService } from './view.service'
       <ng-container [ngComponentOutlet]="view.component"></ng-container>
     </box>
 
-    <!-- Push the bar at the bottom. -->
+    <!-- Push the bottom-bar to the bottom. -->
     <box [style]="{ flexGrow: 1 }"></box>
 
     <!-- Bottom bar. List of tabs. -->
@@ -42,6 +42,7 @@ import { View, ViewService } from './view.service'
       (onClose)="showCommands = false">
     </commands>
 
+    <!-- Popup to show notifications -->
     <notifications></notifications>
   `,
   providers: [
@@ -52,8 +53,9 @@ import { View, ViewService } from './view.service'
         const notificationsService = inject(NotificationsService)
         return {
           log: thing => {
+            logger.log(thing)
             if (thing.level == 'error') {
-              notificationsService.notify({ name: 'An error occured', message: thing })
+              notificationsService.notify({ name: 'An error occured', ...thing })
             }
           },
         }
@@ -68,7 +70,8 @@ export class AppShell {
 
   constructor(
     @Inject(ViewService) public viewService: ViewService,
-    public commandService: CommandService
+    public commandService: CommandService,
+    public logger: Logger
   ) {
     this.focusEmitters = new Map()
     this.viewService.views.forEach(view => {
@@ -100,8 +103,8 @@ export class AppShell {
     },
     {
       keys: 'alt+o',
-      id: 'nextView',
-      keywords: 'next tab',
+      id: 'nextTab',
+      keywords: 'next view',
       func: () => {
         this.viewService.nextView()
       },
@@ -112,6 +115,20 @@ export class AppShell {
         if (this.showCommands) {
           this.showCommands = false
         }
+      },
+    },
+    {
+      id: 'throwError',
+      func: () => {
+        this.logger.log({ level: 'error', message: 'test notification error' })
+      },
+    },
+    {
+      keys: 'alt+l',
+      id: 'showLogs',
+      keywords: 'errors',
+      func: () => {
+        this.viewService.switchTo('logs')
       },
     },
   ]

@@ -8,6 +8,9 @@ import { assert } from '../utils/utils'
 import { Command, CommandService } from './command_service'
 import { Disposable } from './disposable'
 
+/**
+ * Popup to discover shortcuts.
+ */
 @Component({
   selector: 'commands',
   host: { '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%' }" },
@@ -15,7 +18,7 @@ import { Disposable } from './disposable'
     <search-list
       #searchList
       [items]="listOfCommands"
-      [style]="{ border: 'modern', backgroundColor: 'darkgray' }">
+      [style]="{ border: 'rounded', backgroundColor: 'darkgray' }">
       <box *listItem="let command; type: listOfCommands"
         >{{ command.name }} ({{ command.keys }})
       </box>
