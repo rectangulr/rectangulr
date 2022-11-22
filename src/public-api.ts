@@ -20,14 +20,20 @@ export { Row } from './components/2-common/table/row.component'
 export { Table } from './components/2-common/table/table.component'
 export { ObjectEditor, KeyValueEditor } from './components/2-common/object_editor'
 export { FocusDirective, FocusSeparateDirective } from './commands/focus'
-export { ViewService, View } from './components/2-common/viewService/view.service'
-export { AppShell } from './components/2-common/viewService/app-shell.component'
+export { ViewService, View } from './components/2-common/appShell/view.service'
+export { AppShell } from './components/2-common/appShell/app-shell.component'
 export { ConfigLoader } from './components/2-common/config_loader'
 export { ComponentOutletInputs } from './utils/componentOutletInput'
 
 export { CommandsDisplay } from './commands/commands.component'
 export { Command, CommandService, registerCommands } from './commands/command_service'
 export { DetachedCommandServiceDirective } from './commands/commands_detach'
+export {
+  INJECT_NOTIFICATIONS_SERVICE,
+  NotificationsService,
+} from './components/2-common/appShell/notifications.service'
+export { Notifications } from './components/2-common/appShell/notifications.component'
+export { Json5Pipe } from './components/2-common/json5.pipe'
 
 // Lib
 export {
@@ -41,6 +47,6 @@ export {
 
 // Platform
 export { platform } from './angular-terminal/platform'
-export { RectangulrModule } from './angular-terminal/rectangulr.module'
+export { RectangulrModule } from './rectangulr.module'
 export { Logger } from './angular-terminal/logger'
 export { makeRuleset, Element, Event } from './angular-terminal/dom-terminal/'

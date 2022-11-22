@@ -10,7 +10,7 @@ import { Disposable } from './disposable'
 
 @Component({
   selector: 'commands',
-  host: { '[style]': "{ position: 'fixed', top: 0, left: '25%', width: '50%' }" },
+  host: { '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%' }" },
   template: `
     <search-list
       #searchList

@@ -10,6 +10,6 @@ export class RectangulrErrorHandler implements ErrorHandler {
     this.logger.log(error)
     this.screen.screen.releaseScreen()
     ;(globalThis as any).original_console.log(error)
-    process.exit(1)
+    // process.exit(1)
   }
 }

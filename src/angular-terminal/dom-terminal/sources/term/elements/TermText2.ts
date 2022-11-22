@@ -22,8 +22,13 @@ export class TermText2 extends TermElement {
   }
 
   getPreferredSize(maxWidth, widthMode, maxHeight, heightMode) {
-    this.textLayout.maxWidth = maxWidth
+    if (this.textLayout.maxWidth == Infinity) {
+      this.textLayout.maxWidth = maxWidth
+    }
     this.textLayout.update()
+    this.yogaNode.markDirty()
+    this.setDirtyLayoutFlag()
+    this.queueDirtyRect()
 
     let width = this.textLayout.getWidth()
     let height = this.textLayout.getHeight()

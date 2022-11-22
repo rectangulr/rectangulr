@@ -22,6 +22,7 @@ import { StyleOverflowWrap } from './types/StyleOverflowWrap'
 import { StylePosition } from './types/StylePosition'
 import { StyleWeight } from './types/StyleWeight'
 import { StyleWhiteSpace } from './types/StyleWhiteSpace'
+import { Element } from '../dom/Element'
 
 let simple = ['+', '+', '+', '+', '-', '|']
 let modern = ['┌', '┐', '└', '┘', '─', '│']

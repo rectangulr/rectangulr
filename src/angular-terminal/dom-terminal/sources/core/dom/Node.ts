@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { Element } from './Element'
 
 let currentNodeId = 0
 let attributeNameRegex = /^[a-z_][a-z_-]*$/

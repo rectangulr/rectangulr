@@ -1,23 +1,24 @@
 import _ from 'lodash'
 import * as Yoga from 'yoga-layout-prebuilt'
+import { Element } from '../dom/Element'
 
-export function dirtyLayout(node) {
+export function dirtyLayout(node: Element) {
   node.setDirtyLayoutFlag()
 }
 
-export function dirtyClipping(node) {
+export function dirtyClipping(node: Element) {
   node.setDirtyClippingFlag()
 }
 
-export function dirtyRendering(node) {
+export function dirtyRendering(node: Element) {
   node.queueDirtyRect()
 }
 
-export function dirtyFocusList(node) {
+export function dirtyFocusList(node: Element) {
   node.rootNode.setDirtyFocusListFlag()
 }
 
-export function dirtyRenderList(node) {
+export function dirtyRenderList(node: Element) {
   node.rootNode.setDirtyRenderListFlag()
 }
 

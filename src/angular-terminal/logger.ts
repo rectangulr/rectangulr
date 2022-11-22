@@ -2,10 +2,14 @@ import { Injectable } from '@angular/core'
 import * as fs from 'fs'
 import { addToGlobal } from '../utils/utils'
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class Logger {
+  constructor() {}
+
   log(thing) {
-    logFunction({})
+    logFunction(thing)
   }
 }
 

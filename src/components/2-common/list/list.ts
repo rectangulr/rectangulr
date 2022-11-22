@@ -179,13 +179,13 @@ export class List<T> {
     {
       keys: 'pgup',
       func: () => {
-        this.selectIndex(0)
+        this.selectIndex(this.selected.index - this.windowSize)
       },
     },
     {
       keys: 'pgdown',
       func: () => {
-        this.selectIndex(this._items.value.length - 1)
+        this.selectIndex(this.selected.index + this.windowSize)
       },
     },
   ]
