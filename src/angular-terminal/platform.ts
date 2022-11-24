@@ -5,8 +5,6 @@ import { COMPILER_OPTIONS, createPlatformFactory, Sanitizer } from '@angular/cor
 import { platformBrowser as basePlatform } from '@angular/platform-browser'
 import { TerminalSanitizer } from './sanitizer'
 import { TerminalElementSchemaRegistry } from './schema-registry'
-import { patchGlobalConsole } from './logger'
-import { addGlobalRgDebug } from './debug'
 
 export const platform = createPlatformFactory(basePlatform, 'terminal', [
   { provide: DOCUMENT, useValue: {} },
@@ -22,6 +20,3 @@ export const platform = createPlatformFactory(basePlatform, 'terminal', [
     multi: true,
   },
 ])
-
-patchGlobalConsole()
-addGlobalRgDebug()

@@ -1,11 +1,10 @@
-import { Component, inject, Inject } from '@angular/core'
+import { Component, Inject } from '@angular/core'
 import { ReplaySubject, Subject } from 'rxjs'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
 import { Command, CommandService, registerCommands } from '../../../commands/command_service'
 import { subscribe } from '../../../utils/reactivity'
 import { whiteOnGray } from '../styles'
-import { NotificationsService } from './notifications.service'
 import { View, ViewService } from './view.service'
 
 @Component({
@@ -45,23 +44,6 @@ import { View, ViewService } from './view.service'
     <!-- Popup to show notifications -->
     <notifications></notifications>
   `,
-  providers: [
-    {
-      provide: Logger,
-      useFactory: () => {
-        const logger = inject(Logger, { skipSelf: true })
-        const notificationsService = inject(NotificationsService)
-        return {
-          log: thing => {
-            logger.log(thing)
-            if (thing.level == 'error') {
-              notificationsService.notify({ name: 'An error occured', ...thing })
-            }
-          },
-        }
-      },
-    },
-  ],
 })
 export class AppShell {
   currentView: View = null

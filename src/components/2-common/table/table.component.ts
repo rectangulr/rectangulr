@@ -55,7 +55,6 @@ export class Table<T> {
    * To allow the \<list> to be accessed from outside the \<table> using PROVIDE_LIST
    */
   $list = new BehaviorSubject<List<T>>(null)
-  hasResized = false
 
   constructor(public commandService: CommandService) {
     this._items = new State([], this.destroy$)
@@ -65,30 +64,44 @@ export class Table<T> {
 
     makeObservable(this, 'list', '$list')
     subscribe(this, this.$visibleItems, visibleItems => {
-      if (!this.hasResized) {
-        this.autoResizeColumns(visibleItems)
-      }
+      this.udpateColumns(visibleItems)
     })
     registerCommands(this, this.commands)
   }
 
-  autoResizeColumns(visibleItems) {
+  udpateColumns(visibleItems) {
     if (visibleItems && visibleItems.length > 0) {
-      this.hasResized = true
       const keys = Object.keys(visibleItems[0])
+      const keysChanged = !_.isEqual(
+        keys,
+        this.columns.map(c => c.name)
+      )
+      const shouldUpdateWidths = !this.columns || keysChanged
+
       this.columns = _.map(keys, key => {
-        const valuesLengths = visibleItems.map(item => String(item[key]).length)
-        const averageLength = _.sum(valuesLengths) / visibleItems.length
-        const headerSize = _.clamp(key.length, 2, 15)
-        const res = { name: key, width: _.clamp(averageLength, headerSize, 30) }
+        if (shouldUpdateWidths) {
+          var columnWidth = computeWidth(visibleItems, key)
+        } else {
+          var columnWidth = this.columns.find(c => c.name == key).width
+        }
+        const res = { name: key, width: columnWidth }
         return res
       })
+
       this.headers = _.map(this.columns, column => {
         return column.name.slice(0, column.width).padEnd(column.width)
       }).join(' | ')
     } else {
       this.columns = []
-      this.headers = 'No Data'
+      this.headers = 'No rows'
+    }
+
+    function computeWidth(visibleItems: [], key: string) {
+      const valuesWidth = visibleItems.map(item => String(item[key]).length)
+      const averageWidth = _.sum(valuesWidth) / visibleItems.length
+      const headerWidth = _.clamp(key.length, 2, 15)
+      const columnWidth = _.clamp(averageWidth, headerWidth, 40)
+      return columnWidth
     }
   }
 
@@ -97,8 +110,7 @@ export class Table<T> {
       keys: 'ctrl+shift+l',
       id: 'resizeColumns',
       func: () => {
-        this.hasResized = false
-        this.autoResizeColumns(this.$visibleItems.value)
+        this.udpateColumns(this.$visibleItems.value)
       },
     },
   ]

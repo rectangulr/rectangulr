@@ -1,3 +1,4 @@
+import { ProviderToken } from '@angular/core'
 import _ from 'lodash'
 import { Observable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
@@ -106,3 +107,5 @@ export function waitFor(observable: Observable<any>) {
     )
     .toPromise()
 }
+
+export type InjectFunction = <T>(token: ProviderToken<T>) => T

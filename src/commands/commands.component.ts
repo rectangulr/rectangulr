@@ -26,6 +26,7 @@ import { Disposable } from './disposable'
   `,
   providers: [
     {
+      // The shortcuts of this component must be stored separately
       provide: CommandService,
       useFactory: () => {
         const logger = inject(Logger)
@@ -48,33 +49,6 @@ export class CommandsDisplay {
       this.listOfCommands = this.listCommands()
     })
   }
-
-  commands = [
-    {
-      keys: 'enter',
-      func: () => {
-        let command = this.list.selectedItem.value
-        if (!command) return
-        const focused = focusedCommandService(this.commandService)
-        focused.callCommand({ id: command.id })
-        this.onClose.emit(null)
-        this.commandService.before = null
-      },
-    },
-    {
-      keys: 'escape',
-      func: () => {
-        this.onClose.emit(null)
-      },
-    },
-    {
-      keys: 'ctrl+h',
-      name: 'Toggle Hidden Commands',
-      func: () => {
-        this.hideCommands = !this.hideCommands
-      },
-    },
-  ]
 
   ngOnInit() {
     this.listOfCommands = this.listCommands()
@@ -110,6 +84,33 @@ export class CommandsDisplay {
       return commands
     }
   }
+
+  commands = [
+    {
+      keys: 'enter',
+      func: () => {
+        let command = this.list.selectedItem.value
+        if (!command) return
+        const focused = focusedCommandService(this.commandService)
+        focused.callCommand({ id: command.id })
+        this.onClose.emit(null)
+        this.commandService.before = null
+      },
+    },
+    {
+      keys: 'escape',
+      func: () => {
+        this.onClose.emit(null)
+      },
+    },
+    {
+      keys: 'ctrl+h',
+      name: 'Toggle Hidden Commands',
+      func: () => {
+        this.hideCommands = !this.hideCommands
+      },
+    },
+  ]
 
   destroy$ = new Subject()
   ngOnDestroy() {

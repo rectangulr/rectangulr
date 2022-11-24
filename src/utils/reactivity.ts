@@ -215,8 +215,6 @@ export function makeProperty<T, K extends keyof T>(
 //   }
 // }
 
-// export function awaitAndRefresh() {}
-
 export function forceRefresh() {
   globalThis['angularZone'].run(() => {})
 }

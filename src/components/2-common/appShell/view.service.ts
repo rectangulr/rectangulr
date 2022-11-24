@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@angular/core'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { Command, CommandService, registerCommands } from '../../../commands/command_service'
 import { makeObservable } from '../../../utils/reactivity'
 
 /**

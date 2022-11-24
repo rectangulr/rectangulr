@@ -34,6 +34,7 @@ export {
 } from './components/2-common/appShell/notifications.service'
 export { Notifications } from './components/2-common/appShell/notifications.component'
 export { Json5Pipe } from './components/2-common/json5.pipe'
+export { Logs } from './components/2-common/appShell/logs.component'
 
 // Lib
 export {
