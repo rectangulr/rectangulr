@@ -7,7 +7,15 @@ import { Logger } from '../angular-terminal/logger'
 import { Screen } from '../angular-terminal/screen-service'
 import { Destroyable } from '../utils/mixins'
 import { makeObservable, onChange } from '../utils/reactivity'
-import { addToGlobal, assert, last, moveToLast, remove, removeLastMatch } from '../utils/utils'
+import {
+  addToGlobal,
+  assert,
+  async,
+  last,
+  moveToLast,
+  remove,
+  removeLastMatch,
+} from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
 
@@ -235,9 +243,9 @@ export class CommandService {
   requestFocus(child?: CommandService): boolean {
     const receivedFocusRequestRecently = this.receivedFocusRequestRecently
     this.receivedFocusRequestRecently = true
-    setTimeout(() => {
+    async(() => {
       this.receivedFocusRequestRecently = false
-    }, 0)
+    })
 
     if (receivedFocusRequestRecently) return false
 
@@ -267,9 +275,9 @@ export class CommandService {
   requestCaret(element) {
     const receivedCaretRequestRecently = this.receivedCaretRequestRecently
     this.receivedCaretRequestRecently = true
-    setTimeout(() => {
+    async(() => {
       this.receivedCaretRequestRecently = false
-    }, 0)
+    })
 
     if (receivedCaretRequestRecently) return false
 

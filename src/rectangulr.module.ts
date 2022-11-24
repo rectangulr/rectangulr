@@ -75,7 +75,7 @@ const exports = [
     Screen,
     { provide: RendererFactory2, useClass: RectangulrRendererFactory },
     { provide: ErrorHandler, useClass: RectangulrErrorHandler },
-    // { provide: View, useValue: { name: 'logs', component: Logs }, multi: true },
+    { provide: View, useValue: { name: 'logs', component: Logs }, multi: true },
     { provide: 'global', useValue: globalThis },
     {
       provide: APP_INITIALIZER,

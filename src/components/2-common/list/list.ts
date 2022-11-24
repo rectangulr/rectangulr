@@ -21,7 +21,7 @@ import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { CommandService, registerCommands } from '../../../commands/command_service'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
-import { filterNulls, mapKeyValue } from '../../../utils/utils'
+import { async, filterNulls, mapKeyValue } from '../../../utils/utils'
 import { whiteOnGray } from '../styles'
 import { ListItem } from './list_item'
 import { PROVIDE_LIST } from './list_on_enter'
@@ -157,7 +157,7 @@ export class List<T> {
       }
     }
 
-    setTimeout(afterIndexSelected, 0)
+    async(afterIndexSelected)
   }
 
   whiteOnGray = whiteOnGray

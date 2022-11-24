@@ -109,3 +109,7 @@ export function waitFor(observable: Observable<any>) {
 }
 
 export type InjectFunction = <T>(token: ProviderToken<T>) => T
+
+export function async(func: Function) {
+  setTimeout(func, 0)
+}
