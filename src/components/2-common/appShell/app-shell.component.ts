@@ -1,9 +1,9 @@
 import { Component, Inject } from '@angular/core'
-import { ReplaySubject, Subject } from 'rxjs'
+import { Subject } from 'rxjs'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
 import { Command, CommandService, registerCommands } from '../../../commands/command_service'
-import { subscribe } from '../../../utils/reactivity'
+import { makeProperty } from '../../../utils/reactivity'
 import { whiteOnGray } from '../styles'
 import { View, ViewService } from './view.service'
 
@@ -14,7 +14,9 @@ import { View, ViewService } from './view.service'
     <!-- Display the currentView. The others are styled 'display: none'. -->
     <box
       *ngFor="let view of viewService.views"
-      [focusSeparate]="focusEmitters.get(view)"
+      focus
+      [focusFromChildren]="false"
+      [focusIf]="view == currentView"
       [style]="{ display: view == currentView ? 'flex' : 'none' }">
       <ng-container [ngComponentOutlet]="view.component"></ng-container>
     </box>
@@ -47,7 +49,6 @@ import { View, ViewService } from './view.service'
 })
 export class AppShell {
   currentView: View = null
-  focusEmitters: Map<View, Subject<null>> = null
   showCommands: boolean = false
 
   constructor(
@@ -55,21 +56,13 @@ export class AppShell {
     public commandService: CommandService,
     public logger: Logger
   ) {
-    this.focusEmitters = new Map()
-    this.viewService.views.forEach(view => {
-      this.focusEmitters.set(view, new ReplaySubject(1))
-    })
-    subscribe(this, this.viewService.$currentView, currentView => {
-      this.currentView = currentView
-      this.focusEmitters.get(currentView).next(null)
-    })
-
+    makeProperty(this, this.viewService.$currentView, 'currentView')
     registerCommands(this, this.commands)
   }
 
-  ngAfterViewInit() {
-    this.focusEmitters.get(this.currentView).next(null)
-  }
+  // ngAfterViewInit() {
+  //   this.focusEmitters.get(this.currentView).next(null)
+  // }
 
   whiteOnGray = whiteOnGray
   nullOnNull = makeRuleset({ backgroundColor: null, color: null })
@@ -106,7 +99,7 @@ export class AppShell {
       },
     },
     {
-      keys: 'alt+l',
+      keys: 'alt+shift+l',
       id: 'showLogs',
       keywords: 'errors',
       func: () => {

@@ -1,0 +1,36 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+	"extends": "@tsconfig/node14/tsconfig.json",
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"node_modules/**/*",
+		"dist/**/*"
+	],
+	"compilerOptions": {
+		"module": "es2020",
+		"strict": false,
+		"outDir": "./dist",
+		"sourceMap": true,
+		"declaration": true,
+		"downlevelIteration": true,
+		"incremental": true,
+		"baseUrl": "./",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"importHelpers": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"lib": [
+			"dom"
+		],
+		"target": "ES2020",
+		// "types": ["node"],
+		"preserveSymlinks": true
+	},
+	"angularCompilerOptions": {
+		"fullTemplateTypeCheck": true,
+		"strictTemplates": true
+	}
+}

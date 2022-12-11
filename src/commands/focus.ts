@@ -1,48 +1,39 @@
 import { Directive, Input } from '@angular/core'
-import { assert } from 'console'
-import { Observable, Subscription } from 'rxjs'
+import { onChange } from '../utils/reactivity'
 import { CommandService } from './command_service'
 
 @Directive({
-  selector: '[focus]',
+  selector: '[focusIf]',
 })
-export class FocusDirective {
-  @Input() focus: Observable<any>
+export class FocusIfDirective {
+  @Input() focusIf = false
 
-  subscription: Subscription = null
-
-  constructor(public commandService: CommandService) {}
-
-  ngOnInit() {
-    assert(this.focus)
-    this.subscription = this.focus.subscribe(() => {
-      this.commandService.focus()
+  constructor(public commandService: CommandService) {
+    onChange(this, 'focusIf', condition => {
+      if (condition) {
+        this.commandService.focus()
+      }
     })
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe()
   }
 }
 
 @Directive({
-  selector: '[focusSeparate]',
+  selector: '[focus]',
   providers: [CommandService],
 })
-export class FocusSeparateDirective {
-  @Input() focusSeparate: Observable<any>
-
-  subscription: Subscription = null
-
-  constructor(public commandService: CommandService) {}
-
-  ngOnInit() {
-    this.subscription = this.focusSeparate.subscribe(() => {
-      this.commandService.focus()
-    })
+export class FocusDirective {
+  constructor(public commandService: CommandService) {
+    this.commandService.focus()
   }
+}
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe()
+@Directive({
+  selector: '[focusFromChildren]',
+})
+export class FocusFromChildrenDirective {
+  @Input() focusFromChildren = false
+
+  constructor(public commandService: CommandService) {
+    this.commandService.focusFromChildren = this.focusFromChildren
   }
 }

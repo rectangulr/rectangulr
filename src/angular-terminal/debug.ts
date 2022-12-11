@@ -1,4 +1,4 @@
-import { addToGlobal, assert } from '../utils/utils'
+import { addToGlobal, assert, breakInfiniteLoop } from '../utils/utils'
 
 export function addGlobalRgDebug() {
   addToGlobal({
@@ -15,9 +15,9 @@ export function rootLView() {
 
 /**
  * Analyze your components at runtime in your debug console.
- * @example rg.debug.component() // The whole application.
- * @example rg.debug.component('MyComponentName') // A specific component.
- * @example rg.debug.component(this) // The component the debugger stopped in.
+ * @example rg.component() // The whole application.
+ * @example rg.component('MyComponentName') // A specific component.
+ * @example rg.component(this) // The component the debugger stopped in.
  */
 export function debugComponent(arg: any) {
   if (typeof arg == 'string') {
@@ -37,33 +37,45 @@ export function debugComponent(arg: any) {
  * @example rg.debug.component('AppComponent') // A specific component
  */
 export function debugComponentByName(name: string) {
-  let cache = {}
-  debugLView(rootLView(), cache)
-  return cache[name]
+  let cacheNames = {}
+  debugLView(rootLView(), { cacheNames })
+  return cacheNames[name]
 }
 
 export type ComponentDebug = {
   name: string
   context: any
-  children: any
+  children: ComponentDebug[]
+  parent: ComponentDebug
   more: { lView: any; lContainer: any; injector: any; host: any }
 }
 
-export function debugLView(lView, cache = {}): ComponentDebug {
-  const output = {} as ComponentDebug
+export function debugLView(
+  lView,
+  state: { cacheNames?: {}; cacheLViews?: WeakMap<any, ComponentDebug> } = {}
+): ComponentDebug {
+  let { cacheNames = {}, cacheLViews = new WeakMap() } = state
 
+  if (!lView) return null
+  if (cacheLViews.has(lView)) {
+    return cacheLViews.get(lView)
+  }
+
+  const output = {} as ComponentDebug
   const name = lView.context.constructor.name
   output.name = name
 
   // To be able to debug a component by name "rgDebug('MyComponentClassName')"
   // we index the components by name as we traverse the component tree
-  if (cache[name]) {
-    if (!cache[name].includes(output)) {
-      cache[name].push(output)
+  if (cacheNames[name]) {
+    if (!cacheNames[name].includes(output)) {
+      cacheNames[name].push(output)
     }
   } else {
-    cache[name] = [output]
+    cacheNames[name] = [output]
   }
+
+  cacheLViews.set(lView, output)
 
   // Copy context
   output.context = {}
@@ -73,17 +85,6 @@ export function debugLView(lView, cache = {}): ComponentDebug {
     }
   }
 
-  // Children (recursively)
-  const children = lView.childViews.map(debugView => {
-    if (debugView.constructor.name == 'LViewDebug') {
-      return debugLView(debugView, cache)
-    } else if (debugView.constructor.name == 'LContainerDebug') {
-      return debugView.views.map(debugView => debugLView(debugView, cache))
-    } else if (debugView.constructor.name == 'LContainer') {
-      debugger
-    }
-  })
-
   // More info
   const more = {} as ComponentDebug['more']
   more.lView = lView
@@ -91,7 +92,34 @@ export function debugLView(lView, cache = {}): ComponentDebug {
   more.host = lView._raw_lView[0]
   output.more = more
 
+  // Parent (recursively)
+  const parent = findParent(lView)
+  output.parent = debugLView(parent, { cacheNames, cacheLViews })
+  if (!output.parent && lView.parent) throw new Error('error')
+
+  // Children (recursively)
+  const children = lView.childViews.map(debugView => {
+    if (debugView.constructor.name == 'LViewDebug') {
+      return debugLView(debugView, { cacheNames, cacheLViews })
+    } else if (debugView.constructor.name == 'LContainerDebug') {
+      return debugView.views.map(debugView => debugLView(debugView, { cacheNames, cacheLViews }))
+    } else if (debugView.constructor.name == 'LContainer') {
+      debugger
+    }
+  })
   output.children = children
 
   return output
+}
+
+function findParent(lView) {
+  if (lView.parent) {
+    if (lView.parent.context) {
+      return lView.parent
+    } else {
+      return findParent(lView.parent)
+    }
+  } else {
+    return null
+  }
 }

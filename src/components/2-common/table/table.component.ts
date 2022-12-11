@@ -14,6 +14,7 @@ import { makeObservable, onChange, State, subscribe } from '../../../utils/react
 import { List } from '../list/list'
 import { ListItem } from '../list/list_item'
 import { PROVIDE_LIST } from '../list/list_on_enter'
+import { Row } from './row.component'
 
 @Component({
   selector: 'table',
@@ -22,9 +23,12 @@ import { PROVIDE_LIST } from '../list/list_on_enter'
     <list
       [items]="_items.$"
       [trackByFn]="trackByFn"
-      [template]="template || template2"
+      [template]="template || template2 || defaultTemplate"
       (selectedItem)="$selectedItem.next($event)"
       (visibleItems)="$visibleItems.next($event)">
+      <ng-template #defaultTemplate>
+        <row *listItem="let item" [data]="item"></row>
+      </ng-template>
     </list>
   `,
   providers: [
@@ -55,6 +59,7 @@ export class Table<T> {
    * To allow the \<list> to be accessed from outside the \<table> using PROVIDE_LIST
    */
   $list = new BehaviorSubject<List<T>>(null)
+  rowComponent = Row
 
   constructor(public commandService: CommandService) {
     this._items = new State([], this.destroy$)

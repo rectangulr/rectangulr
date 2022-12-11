@@ -113,3 +113,21 @@ export type InjectFunction = <T>(token: ProviderToken<T>) => T
 export function async(func: Function) {
   setTimeout(func, 0)
 }
+
+let i = 0
+export function breakInfiniteLoop(nb = 1000) {
+  assert(i++ < nb)
+}
+
+export function circularReplacer() {
+  const seen = new WeakSet()
+  return (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return
+      }
+      seen.add(value)
+    }
+    return value
+  }
+}

@@ -1,0 +1,44 @@
+{
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "projects": {
+        "ice": {
+            "root": "",
+            "sourceRoot": "src",
+            "projectType": "application",
+            "prefix": "app",
+            "schematics": {},
+            "architect": {
+                "build": {
+                    "defaultConfiguration": "dev",
+                    "builder": "@angular-builders/custom-webpack:browser",
+                    "options": {
+                        "customWebpackConfig": {
+                            "path": "./webpack.config.js"
+                        },
+                        "outputPath": "dist",
+                        "main": "src/index.ts",
+                        "index": "src/index.html",
+                        "tsConfig": "tsconfig.json",
+                        "optimization": false,
+                        "buildOptimizer": false,
+                        "sourceMap": true,
+                        "preserveSymlinks": true
+                    },
+                    "configurations": {
+                        "dev": {},
+                        "production": {
+                            "optimization": true,
+                            "outputHashing": "all",
+                            "sourceMap": false,
+                            "namedChunks": false,
+                            "aot": true,
+                            "extractLicenses": true,
+                            "vendorChunk": false
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

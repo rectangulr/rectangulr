@@ -48,7 +48,7 @@ import { PROVIDE_LIST } from './list_on_enter'
           *ngIf="!template && !template2 && _displayComponent"
           [ngComponentOutlet]="_displayComponent"
           [ngComponentOutletInjector]="injector"
-          [ndcDynamicInputs]="{ object: item }"></ng-container>
+          [ndcDynamicInputs]="{ data: item }"></ng-container>
       </box>
     </box>
   `,
@@ -226,7 +226,7 @@ function clampRange(range, min, max) {
   template: `<box [style]="{ height: 1 }">{{ text }}</box>`,
 })
 export class BasicObjectDisplay {
-  @Input() object: any
+  @Input() data: any
   @Input() includeKeys: string[]
   @Input() excludeKeys: string[] = []
   text = 'error'
@@ -234,17 +234,17 @@ export class BasicObjectDisplay {
   constructor(public list: List<any>) {}
 
   ngOnInit() {
-    const type = typeof this.object
-    if (this.object == null) {
+    const type = typeof this.data
+    if (this.data == null) {
       this.text = 'null'
     } else if (type == 'string' || type == 'number') {
-      this.text = this.object
+      this.text = this.data
     } else if (type == 'object') {
-      this.includeKeys = this.includeKeys || Object.keys(this.object)
-      if (this.object.name != undefined) {
-        this.text = this.object.name
+      this.includeKeys = this.includeKeys || Object.keys(this.data)
+      if (this.data.name != undefined) {
+        this.text = this.data.name
       } else {
-        const newObject = mapKeyValue(this.object, (key, value) => {
+        const newObject = mapKeyValue(this.data, (key, value) => {
           if (this.includeKeys.includes(key)) {
             if (!this.excludeKeys.includes(key)) {
               // json can't contain bigint

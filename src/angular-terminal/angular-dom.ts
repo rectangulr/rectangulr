@@ -148,7 +148,7 @@ interface StringifyOptions {
 
 function stringifyDomNode(node, options?: StringifyOptions) {
   options = { parent: false, children: true, ...options }
-  const cache = new Set()
+  const cache = new WeakSet()
 
   function _stringifyDomNode(node, cache, options: StringifyOptions) {
     let res: any = {}

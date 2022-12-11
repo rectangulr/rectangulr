@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core'
+import { EventEmitter, Inject, Injectable } from '@angular/core'
 import { BehaviorSubject, Subject } from 'rxjs'
 import { makeObservable } from '../../../utils/reactivity'
 
@@ -29,12 +29,6 @@ export class ViewService {
       newIndex = 0
     }
     this.currentView = this.views[newIndex]
-  }
-
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
   }
 }
 

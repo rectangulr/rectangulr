@@ -70,6 +70,7 @@ export class CommandService {
   $isInFocusPath = new EventEmitter<boolean>()
 
   before: CommandService = null
+  focusFromChildren = false
 
   constructor(
     @Optional() public screen: Screen,
@@ -197,30 +198,30 @@ export class CommandService {
     }
   }
 
-  /**
-   * After calling this, this KeybindService gets priority for handling a keypress.
-   * If it doesn't know what to do with it, it can pass it to its parent.
-   * Usually called after a user interaction.
-   */
-  focus(child?: CommandService) {
-    // To be able to call requestFocus() without arguments
-    if (!child) {
-      return this.parent?.focus(this)
-    }
+  // /**
+  //  * After calling this, this KeybindService gets priority for handling a keypress.
+  //  * If it doesn't know what to do with it, it can pass it to its parent.
+  //  * Usually called after a user interaction.
+  //  */
+  // focus(child?: CommandService) {
+  //   // To be able to call requestFocus() without arguments
+  //   if (!child) {
+  //     return this.parent?.focus(this)
+  //   }
 
-    let granted = false
-    if (isRoot(this)) {
-      granted = true
-    } else {
-      granted = this.parent?.focus(this)
-    }
+  //   let granted = false
+  //   if (isRoot(this)) {
+  //     granted = true
+  //   } else {
+  //     granted = this.parent?.focus(this)
+  //   }
 
-    if (granted) {
-      moveToLast(this.focusStack, child)
-      this.focusedChild = _.last(this.focusStack)
-    }
-    return granted
-  }
+  //   if (granted) {
+  //     moveToLast(this.focusStack, child)
+  //     this.focusedChild = _.last(this.focusStack)
+  //   }
+  //   return granted
+  // }
 
   /**
    * Remove itself from its parent's focus stack.
@@ -240,7 +241,12 @@ export class CommandService {
    * Usually called inside `ngOnInit`.
    * If the component should get focused not matter what, use `focus` instead.
    */
-  requestFocus(child?: CommandService): boolean {
+  focus(child?: CommandService): boolean {
+    // To be able to call focus() without arguments
+    if (!child) {
+      return this.parent?.focus(this)
+    }
+
     const receivedFocusRequestRecently = this.receivedFocusRequestRecently
     this.receivedFocusRequestRecently = true
     async(() => {
@@ -249,13 +255,10 @@ export class CommandService {
 
     if (receivedFocusRequestRecently) return false
 
-    // To be able to call requestFocus() without arguments
-    if (!child) {
-      return this.parent?.focus(this)
-    }
-
     let granted = false
     if (isRoot(this)) {
+      granted = true
+    } else if (!this.focusFromChildren) {
       granted = true
     } else {
       granted = this.parent?.focus(this)
@@ -448,7 +451,7 @@ addToGlobal({
 })
 
 export function rgDebugKeybinds() {
-  const ng = globalThis.rg.debug.component() as ComponentDebug
+  const ng = globalThis.rg.component() as ComponentDebug
   const rootKeybindService = ng.more.injector.get(CommandService)
 
   return simplifyCommandService(rootKeybindService)

@@ -26,7 +26,7 @@ import { borderTop } from './styles'
         *ngIf="searchInputVisible"
         [text]="searchText"
         (textChange)="searchTextChange.next($event)"
-        [focus]="focusInput"
+        [focusIf]="focusInputIf"
         [style]="{ backgroundColor: 'gray', color: 'white' }"></text-input>
       <list
         [items]="matchingItems.$"
@@ -56,7 +56,7 @@ export class SearchList<T> {
   @Input() searchKeys = []
   @Input() trackByFn = (index, item) => item
   @Input() searchInputVisible = true
-  @Input() focusInput = NEVER
+  @Input() focusInputIf = false
   @Input() template: TemplateRef<any>
   @ViewChild(List) list: List<T>
   @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any>

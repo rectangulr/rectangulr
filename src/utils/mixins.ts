@@ -8,24 +8,18 @@
  * The constructor is not copied. It has to be called using 'extend'.
  */
 export function extendClass(baseClass: any, mixinClasses: any[]) {
-  mixinClasses.forEach((mixinClass) => {
-    Object.getOwnPropertyNames(mixinClass.prototype).forEach((propertyName) => {
-      if (propertyName == "_constructor" || propertyName == "constructor")
-        return;
+  mixinClasses.forEach(mixinClass => {
+    Object.getOwnPropertyNames(mixinClass.prototype).forEach(propertyName => {
+      if (propertyName == '_constructor' || propertyName == 'constructor') return
       const propertyDescriptor =
-        Object.getOwnPropertyDescriptor(mixinClass.prototype, propertyName) ||
-        Object.create(null);
-      Object.defineProperty(
-        baseClass.prototype,
-        propertyName,
-        propertyDescriptor
-      );
-    });
-  });
+        Object.getOwnPropertyDescriptor(mixinClass.prototype, propertyName) || Object.create(null)
+      Object.defineProperty(baseClass.prototype, propertyName, propertyDescriptor)
+    })
+  })
 }
 
 export function extendConstructor(baseClass, mixinClass, ...constructorArgs) {
-  return mixinClass.prototype._constructor.call(baseClass, ...constructorArgs);
+  return mixinClass.prototype._constructor.call(baseClass, ...constructorArgs)
 }
 
 /**
@@ -34,7 +28,7 @@ export function extendConstructor(baseClass, mixinClass, ...constructorArgs) {
  * But we don't want to use 'new' because we want to modify an existing object.
  */
 export interface Mixin {
-  _constructor?();
+  _constructor?()
 }
 
 // /**
@@ -55,5 +49,5 @@ export interface Mixin {
 // }
 
 export interface Destroyable {
-  destroy$: any;
+  destroy$: any
 }

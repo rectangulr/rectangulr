@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { onChange } from '../utils/reactivity'
-import { addToGlobal, InjectFunction } from '../utils/utils'
+import { addToGlobal, circularReplacer, InjectFunction } from '../utils/utils'
 
 export const LOG_FILE = new InjectionToken<string>('LOG_FILE', { factory: () => 'log.json' })
 
@@ -118,17 +118,5 @@ function stringify(thing: any) {
     Object.defineProperty(thing, 'message', { ...property, enumerable: true })
   }
 
-  return JSON.stringify(
-    thing,
-    function (key, value) {
-      if (typeof value === 'object' && value !== null) {
-        if (cache.indexOf(value) !== -1) {
-          return
-        }
-        cache.push(value)
-      }
-      return value
-    },
-    2
-  )
+  return JSON.stringify(thing, circularReplacer(), 2)
 }

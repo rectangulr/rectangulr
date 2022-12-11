@@ -17,7 +17,7 @@ import { exportGlobalLogs, patchGlobalConsole } from './angular-terminal/logger'
 import { Screen } from './angular-terminal/screen-service'
 import { CommandsDisplay } from './commands/commands.component'
 import { DetachedCommandServiceDirective } from './commands/commands_detach'
-import { FocusDirective, FocusSeparateDirective } from './commands/focus'
+import { FocusIfDirective, FocusDirective, FocusFromChildrenDirective } from './commands/focus'
 import { Box } from './components/1-basics/box'
 import { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'
 import { TextInput } from './components/1-basics/input'
@@ -54,8 +54,9 @@ const exports = [
   StylesDirective,
   ClassesDirective,
   NativeClassesDirective,
+  FocusIfDirective,
   FocusDirective,
-  FocusSeparateDirective,
+  FocusFromChildrenDirective,
   DetachedCommandServiceDirective,
   KeyValueEditor,
   SearchList,

@@ -132,7 +132,7 @@ export class TextInput implements ControlValueAccessor {
     ]
 
     registerCommands(this, keybinds)
-    this.commandService.requestFocus()
+    this.commandService.focus()
   }
 
   ngAfterViewInit() {

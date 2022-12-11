@@ -164,8 +164,8 @@ export function subscribe<T>(
 }
 
 /**
- * Subscribes to an observable and makes it into a property of a component.
- * Subscribes for the lifetime of the component.
+ * Subscribes to an observable and makes it into a property of the component.
+ * Unsubscribes when the component gets destroyed.
  * @param component The subscription gets cleaned up when this component gets destroyed.
  * @param observable The observable to subscribe to.
  * @param key Name of the property that gets updated when the observable changes.
