@@ -2,7 +2,7 @@ import { Component, ElementRef, forwardRef, Input, Output, ViewChild } from '@an
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { CommandService, registerCommands } from '../../commands/command_service'
+import { ShortcutService, registerCommands } from '../../commands/shortcut.service'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
 import { onChange } from '../../utils/reactivity'
 
@@ -17,7 +17,7 @@ let globalId = 0
       useExisting: forwardRef(() => TextInput),
       multi: true,
     },
-    { provide: CommandService },
+    { provide: ShortcutService },
   ],
 })
 export class TextInput implements ControlValueAccessor {
@@ -30,7 +30,7 @@ export class TextInput implements ControlValueAccessor {
   @ViewChild('box') boxRef: ElementRef<Element>
   termTextRef: Element
 
-  constructor(public commandService: CommandService) {
+  constructor(public shortcutService: ShortcutService) {
     onChange(this, 'text', value => {
       this.textChange.next(value)
       this.ControlValueAccessorData.onChange(value)
@@ -132,13 +132,13 @@ export class TextInput implements ControlValueAccessor {
     ]
 
     registerCommands(this, keybinds)
-    this.commandService.focus()
+    this.shortcutService.focus()
   }
 
   ngAfterViewInit() {
     this.termTextRef = this.boxRef.nativeElement.childNodes[0]
     this.updateNativeCaret()
-    this.commandService.requestCaret(this.termTextRef)
+    this.shortcutService.requestCaret(this.termTextRef)
   }
 
   updateNativeCaret() {
@@ -150,7 +150,7 @@ export class TextInput implements ControlValueAccessor {
 
   destroy$ = new Subject()
   ngOnDestroy() {
-    this.commandService.unfocus()
+    this.shortcutService.unfocus()
     this.destroy$.next(null)
     this.destroy$.complete()
   }

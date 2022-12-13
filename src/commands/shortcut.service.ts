@@ -38,7 +38,7 @@ let globalId = 0
 @Injectable({
   providedIn: 'root',
 })
-export class CommandService {
+export class ShortcutService {
   _id = ++globalId
 
   /**
@@ -50,15 +50,15 @@ export class CommandService {
   $commands = new BehaviorSubject(null)
 
   /**
-   * Links a key (ex: ctrl+r) with a command id (ex: reload)
+   * A shortcut links a key (ex: ctrl+r) with a command id (ex: reload)
    */
-  keybinds: { [keys: string]: string[] } = {}
+  shortcuts: { [keys: string]: string[] } = {}
 
-  focusStack: CommandService[] = []
-  focusedChild: CommandService = null
-  children: CommandService[] = []
+  focusStack: ShortcutService[] = []
+  focusedChild: ShortcutService = null
+  children: ShortcutService[] = []
   components = []
-  rootNode: CommandService = null
+  rootNode: ShortcutService = null
 
   receivedFocusRequestRecently = false
   receivedCaretRequestRecently = false
@@ -69,13 +69,13 @@ export class CommandService {
   isInFocusPath = false
   $isInFocusPath = new EventEmitter<boolean>()
 
-  before: CommandService = null
+  before: ShortcutService = null
   focusFromChildren = false
 
   constructor(
     @Optional() public screen: Screen,
     public logger: Logger,
-    @SkipSelf() @Optional() public parent: CommandService
+    @SkipSelf() @Optional() public parent: ShortcutService
   ) {
     if (isRoot(this)) {
       this.rootNode = this
@@ -114,7 +114,7 @@ export class CommandService {
     if (this.focusedChild) {
       const focusStack = `focusStack: [${this.focusStack.map(child => 'child').join(',')}]`
       const components = `components: [${this.components.map(c => c.constructor.name).join(',')}]`
-      const handlers = `handlers: [${Object.keys(this.keybinds)
+      const handlers = `handlers: [${Object.keys(this.shortcuts)
         .filter(value => value.length > 0)
         .join(',')}]`
       // this.logger.log(`${padding(this)}${components}, ${handlers}, ${focusStack}`)
@@ -131,7 +131,7 @@ export class CommandService {
   private handleKeypress(keypress): Key {
     // Keybind
     const key = keyToString(keypress)
-    const ids = this.keybinds[key] || this.keybinds['else']
+    const ids = this.shortcuts[key] || this.shortcuts['else']
     if (ids) {
       const lastId = _.last(ids) as string
       if (lastId) {
@@ -162,8 +162,8 @@ export class CommandService {
     this.commands[command.id].push(command)
 
     for (const key of command.keys) {
-      this.keybinds[key] ??= []
-      this.keybinds[key].push(command.id)
+      this.shortcuts[key] ??= []
+      this.shortcuts[key].push(command.id)
     }
 
     return new Disposable(() => {
@@ -174,7 +174,7 @@ export class CommandService {
   private removeCommand(command: Command) {
     removeLastMatch(this.commands[command.id], command)
     for (const keys of command.keys) {
-      removeLastMatch(this.keybinds[keys], command.id)
+      removeLastMatch(this.shortcuts[keys], command.id)
     }
   }
 
@@ -203,7 +203,7 @@ export class CommandService {
   //  * If it doesn't know what to do with it, it can pass it to its parent.
   //  * Usually called after a user interaction.
   //  */
-  // focus(child?: CommandService) {
+  // focus(child?: ShortcutService) {
   //   // To be able to call requestFocus() without arguments
   //   if (!child) {
   //     return this.parent?.focus(this)
@@ -226,7 +226,7 @@ export class CommandService {
   /**
    * Remove itself from its parent's focus stack.
    */
-  unfocus(child?: CommandService) {
+  unfocus(child?: ShortcutService) {
     // To be able to call unfocus() without arguments
     if (!child) {
       return this.parent?.unfocus(this)
@@ -241,7 +241,7 @@ export class CommandService {
    * Usually called inside `ngOnInit`.
    * If the component should get focused not matter what, use `focus` instead.
    */
-  focus(child?: CommandService): boolean {
+  focus(child?: ShortcutService): boolean {
     // To be able to call focus() without arguments
     if (!child) {
       return this.parent?.focus(this)
@@ -302,14 +302,14 @@ export class CommandService {
   /**
    * Called by children to signal their creation.
    */
-  private childCreated(child: CommandService) {
+  private childCreated(child: ShortcutService) {
     this.children.push(child)
   }
 
   /**
    * Called by children to signal their destruction.
    */
-  private childDestroyed(child: CommandService) {
+  private childDestroyed(child: ShortcutService) {
     remove(this.focusStack, child)
     remove(this.children, child)
   }
@@ -352,8 +352,8 @@ function sanitizeCommand(_command: Partial<Command>): Command {
 /**
  * Is this the root keybind service?
  */
-function isRoot(commandService: CommandService) {
-  return !commandService.parent
+function isRoot(shortcutService: ShortcutService) {
+  return !shortcutService.parent
 }
 
 /**
@@ -374,11 +374,11 @@ export function keyToString(key: Key) {
  * Register keybinds for the lifetime of the component
  */
 export function registerCommands(
-  component: Destroyable & { commandService: CommandService },
+  component: Destroyable & { shortcutService: ShortcutService },
   commands: Partial<Command>[]
 ) {
   const disposables = commands.map(command => {
-    return component.commandService.registerCommand({ ...command, context: component })
+    return component.shortcutService.registerCommand({ ...command, context: component })
   })
 
   component.destroy$.subscribe(() => {
@@ -387,53 +387,53 @@ export function registerCommands(
 }
 
 // function registerMultiKeybind(
-//   component: Destroyable & { commandService: CommandService },
+//   component: Destroyable & { shortcutService: ShortcutService },
 //   multiKeybind: Command & { keys: string[] }
 // ) {
 //   multiKeybind.keys.forEach(key => {
-//     component.commandService.registerCommand({ keys: key, func: multiKeybind.func })
+//     component.shortcutService.registerCommand({ keys: key, func: multiKeybind.func })
 //   })
 // }
 
 // function removeMultiKeybind(
-//   component: Destroyable & { commandService: CommandService },
+//   component: Destroyable & { shortcutService: ShortcutService },
 //   multiKeybind: Command & { keys: string[] }
 // ) {
 //   multiKeybind.keys.forEach(key => {
-//     component.commandService.removeCommand({ keys: key, func: multiKeybind.func })
+//     component.shortcutService.removeCommand({ keys: key, func: multiKeybind.func })
 //   })
 // }
 
-function forEachChild(commandService: CommandService, func) {
-  commandService.children.forEach(child => {
+function forEachChild(shortcutService: ShortcutService, func) {
+  shortcutService.children.forEach(child => {
     func(child)
     forEachChild(child, func)
   })
 }
 
-function forEachChildInFocusPath(commandService: CommandService, func) {
-  func(commandService)
-  if (commandService.focusedChild) {
-    forEachChildInFocusPath(commandService.focusedChild, func)
+function forEachChildInFocusPath(shortcutService: ShortcutService, func) {
+  func(shortcutService)
+  if (shortcutService.focusedChild) {
+    forEachChildInFocusPath(shortcutService.focusedChild, func)
   }
 }
 
-function forFocusedChild(commandService: CommandService, func) {
-  if (commandService.focusedChild) {
-    forEachChildInFocusPath(commandService.focusedChild, func)
+function forFocusedChild(shortcutService: ShortcutService, func) {
+  if (shortcutService.focusedChild) {
+    forEachChildInFocusPath(shortcutService.focusedChild, func)
   } else {
-    func(commandService)
+    func(shortcutService)
   }
 }
 
-function updateTree(rootNode: CommandService) {
+function updateTree(rootNode: ShortcutService) {
   if (!isRoot(rootNode)) throw new Error('should only be called on the keybind root')
 
   forEachChild(rootNode, child => {
     child.isFocused = false
   })
 
-  forEachChildInFocusPath(rootNode, (child: CommandService) => {
+  forEachChildInFocusPath(rootNode, (child: ShortcutService) => {
     child.isFocused = true
   })
 
@@ -452,33 +452,33 @@ addToGlobal({
 
 export function rgDebugKeybinds() {
   const ng = globalThis.rg.component() as ComponentDebug
-  const rootKeybindService = ng.more.injector.get(CommandService)
+  const rootKeybindService = ng.more.injector.get(ShortcutService)
 
-  return simplifyCommandService(rootKeybindService)
+  return simplifyShortcutService(rootKeybindService)
 }
 
-function simplifyCommandService(commandService: CommandService) {
-  let res = _.pick(commandService, ['commands', 'keybinds', '_id']) as any
-  if (commandService.focusedChild) {
-    res.focusedChild = simplifyCommandService(commandService.focusedChild)
+function simplifyShortcutService(shortcutService: ShortcutService) {
+  let res = _.pick(shortcutService, ['commands', 'keybinds', '_id']) as any
+  if (shortcutService.focusedChild) {
+    res.focusedChild = simplifyShortcutService(shortcutService.focusedChild)
   }
   return res
 }
 
-export function padding(commandService: CommandService) {
+export function padding(shortcutService: ShortcutService) {
   let spaces = ''
-  for (let d = depth(commandService); d > 0; d--) {
+  for (let d = depth(shortcutService); d > 0; d--) {
     spaces += '  '
   }
-  return `${commandService._id} ${spaces}`
+  return `${shortcutService._id} ${spaces}`
 }
 
-export function depth(commandService: CommandService) {
+export function depth(shortcutService: ShortcutService) {
   let depth = 0
   while (true) {
-    if (commandService.parent) {
+    if (shortcutService.parent) {
       depth++
-      commandService = commandService.parent
+      shortcutService = shortcutService.parent
     } else {
       return depth
     }

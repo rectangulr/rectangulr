@@ -9,7 +9,7 @@ import {
 } from '@angular/core'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
-import { Command, CommandService, registerCommands } from '../../../commands/command_service'
+import { Command, ShortcutService, registerCommands } from '../../../commands/shortcut.service'
 import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
 import { List } from '../list/list'
 import { ListItem } from '../list/list_item'
@@ -61,7 +61,7 @@ export class Table<T> {
   $list = new BehaviorSubject<List<T>>(null)
   rowComponent = Row
 
-  constructor(public commandService: CommandService) {
+  constructor(public shortcutService: ShortcutService) {
     this._items = new State([], this.destroy$)
     onChange(this, 'items', items => {
       this._items.subscribeSource(items)

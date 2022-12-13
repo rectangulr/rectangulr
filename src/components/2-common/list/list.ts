@@ -19,7 +19,7 @@ import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
-import { CommandService, registerCommands } from '../../../commands/command_service'
+import { ShortcutService, registerCommands } from '../../../commands/shortcut.service'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
 import { async, filterNulls, mapKeyValue } from '../../../utils/utils'
 import { whiteOnGray } from '../styles'
@@ -90,7 +90,7 @@ export class List<T> {
   componentRefs: QueryList<ComponentOutletInjectorDirective>
 
   constructor(
-    @SkipSelf() public commandService: CommandService,
+    @SkipSelf() public shortcutService: ShortcutService,
     @Inject('itemComponent') @Optional() public itemComponentInjected: any,
     public injector: Injector
   ) {
@@ -146,8 +146,8 @@ export class List<T> {
 
     const afterIndexSelected = () => {
       const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
-        .instance as { commandService: CommandService }
-      selectedComponent?.commandService?.focus()
+        .instance as { shortcutService: ShortcutService }
+      selectedComponent?.shortcutService?.focus()
 
       if (this.elementRefs?.length > 0) {
         const element: Element = this.elementRefs.get(

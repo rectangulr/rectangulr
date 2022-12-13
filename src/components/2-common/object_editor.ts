@@ -7,7 +7,7 @@ import { Logger } from '../../angular-terminal/logger'
 import { State } from '../../utils/reactivity'
 import { longest, mapKeyValue } from '../../utils/utils'
 import { blackOnWhite } from './styles'
-import { CommandService, registerCommands } from '../../commands/command_service'
+import { ShortcutService, registerCommands } from '../../commands/shortcut.service'
 
 @Component({
   selector: 'keyvalue-editor',
@@ -17,18 +17,18 @@ import { CommandService, registerCommands } from '../../commands/command_service
       <text-input [formControlName]="keyValue.key" #input [text]="keyValue.value"></text-input>
     </box>
   `,
-  providers: [CommandService],
+  providers: [ShortcutService],
 })
 export class KeyValueEditor {
   @Input('object') keyValue: { key: string; value: any }
   @Input() keyWidth = 8
 
-  constructor(public commandService: CommandService, public formGroup: FormGroup) {}
+  constructor(public shortcutService: ShortcutService, public formGroup: FormGroup) {}
 
   blackOnWhite = blackOnWhite
 
   ngOnDestroy() {
-    this.commandService.unfocus()
+    this.shortcutService.unfocus()
   }
 }
 
@@ -69,7 +69,7 @@ export class ObjectEditor {
   constructor(
     public logger: Logger,
     public fb: FormBuilder,
-    public commandService: CommandService
+    public shortcutService: ShortcutService
   ) {
     this._object = new State(null, this.destroy$)
     this._object.$.subscribe(object => {

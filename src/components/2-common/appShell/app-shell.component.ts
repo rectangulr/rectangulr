@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
-import { Command, CommandService, registerCommands } from '../../../commands/command_service'
+import { Command, ShortcutService, registerCommands } from '../../../commands/shortcut.service'
 import { makeProperty } from '../../../utils/reactivity'
 import { whiteOnGray } from '../styles'
 import { View, ViewService } from './view.service'
@@ -11,13 +11,13 @@ import { View, ViewService } from './view.service'
   selector: 'app-shell',
   host: { '[style]': "{width: '100%', height: '100%'}" },
   template: `
-    <!-- Display the currentView. The others are styled 'display: none'. -->
+    <!-- Display the currentTab. The others are styled 'display: none'. -->
     <box
-      *ngFor="let view of viewService.views"
+      *ngFor="let view of viewService.tabs"
       focus
       [focusFromChildren]="false"
-      [focusIf]="view == currentView"
-      [style]="{ display: view == currentView ? 'flex' : 'none' }">
+      [focusIf]="view == currentTab"
+      [style]="{ display: view == currentTab ? 'flex' : 'none' }">
       <ng-container [ngComponentOutlet]="view.component"></ng-container>
     </box>
 
@@ -27,8 +27,8 @@ import { View, ViewService } from './view.service'
     <!-- Bottom bar. List of tabs. -->
     <box [style]="{ flexDirection: 'row', flexShrink: 0 }">
       <box
-        *ngFor="let view of viewService.views"
-        [classes]="[nullOnNull, [whiteOnGray, view == currentView]]"
+        *ngFor="let view of viewService.tabs"
+        [classes]="[nullOnNull, [whiteOnGray, view == currentTab]]"
         [style]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</box
       >
@@ -39,7 +39,7 @@ import { View, ViewService } from './view.service'
     <!-- Popup to discover shortcuts -->
     <commands
       *ngIf="showCommands"
-      [commandService]="commandService"
+      [shortcutService]="shortcutService"
       (onClose)="showCommands = false">
     </commands>
 
@@ -48,21 +48,17 @@ import { View, ViewService } from './view.service'
   `,
 })
 export class AppShell {
-  currentView: View = null
+  currentTab: View = null
   showCommands: boolean = false
 
   constructor(
     @Inject(ViewService) public viewService: ViewService,
-    public commandService: CommandService,
+    public shortcutService: ShortcutService,
     public logger: Logger
   ) {
-    makeProperty(this, this.viewService.$currentView, 'currentView')
+    makeProperty(this, this.viewService.$currentTab, 'currentTab')
     registerCommands(this, this.commands)
   }
-
-  // ngAfterViewInit() {
-  //   this.focusEmitters.get(this.currentView).next(null)
-  // }
 
   whiteOnGray = whiteOnGray
   nullOnNull = makeRuleset({ backgroundColor: null, color: null })

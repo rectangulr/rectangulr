@@ -5,7 +5,7 @@ import { Logger } from '../angular-terminal/logger'
 import { SearchList } from '../components/2-common/search_list'
 import { onChange } from '../utils/reactivity'
 import { assert } from '../utils/utils'
-import { Command, CommandService } from './command_service'
+import { Command, ShortcutService } from './shortcut.service'
 import { Disposable } from './disposable'
 
 /**
@@ -27,24 +27,24 @@ import { Disposable } from './disposable'
   providers: [
     {
       // The shortcuts of this component must be stored separately
-      provide: CommandService,
+      provide: ShortcutService,
       useFactory: () => {
         const logger = inject(Logger)
-        const commandService = new CommandService(null, logger, null)
-        return commandService
+        const shortcutService = new ShortcutService(null, logger, null)
+        return shortcutService
       },
     },
   ],
 })
-export class CommandsDisplay {
-  @Input() commandService: CommandService = null
+export class ShortcutsDisplay {
+  @Input() shortcutService: ShortcutService = null
   @Output() onClose = new EventEmitter()
 
   listOfCommands: Command[] = []
   hideCommands = true
   @ViewChild('searchList') list: SearchList<any>
 
-  constructor(public isolatedCommandService: CommandService) {
+  constructor(public isolatedCommandService: ShortcutService) {
     onChange(this, 'hideCommands', hideCommands => {
       this.listOfCommands = this.listCommands()
     })
@@ -52,7 +52,7 @@ export class CommandsDisplay {
 
   ngOnInit() {
     this.listOfCommands = this.listCommands()
-    this.commandService.rootNode.before = this.isolatedCommandService
+    this.shortcutService.rootNode.before = this.isolatedCommandService
 
     // almost like: registerCommands(this, this.commands)
     const disposables = this.commands.map(command => {
@@ -65,18 +65,18 @@ export class CommandsDisplay {
   }
 
   private listCommands(): Command[] {
-    function recursiveListCommands(commandService: CommandService, result: Array<Command>) {
-      const commands = Object.values(commandService.commands)
+    function recursiveListCommands(shortcutService: ShortcutService, result: Array<Command>) {
+      const commands = Object.values(shortcutService.commands)
         .map(commands => _.last(commands))
         .filter(c => c)
       result.push(...commands)
-      if (commandService.parent) {
-        recursiveListCommands(commandService.parent, result)
+      if (shortcutService.parent) {
+        recursiveListCommands(shortcutService.parent, result)
       }
     }
 
     let commands: Array<Command> = []
-    const focused = focusedCommandService(this.commandService)
+    const focused = focusedShortcutService(this.shortcutService)
     recursiveListCommands(focused, commands)
     if (this.hideCommands) {
       return commands.filter(c => !c.hidden)
@@ -91,10 +91,10 @@ export class CommandsDisplay {
       func: () => {
         let command = this.list.selectedItem.value
         if (!command) return
-        const focused = focusedCommandService(this.commandService)
+        const focused = focusedShortcutService(this.shortcutService)
         focused.callCommand({ id: command.id })
         this.onClose.emit(null)
-        this.commandService.before = null
+        this.shortcutService.before = null
       },
     },
     {
@@ -119,14 +119,14 @@ export class CommandsDisplay {
   }
 }
 
-function focusedCommandService(rootCommandService: CommandService) {
-  let commandService = rootCommandService
+function focusedShortcutService(rootShortcutService: ShortcutService) {
+  let shortcutService = rootShortcutService
   let i = 0
   while (true) {
-    if (commandService.focusedChild == null) {
-      return commandService
+    if (shortcutService.focusedChild == null) {
+      return shortcutService
     } else {
-      commandService = commandService.focusedChild
+      shortcutService = shortcutService.focusedChild
     }
     assert(i < 100)
   }

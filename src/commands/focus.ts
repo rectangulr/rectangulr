@@ -1,6 +1,6 @@
 import { Directive, Input } from '@angular/core'
 import { onChange } from '../utils/reactivity'
-import { CommandService } from './command_service'
+import { ShortcutService } from './shortcut.service'
 
 @Directive({
   selector: '[focusIf]',
@@ -8,10 +8,10 @@ import { CommandService } from './command_service'
 export class FocusIfDirective {
   @Input() focusIf = false
 
-  constructor(public commandService: CommandService) {
+  constructor(public shortcutService: ShortcutService) {
     onChange(this, 'focusIf', condition => {
       if (condition) {
-        this.commandService.focus()
+        this.shortcutService.focus()
       }
     })
   }
@@ -19,11 +19,11 @@ export class FocusIfDirective {
 
 @Directive({
   selector: '[focus]',
-  providers: [CommandService],
+  providers: [ShortcutService],
 })
 export class FocusDirective {
-  constructor(public commandService: CommandService) {
-    this.commandService.focus()
+  constructor(public shortcutService: ShortcutService) {
+    this.shortcutService.focus()
   }
 }
 
@@ -33,7 +33,7 @@ export class FocusDirective {
 export class FocusFromChildrenDirective {
   @Input() focusFromChildren = false
 
-  constructor(public commandService: CommandService) {
-    this.commandService.focusFromChildren = this.focusFromChildren
+  constructor(public shortcutService: ShortcutService) {
+    this.shortcutService.focusFromChildren = this.focusFromChildren
   }
 }

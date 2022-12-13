@@ -1,16 +1,16 @@
 import { Directive, EventEmitter, inject, Output } from '@angular/core'
 import { Logger } from '../angular-terminal/logger'
-import { CommandService } from './command_service'
+import { ShortcutService } from './shortcut.service'
 
 @Directive({
   selector: '[detachedCommandService]',
   providers: [
     {
-      provide: CommandService,
+      provide: ShortcutService,
       useFactory: () => {
         const logger = inject(Logger)
-        const commandService = new CommandService(null, logger, null)
-        return commandService
+        const shortcutService = new ShortcutService(null, logger, null)
+        return shortcutService
       },
     },
   ],
@@ -18,7 +18,7 @@ import { CommandService } from './command_service'
 export class DetachedCommandServiceDirective {
   @Output() detachedCommandService = new EventEmitter()
 
-  constructor(detachedCommandService: CommandService) {
+  constructor(detachedCommandService: ShortcutService) {
     this.detachedCommandService.emit(detachedCommandService)
   }
 }

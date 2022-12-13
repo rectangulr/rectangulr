@@ -1,6 +1,6 @@
 import { Directive, EventEmitter, inject, InjectionToken, Output } from '@angular/core'
 import { Observable, Subject } from 'rxjs'
-import { registerCommands } from '../../../commands/command_service'
+import { registerCommands } from '../../../commands/shortcut.service'
 import { makeProperty, subscribe } from '../../../utils/reactivity'
 import { assert } from '../../../utils/utils'
 import { List } from './list'

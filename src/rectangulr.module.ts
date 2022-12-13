@@ -15,7 +15,7 @@ import { addGlobalRgDebug } from './angular-terminal/debug'
 import { RectangulrErrorHandler } from './angular-terminal/error-handler'
 import { exportGlobalLogs, patchGlobalConsole } from './angular-terminal/logger'
 import { Screen } from './angular-terminal/screen-service'
-import { CommandsDisplay } from './commands/commands.component'
+import { ShortcutsDisplay } from './commands/commands.component'
 import { DetachedCommandServiceDirective } from './commands/commands_detach'
 import { FocusIfDirective, FocusDirective, FocusFromChildrenDirective } from './commands/focus'
 import { Box } from './components/1-basics/box'
@@ -60,7 +60,7 @@ const exports = [
   DetachedCommandServiceDirective,
   KeyValueEditor,
   SearchList,
-  CommandsDisplay,
+  ShortcutsDisplay,
   AppShell,
   Notifications,
   Json5Pipe,
@@ -76,7 +76,7 @@ const exports = [
     Screen,
     { provide: RendererFactory2, useClass: RectangulrRendererFactory },
     { provide: ErrorHandler, useClass: RectangulrErrorHandler },
-    { provide: View, useValue: { name: 'logs', component: Logs }, multi: true },
+    { provide: View, useValue: { name: 'logs', component: Logs, tags: ['hidden'] }, multi: true },
     { provide: 'global', useValue: globalThis },
     {
       provide: APP_INITIALIZER,
