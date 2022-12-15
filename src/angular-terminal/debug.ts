@@ -1,4 +1,4 @@
-import { addToGlobal, assert, breakInfiniteLoop } from '../utils/utils'
+import { addToGlobal, assert, detectInfiniteLoop } from '../utils/utils'
 
 export function addGlobalRgDebug() {
   addToGlobal({

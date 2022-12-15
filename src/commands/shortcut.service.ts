@@ -70,7 +70,9 @@ export class ShortcutService {
   $isInFocusPath = new EventEmitter<boolean>()
 
   before: ShortcutService = null
-  focusFromChildren = false
+
+  focusPropagateUp = true
+  focusIf = true
 
   constructor(
     @Optional() public screen: Screen,
@@ -198,33 +200,41 @@ export class ShortcutService {
     }
   }
 
-  // /**
-  //  * After calling this, this KeybindService gets priority for handling a keypress.
-  //  * If it doesn't know what to do with it, it can pass it to its parent.
-  //  * Usually called after a user interaction.
-  //  */
-  // focus(child?: ShortcutService) {
-  //   // To be able to call requestFocus() without arguments
-  //   if (!child) {
-  //     return this.parent?.focus(this)
-  //   }
+  /**
+   * If multiple components request focus at the same time, the first one to request wins.
+   * Usually called inside `ngOnInit`.
+   * If the component should get focused not matter what, use `focus` instead.
+   */
+  requestFocus(child?: ShortcutService): void {
+    // To be able to call focus() without arguments
+    if (!child) {
+      return this.parent?.requestFocus(this)
+    }
 
-  //   let granted = false
-  //   if (isRoot(this)) {
-  //     granted = true
-  //   } else {
-  //     granted = this.parent?.focus(this)
-  //   }
+    if (!child.focusIf) {
+      return
+    }
 
-  //   if (granted) {
-  //     moveToLast(this.focusStack, child)
-  //     this.focusedChild = _.last(this.focusStack)
-  //   }
-  //   return granted
-  // }
+    const receivedFocusRequestRecently = this.receivedFocusRequestRecently
+    this.receivedFocusRequestRecently = true
+    async(() => {
+      this.receivedFocusRequestRecently = false
+    })
+    if (receivedFocusRequestRecently) {
+      return
+    }
+
+    moveToLast(this.focusStack, child)
+    this.focusedChild = _.last(this.focusStack)
+
+    if (this.focusPropagateUp) {
+      this.parent?.requestFocus(this)
+    }
+  }
 
   /**
-   * Remove itself from its parent's focus stack.
+   * Give up the focus.
+   * The next shortcutService in the focusStack gets focused.
    */
   unfocus(child?: ShortcutService) {
     // To be able to call unfocus() without arguments
@@ -234,41 +244,6 @@ export class ShortcutService {
 
     remove(this.focusStack, child)
     this.focusedChild = _.last(this.focusStack)
-  }
-
-  /**
-   * If multiple components request focus at the same time, the first one to request wins.
-   * Usually called inside `ngOnInit`.
-   * If the component should get focused not matter what, use `focus` instead.
-   */
-  focus(child?: ShortcutService): boolean {
-    // To be able to call focus() without arguments
-    if (!child) {
-      return this.parent?.focus(this)
-    }
-
-    const receivedFocusRequestRecently = this.receivedFocusRequestRecently
-    this.receivedFocusRequestRecently = true
-    async(() => {
-      this.receivedFocusRequestRecently = false
-    })
-
-    if (receivedFocusRequestRecently) return false
-
-    let granted = false
-    if (isRoot(this)) {
-      granted = true
-    } else if (!this.focusFromChildren) {
-      granted = true
-    } else {
-      granted = this.parent?.focus(this)
-    }
-
-    if (granted) {
-      moveToLast(this.focusStack, child)
-      this.focusedChild = _.last(this.focusStack)
-    }
-    return granted
   }
 
   /**

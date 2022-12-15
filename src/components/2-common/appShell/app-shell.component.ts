@@ -13,9 +13,9 @@ import { View, ViewService } from './view.service'
   template: `
     <!-- Display the currentTab. The others are styled 'display: none'. -->
     <box
-      *ngFor="let view of viewService.tabs"
+      *ngFor="let view of viewService.views"
       focus
-      [focusFromChildren]="false"
+      [focusPropagateUp]="false"
       [focusIf]="view == currentTab"
       [style]="{ display: view == currentTab ? 'flex' : 'none' }">
       <ng-container [ngComponentOutlet]="view.component"></ng-container>

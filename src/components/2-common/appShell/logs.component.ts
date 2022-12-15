@@ -1,8 +1,7 @@
 import { Component } from '@angular/core'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
-import { forceRefresh, subscribe } from '../../../utils/reactivity'
-import { async } from '../../../utils/utils'
+import { subscribe } from '../../../utils/reactivity'
 import { blackOnWhite } from '../styles'
 
 @Component({
@@ -13,16 +12,13 @@ import { blackOnWhite } from '../styles'
   `,
 })
 export class Logs {
-  logs = []
+  logs = null
 
   constructor(public logger: Logger) {
     subscribe(this, this.logger.$logs, logs => {
       // Update the logs asynchronously, because if something gets logged
       // after change detection, it would throw an error
       this.logs = [...logs]
-      // async(() => {
-      //   forceRefresh()
-      // }
     })
   }
 

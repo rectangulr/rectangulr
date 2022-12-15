@@ -147,7 +147,7 @@ export class List<T> {
     const afterIndexSelected = () => {
       const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
         .instance as { shortcutService: ShortcutService }
-      selectedComponent?.shortcutService?.focus()
+      selectedComponent?.shortcutService?.requestFocus()
 
       if (this.elementRefs?.length > 0) {
         const element: Element = this.elementRefs.get(

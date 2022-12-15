@@ -6,15 +6,7 @@ import { ShortcutService } from './shortcut.service'
   selector: '[focusIf]',
 })
 export class FocusIfDirective {
-  @Input() focusIf = false
-
-  constructor(public shortcutService: ShortcutService) {
-    onChange(this, 'focusIf', condition => {
-      if (condition) {
-        this.shortcutService.focus()
-      }
-    })
-  }
+  constructor(public shortcutService: ShortcutService) {}
 }
 
 @Directive({
@@ -22,18 +14,21 @@ export class FocusIfDirective {
   providers: [ShortcutService],
 })
 export class FocusDirective {
+  @Input() focusPropagateUp = true
+  @Input() focusIf = false
+
   constructor(public shortcutService: ShortcutService) {
-    this.shortcutService.focus()
+    onChange(this, 'focusIf', focusIf => {
+      this.shortcutService.focusIf = focusIf
+      if (focusIf) {
+        this.shortcutService.requestFocus()
+      }
+    })
   }
-}
 
-@Directive({
-  selector: '[focusFromChildren]',
-})
-export class FocusFromChildrenDirective {
-  @Input() focusFromChildren = false
-
-  constructor(public shortcutService: ShortcutService) {
-    this.shortcutService.focusFromChildren = this.focusFromChildren
+  ngOnInit() {
+    this.shortcutService.focusIf = this.focusIf
+    this.shortcutService.focusPropagateUp = this.focusPropagateUp
+    this.shortcutService.requestFocus()
   }
 }

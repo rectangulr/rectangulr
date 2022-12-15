@@ -27,7 +27,7 @@ import { Row } from './row.component'
       (selectedItem)="$selectedItem.next($event)"
       (visibleItems)="$visibleItems.next($event)">
       <ng-template #defaultTemplate>
-        <row *listItem="let item" [data]="item"></row>
+        <row *item="let item" [data]="item"></row>
       </ng-template>
     </list>
   `,

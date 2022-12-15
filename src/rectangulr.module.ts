@@ -17,7 +17,7 @@ import { exportGlobalLogs, patchGlobalConsole } from './angular-terminal/logger'
 import { Screen } from './angular-terminal/screen-service'
 import { ShortcutsDisplay } from './commands/commands.component'
 import { DetachedCommandServiceDirective } from './commands/commands_detach'
-import { FocusIfDirective, FocusDirective, FocusFromChildrenDirective } from './commands/focus'
+import { FocusIfDirective, FocusDirective } from './commands/focus'
 import { Box } from './components/1-basics/box'
 import { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'
 import { TextInput } from './components/1-basics/input'
@@ -56,7 +56,7 @@ const exports = [
   NativeClassesDirective,
   FocusIfDirective,
   FocusDirective,
-  FocusFromChildrenDirective,
+  // FocusFromChildrenDirective,
   DetachedCommandServiceDirective,
   KeyValueEditor,
   SearchList,
@@ -82,11 +82,11 @@ const exports = [
       provide: APP_INITIALIZER,
       useFactory: () => {
         const injector = inject(Injector)
-        const globalInject: InjectFunction = token => injector.get(token)
+        const globalInjector: InjectFunction = token => injector.get(token)
 
         return function () {
           addToGlobal({
-            inject: globalInject,
+            inject: globalInjector,
           })
 
           // used by ./lib/reactivity.ts -> forceRefresh()
@@ -95,8 +95,9 @@ const exports = [
           // @ts-ignore
           globalThis['rootZone'] = Zone.current.parent
 
+          // TODO: addToGlobal only once
           exportGlobalLogs()
-          patchGlobalConsole(globalInject)
+          patchGlobalConsole(globalInjector)
           addGlobalRgDebug()
         }
       },

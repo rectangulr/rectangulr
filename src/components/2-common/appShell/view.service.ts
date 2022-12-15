@@ -38,7 +38,7 @@ export class ViewService {
   }
 
   switchTo(viewName: string) {
-    const view = this.tabs.find(v => v.name == viewName)
+    const view = this.views.find(v => v.name == viewName)
     if (!view) throw new Error(`couldnt find view: ${viewName}`)
     this.currentTab = view
   }

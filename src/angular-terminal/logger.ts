@@ -30,7 +30,7 @@ export class Logger {
       logObject = thing
     }
 
-    // Store in memory
+    // Store in memory (max 200)
     this.logs.push(logObject)
     if (this.logs.length > 200) {
       this.logs = this.logs.slice(-100)

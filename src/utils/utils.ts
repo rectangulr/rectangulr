@@ -115,7 +115,7 @@ export function async(func: Function) {
 }
 
 let i = 0
-export function breakInfiniteLoop(nb = 1000) {
+export function detectInfiniteLoop(nb = 1000) {
   assert(i++ < nb)
 }
 

@@ -19,9 +19,7 @@ import { Disposable } from './disposable'
       #searchList
       [items]="listOfCommands"
       [style]="{ border: 'rounded', backgroundColor: 'darkgray' }">
-      <box *listItem="let command; type: listOfCommands"
-        >{{ command.name }} ({{ command.keys }})
-      </box>
+      <box *item="let command; type: listOfCommands">{{ command.name }} ({{ command.keys }}) </box>
     </search-list>
   `,
   providers: [
@@ -128,6 +126,6 @@ function focusedShortcutService(rootShortcutService: ShortcutService) {
     } else {
       shortcutService = shortcutService.focusedChild
     }
-    assert(i < 100)
+    assert(i < 100, 'infinite loop ?')
   }
 }

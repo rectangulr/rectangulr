@@ -2,10 +2,10 @@ import { Directive, Input } from '@angular/core'
 import { Observable } from 'rxjs'
 
 @Directive({
-  selector: '[listItem]',
+  selector: '[item]',
 })
 export class ListItem<T> {
-  @Input() listItemType: T | T[] | Observable<T[]>
+  @Input() itemType: T | T[] | Observable<T[]>
 
   static ngTemplateContextGuard<T>(
     directive: ListItem<T>,
