@@ -16,8 +16,8 @@ import { RectangulrErrorHandler } from './angular-terminal/error-handler'
 import { exportGlobalLogs, patchGlobalConsole } from './angular-terminal/logger'
 import { Screen } from './angular-terminal/screen-service'
 import { ShortcutsDisplay } from './commands/commands.component'
-import { DetachedCommandServiceDirective } from './commands/commands_detach'
-import { FocusIfDirective, FocusDirective } from './commands/focus'
+import { DetachedCommandServiceDirective } from './commands/commands-detach'
+import { FocusDirective } from './commands/focus'
 import { Box } from './components/1-basics/box'
 import { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'
 import { TextInput } from './components/1-basics/input'
@@ -28,11 +28,11 @@ import { Notifications } from './components/2-common/appShell/notifications.comp
 import { View } from './components/2-common/appShell/view.service'
 import { Json5Pipe } from './components/2-common/json5.pipe'
 import { BasicObjectDisplay, List } from './components/2-common/list/list'
-import { ListItem } from './components/2-common/list/list_item'
-import { OnEnterDirective } from './components/2-common/list/list_on_enter'
-import { ObjectDisplay } from './components/2-common/object_display'
-import { KeyValueEditor, ObjectEditor } from './components/2-common/object_editor'
-import { SearchList } from './components/2-common/search_list'
+import { ListItem } from './components/2-common/list/list-item'
+import { OnEnterDirective } from './components/2-common/list/list-on-enter'
+import { ObjectDisplay } from './components/2-common/object-display'
+import { KeyValueEditor, ObjectEditor } from './components/2-common/object-editor'
+import { SearchList } from './components/2-common/search-list'
 import { Row } from './components/2-common/table/row.component'
 import { Table } from './components/2-common/table/table.component'
 import { ComponentOutletInputs } from './utils/componentOutletInput'
@@ -54,7 +54,6 @@ const exports = [
   StylesDirective,
   ClassesDirective,
   NativeClassesDirective,
-  FocusIfDirective,
   FocusDirective,
   // FocusFromChildrenDirective,
   DetachedCommandServiceDirective,

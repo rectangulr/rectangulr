@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angu
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
-import { SearchList } from '../components/2-common/search_list'
+import { SearchList } from '../components/2-common/search-list'
 import { onChange } from '../utils/reactivity'
 import { assert } from '../utils/utils'
 import { Command, ShortcutService } from './shortcut.service'

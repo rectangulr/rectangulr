@@ -23,8 +23,8 @@ import { ShortcutService, registerShortcuts } from '../../../commands/shortcut.s
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
 import { async, filterNulls, mapKeyValue } from '../../../utils/utils'
 import { whiteOnGray } from '../styles'
-import { ListItem } from './list_item'
-import { PROVIDE_LIST } from './list_on_enter'
+import { ListItem } from './list-item'
+import { PROVIDE_LIST } from './list-on-enter'
 
 /**
  * Displays a list of items and highlights the current item.

@@ -14,8 +14,8 @@ import { Logger } from '../../angular-terminal/logger'
 import { makeObservable, State } from '../../utils/reactivity'
 import { filterNulls } from '../../utils/utils'
 import { List } from './list/list'
-import { ListItem } from './list/list_item'
-import { PROVIDE_LIST } from './list/list_on_enter'
+import { ListItem } from './list/list-item'
+import { PROVIDE_LIST } from './list/list-on-enter'
 import { borderTop } from './styles'
 
 @Component({

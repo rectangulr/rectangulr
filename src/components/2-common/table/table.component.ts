@@ -12,8 +12,8 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
 import { List } from '../list/list'
-import { ListItem } from '../list/list_item'
-import { PROVIDE_LIST } from '../list/list_on_enter'
+import { ListItem } from '../list/list-item'
+import { PROVIDE_LIST } from '../list/list-on-enter'
 import { Row } from './row.component'
 
 @Component({

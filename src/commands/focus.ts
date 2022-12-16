@@ -3,31 +3,24 @@ import { onChange } from '../utils/reactivity'
 import { ShortcutService } from './shortcut.service'
 
 @Directive({
-  selector: '[focusIf]',
-})
-export class FocusIfDirective {
-  constructor(public shortcutService: ShortcutService) {}
-}
-
-@Directive({
-  selector: '[focus]',
+  selector: '[focus], [focusIf], [focusPropagateUp]',
   providers: [ShortcutService],
 })
 export class FocusDirective {
   @Input() focusPropagateUp = true
   @Input() focusIf = false
 
-  constructor(public shortcutService: ShortcutService) {
+  constructor(public shortcutService: ShortcutService) {}
+
+  ngOnInit() {
+    this.shortcutService.focusIf = this.focusIf
     onChange(this, 'focusIf', focusIf => {
       this.shortcutService.focusIf = focusIf
       if (focusIf) {
         this.shortcutService.requestFocus()
       }
     })
-  }
 
-  ngOnInit() {
-    this.shortcutService.focusIf = this.focusIf
     this.shortcutService.focusPropagateUp = this.focusPropagateUp
     this.shortcutService.requestFocus()
   }
