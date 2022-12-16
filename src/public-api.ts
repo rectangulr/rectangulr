@@ -27,7 +27,7 @@ export { ConfigLoader } from './components/2-common/config_loader'
 export { ComponentOutletInputs } from './utils/componentOutletInput'
 
 export { ShortcutsDisplay } from './commands/commands.component'
-export { Command, ShortcutService, registerCommands } from './commands/shortcut.service'
+export { Command, ShortcutService, registerShortcuts } from './commands/shortcut.service'
 export { DetachedCommandServiceDirective } from './commands/commands_detach'
 export {
   INJECT_NOTIFICATIONS_SERVICE,

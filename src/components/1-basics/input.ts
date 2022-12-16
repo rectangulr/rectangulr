@@ -2,7 +2,7 @@ import { Component, ElementRef, forwardRef, Input, Output, ViewChild } from '@an
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { ShortcutService, registerCommands } from '../../commands/shortcut.service'
+import { ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
 import { onChange } from '../../utils/reactivity'
 
@@ -131,7 +131,7 @@ export class TextInput implements ControlValueAccessor {
       },
     ]
 
-    registerCommands(this, keybinds)
+    registerShortcuts(this, keybinds)
     this.shortcutService.requestFocus()
   }
 

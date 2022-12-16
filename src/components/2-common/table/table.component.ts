@@ -9,7 +9,7 @@ import {
 } from '@angular/core'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
-import { Command, ShortcutService, registerCommands } from '../../../commands/shortcut.service'
+import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
 import { List } from '../list/list'
 import { ListItem } from '../list/list_item'
@@ -71,7 +71,7 @@ export class Table<T> {
     subscribe(this, this.$visibleItems, visibleItems => {
       this.udpateColumns(visibleItems)
     })
-    registerCommands(this, this.commands)
+    registerShortcuts(this, this.commands)
   }
 
   udpateColumns(visibleItems) {

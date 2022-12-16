@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
-import { Command, ShortcutService, registerCommands } from '../../../commands/shortcut.service'
+import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { makeProperty } from '../../../utils/reactivity'
 import { whiteOnGray } from '../styles'
 import { View, ViewService } from './view.service'
@@ -57,7 +57,7 @@ export class AppShell {
     public logger: Logger
   ) {
     makeProperty(this, this.viewService.$currentTab, 'currentTab')
-    registerCommands(this, this.commands)
+    registerShortcuts(this, this.commands)
   }
 
   whiteOnGray = whiteOnGray

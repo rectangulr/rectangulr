@@ -1,6 +1,6 @@
 import { Directive, EventEmitter, inject, InjectionToken, Output } from '@angular/core'
 import { Observable, Subject } from 'rxjs'
-import { registerCommands } from '../../../commands/shortcut.service'
+import { registerShortcuts } from '../../../commands/shortcut.service'
 import { makeProperty, subscribe } from '../../../utils/reactivity'
 import { assert } from '../../../utils/utils'
 import { List } from './list'
@@ -37,7 +37,7 @@ export class OnEnterDirective {
 
       this.list = list
 
-      registerCommands(list, this.commands)
+      registerShortcuts(list, this.commands)
 
       makeProperty(this, list.$selectedItem, 'selectedItem')
     })

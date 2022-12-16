@@ -348,7 +348,7 @@ export function keyToString(key: Key) {
 /**
  * Register keybinds for the lifetime of the component
  */
-export function registerCommands(
+export function registerShortcuts(
   component: Destroyable & { shortcutService: ShortcutService },
   commands: Partial<Command>[]
 ) {

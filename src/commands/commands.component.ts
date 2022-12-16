@@ -52,7 +52,7 @@ export class ShortcutsDisplay {
     this.listOfCommands = this.listCommands()
     this.shortcutService.rootNode.before = this.isolatedCommandService
 
-    // almost like: registerCommands(this, this.commands)
+    // almost like: registerShortcuts(this, this.commands)
     const disposables = this.commands.map(command => {
       return this.isolatedCommandService.registerCommand({ ...command, context: this })
     })

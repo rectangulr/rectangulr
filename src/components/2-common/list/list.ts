@@ -19,7 +19,7 @@ import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
-import { ShortcutService, registerCommands } from '../../../commands/shortcut.service'
+import { ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
 import { async, filterNulls, mapKeyValue } from '../../../utils/utils'
 import { whiteOnGray } from '../styles'
@@ -118,7 +118,7 @@ export class List<T> {
       this.selectIndex(0)
     })
 
-    registerCommands(this, this.commands)
+    registerShortcuts(this, this.commands)
 
     makeObservable(this, 'visibleRange', '$visibleRange')
 
