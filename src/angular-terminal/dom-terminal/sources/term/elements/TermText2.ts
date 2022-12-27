@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { assert } from '../../../../../utils/utils'
 import { TermElement } from './TermElement'
 
@@ -90,6 +91,9 @@ export class TextLayout2 {
     for (let i = 0; i < nbOfLines; i++) {
       const nextLine = this.text.slice(this.maxWidth * i, this.maxWidth * (i + 1))
       this.lines.push(nextLine)
+    }
+    if (this.lines.length == 0) {
+      this.lines = ['']
     }
   }
 

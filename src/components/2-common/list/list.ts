@@ -1,6 +1,7 @@
 import {
   Component,
   ContentChild,
+  ContentChildren,
   ElementRef,
   inject,
   Inject,
@@ -15,13 +16,13 @@ import {
 } from '@angular/core'
 import * as json5 from 'json5'
 import _ from 'lodash'
-import { ComponentOutletInjectorDirective } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
-import { ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { FocusDirective } from '../../../commands/focus'
+import { registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
-import { async, filterNulls, mapKeyValue } from '../../../utils/utils'
+import { async, filterNulls, mapKeyValue, stringifyReplacer } from '../../../utils/utils'
 import { whiteOnGray } from '../styles'
 import { ListItem } from './list-item'
 import { PROVIDE_LIST } from './list-on-enter'
@@ -86,8 +87,7 @@ export class List<T> {
   visibleItems = []
 
   @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs: QueryList<ElementRef>
-  @ViewChildren(ComponentOutletInjectorDirective, { emitDistinctChangesOnly: true })
-  componentRefs: QueryList<ComponentOutletInjectorDirective>
+  @ContentChildren(FocusDirective) focusRefs: QueryList<FocusDirective>
 
   constructor(
     @SkipSelf() public shortcutService: ShortcutService,
@@ -107,8 +107,6 @@ export class List<T> {
   }
 
   ngOnInit() {
-    // assert(this.items == undefined)
-
     // The way the item is displayed can be customized via an Input, and Injected value, or defaults to a basic json stringify
     this._displayComponent =
       this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay
@@ -117,7 +115,6 @@ export class List<T> {
     subscribe(this, this._items.$, items => {
       this.selectIndex(0)
     })
-
     registerShortcuts(this, this.commands)
 
     makeObservable(this, 'visibleRange', '$visibleRange')
@@ -145,9 +142,10 @@ export class List<T> {
     this.$selectedItem.next(this.selected.value)
 
     const afterIndexSelected = () => {
-      const selectedComponent = this.componentRefs?.get(this.selected.index)?.componentRef
-        .instance as { shortcutService: ShortcutService }
-      selectedComponent?.shortcutService?.requestFocus()
+      if (this.focusRefs.length > 0) {
+        const selectedFocusDirective = this.focusRefs?.get(this.selected.index)
+        selectedFocusDirective.shortcutService.requestFocus()
+      }
 
       if (this.elementRefs?.length > 0) {
         const element: Element = this.elementRefs.get(
@@ -255,7 +253,7 @@ export class BasicObjectDisplay {
             }
           }
         })
-        this.text = json5.stringify(newObject)
+        this.text = json5.stringify(newObject, stringifyReplacer())
       }
     } else {
       throw new Error(`can't display this`)

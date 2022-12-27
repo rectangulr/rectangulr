@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'
 import { State } from '../../utils/reactivity'
-import { circularReplacer, longest } from '../../utils/utils'
+import { longest, stringifyReplacer } from '../../utils/utils'
 import { blackOnWhite } from './styles'
 
 @Component({
@@ -35,7 +35,7 @@ export class ObjectDisplay {
       }
       this.keyValues = Object.entries(object).map(([key, value]) => {
         if (_.isPlainObject(value)) {
-          return { key, value: json5.stringify(value, circularReplacer()) }
+          return { key, value: json5.stringify(value, stringifyReplacer()) }
         }
         return { key, value }
       })

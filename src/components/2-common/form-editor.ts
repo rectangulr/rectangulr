@@ -20,10 +20,14 @@ import { ShortcutService, registerShortcuts } from '../../commands/shortcut.serv
   providers: [ShortcutService],
 })
 export class KeyValueEditor {
-  @Input('object') keyValue: { key: string; value: any }
+  @Input() keyValue: { key: string; value: any } = null
   @Input() keyWidth = 8
 
   constructor(public shortcutService: ShortcutService, public formGroup: FormGroup) {}
+
+  ngOnInit() {
+    this.keyWidth = this.keyValue.key.length + 1
+  }
 
   blackOnWhite = blackOnWhite
 
@@ -33,17 +37,24 @@ export class KeyValueEditor {
 }
 
 @Component({
-  selector: 'object-editor',
-  template: ` <list [items]="keyValues" [displayComponent]="KeyValueEditor"></list> `,
+  selector: 'form-editor',
+  template: `
+    <list [items]="keyValues">
+      <keyvalue-editor
+        *item="let keyValue; type: keyValues"
+        focus
+        [keyValue]="keyValue"></keyvalue-editor>
+    </list>
+  `,
   providers: [
     {
       provide: FormGroup,
-      useFactory: (objectEditor: ObjectEditor) => objectEditor.form,
-      deps: [ObjectEditor],
+      useFactory: (objectEditor: FormEditor) => objectEditor.form,
+      deps: [FormEditor],
     },
   ],
 })
-export class ObjectEditor {
+export class FormEditor {
   @Input() set object(object) {
     this._object.subscribeSource(object)
   }
@@ -89,7 +100,6 @@ export class ObjectEditor {
   }
 
   blackOnWhite = blackOnWhite
-  KeyValueEditor = KeyValueEditor
 
   destroy$ = new Subject()
   ngOnDestroy() {

@@ -20,23 +20,24 @@ import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { FocusDirective } from './commands/focus'
 import { Box } from './components/1-basics/box'
 import { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'
-import { TextInput } from './components/1-basics/input'
+import { TextInput } from './components/1-basics/text-input'
 import { StyleDirective, StylesDirective } from './components/1-basics/style'
-import { AppShell } from './components/2-common/appShell/app-shell.component'
-import { Logs } from './components/2-common/appShell/logs.component'
-import { Notifications } from './components/2-common/appShell/notifications.component'
-import { View } from './components/2-common/appShell/view.service'
+import { AppShell } from './components/2-common/app-shell/app-shell.component'
+import { Logs } from './components/2-common/app-shell/logs.component'
+import { Notifications } from './components/2-common/app-shell/notifications.component'
+import { View } from './components/2-common/app-shell/view.service'
 import { Json5Pipe } from './components/2-common/json5.pipe'
 import { BasicObjectDisplay, List } from './components/2-common/list/list'
 import { ListItem } from './components/2-common/list/list-item'
 import { OnEnterDirective } from './components/2-common/list/list-on-enter'
 import { ObjectDisplay } from './components/2-common/object-display'
-import { KeyValueEditor, ObjectEditor } from './components/2-common/object-editor'
+import { KeyValueEditor, FormEditor } from './components/2-common/form-editor'
 import { SearchList } from './components/2-common/search-list'
 import { Row } from './components/2-common/table/row.component'
 import { Table } from './components/2-common/table/table.component'
 import { ComponentOutletInputs } from './utils/componentOutletInput'
 import { addToGlobal, InjectFunction } from './utils/utils'
+import { JsonEditor } from './components/2-common/json-editor/json-editor'
 
 const exports = [
   Box,
@@ -46,7 +47,7 @@ const exports = [
   OnEnterDirective,
   TextInput,
   ObjectDisplay,
-  ObjectEditor,
+  FormEditor,
   BasicObjectDisplay,
   Table,
   Row,
@@ -65,6 +66,7 @@ const exports = [
   Json5Pipe,
   ComponentOutletInputs,
   Logs,
+  JsonEditor,
 ]
 
 @NgModule({

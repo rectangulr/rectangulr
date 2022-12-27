@@ -27,7 +27,7 @@ export interface Command {
   id: string
   name: string
   keys: string | string[]
-  func: (key: Key) => Key[] | void | Promise<Key[]> | Promise<void>
+  func: (key: Key) => Key | void | Promise<Key> | Promise<void>
   context?: any
   keywords: string
   hidden: boolean
@@ -205,30 +205,49 @@ export class ShortcutService {
    * Usually called inside `ngOnInit`.
    * If the component should get focused not matter what, use `focus` instead.
    */
-  requestFocus(child?: ShortcutService): void {
+  requestFocus(args?: { child?: ShortcutService; soft?: boolean }) {
+    args = { child: null, soft: false, ...args }
+
+    // const log = message => {
+    //   this.logger.log({
+    //     this: simplifyShortcutService(this),
+    //     child: simplifyShortcutService(args.child),
+    //     soft: args.soft,
+    //     message,
+    //   })
+    // }
+
     // To be able to call focus() without arguments
-    if (!child) {
-      return this.parent?.requestFocus(this)
+    if (!args.child) {
+      return this.parent?.requestFocus({ ...args, child: this })
     }
 
-    if (!child.focusIf) {
+    if (!args.child.focusIf) {
+      // log('!focusIf')
       return
     }
 
-    const receivedFocusRequestRecently = this.receivedFocusRequestRecently
-    this.receivedFocusRequestRecently = true
-    async(() => {
-      this.receivedFocusRequestRecently = false
-    })
-    if (receivedFocusRequestRecently) {
-      return
+    if (args.soft) {
+      const receivedFocusRequestRecently = this.receivedFocusRequestRecently
+      this.receivedFocusRequestRecently = true
+      async(() => {
+        this.receivedFocusRequestRecently = false
+      })
+      if (receivedFocusRequestRecently) {
+        // log('receivedFocusRequestRecently')
+        return
+      }
     }
 
-    moveToLast(this.focusStack, child)
+    moveToLast(this.focusStack, args.child)
     this.focusedChild = _.last(this.focusStack)
+    // log('received')
 
     if (this.focusPropagateUp) {
-      this.parent?.requestFocus(this)
+      this.parent?.requestFocus({ ...args, child: this })
+    } else {
+      // log('!focusPropagateUp')
+      return
     }
   }
 
@@ -244,24 +263,6 @@ export class ShortcutService {
 
     remove(this.focusStack, child)
     this.focusedChild = _.last(this.focusStack)
-  }
-
-  /**
-   * If multiple components request the caret at the same time, the first one to request wins.
-   * Usually called inside `ngOnInit`.
-   */
-  requestCaret(element) {
-    const receivedCaretRequestRecently = this.receivedCaretRequestRecently
-    this.receivedCaretRequestRecently = true
-    async(() => {
-      this.receivedCaretRequestRecently = false
-    })
-
-    if (receivedCaretRequestRecently) return false
-
-    this.caretElement = element
-    updateTree(this.rootNode)
-    return true
   }
 
   /**
@@ -433,9 +434,23 @@ export function rgDebugKeybinds() {
 }
 
 function simplifyShortcutService(shortcutService: ShortcutService) {
-  let res = _.pick(shortcutService, ['commands', 'keybinds', '_id']) as any
+  let res = _.pick(shortcutService, ['commands', 'keybinds', 'children', '_id']) as any
   if (shortcutService.focusedChild) {
     res.focusedChild = simplifyShortcutService(shortcutService.focusedChild)
+  }
+
+  res.toString = () => {
+    const componentNames = Object.values(shortcutService.commands)
+      .map(commands => _.last(commands))
+      .map(command => command.context.constructor.name)
+      // .reduce((prev, cur) => {
+      //   if (!prev.includes(cur)) {
+      //     prev.push(cur)
+      //   }
+      // }, [])
+      .join()
+
+    return `${shortcutService._id} (${componentNames})`
   }
   return res
 }

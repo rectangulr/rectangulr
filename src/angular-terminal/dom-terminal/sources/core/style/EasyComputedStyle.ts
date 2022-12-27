@@ -13,6 +13,9 @@ export function EasyComputedStyle(computed, base = Object.create(null)) {
     },
 
     get(target, key) {
+      if (String(key).startsWith('toJSON')) {
+        return {}
+      }
       if (_.has(styleProperties, key)) {
         return computed.get(key)
       } else if (key == 'keys') {

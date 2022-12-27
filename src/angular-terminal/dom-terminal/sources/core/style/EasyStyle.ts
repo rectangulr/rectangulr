@@ -21,6 +21,9 @@ export function EasyStyle(ruleset: Ruleset, selector = [], base = Object.create(
     get(target, key: string, receiver) {
       if (_.has(base, key)) return base[key]
 
+      if (String(key).startsWith('toJSON')) {
+        return {}
+      }
       if (!_.has(styleProperties, key))
         throw new Error(
           `Failed to get a style property: '${key}' is not a valid style property name. ${typeof base} ${JSON.stringify(
