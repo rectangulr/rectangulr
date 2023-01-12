@@ -86,7 +86,7 @@ export function mergeDeep(object, other) {
  * })
  * rg.myGlobalFunction("print this")
  */
-export function addToGlobal(obj) {
+export function addToGlobalRg(obj) {
   globalThis['rg'] ||= {}
   globalThis['rg'] = mergeDeep(globalThis['rg'], obj)
 }

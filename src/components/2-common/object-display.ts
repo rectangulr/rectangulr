@@ -3,6 +3,7 @@ import * as json5 from 'json5'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'
+import { KeyValue } from '../../utils/interfaces'
 import { State } from '../../utils/reactivity'
 import { longest, stringifyReplacer } from '../../utils/utils'
 import { blackOnWhite } from './styles'
@@ -50,9 +51,4 @@ export class ObjectDisplay {
     this.destroy$.next(null)
     this.destroy$.complete()
   }
-}
-
-interface KeyValue {
-  key: string
-  value: any
 }

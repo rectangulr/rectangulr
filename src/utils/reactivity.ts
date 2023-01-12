@@ -1,7 +1,7 @@
 import { BehaviorSubject, isObservable, Observable, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { Destroyable } from './mixins'
-import { addToGlobal } from './utils'
+import { addToGlobalRg } from './utils'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.
@@ -219,6 +219,6 @@ export function forceRefresh() {
   globalThis['angularZone'].run(() => {})
 }
 
-addToGlobal({
+addToGlobalRg({
   forceRefresh: forceRefresh,
 })

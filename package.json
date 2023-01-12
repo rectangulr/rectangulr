@@ -24,6 +24,7 @@
     "zone.js": "~0.11.3"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^14.0.1",
     "@angular-devkit/build-angular": "^14.2.6",
     "@angular/cli": "^14.2.6",
     "@angular/common": "^14.2.6",
@@ -32,7 +33,9 @@
     "@angular/core": "^14.2.6",
     "@angular/forms": "^14.2.6",
     "@angular/platform-browser": "^14.2.6",
+    "@angular/platform-browser-dynamic": "^14.2.6",
     "@babel/cli": "^7.19.3",
+    "@types/jasmine": "^4.3.1",
     "@types/lodash": "^4.14.189",
     "@types/node": "^12.11.1",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
@@ -41,6 +44,7 @@
     "eslint": "^8.28.0",
     "eslint-plugin-capture": "^1.1.0",
     "fuse.js": "^6.4.6",
+    "jasmine": "^4.5.0",
     "json5": "^2.2.0",
     "lodash": "^4.17.21",
     "ng-dynamic-component": "^10.5.1",

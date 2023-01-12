@@ -1,30 +1,41 @@
-import { Injectable, NgZone } from '@angular/core'
+import { Inject, Injectable, NgZone } from '@angular/core'
 import { TermElement, TermScreen } from './dom-terminal'
 import { elementsFactory } from './elements-registry'
+import { InputOutput, INPUT_OUTPUT } from './input-output'
+import { Logger } from './logger'
 
-@Injectable({ providedIn: 'root' })
-export class Screen {
-  public screen: TermScreen
+@Injectable({
+  providedIn: 'root',
+})
+export class ScreenService {
+  public termScreen: TermScreen
 
-  constructor(public ngZone: NgZone) {
-    this.screen = new TermScreen({ debugPaintRects: false })
+  constructor(
+    @Inject(INPUT_OUTPUT) public inputOutput: InputOutput,
+    public ngZone: NgZone,
+    public logger: Logger
+  ) {
+    this.termScreen = new TermScreen({ debugPaintRects: false, logger: this.logger })
+
     {
-      // Patch the stdout object, so that writing to it doesn't trigger another change detection.
-      // Because that would create an infinite loop.
-      const original_func = process.stdout.write
-      process.stdout.write = (...args) => {
+      // Patch the `inputOutput.output.write` function, so that writing doesn't trigger
+      // another change detection, which would create an infinite loop.
+      const original_func = inputOutput.output.write
+      inputOutput.output.write = (...args) => {
         return this.ngZone.runOutsideAngular(() => {
           return original_func.apply(process.stdout, args)
         })
       }
     }
-    this.screen.attachScreen({
-      stdin: process.stdin,
-      stdout: process.stdout,
+
+    this.termScreen.attachScreen({
+      stdin: inputOutput.input,
+      stdout: inputOutput.output,
       trackOutputSize: true,
       throttleMouseMoveEvents: 1000 / 60,
     })
-    globalThis['DOM'] = this.screen
+
+    globalThis['DOM'] = this.termScreen
   }
 
   createElement(name: string, options: any = {}): TermElement {
@@ -38,6 +49,6 @@ export class Screen {
   }
 
   selectRootElement(): TermScreen {
-    return this.screen
+    return this.termScreen
   }
 }

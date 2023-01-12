@@ -21,11 +21,18 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "main": "src/test.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js"
+            "tsConfig": "tsconfig.json",
+            "outputPath": "dist-test",
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            },
+            "index": "src/index.html",
+            "optimization": false,
+            "buildOptimizer": false,
+            "sourceMap": true
           }
         },
         "lint": {

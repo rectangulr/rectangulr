@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { onChange } from '../utils/reactivity'
-import { addToGlobal, InjectFunction, stringifyReplacer } from '../utils/utils'
+import { InjectFunction, stringifyReplacer } from '../utils/utils'
 
 export const LOG_FILE = new InjectionToken<string>('LOG_FILE', { factory: () => 'log.json' })
 
@@ -43,16 +43,6 @@ export class Logger {
     // Notify subscribers
     this.$onLog.next(logObject)
   }
-}
-
-export function exportGlobalLogs() {
-  addToGlobal({
-    logs: function () {
-      const inject: InjectFunction = globalThis.rg.inject
-      const logger = inject(Logger)
-      return logger.logs.slice(-100)
-    },
-  })
 }
 
 export function clearLogFile(logFile: string) {
@@ -119,4 +109,10 @@ export function stringify(thing: any) {
   }
 
   return JSON.stringify(thing, stringifyReplacer(), 2)
+}
+
+export const global_logs = function () {
+  const inject: InjectFunction = globalThis.rg.inject
+  const logger = inject(Logger)
+  return logger.logs.slice(-100)
 }

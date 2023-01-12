@@ -17,25 +17,28 @@ export interface KeyValue {
     </ng-container>
 
     <ng-container *ngIf="type == 'object' || type == 'array'">
-      <box
-        *ngFor="let keyValue of keyValues"
-        focus
-        [style]="{ flexDirection: 'row', alignItems: 'flexStart' }">
+      <list [items]="keyValues">
         <box
-          [style]="{
-            backgroundColor: 'darkgray',
-            flexDirection: 'row',
-            alignItems: 'flexStart'
-          }">
-          <text-input [(text)]="keyValue.key" [focusIf]="focusedPart == 'left'"></text-input>:</box
-        ><json-editor
-          [value]="keyValue.value"
-          [path]="concat(path, keyValue.key)"
-          [focusIf]="focusedPart == 'right'"
-          [$retrieveValue]="$retrieveChildrenValue"
-          (newValue)="handleNewValue($event)"
-          [style]="{ paddingLeft: 2 }"></json-editor>
-      </box>
+          *item="let keyValue; type: keyValues"
+          focus
+          [style]="{ flexDirection: 'row', alignItems: 'flexStart' }">
+          <box
+            [style]="{
+              backgroundColor: 'darkgray',
+              flexDirection: 'row',
+              alignItems: 'flexStart'
+            }">
+            <text-input [(text)]="keyValue.key" [focusIf]="focusedPart == 'left'"></text-input
+            >:</box
+          ><json-editor
+            [value]="keyValue.value"
+            [path]="concat(path, keyValue.key)"
+            [focusIf]="focusedPart == 'right'"
+            [$retrieveValue]="$retrieveChildrenValue"
+            (newValue)="handleNewValue($event)"
+            [style]="{ paddingLeft: 2 }"></json-editor>
+        </box>
+      </list>
     </ng-container>
   `,
 })
@@ -48,7 +51,7 @@ export class JsonEditor {
   $retrieveChildrenValue = new EventEmitter()
 
   type: 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null' = 'object'
-  keyValues: KeyValue[]
+  keyValues: KeyValue[] = null
   focusedPart: 'left' | 'right' = 'left'
   childrenKeyValues: KeyValue[] = []
   hasChildren = false
@@ -95,7 +98,7 @@ export class JsonEditor {
   }
 
   valueChildren() {
-    // Reset accumulator
+    // Reset children entries
     this.childrenKeyValues = []
 
     // Tell children to send up their respective value

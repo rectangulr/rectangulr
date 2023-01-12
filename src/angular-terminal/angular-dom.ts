@@ -7,15 +7,15 @@ import {
 } from '@angular/core'
 import * as json5 from 'json5'
 import _ from 'lodash'
-import { addToGlobal, mergeDeep } from '../utils/utils'
+import { addToGlobalRg, mergeDeep } from '../utils/utils'
 import { TermElement, TermScreen } from './dom-terminal'
-import { Screen } from './screen-service'
+import { ScreenService } from './screen-service'
 
 @Injectable({ providedIn: 'root' })
 export class RectangulrRendererFactory implements RendererFactory2 {
   protected renderer: Renderer2
 
-  constructor(private screen: Screen) {
+  constructor(private screen: ScreenService) {
     this.renderer = new TerminalRenderer(screen)
   }
 
@@ -34,7 +34,7 @@ export class TerminalRenderer implements Renderer2 {
   readonly data: { [p: string]: any }
   destroyNode = null
 
-  constructor(private screen: Screen) {}
+  constructor(private screen: ScreenService) {}
 
   destroy(): void {}
 
@@ -242,7 +242,7 @@ function globalDebugDOMSize(text) {
   return result.map(node => stringifyDomNode(node, { parent: true }))
 }
 
-addToGlobal({
+addToGlobalRg({
   dom: globalDebugDOM,
   domSearch: globalDebugDOMSearch,
 })

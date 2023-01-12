@@ -21,12 +21,14 @@ import { ShortcutService, registerShortcuts } from '../../commands/shortcut.serv
 })
 export class KeyValueEditor {
   @Input() keyValue: { key: string; value: any } = null
-  @Input() keyWidth = 8
+  @Input() keyWidth = 0
 
   constructor(public shortcutService: ShortcutService, public formGroup: FormGroup) {}
 
   ngOnInit() {
-    this.keyWidth = this.keyValue.key.length + 1
+    if (!this.keyWidth) {
+      this.keyWidth = this.keyValue.key.length
+    }
   }
 
   blackOnWhite = blackOnWhite
@@ -42,8 +44,8 @@ export class KeyValueEditor {
     <list [items]="keyValues">
       <keyvalue-editor
         *item="let keyValue; type: keyValues"
-        focus
-        [keyValue]="keyValue"></keyvalue-editor>
+        [keyValue]="keyValue"
+        [keyWidth]="longestKey"></keyvalue-editor>
     </list>
   `,
   providers: [

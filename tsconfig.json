@@ -3,6 +3,10 @@
   "files": [
     "src/public-api.ts",
   ],
+  "include": [
+    "**/*.spec.ts",
+    "src/test.ts"
+  ],
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist",
@@ -21,7 +25,8 @@
       ]
     },
     "types": [
-      "node"
+      "node",
+      "jasmine"
     ],
     "lib": [
       "es2019",

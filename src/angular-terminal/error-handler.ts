@@ -1,17 +1,17 @@
 import { ErrorHandler, Injectable } from '@angular/core'
 import { Logger } from './logger'
-import { Screen } from './screen-service'
+import { ScreenService } from './screen-service'
 
 @Injectable()
 export class RectangulrErrorHandler implements ErrorHandler {
-  constructor(public screen: Screen, public logger: Logger) {}
+  constructor(public screen: ScreenService, public logger: Logger) {}
 
   handleError(error: Error): void {
     // Log
     this.logger.log(error)
 
     // Release terminal and exit
-    this.screen.screen.releaseScreen()
+    this.screen.termScreen.releaseScreen()
     ;(globalThis as any).original_console.log(error)
     process.exit(1)
   }

@@ -4,11 +4,11 @@ import { BehaviorSubject } from 'rxjs'
 import { ComponentDebug } from '../angular-terminal/debug'
 import { Element } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
-import { Screen } from '../angular-terminal/screen-service'
+import { ScreenService } from '../angular-terminal/screen-service'
 import { Destroyable } from '../utils/mixins'
 import { makeObservable, onChange } from '../utils/reactivity'
 import {
-  addToGlobal,
+  addToGlobalRg,
   assert,
   async,
   last,
@@ -75,7 +75,7 @@ export class ShortcutService {
   focusIf = true
 
   constructor(
-    @Optional() public screen: Screen,
+    @Optional() public screen: ScreenService,
     public logger: Logger,
     @SkipSelf() @Optional() public parent: ShortcutService
   ) {
@@ -83,7 +83,7 @@ export class ShortcutService {
       this.rootNode = this
       this.isFocused = true
       this.isInFocusPath = true
-      this.screen?.screen.addEventListener('keypress', (keyEvent: KeyboardEvent) => {
+      this.screen?.termScreen.addEventListener('keypress', (keyEvent: KeyboardEvent) => {
         // this.logger.log(`key: ${keyToString(key as any)}`)
 
         let key = keyEvent.key as unknown as Key
@@ -208,14 +208,14 @@ export class ShortcutService {
   requestFocus(args?: { child?: ShortcutService; soft?: boolean }) {
     args = { child: null, soft: false, ...args }
 
-    // const log = message => {
-    //   this.logger.log({
-    //     this: simplifyShortcutService(this),
-    //     child: simplifyShortcutService(args.child),
-    //     soft: args.soft,
-    //     message,
-    //   })
-    // }
+    const log = message => {
+      // this.logger.log({
+      //   this: simplifyShortcutService(this),
+      //   child: simplifyShortcutService(args.child),
+      //   soft: args.soft,
+      //   message,
+      // })
+    }
 
     // To be able to call focus() without arguments
     if (!args.child) {
@@ -416,13 +416,13 @@ function updateTree(rootNode: ShortcutService) {
   forFocusedChild(rootNode, child => {
     if (!child.focusedChild) {
       if (rootNode.screen) {
-        rootNode.screen.screen.activeElement = child.caretElement
+        rootNode.screen.termScreen.activeElement = child.caretElement
       }
     }
   })
 }
 
-addToGlobal({
+addToGlobalRg({
   keybinds: rgDebugKeybinds,
 })
 

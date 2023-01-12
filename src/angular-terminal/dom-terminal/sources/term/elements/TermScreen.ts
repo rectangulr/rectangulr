@@ -3,13 +3,16 @@ import { Key, Mouse, parseTerminalInputs } from '@manaflair/term-strings/parse'
 import { autobind } from 'core-decorators'
 import _ from 'lodash'
 import { ReadStream, WriteStream } from 'tty'
+import { forceRefresh } from '../../../../../utils/reactivity'
+import { async } from '../../../../../utils/utils'
+import { Logger } from '../../../../logger'
 import { Event, makeRuleset, Point, Rect, StyleManager } from '../../core'
 import { Element } from '../../core/dom/Element'
 import { TermElement } from './TermElement'
 
 // We will iterate through those colors when rendering if the debugPaintRects option is set
-let DEBUG_COLORS = [`red`, `green`, `blue`, `magenta`, `yellow`],
-  currentDebugColorIndex = 0
+const DEBUG_COLORS = [`red`, `green`, `blue`, `magenta`, `yellow`]
+let currentDebugColorIndex = 0
 
 export class TermScreen extends TermElement {
   ready: boolean
@@ -21,9 +24,12 @@ export class TermScreen extends TermElement {
   mouseOverElement: Element
   mouseEnterElements: Element[]
   caret: Point
+  logger: Logger
 
-  constructor({ debugPaintRects = false, ...attributes } = {}) {
+  constructor({ debugPaintRects = false, logger = null, ...attributes } = {}) {
     super(attributes)
+
+    this.logger = logger
 
     this.styleManager.addRuleset(
       makeRuleset({
@@ -96,23 +102,23 @@ export class TermScreen extends TermElement {
   }
 
   attachScreen({
-    stdin = process.stdin,
-    stdout = process.stdout,
+    stdin = null,
+    stdout = null,
     trackOutputSize = true,
     throttleMouseMoveEvents = 1000 / 60,
   } = {}) {
     if (this.ready) throw new Error(`Failed to execute 'setup': This screen is already in use.`)
 
-    if (_.isUndefined(stdin.read))
-      throw new Error(`Failed to execute 'setup': The new stdin stream is not readable.`)
+    // if (_.isUndefined(stdin.read))
+    //   throw new Error(`Failed to execute 'setup': The new stdin stream is not readable.`)
 
-    if (_.isUndefined(stdin.write))
-      throw new Error(`Failed to execute 'setup': The new stdout stream is not writable.`)
+    // if (_.isUndefined(stdout.write))
+    //   throw new Error(`Failed to execute 'setup': The new stdout stream is not writable.`)
 
-    if (_.isUndefined(stdout.columns) || _.isUndefined(stdout.rows))
-      throw new Error(
-        `Failed to execute 'setup': This output stream does not have columns and rows informations.`
-      )
+    // if (_.isUndefined(stdout.columns) || _.isUndefined(stdout.rows))
+    //   throw new Error(
+    //     `Failed to execute 'setup': This output stream does not have columns and rows informations.`
+    //   )
 
     this.ready = true
 
@@ -384,12 +390,12 @@ export class TermScreen extends TermElement {
         y >= this.activeElement.contentClipRect.y &&
         y < this.activeElement.contentClipRect.y + this.activeElement.contentClipRect.height
       ) {
-        // let visibleElement = this.getElementAt(new Point({ x, y }))
+        let visibleElement = this.getElementAt(new Point({ x, y }))
 
-        // if (visibleElement === this.activeElement) {
-        buffer += cursor.moveTo({ x, y })
-        buffer += cursor.normal
-        // }
+        if (visibleElement === this.activeElement) {
+          buffer += cursor.moveTo({ x, y })
+          buffer += cursor.normal
+        }
       }
     }
 
@@ -411,13 +417,9 @@ export class TermScreen extends TermElement {
     if (input instanceof Key) {
       let event = new Event(`keypress`, { cancelable: true, bubbles: true })
       event.key = input
-      // log(`handleInput: ${keyToString(input)}`)
+      // this.logger.log({ input: keyToString(input) })
 
-      // if (this.activeElement) {
-      //     this.activeElement.dispatchEvent(event)
-      // } else {
       this.dispatchEvent(event)
-      // }
     } else if (input instanceof Mouse) {
       let worldCoordinates = new Point({ x: input.x, y: input.y })
 
@@ -501,6 +503,7 @@ export class TermScreen extends TermElement {
         emitData()
       }
     }
+    async(forceRefresh)
   }
 
   handleStdoutResize = () => {

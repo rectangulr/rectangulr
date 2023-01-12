@@ -1,8 +1,7 @@
 // import 'source-map-support/register'
-import * as rectangulr from "rectangulr";
-import { AppModule } from "./app.module";
+import { AppModule } from './app.module'
+import { platformRectangulr } from 'rectangulr'
 
-rectangulr
-  .platform()
+platformRectangulr()
   .bootstrapModule(AppModule)
-  .catch((err) => console.error(err));
+  .catch(err => console.error(err))

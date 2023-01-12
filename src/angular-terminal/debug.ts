@@ -1,11 +1,7 @@
-import { addToGlobal, assert, detectInfiniteLoop } from '../utils/utils'
+import { addToGlobalRg, assert, detectInfiniteLoop } from '../utils/utils'
 
-export function addGlobalRgDebug() {
-  addToGlobal({
-    component: debugComponent,
-    lView: debugLView,
-  })
-}
+export const global_rgComponent = debugComponent
+export const global_rgLView = debugLView
 
 export function rootLView() {
   const ng = globalThis['ng']
