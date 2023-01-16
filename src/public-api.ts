@@ -8,12 +8,10 @@ export { Logger } from './angular-terminal/logger'
 
 // Platform
 export { platformRectangulr } from './angular-terminal/platform'
-export {
-  platformRectangulrDynamicTesting,
-  RectangulrTestingModule,
-} from './angular-terminal/platform-testing'
+export { platformRectangulrDynamicTesting } from './angular-terminal/testing/platform-testing'
+export { RectangulrDynamicTestingModule } from './angular-terminal/testing/testing.module'
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
-export { ShortcutsDisplay } from './commands/commands.component'
+export { Shortcuts as ShortcutsDisplay } from './commands/shortcuts.component'
 export { FocusDirective } from './commands/focus'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
 export { Box } from './components/1-basics/box'
@@ -39,8 +37,7 @@ export { ListItem } from './components/2-common/list/list-item'
 export { OnEnterDirective } from './components/2-common/list/list-on-enter'
 export { ObjectDisplay } from './components/2-common/object-display'
 export { SearchList } from './components/2-common/search-list'
-export { Row } from './components/2-common/table/row.component'
-export { Table } from './components/2-common/table/table.component'
+export { Table, Row } from './components/2-common/table/table.component'
 export { RectangulrModule } from './rectangulr.module'
 export { ComponentOutletInputs } from './utils/componentOutletInput'
 export { KeyValue } from './utils/interfaces'

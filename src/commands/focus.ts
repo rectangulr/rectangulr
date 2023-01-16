@@ -4,6 +4,7 @@ import { registerShortcuts, ShortcutService } from './shortcut.service'
 import { Subject } from 'rxjs'
 
 @Directive({
+  standalone: true,
   selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts]',
   providers: [ShortcutService],
 })

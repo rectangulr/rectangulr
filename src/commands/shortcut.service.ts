@@ -83,20 +83,7 @@ export class ShortcutService {
       this.rootNode = this
       this.isFocused = true
       this.isInFocusPath = true
-      this.screen?.termScreen.addEventListener('keypress', (keyEvent: KeyboardEvent) => {
-        // this.logger.log(`key: ${keyToString(key as any)}`)
-
-        let key = keyEvent.key as unknown as Key
-        if (this.before) {
-          key = this.before.propagateKeypress(key)
-        }
-        if (key) {
-          const unhandledKeypress = this.propagateKeypress(key)
-          if (unhandledKeypress) {
-            this.logger.log(`unhandled keypress: ${keyToString(unhandledKeypress)}`)
-          }
-        }
-      })
+      this.screen?.termScreen.addEventListener('keypress', key => this.incomingKey(key))
     } else {
       this.rootNode = this.parent.rootNode
       this.parent.childCreated(this)
@@ -112,13 +99,29 @@ export class ShortcutService {
     })
   }
 
+  incomingKey(keyEvent: KeyboardEvent) {
+    // this.logger.log(`key: ${keyToString(key as any)}`)
+
+    let key = keyEvent.key as unknown as Key
+    if (this.before) {
+      key = this.before.propagateKeypress(key)
+    }
+    if (key) {
+      const unhandledKeypress = this.propagateKeypress(key)
+      if (unhandledKeypress) {
+        this.logger.log(`unhandled keypress: ${keyToString(unhandledKeypress)}`)
+      }
+    }
+  }
+
   private propagateKeypress(keypress): Key {
     if (this.focusedChild) {
       const focusStack = `focusStack: [${this.focusStack.map(child => 'child').join(',')}]`
       const components = `components: [${this.components.map(c => c.constructor.name).join(',')}]`
-      const handlers = `handlers: [${Object.keys(this.shortcuts)
+      const handlers = Object.keys(this.shortcuts)
         .filter(value => value.length > 0)
-        .join(',')}]`
+        .join(',')
+      const handlersString = `handlers: [${handlers}]`
       // this.logger.log(`${padding(this)}${components}, ${handlers}, ${focusStack}`)
 
       const unhandledKeypress = this.focusedChild.propagateKeypress(keypress)

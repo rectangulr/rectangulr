@@ -1,3 +1,4 @@
+import { NgComponentOutlet, NgFor, NgIf, NgTemplateOutlet } from '@angular/common'
 import {
   Component,
   ContentChild,
@@ -16,6 +17,7 @@ import {
 } from '@angular/core'
 import * as json5 from 'json5'
 import _ from 'lodash'
+import { DynamicModule } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
@@ -23,6 +25,8 @@ import { FocusDirective } from '../../../commands/focus'
 import { registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
 import { async, filterNulls, mapKeyValue, stringifyReplacer } from '../../../utils/utils'
+import { Box } from '../../1-basics/box'
+import { NativeClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
 import { ListItem } from './list-item'
 import { PROVIDE_LIST } from './list-on-enter'
@@ -32,6 +36,8 @@ import { PROVIDE_LIST } from './list-on-enter'
  * Go up and down with the keyboard.
  */
 @Component({
+  standalone: true,
+
   selector: 'list',
   template: `
     <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ _items.value?.length || 0 }}</box>
@@ -53,6 +59,15 @@ import { PROVIDE_LIST } from './list-on-enter'
       </box>
     </box>
   `,
+  imports: [
+    NgFor,
+    NgIf,
+    NgComponentOutlet,
+    NgTemplateOutlet,
+    Box,
+    NativeClassesDirective,
+    DynamicModule,
+  ],
   providers: [
     {
       provide: PROVIDE_LIST,
@@ -221,6 +236,8 @@ function clampRange(range, min, max) {
 }
 
 @Component({
+  standalone: true,
+  imports: [Box],
   template: `<box [style]="{ height: 1 }">{{ text }}</box>`,
 })
 export class BasicObjectDisplay {

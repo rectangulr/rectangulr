@@ -6,9 +6,13 @@ import { Logger } from '../../angular-terminal/logger'
 import { KeyValue } from '../../utils/interfaces'
 import { State } from '../../utils/reactivity'
 import { longest, stringifyReplacer } from '../../utils/utils'
+import { Box } from '../1-basics/box'
+import { NativeClassesDirective } from '../1-basics/classes'
 import { blackOnWhite } from './styles'
 
 @Component({
+  standalone: true,
+  imports: [Box, NativeClassesDirective],
   selector: 'object-display',
   template: `
     <box [style]="{ flexDirection: 'row' }" *ngFor="let keyValue of keyValues; trackBy: trackByFn">

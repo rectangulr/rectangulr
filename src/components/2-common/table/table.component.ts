@@ -9,14 +9,43 @@ import {
 } from '@angular/core'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
-import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
+import { assert } from '../../../utils/utils'
+import { Box } from '../../1-basics/box'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 import { PROVIDE_LIST } from '../list/list-on-enter'
-import { Row } from './row.component'
 
 @Component({
+  standalone: true,
+  selector: 'row',
+  host: { '[style]': '{ height: 1 }' },
+  template: `{{ text }}`,
+})
+export class Row<T> {
+  @Input() data: T
+  text: string
+
+  constructor(public table: Table<T>) {}
+
+  ngOnInit() {
+    assert(this.data)
+    assert(typeof this.data == 'object')
+    assert(this.table.columns)
+
+    this.text = this.table.columns
+      .map(column => {
+        const value = this.data[column.name]
+        return String(value).slice(0, column.width).padEnd(column.width)
+      })
+      .join(' | ')
+  }
+}
+
+@Component({
+  standalone: true,
+  imports: [Box, List, Row],
   selector: 'table',
   template: `
     <box [style]="{ maxHeight: 1 }">{{ headers }}</box>

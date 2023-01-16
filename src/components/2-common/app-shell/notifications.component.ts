@@ -1,9 +1,14 @@
+import { NgIf } from '@angular/common'
 import { Component } from '@angular/core'
 import { Subject } from 'rxjs'
 import { subscribe } from '../../../utils/reactivity'
+import { Box } from '../../1-basics/box'
+import { ObjectDisplay } from '../object-display'
 import { Notification, NotificationsService } from './notifications.service'
 
 @Component({
+  standalone: true,
+  imports: [Box, NgIf, ObjectDisplay],
   selector: 'notifications',
   host: {
     '[style]':

@@ -11,14 +11,19 @@ import Fuse from 'fuse.js'
 import { BehaviorSubject, combineLatest, NEVER, Subject } from 'rxjs'
 import { debounceTime, map, takeUntil } from 'rxjs/operators'
 import { Logger } from '../../angular-terminal/logger'
+import { FocusDirective } from '../../commands/focus'
 import { makeObservable, State } from '../../utils/reactivity'
 import { filterNulls } from '../../utils/utils'
+import { Box } from '../1-basics/box'
+import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
 import { PROVIDE_LIST } from './list/list-on-enter'
 import { borderTop } from './styles'
 
 @Component({
+  standalone: true,
+  imports: [Box, TextInput, FocusDirective, List],
   selector: 'search-list',
   template: `
     <box [style]="{ flexDirection: 'column' }">

@@ -3,9 +3,14 @@ import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { subscribe } from '../../../utils/reactivity'
 import { async } from '../../../utils/utils'
+import { Box } from '../../1-basics/box'
+import { NativeClassesDirective } from '../../1-basics/classes'
+import { List } from '../list/list'
 import { blackOnWhite } from '../styles'
 
 @Component({
+  standalone: true,
+  imports: [Box, List, NativeClassesDirective],
   selector: 'logs-view',
   template: `
     <box [classes]="[blackOnWhite]">Logs</box>

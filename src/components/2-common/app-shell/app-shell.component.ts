@@ -1,13 +1,20 @@
+import { NgComponentOutlet, NgIf } from '@angular/common'
 import { Component, Inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
-import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { FocusDirective } from '../../../commands/focus'
+import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { Shortcuts } from '../../../commands/shortcuts.component'
 import { makeProperty } from '../../../utils/reactivity'
+import { Box } from '../../1-basics/box'
+import { NativeClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
+import { Notifications } from './notifications.component'
 import { View, ViewService } from './view.service'
 
 @Component({
+  standalone: true,
   selector: 'app-shell',
   host: { '[style]': "{width: '100%', height: '100%'}" },
   template: `
@@ -36,15 +43,24 @@ import { View, ViewService } from './view.service'
     </box>
 
     <!-- Popup to discover shortcuts -->
-    <commands
+    <shortcuts
       *ngIf="showCommands"
       [shortcutService]="shortcutService"
       (onClose)="showCommands = false">
-    </commands>
+    </shortcuts>
 
     <!-- Popup to show notifications -->
     <notifications></notifications>
   `,
+  imports: [
+    Box,
+    NgIf,
+    NativeClassesDirective,
+    FocusDirective,
+    NgComponentOutlet,
+    Notifications,
+    Shortcuts,
+  ],
 })
 export class AppShell {
   currentTab: View = null

@@ -1,15 +1,21 @@
 import { Component, Input, Output } from '@angular/core'
-import { FormBuilder, FormGroup } from '@angular/forms'
-import _ from 'lodash'
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import * as json5 from 'json5'
+import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'
+import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { State } from '../../utils/reactivity'
 import { longest, mapKeyValue } from '../../utils/utils'
+import { Box } from '../1-basics/box'
+import { NativeClassesDirective } from '../1-basics/classes'
+import { TextInput } from '../1-basics/text-input'
+import { List } from './list/list'
 import { blackOnWhite } from './styles'
-import { ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
 
 @Component({
+  standalone: true,
+  imports: [Box, TextInput, ReactiveFormsModule, NativeClassesDirective],
   selector: 'keyvalue-editor',
   template: `
     <box [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
@@ -39,6 +45,8 @@ export class KeyValueEditor {
 }
 
 @Component({
+  standalone: true,
+  imports: [List, KeyValueEditor],
   selector: 'form-editor',
   template: `
     <list [items]="keyValues">

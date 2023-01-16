@@ -2,17 +2,20 @@ import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angu
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
+import { Box } from '../components/1-basics/box'
 import { SearchList } from '../components/2-common/search-list'
 import { onChange } from '../utils/reactivity'
 import { assert } from '../utils/utils'
-import { Command, ShortcutService } from './shortcut.service'
 import { Disposable } from './disposable'
+import { Command, ShortcutService } from './shortcut.service'
 
 /**
  * Popup to discover shortcuts.
  */
 @Component({
-  selector: 'commands',
+  standalone: true,
+  imports: [Box, SearchList],
+  selector: 'shortcuts',
   host: { '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%' }" },
   template: `
     <search-list
@@ -34,7 +37,7 @@ import { Disposable } from './disposable'
     },
   ],
 })
-export class ShortcutsDisplay {
+export class Shortcuts {
   @Input() shortcutService: ShortcutService = null
   @Output() onClose = new EventEmitter()
 

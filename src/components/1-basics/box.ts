@@ -9,6 +9,7 @@ import { Directive } from '@angular/core'
 // This directive does nothing. It's just there for autocompletion from Angular.
 // This is handled by the dom - terminal renderer.
 @Directive({
+  standalone: true,
   selector: 'box',
 })
 export class Box {}

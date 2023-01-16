@@ -5,10 +5,13 @@ import { Subject } from 'rxjs'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { onChange } from '../../utils/reactivity'
+import { Box } from './box'
 
 let globalId = 0
 
 @Component({
+  standalone: true,
+  imports: [Box],
   selector: 'text-input',
   host: { '[style]': "{ flexDirection: 'row' }" },
   template: `

@@ -6,6 +6,7 @@ import { IStyle } from './style'
  *
  */
 @Directive({
+  standalone: true,
   selector: '[newclasses]',
 })
 export class ClassesDirective {
@@ -40,6 +41,7 @@ export class ClassesDirective {
  *
  */
 @Directive({
+  standalone: true,
   selector: '[classes]',
 })
 export class NativeClassesDirective {

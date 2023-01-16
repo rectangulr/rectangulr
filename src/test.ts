@@ -5,13 +5,17 @@ require('zone.js/dist/zone-node.js')
 require('zone.js/dist/zone-testing-node-bundle.js')
 
 import { getTestBed } from '@angular/core/testing'
-import { platformRectangulr } from './angular-terminal/platform'
-import { RectangulrTestingModule } from './angular-terminal/platform-testing'
+import { platformRectangulrDynamicTesting } from './angular-terminal/testing/platform-testing'
+import { RectangulrDynamicTestingModule } from './angular-terminal/testing/testing.module'
 
 // First, initialize the Angular testing environment.
-getTestBed().initTestEnvironment(RectangulrTestingModule, platformRectangulr(), {
-  teardown: { destroyAfterEach: true },
-})
+getTestBed().initTestEnvironment(
+  RectangulrDynamicTestingModule,
+  platformRectangulrDynamicTesting(),
+  {
+    teardown: { destroyAfterEach: true },
+  }
+)
 
 // Then we find all the tests.
 // @ts-ignore
