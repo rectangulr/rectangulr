@@ -35,6 +35,10 @@ export default {
 	resolve: {
 		// Some npm packages want to `require` .json files.
 		extensions: ['.json'],
+	},
+
+	output: {
+		filename: 'main.cjs'
 	}
 }
 

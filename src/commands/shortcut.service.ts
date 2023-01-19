@@ -99,7 +99,7 @@ export class ShortcutService {
     })
   }
 
-  incomingKey(keyEvent: KeyboardEvent) {
+  incomingKey(keyEvent) {
     // this.logger.log(`key: ${keyToString(key as any)}`)
 
     let key = keyEvent.key as unknown as Key
@@ -402,6 +402,14 @@ function forFocusedChild(shortcutService: ShortcutService, func) {
     forEachChildInFocusPath(shortcutService.focusedChild, func)
   } else {
     func(shortcutService)
+  }
+}
+
+export function getFocusedNode(shortcutService: ShortcutService) {
+  if (shortcutService.focusedChild) {
+    return getFocusedNode(shortcutService.focusedChild)
+  } else {
+    return shortcutService
   }
 }
 

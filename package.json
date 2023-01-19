@@ -8,6 +8,13 @@
     "tslib": "^2.0.0",
     "yoga-layout-prebuilt": "^1.10.0"
   },
+  "scripts": {
+    "build": "ng build",
+    "build-watch": "ng build --watch",
+    "test": "node dist-test/main.cjs",
+    "build-test": "ng test",
+    "build-test-watch": "ng test --watch"
+  },
   "peerDependencies": {
     "@angular/common": "^14.2.6",
     "@angular/compiler": "^14.2.6",
@@ -38,6 +45,7 @@
     "@types/jasmine": "^4.3.1",
     "@types/lodash": "^4.14.189",
     "@types/node": "^12.11.1",
+    "@types/webpack-env": "^1.18.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
     "core-decorators": "^0.13.0",

@@ -26,7 +26,8 @@
     },
     "types": [
       "node",
-      "jasmine"
+      "jasmine",
+      "webpack-env"
     ],
     "lib": [
       "es2019",

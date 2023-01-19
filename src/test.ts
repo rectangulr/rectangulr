@@ -1,4 +1,4 @@
-const Jasmine = require('jasmine')
+import Jasmine from 'jasmine'
 const jasmine = new Jasmine()
 
 require('zone.js/dist/zone-node.js')
@@ -12,13 +12,10 @@ import { RectangulrDynamicTestingModule } from './angular-terminal/testing/testi
 getTestBed().initTestEnvironment(
   RectangulrDynamicTestingModule,
   platformRectangulrDynamicTesting(),
-  {
-    teardown: { destroyAfterEach: true },
-  }
+  { teardown: { destroyAfterEach: true } }
 )
 
 // Then we find all the tests.
-// @ts-ignore
 const context = require.context('./', true, /\.spec\.ts$/)
 // And load the modules.
 context.keys().map(context)
