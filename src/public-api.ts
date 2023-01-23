@@ -12,7 +12,7 @@ export { platformRectangulrDynamicTesting } from './angular-terminal/testing/pla
 export { RectangulrDynamicTestingModule } from './angular-terminal/testing/testing.module'
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
 export { Shortcuts as ShortcutsDisplay } from './commands/shortcuts.component'
-export { FocusDirective } from './commands/focus'
+export { FocusDirective } from './commands/focus.directive'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
 export { Box } from './components/1-basics/box'
 export { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'

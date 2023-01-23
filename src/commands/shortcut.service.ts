@@ -60,8 +60,8 @@ export class ShortcutService {
   components = []
   rootNode: ShortcutService = null
 
-  receivedFocusRequestRecently = false
   receivedCaretRequestRecently = false
+  receivedFocusThisTick = 0
   caretElement: Element = null
 
   isFocused = false
@@ -209,7 +209,7 @@ export class ShortcutService {
    * If the component should get focused not matter what, use `focus` instead.
    */
   requestFocus(args?: { child?: ShortcutService; soft?: boolean }) {
-    args = { child: null, soft: false, ...args }
+    args = { child: null, soft: true, ...args }
 
     const log = message => {
       // this.logger.log({
@@ -230,19 +230,19 @@ export class ShortcutService {
       return
     }
 
-    if (args.soft) {
-      const receivedFocusRequestRecently = this.receivedFocusRequestRecently
-      this.receivedFocusRequestRecently = true
-      async(() => {
-        this.receivedFocusRequestRecently = false
-      })
-      if (receivedFocusRequestRecently) {
-        // log('receivedFocusRequestRecently')
-        return
-      }
-    }
+    async(() => {
+      this.receivedFocusThisTick = 0
+    })
 
-    moveToLast(this.focusStack, args.child)
+    _.remove(this.focusStack, i => i == args.child)
+    if (args.soft) {
+      var index = this.focusStack.length - this.receivedFocusThisTick
+    } else {
+      var index = this.focusStack.length
+    }
+    this.focusStack.splice(index, 0, args.child)
+
+    this.receivedFocusThisTick++
     this.focusedChild = _.last(this.focusStack)
     // log('received')
 

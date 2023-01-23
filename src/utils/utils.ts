@@ -110,8 +110,13 @@ export function waitFor(observable: Observable<any>) {
 
 export type InjectFunction = <T>(token: ProviderToken<T>) => T
 
-export function async(func: Function) {
-  setTimeout(func, 0)
+export function async<T>(func: (...args) => T): Promise<T> {
+  return new Promise(resolve =>
+    setTimeout(() => {
+      const res = func()
+      resolve(res)
+    }, 0)
+  )
 }
 
 let i = 0

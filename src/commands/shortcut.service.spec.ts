@@ -3,7 +3,8 @@ import { Component, ViewChild } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { Logger } from '../angular-terminal/logger'
 import { Box } from '../components/1-basics/box'
-import { FocusDirective } from './focus'
+import { async } from '../utils/utils'
+import { FocusDirective } from './focus.directive'
 import { getFocusedNode, ShortcutService } from './shortcut.service'
 
 describe('ShortcutService Class', () => {
@@ -46,22 +47,17 @@ describe('ShortcutService Class', () => {
     <box
       #first
       *ngIf="showFirst"
-      focus
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: call('firstFunc') }]"
-      [focusIf]="focused == 'first'"></box>
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></box>
     <box
       #second
       *ngIf="showSecond"
-      focus
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: call('secondFunc') }]"
-      [focusIf]="focused == 'second'"></box>
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></box>
   `,
   providers: [ShortcutService],
 })
-class Test {
+class TestNgIf {
   constructor(public shortcutService: ShortcutService) {}
 
-  focused: 'first' | 'second' = 'first'
   showFirst = true
   showSecond = true
 
@@ -71,18 +67,18 @@ class Test {
   firstFunc() {}
   secondFunc() {}
 
-  call = methodName => {
+  callsMethod = methodName => {
     return () => this[methodName]()
   }
 }
 
-describe('ShortcutService Template', () => {
-  let fixture: ComponentFixture<Test>
-  let component: Test
+describe('ShortcutService ngIf - ', () => {
+  let fixture: ComponentFixture<TestNgIf>
+  let component: TestNgIf
   let shortcuts: ShortcutService
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(Test)
+    fixture = TestBed.createComponent(TestNgIf)
     component = fixture.componentInstance
     shortcuts = component.shortcutService
     fixture.detectChanges()
@@ -99,23 +95,128 @@ describe('ShortcutService Template', () => {
     expect(getFocusedNode(shortcuts)).toBe(component.first)
   })
 
-  it('shortcut->first, hide first, shortcut->second, hide second, shortcut->nothing', () => {
+  it(`should focus according to ngIfs`, async () => {
     spyOn(component, 'firstFunc')
     spyOn(component, 'secondFunc')
+
     shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(0)
 
     component.showFirst = false
-    fixture.detectChanges()
+    await async(() => fixture.detectChanges())
     shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
+
+    component.showFirst = true
+    await async(() => fixture.detectChanges())
+    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    expect(component.firstFunc).toHaveBeenCalledTimes(2)
+    expect(component.secondFunc).toHaveBeenCalledTimes(1)
+  })
+})
+
+@Component({
+  standalone: true,
+  imports: [Box, FocusDirective, NgIf],
+  template: `
+    <box
+      [focusIf]="focused == 'first'"
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></box>
+    <box
+      [focusIf]="focused == 'second'"
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></box>
+  `,
+  providers: [ShortcutService],
+})
+class TestFocusIf {
+  focused: 'first' | 'second' = 'first'
+
+  constructor(public shortcutService: ShortcutService) {}
+
+  firstFunc() {}
+  secondFunc() {}
+
+  callsMethod = methodName => {
+    return () => this[methodName]()
+  }
+}
+
+describe('ShortcutService FocusIf - ', () => {
+  let fixture: ComponentFixture<TestFocusIf>
+  let component: TestFocusIf
+  let shortcuts: ShortcutService
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(TestFocusIf)
+    component = fixture.componentInstance
+    shortcuts = component.shortcutService
+    fixture.detectChanges()
   })
 
-  it(`should focus the second box when focusIf=='second'`, () => {
+  it(`should focus the second box when focusIf=='second'`, async () => {
+    spyOn(component, 'firstFunc')
+    spyOn(component, 'secondFunc')
+
+    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    expect(component.firstFunc).toHaveBeenCalledTimes(1)
+    expect(component.secondFunc).toHaveBeenCalledTimes(0)
+
     component.focused = 'second'
+    await async(() => fixture.detectChanges())
+    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    expect(component.firstFunc).toHaveBeenCalledTimes(1)
+    expect(component.secondFunc).toHaveBeenCalledTimes(1)
+
+    component.focused = 'first'
+    await async(() => fixture.detectChanges())
+    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    expect(component.firstFunc).toHaveBeenCalledTimes(2)
+    expect(component.secondFunc).toHaveBeenCalledTimes(1)
+  })
+})
+
+@Component({
+  standalone: true,
+  imports: [Box, FocusDirective, NgIf],
+  template: ` <box [focusShortcuts]="shortcuts"></box> `,
+  providers: [ShortcutService],
+})
+class Test {
+  focused: 'first' | 'second' = 'first'
+  callsMethod = methodName => {
+    return () => this[methodName]()
+  }
+  shortcuts = [
+    { keys: 'ctrl+r', func: this.callsMethod('firstFunc') },
+    { keys: 'ctrl+r', func: this.callsMethod('secondFunc') },
+  ]
+
+  constructor(public shortcutService: ShortcutService) {}
+
+  firstFunc() {}
+  secondFunc() {}
+}
+
+describe('ShortcutService - ', () => {
+  let fixture: ComponentFixture<Test>
+  let component: Test
+  let shortcuts: ShortcutService
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(Test)
+    component = fixture.componentInstance
+    shortcuts = component.shortcutService
     fixture.detectChanges()
-    expect(getFocusedNode(shortcuts)).toBe(component.second)
+  })
+
+  it(`should call latest registered shortcut`, async () => {
+    spyOn(component, 'firstFunc')
+    spyOn(component, 'secondFunc')
+
+    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    expect(component.firstFunc).toHaveBeenCalledTimes(0)
+    expect(component.secondFunc).toHaveBeenCalledTimes(1)
   })
 })
