@@ -3,7 +3,7 @@ import { Component, ViewChild } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { Logger } from '../angular-terminal/logger'
 import { Box } from '../components/1-basics/box'
-import { async } from '../utils/utils'
+import { assert, async } from '../utils/utils'
 import { FocusDirective } from './focus.directive'
 import { getFocusedNode, ShortcutService } from './shortcut.service'
 
@@ -214,6 +214,7 @@ describe('ShortcutService - ', () => {
   it(`should call latest registered shortcut`, async () => {
     spyOn(component, 'firstFunc')
     spyOn(component, 'secondFunc')
+    async(() => fixture.detectChanges())
 
     shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
     expect(component.firstFunc).toHaveBeenCalledTimes(0)

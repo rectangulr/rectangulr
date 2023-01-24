@@ -235,11 +235,9 @@ export class ShortcutService {
     })
 
     _.remove(this.focusStack, i => i == args.child)
-    if (args.soft) {
-      var index = this.focusStack.length - this.receivedFocusThisTick
-    } else {
-      var index = this.focusStack.length
-    }
+    let index = this.focusStack.length
+    if (args.soft) index -= this.receivedFocusThisTick
+    index = _.clamp(index, 0, this.focusStack.length)
     this.focusStack.splice(index, 0, args.child)
 
     this.receivedFocusThisTick++
