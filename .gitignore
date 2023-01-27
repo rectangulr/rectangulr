@@ -47,5 +47,5 @@ Thumbs.db
 rescue
 private
 dist
-dist-angular
+dist-test
 .angular
