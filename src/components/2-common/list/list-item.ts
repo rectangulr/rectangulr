@@ -2,6 +2,7 @@ import { Directive, Input } from '@angular/core'
 import { Observable } from 'rxjs'
 
 @Directive({
+  standalone: true,
   selector: '[item]',
 })
 export class ListItem<T> {

@@ -1,4 +1,4 @@
-import { Directive, Input } from '@angular/core'
+import { Directive, Input, Self } from '@angular/core'
 import { onChange } from '../utils/reactivity'
 import { registerShortcuts, ShortcutService } from './shortcut.service'
 import { Subject } from 'rxjs'
@@ -13,7 +13,7 @@ export class FocusDirective {
   @Input() focusIf = true
   @Input() focusShortcuts = []
 
-  constructor(public shortcutService: ShortcutService) {}
+  constructor(@Self() public shortcutService: ShortcutService) {}
 
   ngOnInit() {
     this.shortcutService.focusIf = this.focusIf
@@ -28,6 +28,30 @@ export class FocusDirective {
 
     registerShortcuts(this, this.focusShortcuts)
     this.shortcutService.focusPropagateUp = this.focusPropagateUp
+    this.shortcutService.requestFocus()
+  }
+
+  destroy$ = new Subject()
+  ngOnDestroy() {
+    this.destroy$.next(null)
+    this.destroy$.complete()
+  }
+}
+
+@Directive({
+  standalone: true,
+  selector: '[focusDebug]',
+})
+export class FocusDebugDirective {
+  constructor(public shortcutService: ShortcutService) {
+    debugger
+    const original = this.shortcutService.requestFocus
+    Object.defineProperty(this.shortcutService, 'requestFocus', {
+      get: () => {
+        debugger
+        return original
+      },
+    })
     this.shortcutService.requestFocus()
   }
 

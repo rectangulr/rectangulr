@@ -1,20 +1,23 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core'
-import _ from 'lodash'
+import { NgIf } from '@angular/common'
+import { Component, Input } from '@angular/core'
 import { Subject } from 'rxjs'
+import { Logger } from '../../../angular-terminal/logger'
+import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
-import { subscribe } from '../../../utils/reactivity'
-
-export interface KeyValue {
-  key: string
-  value: any
-}
+import { assert } from '../../../utils/utils'
+import { Box } from '../../1-basics/box'
+import { StyleDirective } from '../../1-basics/style'
+import { TextInput } from '../../1-basics/text-input'
+import { List } from '../list/list'
+import { ListItem } from '../list/list-item'
 
 @Component({
+  standalone: true,
   selector: 'json-editor',
   template: `
-    <ng-container *ngIf="['string', 'number', 'boolean', 'null'].includes(type)">
-      <text-input [(text)]="value"></text-input>
-    </ng-container>
+    <!-- <ng-container *ngIf="['string', 'number', 'boolean', 'null'].includes(type)">
+      <text-input [(text)]="keyValue.value"></text-input>
+    </ng-container> -->
 
     <ng-container *ngIf="type == 'object' || type == 'array'">
       <list [items]="keyValues">
@@ -28,54 +31,65 @@ export interface KeyValue {
               flexDirection: 'row',
               alignItems: 'flexStart'
             }">
-            <text-input [(text)]="keyValue.key" [focusIf]="focusedPart == 'left'"></text-input
-            >:</box
-          ><json-editor
-            [value]="keyValue.value"
-            [path]="concat(path, keyValue.key)"
-            [focusIf]="focusedPart == 'right'"
-            [$retrieveValue]="$retrieveChildrenValue"
-            (newValue)="handleNewValue($event)"
-            [style]="{ paddingLeft: 2 }"></json-editor>
+            <text-input [(text)]="keyValue.key" [focusIf]="focused == 'key'"></text-input>:</box
+          >
         </box>
       </list>
     </ng-container>
   `,
+  // <json-editor
+  // [keyValue]="keyValue"
+  // [focusIf]="focused == 'value'"
+  // [style]="{ paddingLeft: 2 }"></json-editor>
+  imports: [
+    Box,
+    TextInput,
+    NgIf,
+    List,
+    ListItem,
+    FocusDirective,
+    FocusDebugDirective,
+    StyleDirective,
+  ],
 })
 export class JsonEditor {
   @Input() value = null
+  @Input() keyValue: KeyValue = null
   @Input() path: string[] = []
-  @Output() newValue = new EventEmitter<KeyValue>()
 
-  @Input() $retrieveValue: EventEmitter<null> = null
-  $retrieveChildrenValue = new EventEmitter()
+  type: Type = 'object'
+  keyValues: KeyValue[] = []
+  focused: 'key' | 'value' = 'key'
 
-  type: 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null' = 'object'
-  keyValues: KeyValue[] = null
-  focusedPart: 'left' | 'right' = 'left'
-  childrenKeyValues: KeyValue[] = []
-  hasChildren = false
+  constructor(public shortcutService: ShortcutService, public logger: Logger) {}
 
-  constructor(public shortcutService: ShortcutService) {}
+  updateKey(event) {
+    this.keyValue.key = event
+  }
+
+  updateValue(event) {
+    this.keyValue.value = event
+  }
 
   ngOnInit() {
-    //@ts-ignore
-    this.type = typeof this.value
-    if (this.value == null) this.type = 'null'
-    this.hasChildren = this.type == 'object' || this.type == 'array'
+    assert(!(this.value && this.keyValue), 'Use [value] or [keyValue]. Not both.')
+    if (this.value) {
+      this.keyValue = { key: null, value: this.value }
+    }
 
-    if (this.hasChildren) {
-      this.keyValues = Object.entries(this.value).map(([key, value]) => ({
+    //@ts-ignore
+    this.type = typeof this.keyValue.value
+    if (this.keyValue.value == null) this.type = 'null'
+    else if (Array.isArray(this.keyValue.value)) this.type = 'array'
+
+    if (hasChildren(this.type)) {
+      this.keyValues = Object.entries(this.keyValue.value).map(([key, value]) => ({
         key: key,
         value: value,
       }))
     }
 
-    if (this.$retrieveValue) {
-      subscribe(this, this.$retrieveValue, () => {
-        this.emitValue()
-      })
-    }
+    this.logger.log({ message: 'ngOnInit JsonEditor', type: this.type, focused: this.focused })
 
     registerShortcuts(this, this.shortcuts)
     if (this.isRoot()) {
@@ -83,42 +97,21 @@ export class JsonEditor {
         {
           keys: 'enter',
           id: 'submitValue',
-          func: () => {
-            this.emitValue()
-          },
+          func: () => {},
         },
       ])
     }
   }
 
-  emitValue() {
-    const value = this.hasChildren ? this.valueChildren() : this.value
-    const keyValue = { key: _.last(this.path), value: value }
-    this.newValue.emit(keyValue)
-  }
-
-  valueChildren() {
-    // Reset children entries
-    this.childrenKeyValues = []
-
-    // Tell children to send up their respective value
-    this.$retrieveChildrenValue.emit(null)
-
-    // Get result
-    if (this.type == 'object') {
-      return Object.fromEntries(this.childrenKeyValues.map(kv => [kv.key, kv.value]))
-    } else if (this.type == 'array') {
-      const size = _.max(this.keyValues.map(kv => Number(kv.key)))
-      const array = new Array(size)
-      this.keyValues.forEach(kv => {
-        array[kv.key] = kv.value
-      })
-      return array
+  /**
+   * Creates a javascript object from the json-editor.
+   */
+  getValue(): any {
+    if (this.keyValue.key) {
+      return getValueFromKVs(this.keyValues)
+    } else {
+      return this.keyValue.value
     }
-  }
-
-  handleNewValue(keyValue: KeyValue) {
-    this.childrenKeyValues.push(keyValue)
   }
 
   concat(...paths) {
@@ -133,12 +126,12 @@ export class JsonEditor {
     {
       keys: 'tab',
       func: key => {
-        if (this.hasChildren) {
-          if (this.focusedPart == 'left') {
-            this.focusedPart = 'right'
-          } else if (this.focusedPart == 'right') {
+        if (hasChildren(this.type)) {
+          if (this.focused == 'key') {
+            this.focused = 'value'
+          } else if (this.focused == 'value') {
             this.keyValues.push({ key: '', value: '' })
-            this.focusedPart = 'left'
+            this.focused = 'key'
           }
         } else {
           return key
@@ -148,10 +141,10 @@ export class JsonEditor {
     {
       keys: 'shift+tab',
       func: key => {
-        if (this.focusedPart == 'left') {
+        if (this.focused == 'key') {
           return key
-        } else if (this.focusedPart == 'right') {
-          this.focusedPart = 'left'
+        } else if (this.focused == 'value') {
+          this.focused = 'key'
         }
       },
     },
@@ -161,5 +154,29 @@ export class JsonEditor {
   ngOnDestroy() {
     this.destroy$.next(null)
     this.destroy$.complete()
+  }
+}
+
+export interface KeyValue {
+  key: string
+  value: any
+}
+
+function valueHasChildren(value: any) {
+  return value && (typeof value == 'object' || Array.isArray(value))
+}
+
+type Type = 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null'
+
+function hasChildren(type: Type) {
+  return type == 'object' || type == 'array'
+}
+
+function getValueFromKVs(keyValues: KeyValue[]) {
+  if (valueHasChildren(keyValues)) {
+    const recursedKVs = keyValues.map(kv => [kv.key, getValueFromKVs(kv.value)])
+    return Object.fromEntries(recursedKVs)
+  } else {
+    return keyValues
   }
 }

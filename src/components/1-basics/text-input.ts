@@ -3,6 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
+import { Logger } from '../../angular-terminal/logger'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { onChange } from '../../utils/reactivity'
 import { Box } from './box'
@@ -37,7 +38,11 @@ export class TextInput implements ControlValueAccessor {
   // @ViewChild('box', { read: Element }) boxRef: Element
   domElement: Element
 
-  constructor(public shortcutService: ShortcutService, public elementRef: ElementRef<Element>) {}
+  constructor(
+    public shortcutService: ShortcutService,
+    public elementRef: ElementRef<Element>,
+    public logger: Logger
+  ) {}
 
   ngOnInit() {
     onChange(this, 'text', value => {
@@ -54,6 +59,7 @@ export class TextInput implements ControlValueAccessor {
     this.caretIndex = this.text.length
 
     registerShortcuts(this, this.shortcuts)
+    this.logger.log({ message: 'ngOnInit TextInput' })
     this.shortcutService.requestFocus()
   }
 

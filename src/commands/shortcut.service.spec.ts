@@ -1,9 +1,13 @@
 import { NgIf } from '@angular/common'
-import { Component, ViewChild } from '@angular/core'
+import { Component, QueryList, ViewChild, ViewChildren } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { Logger } from '../angular-terminal/logger'
-import { Box } from '../components/1-basics/box'
-import { assert, async } from '../utils/utils'
+import { Box, BoxFocus } from '../components/1-basics/box'
+import { TextInput } from '../components/1-basics/text-input'
+import { List } from '../components/2-common/list/list'
+import { ListItem } from '../components/2-common/list/list-item'
+import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
+import { async } from '../utils/utils'
 import { FocusDirective } from './focus.directive'
 import { getFocusedNode, ShortcutService } from './shortcut.service'
 
@@ -40,6 +44,8 @@ describe('ShortcutService Class', () => {
   })
 })
 
+//
+
 @Component({
   standalone: true,
   imports: [Box, FocusDirective, NgIf],
@@ -55,7 +61,7 @@ describe('ShortcutService Class', () => {
   `,
   providers: [ShortcutService],
 })
-class TestNgIf {
+export class TestNgIf {
   constructor(public shortcutService: ShortcutService) {}
 
   showFirst = true
@@ -117,6 +123,8 @@ describe('ShortcutService ngIf - ', () => {
   })
 })
 
+//
+
 @Component({
   standalone: true,
   imports: [Box, FocusDirective, NgIf],
@@ -130,7 +138,7 @@ describe('ShortcutService ngIf - ', () => {
   `,
   providers: [ShortcutService],
 })
-class TestFocusIf {
+export class TestFocusIf {
   focused: 'first' | 'second' = 'first'
 
   constructor(public shortcutService: ShortcutService) {}
@@ -177,13 +185,15 @@ describe('ShortcutService FocusIf - ', () => {
   })
 })
 
+//
+
 @Component({
   standalone: true,
   imports: [Box, FocusDirective, NgIf],
   template: ` <box [focusShortcuts]="shortcuts"></box> `,
   providers: [ShortcutService],
 })
-class Test {
+export class Test {
   focused: 'first' | 'second' = 'first'
   callsMethod = methodName => {
     return () => this[methodName]()
@@ -219,5 +229,84 @@ describe('ShortcutService - ', () => {
     shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
     expect(component.firstFunc).toHaveBeenCalledTimes(0)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
+  })
+})
+
+//
+
+@Component({
+  standalone: true,
+  imports: [Box, FocusDirective, NgIf, TextInput],
+  template: ` <text-input [focusIf]="condition"></text-input> `,
+})
+export class TestTextInput {
+  condition = true
+  constructor(public shortcutService: ShortcutService) {}
+  @ViewChild(TextInput) input: TextInput
+}
+
+describe('ShortcutService - ', () => {
+  let fixture: ComponentFixture<TestTextInput>
+  let component: TestTextInput
+  let shortcuts: ShortcutService
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule()
+    TestBed.configureTestingModule({
+      providers: [ShortcutService],
+    })
+    fixture = TestBed.createComponent(TestTextInput)
+    component = fixture.componentInstance
+    shortcuts = component.shortcutService
+    await async(() => fixture.detectChanges())
+  })
+
+  it(`should focus the text-input and accept inputs`, async () => {
+    shortcuts.incomingKey({ key: { name: 'a' } })
+    expect(component.input.text).toEqual('a')
+  })
+
+  it(`shouldn't focus the text-input`, async () => {
+    component.condition = false
+    await async(() => fixture.detectChanges())
+
+    shortcuts.incomingKey({ key: { name: 'a' } })
+    expect(component.input.text).toEqual('')
+  })
+})
+
+//
+
+@Component({
+  standalone: true,
+  imports: [Box, BoxFocus, FocusDirective, NgIf, TextInput, List, ListItem],
+  template: `
+    <list [items]="items">
+      <box *item focus>
+        <box focus>
+          <box focus>
+            <text-input [text]=""></text-input>
+          </box>
+        </box>
+      </box>
+    </list>
+  `,
+})
+export class Test2 {
+  condition = true
+  items = [1, 2, 3]
+  constructor(public shortcutService: ShortcutService) {}
+  @ViewChildren(TextInput) input: QueryList<TextInput>
+}
+
+describe('ShortcutService - ', () => {
+  fit('focuses the nested input', async () => {
+    const { fixture, component, shortcuts } = await setupTest(Test2)
+
+    // await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    expect(component.input.get(0).text).withContext('input0').toEqual('a')
+    expect(component.input.get(1).text).withContext('input1').toEqual('')
+    expect(component.input.get(2).text).withContext('input2').toEqual('')
   })
 })

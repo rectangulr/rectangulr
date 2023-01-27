@@ -22,7 +22,7 @@ import { global_logs, patchGlobalConsole } from './angular-terminal/logger'
 import { ScreenService } from './angular-terminal/screen-service'
 import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { Shortcuts } from './commands/shortcuts.component'
-import { FocusDirective } from './commands/focus.directive'
+import { FocusDebugDirective, FocusDirective } from './commands/focus.directive'
 import { Box } from './components/1-basics/box'
 import { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'
 import { StyleDirective, StylesDirective } from './components/1-basics/style'
@@ -68,6 +68,7 @@ const TEMPLATE_COMPONENTS = [
   ClassesDirective,
   NativeClassesDirective,
   FocusDirective,
+  FocusDebugDirective,
   DetachedCommandServiceDirective,
   KeyValueEditor,
   Shortcuts,
@@ -117,7 +118,8 @@ export const RECTANGULR_MODULE_PROVIDERS = [
 
 @NgModule({
   providers: [...RECTANGULR_MODULE_PROVIDERS],
-  exports: [CommonModule, ApplicationModule],
+  imports: [...TEMPLATE_COMPONENTS],
+  exports: [CommonModule, ApplicationModule, ...TEMPLATE_COMPONENTS],
 })
 export class RectangulrModule {
   constructor(

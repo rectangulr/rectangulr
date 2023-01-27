@@ -8,6 +8,7 @@ import { List } from './list'
 export const PROVIDE_LIST = new InjectionToken<Observable<List<any>>>('List Token')
 
 @Directive({
+  standalone: true,
   selector: '[onEnter]',
 })
 export class OnEnterDirective {

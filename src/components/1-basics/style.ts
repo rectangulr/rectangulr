@@ -67,6 +67,7 @@ export interface IStyle {
  * <box [style]="{color: 'red'}">Some red text</box>
  */
 @Directive({
+  standalone: true,
   selector: '[style]',
 })
 export class StyleDirective {
@@ -80,6 +81,7 @@ export class StyleDirective {
  * <box [styles]="{color: 'red'}">Some red text</box>
  */
 @Directive({
+  standalone: true,
   selector: '[styles]',
 })
 export class StylesDirective {

@@ -1,9 +1,9 @@
 import { NgComponentOutlet } from '@angular/common'
 import { Directive, Host, Input } from '@angular/core'
-import { runInThisContext } from 'vm'
 import { assert } from './utils'
 
 @Directive({
+  standalone: true,
   selector: '[ngComponentOutlet][inputs]',
 })
 export class ComponentOutletInputs {

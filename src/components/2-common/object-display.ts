@@ -1,3 +1,4 @@
+import { NgFor } from '@angular/common'
 import { Component, Input } from '@angular/core'
 import * as json5 from 'json5'
 import _ from 'lodash'
@@ -12,7 +13,7 @@ import { blackOnWhite } from './styles'
 
 @Component({
   standalone: true,
-  imports: [Box, NativeClassesDirective],
+  imports: [Box, NativeClassesDirective, NgFor],
   selector: 'object-display',
   template: `
     <box [style]="{ flexDirection: 'row' }" *ngFor="let keyValue of keyValues; trackBy: trackByFn">

@@ -141,6 +141,9 @@ export class ShortcutService {
       const lastId = _.last(ids) as string
       if (lastId) {
         const unhandled = this.callCommand({ id: lastId, keys: keypress })
+        if (!unhandled) {
+          this.logger.log(`handle key: ${stringifyPathToNode(this)} - ${key}`)
+        }
         return unhandled
       }
     }
@@ -232,13 +235,23 @@ export class ShortcutService {
 
     async(() => {
       this.receivedFocusThisTick = 0
+      this.logger.log(`reset receivedFocusThisTick to ${this.receivedFocusThisTick}`)
     })
 
     _.remove(this.focusStack, i => i == args.child)
     let index = this.focusStack.length
     if (args.soft) index -= this.receivedFocusThisTick
     index = _.clamp(index, 0, this.focusStack.length)
+    const stackBefore = this.focusStack.map(i => i._id).join(',')
     this.focusStack.splice(index, 0, args.child)
+    const stackAfter = this.focusStack.map(i => i._id).join(',')
+    this.logger.log(
+      `${stringifyPathToNode(
+        this
+      )} : [${stackBefore}] ->  [${stackAfter}]                 (receivedFocusThisTick:${
+        this.receivedFocusThisTick
+      })`
+    )
 
     this.receivedFocusThisTick++
     this.focusedChild = _.last(this.focusStack)
@@ -429,6 +442,8 @@ function updateTree(rootNode: ShortcutService) {
       }
     }
   })
+
+  rootNode.logger.log(`focused: ${stringifyPathToNode(rootNode)}`)
 }
 
 addToGlobalRg({
@@ -449,17 +464,7 @@ function simplifyShortcutService(shortcutService: ShortcutService) {
   }
 
   res.toString = () => {
-    const componentNames = Object.values(shortcutService.commands)
-      .map(commands => _.last(commands))
-      .map(command => command.context.constructor.name)
-      // .reduce((prev, cur) => {
-      //   if (!prev.includes(cur)) {
-      //     prev.push(cur)
-      //   }
-      // }, [])
-      .join()
-
-    return `${shortcutService._id} (${componentNames})`
+    return stringifyNode(shortcutService)
   }
   return res
 }
@@ -482,4 +487,30 @@ export function depth(shortcutService: ShortcutService) {
       return depth
     }
   }
+}
+
+function stringifyNode(shortcutService: ShortcutService) {
+  let componentNames = Object.values(shortcutService.commands)
+    .map(commands => _.last(commands))
+    .filter(c => !!c && c.context)
+    .map(command => command.context.constructor.name)
+  componentNames = [...new Set(componentNames)]
+  const componentNamesString = componentNames.join()
+
+  return `${shortcutService._id} (${componentNamesString})`
+}
+
+function stringifyPathToNode(node: ShortcutService) {
+  const nodes = []
+  let currentNode = node.rootNode
+  while (true) {
+    nodes.push(currentNode)
+    if (currentNode == node) {
+      break
+    } else {
+      currentNode = currentNode.focusedChild
+      if (!currentNode) break
+    }
+  }
+  return nodes.map(node => stringifyNode(node)).join(' -> ')
 }

@@ -1,4 +1,4 @@
-import { NgComponentOutlet, NgIf } from '@angular/common'
+import { NgComponentOutlet, NgFor, NgIf } from '@angular/common'
 import { Component, Inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
@@ -55,6 +55,7 @@ import { View, ViewService } from './view.service'
   imports: [
     Box,
     NgIf,
+    NgFor,
     NativeClassesDirective,
     FocusDirective,
     NgComponentOutlet,
