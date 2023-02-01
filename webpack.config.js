@@ -37,6 +37,10 @@ export default {
 		extensions: ['.json'],
 	},
 
+	watchOptions: {
+		ignored: /node_modules/
+	},
+
 	output: {
 		filename: 'main.cjs'
 	}

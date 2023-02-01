@@ -13,7 +13,7 @@ import {
   QueryList,
   SkipSelf,
   TemplateRef,
-  ViewChildren,
+  ViewChildren
 } from '@angular/core'
 import * as json5 from 'json5'
 import _ from 'lodash'
@@ -37,7 +37,6 @@ import { PROVIDE_LIST } from './list-on-enter'
  */
 @Component({
   standalone: true,
-
   selector: 'list',
   template: `
     <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ _items.value?.length || 0 }}</box>
@@ -48,13 +47,11 @@ import { PROVIDE_LIST } from './list-on-enter'
         [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
         <ng-container
           [ngTemplateOutlet]="template || template2"
-          [ngTemplateOutletContext]="{ $implicit: item }"
-          [ngTemplateOutletInjector]="injector"></ng-container>
+          [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
 
         <ng-container
           *ngIf="!template && !template2 && _displayComponent"
           [ngComponentOutlet]="_displayComponent"
-          [ngComponentOutletInjector]="injector"
           [ndcDynamicInputs]="{ data: item }"></ng-container>
       </box>
     </box>

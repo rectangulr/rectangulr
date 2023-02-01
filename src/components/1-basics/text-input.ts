@@ -6,6 +6,7 @@ import { Element, Point } from '../../angular-terminal/dom-terminal'
 import { Logger } from '../../angular-terminal/logger'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { onChange } from '../../utils/reactivity'
+import { assert } from '../../utils/utils'
 import { Box } from './box'
 
 let globalId = 0
@@ -45,7 +46,11 @@ export class TextInput implements ControlValueAccessor {
   ) {}
 
   ngOnInit() {
+    assert(typeof this.text == 'string')
+
     onChange(this, 'text', value => {
+      assert(typeof value == 'string')
+
       this.textChange.next(value)
       this.ControlValueAccessorData.onChange(value)
     })

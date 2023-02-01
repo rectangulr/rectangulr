@@ -15,32 +15,33 @@ import { ListItem } from '../list/list-item'
   standalone: true,
   selector: 'json-editor',
   template: `
-    <!-- <ng-container *ngIf="['string', 'number', 'boolean', 'null'].includes(type)">
-      <text-input [(text)]="keyValue.value"></text-input>
-    </ng-container> -->
+    <box
+      *ngIf="keyValue.key"
+      [focusIf]="focused == 'key'"
+      [style]="{
+        backgroundColor: 'darkgray',
+        flexDirection: 'row',
+        alignItems: 'flexStart'
+      }">
+      <text-input [(text)]="keyValue.key"></text-input>:</box
+    >
 
-    <ng-container *ngIf="type == 'object' || type == 'array'">
-      <list [items]="keyValues">
-        <box
-          *item="let keyValue; type: keyValues"
-          focus
-          [style]="{ flexDirection: 'row', alignItems: 'flexStart' }">
+    <ng-container [focusIf]="focused == 'value'">
+      <ng-container *ngIf="['string', 'number', 'boolean', 'null'].includes(type)">
+        <text-input [(text)]="keyValue.value"></text-input>
+      </ng-container>
+      <ng-container *ngIf="type == 'object' || type == 'array'">
+        <list [items]="childrenKeyValues">
           <box
-            [style]="{
-              backgroundColor: 'darkgray',
-              flexDirection: 'row',
-              alignItems: 'flexStart'
-            }">
-            <text-input [(text)]="keyValue.key" [focusIf]="focused == 'key'"></text-input>:</box
-          >
-        </box>
-      </list>
+            focus
+            *item="let kv; type: childrenKeyValues"
+            [style]="{ flexDirection: 'row', alignItems: 'flexStart' }">
+            <json-editor [keyValue]="kv" [style]="{ paddingLeft: 2 }"></json-editor>
+          </box>
+        </list>
+      </ng-container>
     </ng-container>
   `,
-  // <json-editor
-  // [keyValue]="keyValue"
-  // [focusIf]="focused == 'value'"
-  // [style]="{ paddingLeft: 2 }"></json-editor>
   imports: [
     Box,
     TextInput,
@@ -58,18 +59,10 @@ export class JsonEditor {
   @Input() path: string[] = []
 
   type: Type = 'object'
-  keyValues: KeyValue[] = []
+  childrenKeyValues: KeyValue[] = []
   focused: 'key' | 'value' = 'key'
 
   constructor(public shortcutService: ShortcutService, public logger: Logger) {}
-
-  updateKey(event) {
-    this.keyValue.key = event
-  }
-
-  updateValue(event) {
-    this.keyValue.value = event
-  }
 
   ngOnInit() {
     assert(!(this.value && this.keyValue), 'Use [value] or [keyValue]. Not both.')
@@ -82,14 +75,14 @@ export class JsonEditor {
     if (this.keyValue.value == null) this.type = 'null'
     else if (Array.isArray(this.keyValue.value)) this.type = 'array'
 
-    if (hasChildren(this.type)) {
-      this.keyValues = Object.entries(this.keyValue.value).map(([key, value]) => ({
+    this.focused = this.keyValue.key ? 'key' : 'value'
+
+    if (typeHasChildren(this.type)) {
+      this.childrenKeyValues = Object.entries(this.keyValue.value).map(([key, value]) => ({
         key: key,
         value: value,
       }))
     }
-
-    this.logger.log({ message: 'ngOnInit JsonEditor', type: this.type, focused: this.focused })
 
     registerShortcuts(this, this.shortcuts)
     if (this.isRoot()) {
@@ -107,8 +100,8 @@ export class JsonEditor {
    * Creates a javascript object from the json-editor.
    */
   getValue(): any {
-    if (this.keyValue.key) {
-      return getValueFromKVs(this.keyValues)
+    if (typeHasChildren(this.type)) {
+      return getValueFromKVs(this.childrenKeyValues)
     } else {
       return this.keyValue.value
     }
@@ -126,13 +119,11 @@ export class JsonEditor {
     {
       keys: 'tab',
       func: key => {
-        if (hasChildren(this.type)) {
-          if (this.focused == 'key') {
-            this.focused = 'value'
-          } else if (this.focused == 'value') {
-            this.keyValues.push({ key: '', value: '' })
-            this.focused = 'key'
-          }
+        if (this.focused == 'key') {
+          this.focused = 'value'
+        } else if (this.focused == 'value' && typeHasChildren(this.type)) {
+          this.childrenKeyValues.push({ key: '', value: '' })
+          this.focused = 'key'
         } else {
           return key
         }
@@ -168,7 +159,7 @@ function valueHasChildren(value: any) {
 
 type Type = 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null'
 
-function hasChildren(type: Type) {
+function typeHasChildren(type: Type) {
   return type == 'object' || type == 'array'
 }
 

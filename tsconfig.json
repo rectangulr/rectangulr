@@ -7,6 +7,9 @@
     "**/*.spec.ts",
     "src/test.ts",
   ],
+  "exclude": [
+    "node_modules/**"
+  ],
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "./dist",
@@ -15,7 +18,7 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "ES2015",
+    "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -34,6 +37,7 @@
       "dom"
     ],
     "preserveSymlinks": true,
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "strictTemplates ": true,

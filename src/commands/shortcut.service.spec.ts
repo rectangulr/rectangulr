@@ -1,8 +1,8 @@
 import { NgIf } from '@angular/common'
-import { Component, QueryList, ViewChild, ViewChildren } from '@angular/core'
+import { Component, ContentChildren, QueryList, ViewChild, ViewChildren } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { Logger } from '../angular-terminal/logger'
-import { Box, BoxFocus } from '../components/1-basics/box'
+import { Box } from '../components/1-basics/box'
 import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
@@ -279,15 +279,11 @@ describe('ShortcutService - ', () => {
 
 @Component({
   standalone: true,
-  imports: [Box, BoxFocus, FocusDirective, NgIf, TextInput, List, ListItem],
+  imports: [Box, NgIf, TextInput, List, ListItem, FocusDirective],
   template: `
     <list [items]="items">
       <box *item focus>
-        <box focus>
-          <box focus>
-            <text-input [text]=""></text-input>
-          </box>
-        </box>
+        <text-input [text]=""></text-input>
       </box>
     </list>
   `,
@@ -295,18 +291,42 @@ describe('ShortcutService - ', () => {
 export class Test2 {
   condition = true
   items = [1, 2, 3]
+  noop = () => {}
   constructor(public shortcutService: ShortcutService) {}
   @ViewChildren(TextInput) input: QueryList<TextInput>
 }
 
 describe('ShortcutService - ', () => {
-  fit('focuses the nested input', async () => {
+  it('focuses the nested input', async () => {
     const { fixture, component, shortcuts } = await setupTest(Test2)
 
-    // await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
     await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.get(0).text).withContext('input0').toEqual('a')
     expect(component.input.get(1).text).withContext('input1').toEqual('')
     expect(component.input.get(2).text).withContext('input2').toEqual('')
+  })
+
+  it('focuses the 2nd nested input', async () => {
+    const { fixture, component, shortcuts } = await setupTest(Test2)
+
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    expect(component.input.get(0).text).withContext('input0').toEqual('')
+    expect(component.input.get(1).text).withContext('input1').toEqual('a')
+    expect(component.input.get(2).text).withContext('input2').toEqual('')
+  })
+
+  it('focuses the 3rd nested input', async () => {
+    const { fixture, component, shortcuts } = await setupTest(Test2)
+
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'b' })
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'pgup' })
+    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'c' })
+    expect(component.input.get(0).text).withContext('input0').toEqual('c')
+    expect(component.input.get(1).text).withContext('input1').toEqual('a')
+    expect(component.input.get(2).text).withContext('input2').toEqual('b')
   })
 })

@@ -1,21 +1,13 @@
 import { EventEmitter, Injectable, Optional, SkipSelf } from '@angular/core'
 import _ from 'lodash'
 import { BehaviorSubject } from 'rxjs'
-import { ComponentDebug } from '../angular-terminal/debug'
+import { NiceView } from '../angular-terminal/debug'
 import { Element } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
 import { Destroyable } from '../utils/mixins'
 import { makeObservable, onChange } from '../utils/reactivity'
-import {
-  addToGlobalRg,
-  assert,
-  async,
-  last,
-  moveToLast,
-  remove,
-  removeLastMatch,
-} from '../utils/utils'
+import { addToGlobalRg, assert, async, last, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
 
@@ -443,7 +435,7 @@ function updateTree(rootNode: ShortcutService) {
     }
   })
 
-  rootNode.logger.log(`focused: ${stringifyPathToNode(rootNode)}`)
+  rootNode.logger.log(`focused: ${stringifyFocusedPath(rootNode)}`)
 }
 
 addToGlobalRg({
@@ -451,7 +443,7 @@ addToGlobalRg({
 })
 
 export function rgDebugKeybinds() {
-  const ng = globalThis.rg.component() as ComponentDebug
+  const ng = globalThis.rg.component() as NiceView
   const rootKeybindService = ng.more.injector.get(ShortcutService)
 
   return simplifyShortcutService(rootKeybindService)
@@ -511,6 +503,16 @@ function stringifyPathToNode(node: ShortcutService) {
       currentNode = currentNode.focusedChild
       if (!currentNode) break
     }
+  }
+  return nodes.map(node => stringifyNode(node)).join(' -> ')
+}
+
+function stringifyFocusedPath(node: ShortcutService) {
+  const nodes = []
+  let currentNode = node.rootNode
+  while (currentNode) {
+    nodes.push(currentNode)
+    currentNode = currentNode.focusedChild
   }
   return nodes.map(node => stringifyNode(node)).join(' -> ')
 }
