@@ -1,10 +1,10 @@
 import { Type } from '@angular/core'
-import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { ComponentFixture, flush, TestBed, tick } from '@angular/core/testing'
+import { Logger } from '../angular-terminal/logger'
 import { Key } from '../commands/keypress-parser'
 import { ShortcutService } from '../commands/shortcut.service'
-import { async } from './utils'
 
-export async function setupTest<T>(componentClass: Type<T>) {
+export function setupTest<T>(componentClass: Type<T>) {
   TestBed.resetTestingModule()
   TestBed.configureTestingModule({
     providers: [ShortcutService],
@@ -12,22 +12,23 @@ export async function setupTest<T>(componentClass: Type<T>) {
 
   const fixture: ComponentFixture<T> = TestBed.createComponent(componentClass)
   const component: T = fixture.componentInstance
-
-  await async(() => fixture.detectChanges())
   const shortcuts = TestBed.inject(ShortcutService)
 
-  return {
-    fixture,
-    shortcuts,
-    component,
-  }
+  fixture.detectChanges()
+
+  return { fixture, shortcuts, component }
 }
 
-export async function sendKeyAndDetectChanges(
+export function sendKeyAndDetectChanges(
   fixture: ComponentFixture<any>,
   shortcuts: ShortcutService,
   key: Partial<Key>
 ) {
   shortcuts.incomingKey({ key: key })
-  return async(() => fixture.detectChanges())
+
+  // TestBed.inject(Logger).log('detectChanges')
+  fixture?.detectChanges()
+
+  // TestBed.inject(Logger).log('tick')
+  tick()
 }

@@ -30,7 +30,7 @@ export class OnEnterDirective {
   ]
 
   constructor() {
-    const $list = inject(PROVIDE_LIST, { self: true })
+    const $list = inject(PROVIDE_LIST)
     assert($list)
 
     subscribe(this, $list, list => {

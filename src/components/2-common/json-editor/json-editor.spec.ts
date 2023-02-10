@@ -1,5 +1,6 @@
 import { NgIf } from '@angular/common'
 import { Component, ViewChild } from '@angular/core'
+import { fakeAsync } from '@angular/core/testing'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
 import { Box } from '../../1-basics/box'
@@ -24,34 +25,35 @@ export class Test2 {
 }
 
 describe('JsonEditor - ', () => {
-  it(`should edit a string`, async () => {
-    const { fixture, component, shortcuts } = await setupTest(Test)
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'y' })
+  it(`should edit a string`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test)
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'y' })
     expect(component.jsonEditor.getValue()).toEqual('stringy')
-  })
+  }))
 
-  it(`should edit the key`, async () => {
-    const { fixture, component, shortcuts } = await setupTest(Test2)
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'y' })
+  it(`should edit the key`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test2)
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'y' })
     expect(component.jsonEditor.getValue()).toEqual({ testy: 'a' })
-  })
+  }))
 
-  it(`should edit the value`, async () => {
-    const { fixture, component, shortcuts } = await setupTest(Test2)
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'b' })
+  it(`should edit the value`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test2)
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'b' })
     expect(component.jsonEditor.getValue()).toEqual({ test: 'ab' })
-  })
+  }))
 
-  it(`should add a new key/value`, async () => {
-    const { fixture, component, shortcuts } = await setupTest(Test2)
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'k' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'e' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'y' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'b' })
-    expect(component.jsonEditor.getValue()).toEqual({ test: 'a', key: 'b' })
-  })
+  it(`should add a new key/value`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test2)
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'k' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'e' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'y' })
+
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'Y' })
+    expect(component.jsonEditor.getValue()).toEqual({ test: 'a', key: 'Y' })
+  }))
 })

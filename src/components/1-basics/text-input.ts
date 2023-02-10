@@ -64,7 +64,6 @@ export class TextInput implements ControlValueAccessor {
     this.caretIndex = this.text.length
 
     registerShortcuts(this, this.shortcuts)
-    this.logger.log({ message: 'ngOnInit TextInput' })
     this.shortcutService.requestFocus()
   }
 
@@ -86,6 +85,10 @@ export class TextInput implements ControlValueAccessor {
     this.shortcutService.unfocus()
     this.destroy$.next(null)
     this.destroy$.complete()
+  }
+
+  toString() {
+    return `TextInput: '${this.text}'`
   }
 
   // implements ControlValueAccessor, so a form can read/write the value of this input

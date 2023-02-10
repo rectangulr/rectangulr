@@ -1,25 +1,28 @@
 import { NgIf } from '@angular/common'
-import { Component, Input } from '@angular/core'
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core'
+import json5 from 'json5'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { assert } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
+import { ClassesDirective } from '../../1-basics/classes'
 import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
-import { List } from '../list/list'
+import { List, selectItem } from '../list/list'
 import { ListItem } from '../list/list-item'
 
 @Component({
   standalone: true,
   selector: 'json-editor',
+  host: { '[style]': "{flexDirection: 'row'}" },
   template: `
     <box
-      *ngIf="keyValue.key"
+      *ngIf="keyValue.key != null"
       [focusIf]="focused == 'key'"
       [style]="{
-        backgroundColor: 'darkgray',
+        backgroundColor: 'red',
         flexDirection: 'row',
         alignItems: 'flexStart'
       }">
@@ -32,12 +35,10 @@ import { ListItem } from '../list/list-item'
       </ng-container>
       <ng-container *ngIf="type == 'object' || type == 'array'">
         <list [items]="childrenKeyValues">
-          <box
-            focus
+          <json-editor
             *item="let kv; type: childrenKeyValues"
-            [style]="{ flexDirection: 'row', alignItems: 'flexStart' }">
-            <json-editor [keyValue]="kv" [style]="{ paddingLeft: 2 }"></json-editor>
-          </box>
+            [keyValue]="kv"
+            [newclasses]="[isRoot(), { paddingLeft: 2 }]"></json-editor>
         </list>
       </ng-container>
     </ng-container>
@@ -51,16 +52,22 @@ import { ListItem } from '../list/list-item'
     FocusDirective,
     FocusDebugDirective,
     StyleDirective,
+    ClassesDirective,
   ],
+  providers: [ShortcutService],
 })
 export class JsonEditor {
   @Input() value = null
   @Input() keyValue: KeyValue = null
   @Input() path: string[] = []
 
+  @Output() submit = new EventEmitter()
+
   type: Type = 'object'
   childrenKeyValues: KeyValue[] = []
   focused: 'key' | 'value' = 'key'
+
+  @ViewChild(List) list: List<any>
 
   constructor(public shortcutService: ShortcutService, public logger: Logger) {}
 
@@ -75,7 +82,7 @@ export class JsonEditor {
     if (this.keyValue.value == null) this.type = 'null'
     else if (Array.isArray(this.keyValue.value)) this.type = 'array'
 
-    this.focused = this.keyValue.key ? 'key' : 'value'
+    this.focused = this.keyValue.key != null ? 'key' : 'value'
 
     if (typeHasChildren(this.type)) {
       this.childrenKeyValues = Object.entries(this.keyValue.value).map(([key, value]) => ({
@@ -85,15 +92,8 @@ export class JsonEditor {
     }
 
     registerShortcuts(this, this.shortcuts)
-    if (this.isRoot()) {
-      registerShortcuts(this, [
-        {
-          keys: 'enter',
-          id: 'submitValue',
-          func: () => {},
-        },
-      ])
-    }
+
+    this.shortcutService.requestFocus()
   }
 
   /**
@@ -111,8 +111,8 @@ export class JsonEditor {
     return [...paths]
   }
 
-  private isRoot() {
-    return this.path.length == 0
+  isRoot() {
+    return this.value
   }
 
   shortcuts: Partial<Command>[] = [
@@ -122,8 +122,9 @@ export class JsonEditor {
         if (this.focused == 'key') {
           this.focused = 'value'
         } else if (this.focused == 'value' && typeHasChildren(this.type)) {
-          this.childrenKeyValues.push({ key: '', value: '' })
-          this.focused = 'key'
+          const newKV = { key: '', value: '' }
+          this.childrenKeyValues.push(newKV)
+          selectItem(this.list, newKV)
         } else {
           return key
         }
@@ -134,12 +135,17 @@ export class JsonEditor {
       func: key => {
         if (this.focused == 'key') {
           return key
-        } else if (this.focused == 'value') {
+        } else if (this.focused == 'value' && !this.isRoot()) {
           this.focused = 'key'
         }
       },
     },
   ]
+
+  toString() {
+    const keyValue = json5.stringify(this.keyValue)
+    return `JsonEditor: ${keyValue}`
+  }
 
   destroy$ = new Subject()
   ngOnDestroy() {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, SkipSelf } from '@angular/core'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { subscribe } from '../../../utils/reactivity'
@@ -8,6 +8,10 @@ import { NativeClassesDirective } from '../../1-basics/classes'
 import { List } from '../list/list'
 import { blackOnWhite } from '../styles'
 
+class NullLogger {
+  log(thing) {}
+}
+
 @Component({
   standalone: true,
   imports: [Box, List, NativeClassesDirective],
@@ -16,11 +20,12 @@ import { blackOnWhite } from '../styles'
     <box [classes]="[blackOnWhite]">Logs</box>
     <list [items]="logs"></list>
   `,
+  providers: [{ provide: Logger, useClass: NullLogger }],
 })
 export class Logs {
   logs = null
 
-  constructor(public logger: Logger) {
+  constructor(@SkipSelf() public logger: Logger) {
     subscribe(this, this.logger.$logs, logs => {
       // Update the logs asynchronously, because if something gets logged
       // after change detection, it would throw an error

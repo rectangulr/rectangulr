@@ -1,13 +1,13 @@
-import { EventEmitter, Injectable, Optional, SkipSelf } from '@angular/core'
+import { EventEmitter, Injectable, NgZone, Optional, SkipSelf } from '@angular/core'
 import _ from 'lodash'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
 import { Element } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
 import { Destroyable } from '../utils/mixins'
-import { makeObservable, onChange } from '../utils/reactivity'
-import { addToGlobalRg, assert, async, last, remove, removeLastMatch } from '../utils/utils'
+import { makeObservable, onChange, subscribe } from '../utils/reactivity'
+import { addToGlobalRg, assert, last, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
 
@@ -53,7 +53,7 @@ export class ShortcutService {
   rootNode: ShortcutService = null
 
   receivedCaretRequestRecently = false
-  receivedFocusThisTick = 0
+  askedForFocusThisTick = new Set()
   caretElement: Element = null
 
   isFocused = false
@@ -69,7 +69,8 @@ export class ShortcutService {
   constructor(
     @Optional() public screen: ScreenService,
     public logger: Logger,
-    @SkipSelf() @Optional() public parent: ShortcutService
+    @SkipSelf() @Optional() public parent: ShortcutService,
+    public ngZone: NgZone
   ) {
     if (isRoot(this)) {
       this.rootNode = this
@@ -89,6 +90,11 @@ export class ShortcutService {
     onChange(this, 'focusedChild', value => {
       updateTree(this.rootNode)
     })
+
+    // subscribe(this, this.ngZone.onStable, () => {
+    //   this.receivedFocusThisTick = 0
+    //   // this.logger.log(`reset receivedFocusThisTick to ${this.receivedFocusThisTick}`)
+    // })
   }
 
   incomingKey(keyEvent) {
@@ -102,18 +108,21 @@ export class ShortcutService {
       const unhandledKeypress = this.propagateKeypress(key)
       if (unhandledKeypress) {
         this.logger.log(`unhandled keypress: ${keyToString(unhandledKeypress)}`)
+        // @ts-ignore
+        // ngDevMode &&
+        //   assert(false, { message: 'unhandled key', focused: getFocusedNode(this.rootNode) })
       }
     }
   }
 
   private propagateKeypress(keypress): Key {
     if (this.focusedChild) {
-      const focusStack = `focusStack: [${this.focusStack.map(child => 'child').join(',')}]`
-      const components = `components: [${this.components.map(c => c.constructor.name).join(',')}]`
-      const handlers = Object.keys(this.shortcuts)
-        .filter(value => value.length > 0)
-        .join(',')
-      const handlersString = `handlers: [${handlers}]`
+      // const focusStack = `focusStack: [${this.focusStack.map(child => 'child').join(',')}]`
+      // const components = `components: [${this.components.map(c => c.constructor.name).join(',')}]`
+      // const handlers = Object.keys(this.shortcuts)
+      //   .filter(value => value.length > 0)
+      //   .join(',')
+      // const handlersString = `handlers: [${handlers}]`
       // this.logger.log(`${padding(this)}${components}, ${handlers}, ${focusStack}`)
 
       const unhandledKeypress = this.focusedChild.propagateKeypress(keypress)
@@ -134,7 +143,7 @@ export class ShortcutService {
       if (lastId) {
         const unhandled = this.callCommand({ id: lastId, keys: keypress })
         if (!unhandled) {
-          this.logger.log(`handle key: ${stringifyPathToNode(this)} - ${key}`)
+          // this.logger.log(`handle key: ${stringifyPathToNode(this)} - ${key}`)
         }
         return unhandled
       }
@@ -206,48 +215,42 @@ export class ShortcutService {
   requestFocus(args?: { child?: ShortcutService; soft?: boolean }) {
     args = { child: null, soft: true, ...args }
 
-    const log = message => {
-      // this.logger.log({
-      //   this: simplifyShortcutService(this),
-      //   child: simplifyShortcutService(args.child),
-      //   soft: args.soft,
-      //   message,
-      // })
-    }
-
     // To be able to call focus() without arguments
     if (!args.child) {
-      return this.parent?.requestFocus({ ...args, child: this })
-    }
-
-    if (!args.child.focusIf) {
-      // log('!focusIf')
+      this.parent?.requestFocus({ ...args, child: this })
+      this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
       return
     }
 
-    async(() => {
-      this.receivedFocusThisTick = 0
-      this.logger.log(`reset receivedFocusThisTick to ${this.receivedFocusThisTick}`)
-    })
+    if (!args.child.focusIf) {
+      this.logger.log(`denied - ${args.child} - focusIf`)
+      return
+    }
+
+    if (this.askedForFocusThisTick.has(args.child)) {
+      this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
+      return
+    }
 
     _.remove(this.focusStack, i => i == args.child)
     let index = this.focusStack.length
-    if (args.soft) index -= this.receivedFocusThisTick
+    if (args.soft) index -= this.askedForFocusThisTick.size
     index = _.clamp(index, 0, this.focusStack.length)
     const stackBefore = this.focusStack.map(i => i._id).join(',')
     this.focusStack.splice(index, 0, args.child)
     const stackAfter = this.focusStack.map(i => i._id).join(',')
-    this.logger.log(
-      `${stringifyPathToNode(
-        this
-      )} : [${stackBefore}] ->  [${stackAfter}]                 (receivedFocusThisTick:${
-        this.receivedFocusThisTick
-      })`
-    )
+    // this.logger.log(`${stringifyPathToNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
 
-    this.receivedFocusThisTick++
+    this.askedForFocusThisTick.add(args.child)
     this.focusedChild = _.last(this.focusStack)
+    assert(this.focusedChild, 'should focus a child')
     // log('received')
+
+    // this.logger.log('setTimeout')
+    setTimeout(() => {
+      this.askedForFocusThisTick.clear()
+      this.logger.log(`focused end of tick: ${stringifyPathToLeaf(this)}`)
+    })
 
     if (this.focusPropagateUp) {
       this.parent?.requestFocus({ ...args, child: this })
@@ -275,11 +278,14 @@ export class ShortcutService {
    *  Tell our parent that we're getting destroyed.
    */
   private ngOnDestroy() {
+    this.destroy$.next(null)
+    this.destroy$.complete()
     if (this.parent) {
       this.unfocus()
       this.parent.childDestroyed(this)
     }
   }
+  destroy$ = new Subject()
 
   /**
    * Called by children to signal their creation.
@@ -294,6 +300,10 @@ export class ShortcutService {
   private childDestroyed(child: ShortcutService) {
     remove(this.focusStack, child)
     remove(this.children, child)
+  }
+
+  toString() {
+    return stringifyPathToNode(this)
   }
 }
 
@@ -327,7 +337,6 @@ function sanitizeCommand(_command: Partial<Command>): Command {
     command.hidden = true
   }
 
-  // @ts-ignore
   return command
 }
 
@@ -435,7 +444,7 @@ function updateTree(rootNode: ShortcutService) {
     }
   })
 
-  rootNode.logger.log(`focused: ${stringifyFocusedPath(rootNode)}`)
+  // rootNode.logger.log(`focused: ${stringifyFocusedPath(rootNode)}`)
 }
 
 addToGlobalRg({
@@ -481,11 +490,20 @@ export function depth(shortcutService: ShortcutService) {
   }
 }
 
+function stringifyComponent(component: any) {
+  const toString = component.toString()
+  if (toString == '[object Object]') {
+    return component.constructor.name
+  } else {
+    return toString
+  }
+}
+
 function stringifyNode(shortcutService: ShortcutService) {
   let componentNames = Object.values(shortcutService.commands)
     .map(commands => _.last(commands))
     .filter(c => !!c && c.context)
-    .map(command => command.context.constructor.name)
+    .map(command => stringifyComponent(command.context))
   componentNames = [...new Set(componentNames)]
   const componentNamesString = componentNames.join()
 
@@ -507,7 +525,7 @@ function stringifyPathToNode(node: ShortcutService) {
   return nodes.map(node => stringifyNode(node)).join(' -> ')
 }
 
-function stringifyFocusedPath(node: ShortcutService) {
+function stringifyPathToLeaf(node: ShortcutService) {
   const nodes = []
   let currentNode = node.rootNode
   while (currentNode) {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core'
+import { Component, EventEmitter, inject, Input, NgZone, Output, ViewChild } from '@angular/core'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
@@ -30,9 +30,7 @@ import { Command, ShortcutService } from './shortcut.service'
       // The shortcuts of this component must be stored separately
       provide: ShortcutService,
       useFactory: () => {
-        const logger = inject(Logger)
-        const shortcutService = new ShortcutService(null, logger, null)
-        return shortcutService
+        return new ShortcutService(null, inject(Logger), null, inject(NgZone))
       },
     },
   ],

@@ -1,5 +1,6 @@
 import { NgComponentOutlet, NgFor, NgIf, NgTemplateOutlet } from '@angular/common'
 import {
+  ChangeDetectorRef,
   Component,
   ContentChild,
   ContentChildren,
@@ -8,12 +9,13 @@ import {
   Inject,
   Injector,
   Input,
+  NgZone,
   Optional,
   Output,
   QueryList,
   SkipSelf,
   TemplateRef,
-  ViewChildren
+  ViewChildren,
 } from '@angular/core'
 import * as json5 from 'json5'
 import _ from 'lodash'
@@ -21,10 +23,17 @@ import { DynamicModule } from 'ng-dynamic-component'
 import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
-import { async, filterNulls, mapKeyValue, stringifyReplacer } from '../../../utils/utils'
+import {
+  assert,
+  detectInfiniteLoop,
+  filterNulls,
+  mapKeyValue,
+  stringifyReplacer,
+} from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { NativeClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
@@ -104,7 +113,10 @@ export class List<T> {
   constructor(
     @SkipSelf() public shortcutService: ShortcutService,
     @Inject('itemComponent') @Optional() public itemComponentInjected: any,
-    public injector: Injector
+    public injector: Injector,
+    public logger: Logger,
+    public ngZone: NgZone,
+    public cd: ChangeDetectorRef
   ) {
     this._items = new State([], this.destroy$)
     this.$visibleItems = combineLatest([
@@ -134,6 +146,10 @@ export class List<T> {
     subscribe(this, this.$visibleItems, visibleItems => {
       this.visibleItems = visibleItems
     })
+
+    // subscribe(this, this.ngZone.onStable, () => {
+    //   this.afterViewUpdate()
+    // })
   }
 
   selectIndex(value) {
@@ -151,23 +167,32 @@ export class List<T> {
       this.windowSize,
       this._items.value.length
     )
+
     this.$selectedItem.next(this.selected.value)
 
-    const afterIndexSelected = () => {
-      if (this.focusRefs.length > 0) {
-        const selectedFocusDirective = this.focusRefs?.get(this.selected.index)
-        selectedFocusDirective.shortcutService.requestFocus()
-      }
+    this.logger.log(`selectIndex - ${this.selected.index}`)
+    setTimeout(() => {
+      this.afterViewUpdate()
+    })
+  }
 
-      if (this.elementRefs?.length > 0) {
-        const element: Element = this.elementRefs.get(
-          this.selected.index - this.visibleRange.start
-        )?.nativeElement
-        element.scrollIntoView()
+  afterViewUpdate() {
+    if (!this.focusRefs) debugger
+
+    if (this.focusRefs.length > 0) {
+      const selectedFocusDirective = this.focusRefs?.get(this.selected.index)
+      if (!selectedFocusDirective) {
+        debugger
       }
+      selectedFocusDirective.shortcutService.requestFocus()
     }
 
-    async(afterIndexSelected)
+    if (this.elementRefs?.length > 0) {
+      const element: Element = this.elementRefs.get(
+        this.selected.index - this.visibleRange.start
+      )?.nativeElement
+      element?.scrollIntoView()
+    }
   }
 
   whiteOnGray = whiteOnGray
@@ -200,6 +225,11 @@ export class List<T> {
     },
   ]
 
+  toString() {
+    const items = this._items.value.map(i => json5.stringify(i)).join()
+    return `List: ${items}`
+  }
+
   destroy$ = new Subject()
   ngOnDestroy() {
     this.destroy$.next(null)
@@ -223,6 +253,12 @@ function rangeCenteredAroundIndex(index, rangeSize, length) {
   } else {
     return { start: 0, end: length }
   }
+}
+
+export function selectItem(list: List<any>, item: any) {
+  const index = list._items.value.indexOf(item)
+  assert(index !== -1, 'item not in list')
+  list.selectIndex(index)
 }
 
 function clampRange(range, min, max) {

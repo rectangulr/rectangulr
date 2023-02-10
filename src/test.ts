@@ -1,12 +1,14 @@
-import Jasmine from 'jasmine'
+// Use require() to make sure webpack doesnt change the order of the imports
+const Jasmine = require('jasmine')
+// @ts-ignore
 const jasmine = new Jasmine()
 
 require('zone.js/dist/zone-node.js')
 require('zone.js/dist/zone-testing-node-bundle.js')
 
-import { getTestBed } from '@angular/core/testing'
-import { platformRectangulrDynamicTesting } from './angular-terminal/testing/platform-testing'
-import { RectangulrDynamicTestingModule } from './angular-terminal/testing/testing.module'
+const { getTestBed } = require('@angular/core/testing')
+const { platformRectangulrDynamicTesting } = require('./angular-terminal/testing/platform-testing')
+const { RectangulrDynamicTestingModule } = require('./angular-terminal/testing/testing.module')
 
 // First, initialize the Angular testing environment.
 getTestBed().initTestEnvironment(

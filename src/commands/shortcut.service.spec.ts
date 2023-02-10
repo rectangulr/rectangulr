@@ -1,6 +1,6 @@
 import { NgIf } from '@angular/common'
-import { Component, ContentChildren, QueryList, ViewChild, ViewChildren } from '@angular/core'
-import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { Component, NgZone, QueryList, ViewChild, ViewChildren } from '@angular/core'
+import { ComponentFixture, fakeAsync, flush, TestBed, tick } from '@angular/core/testing'
 import { Logger } from '../angular-terminal/logger'
 import { Box } from '../components/1-basics/box'
 import { TextInput } from '../components/1-basics/text-input'
@@ -15,33 +15,35 @@ describe('ShortcutService Class', () => {
   let shortcuts: ShortcutService
 
   beforeEach(() => {
-    shortcuts = new ShortcutService(null, TestBed.inject(Logger), null)
+    TestBed.resetTestingModule()
+    TestBed.configureTestingModule({})
+    shortcuts = new ShortcutService(null, TestBed.inject(Logger), null, TestBed.inject(NgZone))
   })
 
-  it('should register a shortcut', () => {
+  it('should register a shortcut', fakeAsync(() => {
     const spy = { handler: () => {} }
     spyOn(spy, 'handler')
     shortcuts.registerCommand({
       keys: 'ctrl+r',
       func: spy.handler,
     })
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    sendKeyAndDetectChanges(null, shortcuts, { ctrl: true, name: 'r' })
     expect(spy.handler).toHaveBeenCalled()
-  })
+  }))
 
-  it('should register/remove a shortcut', () => {
+  it('should register/remove a shortcut', fakeAsync(() => {
     const spy = { handler: () => {} }
     spyOn(spy, 'handler')
     const disposable = shortcuts.registerCommand({
       keys: 'ctrl+r',
       func: spy.handler,
     })
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    sendKeyAndDetectChanges(null, shortcuts, { ctrl: true, name: 'r' })
     expect(spy.handler).toHaveBeenCalledTimes(1)
     disposable.dispose()
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    sendKeyAndDetectChanges(null, shortcuts, { ctrl: true, name: 'r' })
     expect(spy.handler).toHaveBeenCalledTimes(1)
-  })
+  }))
 })
 
 //
@@ -61,9 +63,8 @@ describe('ShortcutService Class', () => {
   `,
   providers: [ShortcutService],
 })
-export class TestNgIf {
+export class Test1 {
   constructor(public shortcutService: ShortcutService) {}
-
   showFirst = true
   showSecond = true
 
@@ -79,18 +80,21 @@ export class TestNgIf {
 }
 
 describe('ShortcutService ngIf - ', () => {
-  let fixture: ComponentFixture<TestNgIf>
-  let component: TestNgIf
-  let shortcuts: ShortcutService
+  // let fixture: ComponentFixture<TestNgIf>
+  // let component: TestNgIf
+  // let shortcuts: ShortcutService
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TestNgIf)
-    component = fixture.componentInstance
-    shortcuts = component.shortcutService
-    fixture.detectChanges()
-  })
+  // beforeEach(() => {
+  //   TestBed.resetTestingModule()
+  //   TestBed.configureTestingModule({})
+  //   fixture = TestBed.createComponent(TestNgIf)
+  //   component = fixture.componentInstance
+  //   shortcuts = component.shortcutService
+  //   fixture.detectChanges()
+  // })
 
-  it('should setup ok', () => {
+  it('should setup ok', async () => {
+    const { fixture, component, shortcuts } = setupTest(Test1)
     expect(component.first).toBeTruthy()
     expect(component.second).toBeTruthy()
     expect(component.shortcutService).toBeTruthy()
@@ -98,29 +102,71 @@ describe('ShortcutService ngIf - ', () => {
   })
 
   it('should focus first box', () => {
+    const { fixture, component, shortcuts } = setupTest(Test1)
     expect(getFocusedNode(shortcuts)).toBe(component.first)
   })
 
-  it(`should focus according to ngIfs`, async () => {
+  it(`should focus according to ngIfs`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test1)
+
     spyOn(component, 'firstFunc')
     spyOn(component, 'secondFunc')
 
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    function logZone() {
+      // @ts-ignore
+      TestBed.inject(Logger).log(Zone.current._zoneDelegate._taskCounts)
+    }
+
+    function log(thing) {
+      TestBed.inject(Logger).log(thing)
+    }
+
+    log('ctrl+r')
+    sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(0)
 
     component.showFirst = false
-    await async(() => fixture.detectChanges())
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    log('tick')
+    tick()
+
+    log('detectChanges')
+    fixture.detectChanges()
+
+    log('tick')
+    tick()
+
+    log('ctrl+r')
+    sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
+
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
 
+    log('showFirst true')
     component.showFirst = true
-    await async(() => fixture.detectChanges())
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    // logZone()
+
+    log('tick')
+    tick()
+
+    // logZone()
+
+    log('detectChanges')
+    fixture.detectChanges()
+    // logZone()
+
+    log('tick')
+    tick()
+
+    // logZone()
+
+    log('ctrl+r')
+    sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
+
+    log('expect')
     expect(component.firstFunc).toHaveBeenCalledTimes(2)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
-  })
+  }))
 })
 
 //
@@ -138,7 +184,7 @@ describe('ShortcutService ngIf - ', () => {
   `,
   providers: [ShortcutService],
 })
-export class TestFocusIf {
+export class Test2 {
   focused: 'first' | 'second' = 'first'
 
   constructor(public shortcutService: ShortcutService) {}
@@ -152,37 +198,39 @@ export class TestFocusIf {
 }
 
 describe('ShortcutService FocusIf - ', () => {
-  let fixture: ComponentFixture<TestFocusIf>
-  let component: TestFocusIf
-  let shortcuts: ShortcutService
+  // let fixture: ComponentFixture<TestFocusIf>
+  // let component: TestFocusIf
+  // let shortcuts: ShortcutService
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TestFocusIf)
-    component = fixture.componentInstance
-    shortcuts = component.shortcutService
-    fixture.detectChanges()
-  })
+  // beforeEach(() => {
+  //   fixture = TestBed.createComponent(TestFocusIf)
+  //   component = fixture.componentInstance
+  //   shortcuts = component.shortcutService
+  //   fixture.detectChanges()
+  // })
 
-  it(`should focus the second box when focusIf=='second'`, async () => {
+  it(`should focus the second box when focusIf=='second'`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test2)
+
     spyOn(component, 'firstFunc')
     spyOn(component, 'secondFunc')
 
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(0)
 
     component.focused = 'second'
-    await async(() => fixture.detectChanges())
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    fixture.detectChanges()
+    sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
 
     component.focused = 'first'
-    await async(() => fixture.detectChanges())
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    fixture.detectChanges()
+    sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(2)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
-  })
+  }))
 })
 
 //
@@ -193,7 +241,7 @@ describe('ShortcutService FocusIf - ', () => {
   template: ` <box [focusShortcuts]="shortcuts"></box> `,
   providers: [ShortcutService],
 })
-export class Test {
+export class Test3 {
   focused: 'first' | 'second' = 'first'
   callsMethod = methodName => {
     return () => this[methodName]()
@@ -210,26 +258,27 @@ export class Test {
 }
 
 describe('ShortcutService - ', () => {
-  let fixture: ComponentFixture<Test>
-  let component: Test
-  let shortcuts: ShortcutService
+  // let fixture: ComponentFixture<Test>
+  // let component: Test
+  // let shortcuts: ShortcutService
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(Test)
-    component = fixture.componentInstance
-    shortcuts = component.shortcutService
-    fixture.detectChanges()
-  })
+  // beforeEach(() => {
+  //   fixture = TestBed.createComponent(Test)
+  //   component = fixture.componentInstance
+  //   shortcuts = component.shortcutService
+  //   fixture.detectChanges()
+  // })
 
-  it(`should call latest registered shortcut`, async () => {
+  it(`should call latest registered shortcut`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test3)
+
     spyOn(component, 'firstFunc')
     spyOn(component, 'secondFunc')
-    async(() => fixture.detectChanges())
 
-    shortcuts.incomingKey({ key: { ctrl: true, name: 'r' } })
+    sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(0)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
-  })
+  }))
 })
 
 //
@@ -239,40 +288,44 @@ describe('ShortcutService - ', () => {
   imports: [Box, FocusDirective, NgIf, TextInput],
   template: ` <text-input [focusIf]="condition"></text-input> `,
 })
-export class TestTextInput {
+export class Test4 {
   condition = true
   constructor(public shortcutService: ShortcutService) {}
   @ViewChild(TextInput) input: TextInput
 }
 
 describe('ShortcutService - ', () => {
-  let fixture: ComponentFixture<TestTextInput>
-  let component: TestTextInput
-  let shortcuts: ShortcutService
+  // let fixture: ComponentFixture<Test4>
+  // let component: Test4
+  // let shortcuts: ShortcutService
 
-  beforeEach(async () => {
-    TestBed.resetTestingModule()
-    TestBed.configureTestingModule({
-      providers: [ShortcutService],
-    })
-    fixture = TestBed.createComponent(TestTextInput)
-    component = fixture.componentInstance
-    shortcuts = component.shortcutService
-    await async(() => fixture.detectChanges())
-  })
+  // beforeEach(async () => {
+  //   TestBed.resetTestingModule()
+  //   TestBed.configureTestingModule({
+  //     providers: [ShortcutService],
+  //   })
+  //   fixture = TestBed.createComponent(Test4)
+  //   component = fixture.componentInstance
+  //   shortcuts = component.shortcutService
+  //   fixture.detectChanges()
+  // })
 
-  it(`should focus the text-input and accept inputs`, async () => {
-    shortcuts.incomingKey({ key: { name: 'a' } })
+  it(`should focus the text-input and accept inputs`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test4)
+
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.text).toEqual('a')
-  })
+  }))
 
-  it(`shouldn't focus the text-input`, async () => {
+  it(`shouldn't focus the text-input`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test4)
+
     component.condition = false
-    await async(() => fixture.detectChanges())
+    fixture.detectChanges()
 
-    shortcuts.incomingKey({ key: { name: 'a' } })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.text).toEqual('')
-  })
+  }))
 })
 
 //
@@ -288,7 +341,7 @@ describe('ShortcutService - ', () => {
     </list>
   `,
 })
-export class Test2 {
+export class Test5 {
   condition = true
   items = [1, 2, 3]
   noop = () => {}
@@ -297,36 +350,36 @@ export class Test2 {
 }
 
 describe('ShortcutService - ', () => {
-  it('focuses the nested input', async () => {
-    const { fixture, component, shortcuts } = await setupTest(Test2)
+  it('focuses the nested input', fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test5)
 
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.get(0).text).withContext('input0').toEqual('a')
     expect(component.input.get(1).text).withContext('input1').toEqual('')
     expect(component.input.get(2).text).withContext('input2').toEqual('')
-  })
+  }))
 
-  it('focuses the 2nd nested input', async () => {
-    const { fixture, component, shortcuts } = await setupTest(Test2)
+  it('focuses the 2nd nested input', fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test5)
 
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.get(0).text).withContext('input0').toEqual('')
     expect(component.input.get(1).text).withContext('input1').toEqual('a')
     expect(component.input.get(2).text).withContext('input2').toEqual('')
-  })
+  }))
 
-  it('focuses the 3rd nested input', async () => {
-    const { fixture, component, shortcuts } = await setupTest(Test2)
+  it('focuses the 3rd nested input', fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test5)
 
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'b' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'pgup' })
-    await sendKeyAndDetectChanges(fixture, shortcuts, { name: 'c' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'b' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'pgup' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'c' })
     expect(component.input.get(0).text).withContext('input0').toEqual('c')
     expect(component.input.get(1).text).withContext('input1').toEqual('a')
     expect(component.input.get(2).text).withContext('input2').toEqual('b')
-  })
+  }))
 })

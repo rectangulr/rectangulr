@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, inject, Output } from '@angular/core'
+import { Directive, EventEmitter, inject, NgZone, Output } from '@angular/core'
 import { Logger } from '../angular-terminal/logger'
 import { ShortcutService } from './shortcut.service'
 
@@ -9,9 +9,7 @@ import { ShortcutService } from './shortcut.service'
     {
       provide: ShortcutService,
       useFactory: () => {
-        const logger = inject(Logger)
-        const shortcutService = new ShortcutService(null, logger, null)
-        return shortcutService
+        return new ShortcutService(null, inject(Logger), null, inject(NgZone))
       },
     },
   ],

@@ -180,8 +180,11 @@ export class NiceContainer {
   children: any
   childrenTransplant: any
 
-  constructor(lContainer: Array<any>, state: { cacheLViews?: WeakMap<any, any> } = {}) {
-    let { cacheLViews = new WeakMap() } = state
+  constructor(
+    lContainer: Array<any>,
+    state: { cacheNames?: {}; cacheLViews?: WeakMap<any, any> } = {}
+  ) {
+    let { cacheNames = {}, cacheLViews = new WeakMap() } = state
 
     if (!lContainer) return null
     if (cacheLViews.has(lContainer)) {
@@ -200,10 +203,10 @@ export class NiceContainer {
     // Children (or transplanted children)
     const views = this.more.raw.slice(CONTAINER_HEADER_OFFSET)
     if (this.more.hasTransplantedViews) {
-      this.childrenTransplant = lContainer[MOVED_VIEWS]?.map(nicer, { cacheLViews })
+      this.childrenTransplant = lContainer[MOVED_VIEWS]?.map(nicer, { cacheNames, cacheLViews })
     } else {
       this.children = views.map(childView => {
-        return nicer(childView, { cacheLViews })
+        return nicer(childView, { cacheNames, cacheLViews })
       })
     }
     assert(this.more.hasTransplantedViews || views)

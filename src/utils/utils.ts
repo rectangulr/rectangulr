@@ -115,7 +115,7 @@ export function async<T>(func: (...args) => T): Promise<T> {
     setTimeout(() => {
       const res = func()
       resolve(res)
-    }, 0)
+    })
   )
 }
 
