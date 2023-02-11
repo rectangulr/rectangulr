@@ -1,3 +1,4 @@
+import { NgIf } from '@angular/common'
 import {
   Component,
   ContentChild,
@@ -23,7 +24,7 @@ import { borderTop } from './styles'
 
 @Component({
   standalone: true,
-  imports: [Box, TextInput, FocusDirective, List],
+  imports: [Box, TextInput, FocusDirective, List, NgIf],
   selector: 'search-list',
   template: `
     <box [style]="{ flexDirection: 'column' }">

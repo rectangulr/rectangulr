@@ -11,6 +11,7 @@ import { Box } from '../1-basics/box'
 import { NativeClassesDirective } from '../1-basics/classes'
 import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
+import { ListItem } from './list/list-item'
 import { blackOnWhite } from './styles'
 
 @Component({
@@ -20,7 +21,7 @@ import { blackOnWhite } from './styles'
   template: `
     <box [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
       <box [style]="{ width: keyWidth + 1 }" [classes]="[blackOnWhite]">{{ keyValue.key }}</box>
-      <text-input [formControlName]="keyValue.key" #input [text]="keyValue.value"></text-input>
+      <text-input [formControlName]="keyValue.key" [text]="keyValue.value"></text-input>
     </box>
   `,
   providers: [ShortcutService],
@@ -46,7 +47,7 @@ export class KeyValueEditor {
 
 @Component({
   standalone: true,
-  imports: [List, KeyValueEditor],
+  imports: [List, KeyValueEditor, ListItem],
   selector: 'form-editor',
   template: `
     <list [items]="keyValues">

@@ -1,11 +1,12 @@
 import { NgIf } from '@angular/common'
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core'
 import json5 from 'json5'
+import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
-import { assert } from '../../../utils/utils'
+import { assert, removeFromArray } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { StyleDirective } from '../../1-basics/style'
@@ -22,7 +23,7 @@ import { ListItem } from '../list/list-item'
       *ngIf="keyValue.key != null"
       [focusIf]="focused == 'key'"
       [style]="{
-        backgroundColor: 'red',
+        backgroundColor: 'darkgray',
         flexDirection: 'row',
         alignItems: 'flexStart'
       }">
@@ -37,6 +38,7 @@ import { ListItem } from '../list/list-item'
         <list [items]="childrenKeyValues">
           <json-editor
             *item="let kv; type: childrenKeyValues"
+            focus
             [keyValue]="kv"
             [newclasses]="[isRoot(), { paddingLeft: 2 }]"></json-editor>
         </list>
@@ -127,6 +129,16 @@ export class JsonEditor {
           selectItem(this.list, newKV)
         } else {
           return key
+        }
+      },
+    },
+    {
+      keys: 'backspace',
+      func: key => {
+        if (typeHasChildren(this.type)) {
+          removeFromArray(this.childrenKeyValues, this.list.selected.value)
+        } else {
+          if (this.focused == 'key') return key
         }
       },
     },

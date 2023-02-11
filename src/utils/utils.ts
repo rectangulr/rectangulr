@@ -187,3 +187,7 @@ export function stringifyReplacer({ depth = 5 } = {}) {
     return `[Duplicate: ${found.keys}]`
   }
 }
+
+export function removeFromArray(array, item) {
+  _.remove(array, i => i == item)
+}

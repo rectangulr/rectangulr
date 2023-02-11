@@ -27,13 +27,7 @@ import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
-import {
-  assert,
-  detectInfiniteLoop,
-  filterNulls,
-  mapKeyValue,
-  stringifyReplacer,
-} from '../../../utils/utils'
+import { assert, filterNulls, mapKeyValue, stringifyReplacer } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { NativeClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
@@ -226,7 +220,8 @@ export class List<T> {
   ]
 
   toString() {
-    const items = this._items.value.map(i => json5.stringify(i)).join()
+    const items = this._items.value
+    // .map(i => json5.stringify(i)).join()
     return `List: ${items}`
   }
 

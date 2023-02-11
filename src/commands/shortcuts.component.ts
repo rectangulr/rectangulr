@@ -3,6 +3,8 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
 import { Box } from '../components/1-basics/box'
+import { StyleDirective } from '../components/1-basics/style'
+import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
 import { onChange } from '../utils/reactivity'
 import { assert } from '../utils/utils'
@@ -14,7 +16,7 @@ import { Command, ShortcutService } from './shortcut.service'
  */
 @Component({
   standalone: true,
-  imports: [Box, SearchList],
+  imports: [Box, SearchList, ListItem, StyleDirective],
   selector: 'shortcuts',
   host: { '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%' }" },
   template: `

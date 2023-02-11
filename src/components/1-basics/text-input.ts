@@ -144,7 +144,8 @@ export class TextInput implements ControlValueAccessor {
     },
     {
       keys: 'backspace',
-      func: () => {
+      func: key => {
+        if (this.caretIndex == 0) return key
         this.text =
           this.text.substring(0, this.caretIndex - 1) + this.text.substring(this.caretIndex)
         this.caretIndex--
