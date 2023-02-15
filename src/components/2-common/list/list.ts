@@ -22,6 +22,7 @@ import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
 import { assert, filterNulls } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
@@ -69,9 +70,11 @@ import { ListItem } from './list-item'
     DynamicModule,
     BasicObjectDisplay,
   ],
-  providers: [{ provide: NG_VALUE_ACCESSOR, useClass: List }],
+  providers: [
+    { provide: NG_VALUE_ACCESSOR, useFactory: list => list.controlValueAccessor, deps: [List] },
+  ],
 })
-export class List<T> implements ControlValueAccessor {
+export class List<T> {
   @Input() set items(items: Observable<T[]> | T[]) {
     this._items.subscribeSource(items)
   }
@@ -93,8 +96,9 @@ export class List<T> implements ControlValueAccessor {
   _displayComponent: any
   windowSize = 20
   visibleRange: Range = { start: 0, end: this.windowSize }
-  $visibleRange = new BehaviorSubject<Range>(this.visibleRange)
+  $visibleRange = new BehaviorSubject(this.visibleRange)
   visibleItems = []
+  controlValueAccessor: BaseControlValueAccessor
 
   @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs: QueryList<ElementRef>
   @ContentChildren(FocusDirective) focusRefs: QueryList<FocusDirective>
@@ -114,6 +118,12 @@ export class List<T> implements ControlValueAccessor {
         return items.slice(visibleRange.start, visibleRange.end)
       })
     )
+    makeObservable(this, 'visibleRange', '$visibleRange')
+
+    this.controlValueAccessor = new BaseControlValueAccessor()
+    subscribe(this, this.$selectedItem, newValue => {
+      this.controlValueAccessor.emitChange(newValue)
+    })
   }
 
   ngOnInit() {
@@ -139,8 +149,6 @@ export class List<T> implements ControlValueAccessor {
       }
     })
     registerShortcuts(this, this.shortcuts)
-
-    makeObservable(this, 'visibleRange', '$visibleRange')
 
     subscribe(this, this.$visibleItems, visibleItems => {
       this.visibleItems = visibleItems
@@ -230,55 +238,6 @@ export class List<T> implements ControlValueAccessor {
   ngOnDestroy() {
     this.destroy$.next(null)
     this.destroy$.complete()
-  }
-
-  //#region ControlValueAccessor, so a form can read/write the value of this input
-
-  ControlValueAccessorData = {
-    disabled: false,
-    onChange: (value: string) => {},
-    onTouched: () => {},
-  }
-
-  writeValue(value: any | any[]) {
-    if (Array.isArray(value)) {
-      assert(false, 'TODO')
-    } else {
-      selectItem(this, value)
-      this.ControlValueAccessorData.onChange(value)
-    }
-  }
-
-  registerOnChange(fn: (value: string) => void) {
-    this.ControlValueAccessorData.onChange = fn
-  }
-
-  registerOnTouched(fn: () => void) {
-    this.ControlValueAccessorData.onTouched = fn
-  }
-
-  setDisabledState(disabled: boolean) {
-    this.ControlValueAccessorData.disabled = disabled
-  }
-
-  //#endregion ControlValueAccessor
-}
-
-// TODO
-class List_ControlValueAccessor<T> implements ControlValueAccessor {
-  constructor(list: List<T>) {}
-
-  writeValue(obj: any): void {
-    throw new Error('Method not implemented.')
-  }
-  registerOnChange(fn: any): void {
-    throw new Error('Method not implemented.')
-  }
-  registerOnTouched(fn: any): void {
-    throw new Error('Method not implemented.')
-  }
-  setDisabledState?(isDisabled: boolean): void {
-    throw new Error('Method not implemented.')
   }
 }
 

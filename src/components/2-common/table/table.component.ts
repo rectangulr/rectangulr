@@ -2,10 +2,11 @@ import { Component, ContentChild, Input, Output, TemplateRef, ViewChild } from '
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
+import { map } from 'rxjs/operators'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
-import { Link_ControlValueAccessor } from '../../../utils/control-value-accessor-link'
+import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
-import { assert } from '../../../utils/utils'
+import { assert, filterNulls } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
@@ -95,7 +96,24 @@ export class Table<T> {
 
     registerShortcuts(this, this.commands)
 
-    this.controlValueAccessor = new Link_ControlValueAccessor(this, this.$list)
+    this.controlValueAccessor = new BaseControlValueAccessor()
+    subscribe(
+      this,
+      this.$list.pipe(
+        filterNulls,
+        map(list => list.controlValueAccessor)
+      ),
+      newControlValueAccessor => {
+        newControlValueAccessor.value
+        newControlValueAccessor.onChangeHandlers.forEach(handler =>
+          newControlValueAccessor.registerOnChange(handler)
+        )
+        newControlValueAccessor.onTouchHandlers.forEach(handler =>
+          newControlValueAccessor.registerOnTouched(handler)
+        )
+        newControlValueAccessor.setDisabledState(newControlValueAccessor.disabled)
+      }
+    )
   }
 
   udpateColumns(visibleItems) {
