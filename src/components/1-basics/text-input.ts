@@ -8,14 +8,15 @@ import { registerShortcuts, ShortcutService } from '../../commands/shortcut.serv
 import { onChange } from '../../utils/reactivity'
 import { assert } from '../../utils/utils'
 import { Box } from './box'
+import { StyleDirective } from './style'
 
 let globalId = 0
 
 @Component({
   standalone: true,
-  imports: [Box],
+  imports: [Box, StyleDirective],
   selector: 'text-input',
-  host: { '[style]': "{ flexDirection: 'row' }" },
+  host: { '[style]': "{ flexDirection: 'row', flexShrink: 0 }" },
   template: `
     <box>{{ text }}</box>
     <box [style]="{ width: 1, height: 1 }"></box>
@@ -36,7 +37,6 @@ export class TextInput implements ControlValueAccessor {
   @Output() textChange = new EventEmitter<string>()
 
   caretIndex = 0
-  // @ViewChild('box', { read: Element }) boxRef: Element
   domElement: Element
 
   constructor(
@@ -117,28 +117,34 @@ export class TextInput implements ControlValueAccessor {
     onTouched: () => {},
   }
 
+  //#endregion ControlValueAccessor
+
   shortcuts = [
     {
       keys: 'left',
-      func: () => {
+      func: key => {
+        if (this.caretIndex == 0) return key
         this.caretIndex--
       },
     },
     {
       keys: 'right',
-      func: () => {
+      func: key => {
+        if (this.caretIndex == this.text.length) return key
         this.caretIndex++
       },
     },
     {
       keys: 'home',
-      func: () => {
+      func: key => {
+        if (this.caretIndex == 0) return key
         this.caretIndex = 0
       },
     },
     {
       keys: 'end',
-      func: () => {
+      func: key => {
+        if (this.caretIndex == this.text.length) return key
         this.caretIndex = this.text.length
       },
     },
@@ -153,7 +159,8 @@ export class TextInput implements ControlValueAccessor {
     },
     {
       keys: 'ctrl+left',
-      func: () => {
+      func: key => {
+        if (this.caretIndex == 0) return key
         this.caretIndex = searchFromIndex(this.text, this.caretIndex, -1)
       },
     },
@@ -166,13 +173,15 @@ export class TextInput implements ControlValueAccessor {
     },
     {
       keys: 'ctrl+right',
-      func: () => {
+      func: key => {
+        if (this.caretIndex == this.text.length) return key
         this.caretIndex = searchFromIndex(this.text, this.caretIndex, +1)
       },
     },
     {
       /* ctrl+backspace */ keys: ['ctrl+h', 'ctrl+w'],
-      func: () => {
+      func: key => {
+        if (this.caretIndex == 0) return key
         const index = searchFromIndex(this.text, this.caretIndex, -1)
         this.text =
           this.text.substring(0, index) + this.text.substring(this.caretIndex, this.text.length)
@@ -203,6 +212,11 @@ export class TextInput implements ControlValueAccessor {
   ]
 }
 
+/**
+ * Used to jump around the text with 'ctrl+left' and 'ctrl+right'.
+ * Determines the index to jump to. According to the start index, the direction (incrementBy)
+ * and a list of characters that break the jump.
+ */
 function searchFromIndex(
   text: string,
   startIndex: number,

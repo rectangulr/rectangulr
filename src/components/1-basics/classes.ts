@@ -9,7 +9,7 @@ import { IStyle } from './style'
   standalone: true,
   selector: '[newclasses]',
 })
-export class ClassesDirective {
+export class NewClassesDirective {
   @Input() newclasses: any[]
 
   constructor(public element: ElementRef) {
@@ -44,7 +44,7 @@ export class ClassesDirective {
   standalone: true,
   selector: '[classes]',
 })
-export class NativeClassesDirective {
+export class ClassesDirective {
   @Input() classes: any[]
 
   constructor(public element: ElementRef) {

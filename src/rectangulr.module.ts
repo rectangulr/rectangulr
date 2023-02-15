@@ -24,7 +24,7 @@ import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { Shortcuts } from './commands/shortcuts.component'
 import { FocusDebugDirective, FocusDirective } from './commands/focus.directive'
 import { Box } from './components/1-basics/box'
-import { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'
+import { NewClassesDirective, ClassesDirective } from './components/1-basics/classes'
 import { StyleDirective, StylesDirective } from './components/1-basics/style'
 import { TextInput } from './components/1-basics/text-input'
 import { AppShell } from './components/2-common/app-shell/app-shell.component'
@@ -34,7 +34,8 @@ import { View } from './components/2-common/app-shell/view.service'
 import { FormEditor, KeyValueEditor } from './components/2-common/form-editor'
 import { JsonEditor } from './components/2-common/json-editor/json-editor'
 import { Json5Pipe } from './components/2-common/json5.pipe'
-import { BasicObjectDisplay, List } from './components/2-common/list/list'
+import { List } from './components/2-common/list/list'
+import { BasicObjectDisplay } from './components/2-common/list/basic-object-display'
 import { ListItem } from './components/2-common/list/list-item'
 import { OnEnterDirective } from './components/2-common/list/list-on-enter'
 import { ObjectDisplay } from './components/2-common/object-display'
@@ -65,8 +66,8 @@ const TEMPLATE_COMPONENTS = [
   Row,
   StyleDirective,
   StylesDirective,
+  NewClassesDirective,
   ClassesDirective,
-  NativeClassesDirective,
   FocusDirective,
   FocusDebugDirective,
   DetachedCommandServiceDirective,
@@ -93,7 +94,7 @@ export const RECTANGULR_MODULE_PROVIDERS = [
     provide: APP_INITIALIZER,
     useFactory: () => {
       const injector = inject(Injector)
-      const globalInjector: InjectFunction = token => injector.get(token)
+      const globalInject: InjectFunction = token => injector.get(token)
 
       return function () {
         // @ts-ignore
@@ -107,9 +108,10 @@ export const RECTANGULR_MODULE_PROVIDERS = [
           lView: global_rgLView,
           component: global_rgComponent,
           logs: global_logs,
+          inject: globalInject,
         })
 
-        patchGlobalConsole(globalInjector)
+        patchGlobalConsole(globalInject)
       }
     },
     multi: true,

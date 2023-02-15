@@ -1,15 +1,11 @@
 import { NgComponentOutlet, NgFor, NgIf, NgTemplateOutlet } from '@angular/common'
 import {
-  ChangeDetectorRef,
   Component,
   ContentChild,
   ContentChildren,
   ElementRef,
-  inject,
   Inject,
-  Injector,
   Input,
-  NgZone,
   Optional,
   Output,
   QueryList,
@@ -17,22 +13,22 @@ import {
   TemplateRef,
   ViewChildren,
 } from '@angular/core'
-import * as json5 from 'json5'
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { DynamicModule } from 'ng-dynamic-component'
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
-import { registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { makeObservable, State, subscribe } from '../../../utils/reactivity'
-import { assert, filterNulls, mapKeyValue, stringifyReplacer } from '../../../utils/utils'
+import { assert, filterNulls } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
-import { NativeClassesDirective } from '../../1-basics/classes'
+import { ClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
+import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
-import { PROVIDE_LIST } from './list-on-enter'
 
 /**
  * Displays a list of items and highlights the current item.
@@ -49,7 +45,7 @@ import { PROVIDE_LIST } from './list-on-enter'
         *ngFor="let item of visibleItems; index as index; trackBy: trackByFn"
         [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
         <ng-container
-          [ngTemplateOutlet]="template || template2"
+          [ngTemplateOutlet]="template || template2 || defaultTemplate"
           [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
 
         <ng-container
@@ -58,6 +54,10 @@ import { PROVIDE_LIST } from './list-on-enter'
           [ndcDynamicInputs]="{ data: item }"></ng-container>
       </box>
     </box>
+
+    <ng-template #defaultTemplate let-item>
+      <basic-object-display [data]="item"></basic-object-display>
+    </ng-template>
   `,
   imports: [
     NgFor,
@@ -65,19 +65,13 @@ import { PROVIDE_LIST } from './list-on-enter'
     NgComponentOutlet,
     NgTemplateOutlet,
     Box,
-    NativeClassesDirective,
+    ClassesDirective,
     DynamicModule,
+    BasicObjectDisplay,
   ],
-  providers: [
-    {
-      provide: PROVIDE_LIST,
-      useFactory: () => {
-        return of(inject(List))
-      },
-    },
-  ],
+  providers: [{ provide: NG_VALUE_ACCESSOR, useClass: List }],
 })
-export class List<T> {
+export class List<T> implements ControlValueAccessor {
   @Input() set items(items: Observable<T[]> | T[]) {
     this._items.subscribeSource(items)
   }
@@ -85,13 +79,14 @@ export class List<T> {
   @Input() showIndex = false
   @Input() displayComponent: any
   @Input() template: TemplateRef<any>
+  @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
   @Output('selectedItem') $selectedItem = new BehaviorSubject(null)
   @Output('visibleItems') $visibleItems: Observable<T[]>
 
   selected = {
-    index: 0,
-    value: null,
+    index: undefined,
+    value: undefined,
   }
 
   _items: State<T[]>
@@ -107,10 +102,7 @@ export class List<T> {
   constructor(
     @SkipSelf() public shortcutService: ShortcutService,
     @Inject('itemComponent') @Optional() public itemComponentInjected: any,
-    public injector: Injector,
-    public logger: Logger,
-    public ngZone: NgZone,
-    public cd: ChangeDetectorRef
+    public logger: Logger
   ) {
     this._items = new State([], this.destroy$)
     this.$visibleItems = combineLatest([
@@ -130,20 +122,29 @@ export class List<T> {
       this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay
 
     this.selectIndex(0)
-    subscribe(this, this._items.$, items => {
-      this.selectIndex(0)
+    subscribe(this, this._items.$.pipe(filterNulls), items => {
+      if (this.onItemsChangeSelect == 'first') {
+        this.selectIndex(0)
+      } else if (this.onItemsChangeSelect == 'last') {
+        this.selectIndex(items.length - 1)
+      } else if (this.onItemsChangeSelect == 'same') {
+        const index = items.indexOf(this.selected.value)
+        if (index != -1) {
+          this.selectIndex(index)
+        } else {
+          this.selectIndex(0)
+        }
+      } else if (this.onItemsChangeSelect == 'nothing') {
+        // nothing
+      }
     })
-    registerShortcuts(this, this.commands)
+    registerShortcuts(this, this.shortcuts)
 
     makeObservable(this, 'visibleRange', '$visibleRange')
 
     subscribe(this, this.$visibleItems, visibleItems => {
       this.visibleItems = visibleItems
     })
-
-    // subscribe(this, this.ngZone.onStable, () => {
-    //   this.afterViewUpdate()
-    // })
   }
 
   selectIndex(value) {
@@ -164,14 +165,14 @@ export class List<T> {
 
     this.$selectedItem.next(this.selected.value)
 
-    this.logger.log(`selectIndex - ${this.selected.index}`)
+    // this.logger.log(`selectIndex - ${this.selected.index}`)
     setTimeout(() => {
       this.afterViewUpdate()
     })
   }
 
   afterViewUpdate() {
-    if (!this.focusRefs) debugger
+    assert(this.focusRefs)
 
     if (this.focusRefs.length > 0) {
       const selectedFocusDirective = this.focusRefs?.get(this.selected.index)
@@ -192,7 +193,7 @@ export class List<T> {
   whiteOnGray = whiteOnGray
   nullOnNull = makeRuleset({ backgroundColor: null, color: null })
 
-  commands = [
+  shortcuts: Partial<Command>[] = [
     {
       keys: 'down',
       func: () => {
@@ -230,6 +231,55 @@ export class List<T> {
     this.destroy$.next(null)
     this.destroy$.complete()
   }
+
+  //#region ControlValueAccessor, so a form can read/write the value of this input
+
+  ControlValueAccessorData = {
+    disabled: false,
+    onChange: (value: string) => {},
+    onTouched: () => {},
+  }
+
+  writeValue(value: any | any[]) {
+    if (Array.isArray(value)) {
+      assert(false, 'TODO')
+    } else {
+      selectItem(this, value)
+      this.ControlValueAccessorData.onChange(value)
+    }
+  }
+
+  registerOnChange(fn: (value: string) => void) {
+    this.ControlValueAccessorData.onChange = fn
+  }
+
+  registerOnTouched(fn: () => void) {
+    this.ControlValueAccessorData.onTouched = fn
+  }
+
+  setDisabledState(disabled: boolean) {
+    this.ControlValueAccessorData.disabled = disabled
+  }
+
+  //#endregion ControlValueAccessor
+}
+
+// TODO
+class List_ControlValueAccessor<T> implements ControlValueAccessor {
+  constructor(list: List<T>) {}
+
+  writeValue(obj: any): void {
+    throw new Error('Method not implemented.')
+  }
+  registerOnChange(fn: any): void {
+    throw new Error('Method not implemented.')
+  }
+  registerOnTouched(fn: any): void {
+    throw new Error('Method not implemented.')
+  }
+  setDisabledState?(isDisabled: boolean): void {
+    throw new Error('Method not implemented.')
+  }
 }
 
 interface Range {
@@ -261,47 +311,4 @@ function clampRange(range, min, max) {
   if (newRange.start < min) newRange.start = min
   if (newRange.end > max) newRange.end = max
   return newRange
-}
-
-@Component({
-  standalone: true,
-  imports: [Box],
-  template: `<box [style]="{ height: 1 }">{{ text }}</box>`,
-})
-export class BasicObjectDisplay {
-  @Input() data: any
-  @Input() includeKeys: string[]
-  @Input() excludeKeys: string[] = []
-  text = 'error'
-
-  constructor(public list: List<any>) {}
-
-  ngOnInit() {
-    const type = typeof this.data
-    if (this.data == null) {
-      this.text = 'null'
-    } else if (type == 'string' || type == 'number') {
-      this.text = this.data
-    } else if (type == 'object') {
-      this.includeKeys = this.includeKeys || Object.keys(this.data)
-      if (this.data.name != undefined) {
-        this.text = this.data.name
-      } else {
-        const newObject = mapKeyValue(this.data, (key, value) => {
-          if (this.includeKeys.includes(key)) {
-            if (!this.excludeKeys.includes(key)) {
-              // json can't contain bigint
-              if (typeof value == 'bigint') {
-                value = Number(value)
-              }
-              return [key, value]
-            }
-          }
-        })
-        this.text = json5.stringify(newObject, stringifyReplacer())
-      }
-    } else {
-      throw new Error(`can't display this`)
-    }
-  }
 }

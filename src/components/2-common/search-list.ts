@@ -8,8 +8,9 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core'
+import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import Fuse from 'fuse.js'
-import { BehaviorSubject, combineLatest, NEVER, Subject } from 'rxjs'
+import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
 import { debounceTime, map, takeUntil } from 'rxjs/operators'
 import { Logger } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
@@ -19,7 +20,6 @@ import { Box } from '../1-basics/box'
 import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
-import { PROVIDE_LIST } from './list/list-on-enter'
 import { borderTop } from './styles'
 
 @Component({
@@ -45,7 +45,7 @@ import { borderTop } from './styles'
   `,
   providers: [
     {
-      provide: PROVIDE_LIST,
+      provide: NG_VALUE_ACCESSOR,
       useFactory: () => {
         const searchList = inject(SearchList)
         return searchList.$list

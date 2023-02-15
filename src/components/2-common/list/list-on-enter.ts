@@ -1,11 +1,8 @@
-import { Directive, EventEmitter, inject, InjectionToken, Output } from '@angular/core'
-import { Observable, Subject } from 'rxjs'
-import { registerShortcuts } from '../../../commands/shortcut.service'
-import { makeProperty, subscribe } from '../../../utils/reactivity'
+import { Directive, EventEmitter, Inject, Output } from '@angular/core'
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
+import { Subject } from 'rxjs'
+import { Command } from '../../../commands/shortcut.service'
 import { assert } from '../../../utils/utils'
-import { List } from './list'
-
-export const PROVIDE_LIST = new InjectionToken<Observable<List<any>>>('List Token')
 
 @Directive({
   standalone: true,
@@ -14,33 +11,25 @@ export const PROVIDE_LIST = new InjectionToken<Observable<List<any>>>('List Toke
 export class OnEnterDirective {
   @Output() onEnter = new EventEmitter()
 
-  list: List<any> = null
-  selectedItem = null
+  currentValue = null
 
-  commands = [
+  shortcuts: Partial<Command>[] = [
     {
       keys: 'enter',
+      id: 'onEnter',
       func: key => {
-        if (this.list._items.value.length == 0) {
-          return key
-        }
-        this.onEnter.emit(this.selectedItem)
+        if (this.currentValue == undefined) return key
+
+        this.onEnter.emit(this.currentValue)
       },
     },
   ]
 
-  constructor() {
-    const $list = inject(PROVIDE_LIST)
-    assert($list)
+  constructor(@Inject(NG_VALUE_ACCESSOR) valueAccessor: ControlValueAccessor) {
+    assert(valueAccessor)
 
-    subscribe(this, $list, list => {
-      if (!list) return
-
-      this.list = list
-
-      registerShortcuts(list, this.commands)
-
-      makeProperty(this, list.$selectedItem, 'selectedItem')
+    valueAccessor.registerOnChange(value => {
+      this.currentValue = value
     })
   }
 

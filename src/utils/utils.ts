@@ -189,5 +189,5 @@ export function stringifyReplacer({ depth = 5 } = {}) {
 }
 
 export function removeFromArray(array, item) {
-  _.remove(array, i => i == item)
+  return _.filter(array, i => item != i)
 }

@@ -216,3 +216,15 @@ export class Node {
     return this.toString()
   }
 }
+
+export function isInsideOf(parent: Node, child: Node) {
+  let current = child
+  while (current != null) {
+    if (current == parent) {
+      return true
+    } else {
+      current = current.parentNode
+    }
+  }
+  return false
+}

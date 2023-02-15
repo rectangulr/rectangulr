@@ -1,14 +1,13 @@
 import { NgIf } from '@angular/common'
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core'
 import json5 from 'json5'
-import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { assert, removeFromArray } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
-import { ClassesDirective } from '../../1-basics/classes'
+import { NewClassesDirective } from '../../1-basics/classes'
 import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { List, selectItem } from '../list/list'
@@ -23,12 +22,11 @@ import { ListItem } from '../list/list-item'
       *ngIf="keyValue.key != null"
       [focusIf]="focused == 'key'"
       [style]="{
-        backgroundColor: 'darkgray',
         flexDirection: 'row',
         alignItems: 'flexStart'
       }">
-      <text-input [(text)]="keyValue.key"></text-input>:</box
-    >
+      <text-input [(text)]="keyValue.key"></text-input>:
+    </box>
 
     <ng-container [focusIf]="focused == 'value'">
       <ng-container *ngIf="['string', 'number', 'boolean', 'null'].includes(type)">
@@ -54,7 +52,7 @@ import { ListItem } from '../list/list-item'
     FocusDirective,
     FocusDebugDirective,
     StyleDirective,
-    ClassesDirective,
+    NewClassesDirective,
   ],
   providers: [ShortcutService],
 })
@@ -86,14 +84,18 @@ export class JsonEditor {
 
     this.focused = this.keyValue.key != null ? 'key' : 'value'
 
-    if (typeHasChildren(this.type)) {
+    if (this.hasChildren()) {
       this.childrenKeyValues = Object.entries(this.keyValue.value).map(([key, value]) => ({
         key: key,
         value: value,
       }))
     }
 
-    registerShortcuts(this, this.shortcuts)
+    if (this.hasChildren()) {
+      registerShortcuts(this, this.shortcutsForArrayOrObject)
+    } else {
+      registerShortcuts(this, this.shortcutsForKeyValues)
+    }
 
     this.shortcutService.requestFocus()
   }
@@ -102,7 +104,7 @@ export class JsonEditor {
    * Creates a javascript object from the json-editor.
    */
   getValue(): any {
-    if (typeHasChildren(this.type)) {
+    if (this.hasChildren()) {
       return getValueFromKVs(this.childrenKeyValues)
     } else {
       return this.keyValue.value
@@ -117,39 +119,69 @@ export class JsonEditor {
     return this.value
   }
 
-  shortcuts: Partial<Command>[] = [
+  private createNewLine() {
+    const newKV = { key: '', value: '' }
+    this.childrenKeyValues.push(newKV)
+    selectItem(this.list, newKV)
+  }
+
+  private hasChildren() {
+    return this.type == 'object' || this.type == 'array'
+  }
+
+  /**
+   * Shortcuts registered only if editing a value (string, number, boolean, null)
+   */
+  shortcutsForKeyValues: Partial<Command>[] = [
     {
-      keys: 'tab',
+      keys: 'backspace',
       func: key => {
-        if (this.focused == 'key') {
-          this.focused = 'value'
-        } else if (this.focused == 'value' && typeHasChildren(this.type)) {
-          const newKV = { key: '', value: '' }
-          this.childrenKeyValues.push(newKV)
-          selectItem(this.list, newKV)
-        } else {
-          return key
-        }
+        if (this.focused == 'value') this.focused = 'key'
+        else if (this.focused == 'key') return key
+      },
+    },
+    {
+      keys: ['left', 'ctrl+left', 'shift+tab', 'home'],
+      func: key => {
+        if (this.focused == 'value') this.focused = 'key'
+        else if (this.focused == 'key') return key
+      },
+    },
+    {
+      keys: ['right', 'ctrl+right', 'tab', 'end'],
+      func: key => {
+        if (this.focused == 'key') this.focused = 'value'
+        else if (this.focused == 'value') return key
+      },
+    },
+  ]
+  /**
+   * Shortcuts registered only if editing an object or array
+   */
+  shortcutsForArrayOrObject: Partial<Command>[] = [
+    {
+      keys: ['enter', 'tab'],
+      func: () => {
+        this.createNewLine()
+      },
+    },
+    {
+      keys: ['left', 'ctrl+left', 'shift+tab', 'home'],
+      func: () => {
+        this.list.selectIndex(this.list.selected.index - 1)
+      },
+    },
+    {
+      keys: ['right', 'ctrl+right', 'end'],
+      func: () => {
+        this.list.selectIndex(this.list.selected.index + 1)
       },
     },
     {
       keys: 'backspace',
-      func: key => {
-        if (typeHasChildren(this.type)) {
-          removeFromArray(this.childrenKeyValues, this.list.selected.value)
-        } else {
-          if (this.focused == 'key') return key
-        }
-      },
-    },
-    {
-      keys: 'shift+tab',
-      func: key => {
-        if (this.focused == 'key') {
-          return key
-        } else if (this.focused == 'value' && !this.isRoot()) {
-          this.focused = 'key'
-        }
+      func: () => {
+        this.childrenKeyValues = removeFromArray(this.childrenKeyValues, this.list.selected.value)
+        this.list.selectIndex(this.list.selected.index - 1)
       },
     },
   ]
@@ -176,10 +208,6 @@ function valueHasChildren(value: any) {
 }
 
 type Type = 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null'
-
-function typeHasChildren(type: Type) {
-  return type == 'object' || type == 'array'
-}
 
 function getValueFromKVs(keyValues: KeyValue[]) {
   if (valueHasChildren(keyValues)) {

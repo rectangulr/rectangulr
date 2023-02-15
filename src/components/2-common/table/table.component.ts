@@ -1,21 +1,14 @@
-import {
-  Component,
-  ContentChild,
-  inject,
-  Input,
-  Output,
-  TemplateRef,
-  ViewChild,
-} from '@angular/core'
+import { Component, ContentChild, Input, Output, TemplateRef, ViewChild } from '@angular/core'
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { Link_ControlValueAccessor } from '../../../utils/control-value-accessor-link'
 import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
 import { assert } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
-import { PROVIDE_LIST } from '../list/list-on-enter'
 
 @Component({
   standalone: true,
@@ -45,7 +38,7 @@ export class Row<T> {
 
 @Component({
   standalone: true,
-  imports: [Box, List, Row],
+  imports: [Box, List, Row, ListItem],
   selector: 'table',
   template: `
     <box [style]="{ maxHeight: 1 }">{{ headers }}</box>
@@ -62,11 +55,9 @@ export class Row<T> {
   `,
   providers: [
     {
-      provide: PROVIDE_LIST,
-      useFactory: () => {
-        const table = inject(Table)
-        return table.$list
-      },
+      provide: NG_VALUE_ACCESSOR,
+      useFactory: table => table.controlValueAccessor,
+      deps: [Table],
     },
   ],
 })
@@ -89,6 +80,7 @@ export class Table<T> {
    */
   $list = new BehaviorSubject<List<T>>(null)
   rowComponent = Row
+  controlValueAccessor: ControlValueAccessor = null
 
   constructor(public shortcutService: ShortcutService) {
     this._items = new State([], this.destroy$)
@@ -100,7 +92,10 @@ export class Table<T> {
     subscribe(this, this.$visibleItems, visibleItems => {
       this.udpateColumns(visibleItems)
     })
+
     registerShortcuts(this, this.commands)
+
+    this.controlValueAccessor = new Link_ControlValueAccessor(this, this.$list)
   }
 
   udpateColumns(visibleItems) {

@@ -6,7 +6,7 @@ import { Element } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
 import { Destroyable } from '../utils/mixins'
-import { makeObservable, onChange, subscribe } from '../utils/reactivity'
+import { makeObservable, onChange } from '../utils/reactivity'
 import { addToGlobalRg, assert, last, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
@@ -98,9 +98,8 @@ export class ShortcutService {
   }
 
   incomingKey(keyEvent) {
-    // this.logger.log(`key: ${keyToString(key as any)}`)
-
     let key = keyEvent.key as unknown as Key
+    this.logger.log(`key: ${keyToString(key)}`)
     if (this.before) {
       key = this.before.propagateKeypress(key)
     }
@@ -218,17 +217,17 @@ export class ShortcutService {
     // To be able to call focus() without arguments
     if (!args.child) {
       this.parent?.requestFocus({ ...args, child: this })
-      this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
+      // this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
       return
     }
 
     if (!args.child.focusIf) {
-      this.logger.log(`denied - ${args.child} - focusIf`)
+      // this.logger.log(`denied - ${args.child} - focusIf`)
       return
     }
 
     if (this.askedForFocusThisTick.has(args.child)) {
-      this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
+      // this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
       return
     }
 
@@ -249,7 +248,7 @@ export class ShortcutService {
     // this.logger.log('setTimeout')
     setTimeout(() => {
       this.askedForFocusThisTick.clear()
-      this.logger.log(`focused end of tick: ${stringifyPathToLeaf(this)}`)
+      // this.logger.log(`focused end of tick: ${stringifyPathToLeaf(this)}`)
     })
 
     if (this.focusPropagateUp) {

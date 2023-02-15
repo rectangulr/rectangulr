@@ -2,6 +2,7 @@
 {
   "files": [
     "src/public-api.ts",
+    "./src/components/2-common/list/BasicObjectDisplay.ts",
   ],
   "include": [
     "**/*.spec.ts",

@@ -8,7 +8,7 @@ import { Command, registerShortcuts, ShortcutService } from '../../../commands/s
 import { Shortcuts } from '../../../commands/shortcuts.component'
 import { makeProperty } from '../../../utils/reactivity'
 import { Box } from '../../1-basics/box'
-import { NativeClassesDirective } from '../../1-basics/classes'
+import { ClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
 import { View, ViewService } from './view.service'
@@ -56,7 +56,7 @@ import { View, ViewService } from './view.service'
     Box,
     NgIf,
     NgFor,
-    NativeClassesDirective,
+    ClassesDirective,
     FocusDirective,
     NgComponentOutlet,
     Notifications,

@@ -15,7 +15,10 @@ export { Shortcuts as ShortcutsDisplay } from './commands/shortcuts.component'
 export { FocusDirective, FocusDebugDirective } from './commands/focus.directive'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
 export { Box } from './components/1-basics/box'
-export { ClassesDirective, NativeClassesDirective } from './components/1-basics/classes'
+export {
+  NewClassesDirective as ClassesDirective,
+  ClassesDirective as NativeClassesDirective,
+} from './components/1-basics/classes'
 export { StyleDirective, StylesDirective } from './components/1-basics/style'
 export { TextInput } from './components/1-basics/text-input'
 export { AppShell } from './components/2-common/app-shell/app-shell.component'
@@ -30,8 +33,9 @@ export { ConfigLoader } from './components/2-common/config-loader'
 export { FormEditor, KeyValueEditor } from './components/2-common/form-editor'
 export { JsonEditor } from './components/2-common/json-editor/json-editor'
 export { Json5Pipe } from './components/2-common/json5.pipe'
-export { BasicObjectDisplay, List } from './components/2-common/list/list'
+export { List } from './components/2-common/list/list'
 export { ListItem } from './components/2-common/list/list-item'
+export { BasicObjectDisplay } from './components/2-common/list/basic-object-display'
 
 // Common
 export { OnEnterDirective } from './components/2-common/list/list-on-enter'

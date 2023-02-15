@@ -8,6 +8,7 @@ import { async } from '../../../../../utils/utils'
 import { Logger } from '../../../../logger'
 import { Event, makeRuleset, Point, Rect, StyleManager } from '../../core'
 import { Element } from '../../core/dom/Element'
+import { isInsideOf } from '../../core/dom/Node'
 import { TermElement } from './TermElement'
 
 // We will iterate through those colors when rendering if the debugPaintRects option is set
@@ -392,7 +393,7 @@ export class TermScreen extends TermElement {
       ) {
         let visibleElement = this.getElementAt(new Point({ x, y }))
 
-        if (visibleElement === this.activeElement) {
+        if (isInsideOf(this.activeElement, visibleElement)) {
           buffer += cursor.moveTo({ x, y })
           buffer += cursor.normal
         }

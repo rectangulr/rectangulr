@@ -8,7 +8,7 @@ import { registerShortcuts, ShortcutService } from '../../commands/shortcut.serv
 import { State } from '../../utils/reactivity'
 import { longest, mapKeyValue } from '../../utils/utils'
 import { Box } from '../1-basics/box'
-import { NativeClassesDirective } from '../1-basics/classes'
+import { ClassesDirective } from '../1-basics/classes'
 import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
@@ -16,7 +16,7 @@ import { blackOnWhite } from './styles'
 
 @Component({
   standalone: true,
-  imports: [Box, TextInput, ReactiveFormsModule, NativeClassesDirective],
+  imports: [Box, TextInput, ReactiveFormsModule, ClassesDirective],
   selector: 'keyvalue-editor',
   template: `
     <box [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
