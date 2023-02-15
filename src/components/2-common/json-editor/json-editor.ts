@@ -162,7 +162,11 @@ export class JsonEditor {
     {
       keys: ['enter', 'tab'],
       func: () => {
-        this.createNewLine()
+        if (this.list.selected.index == this.list._items.value.length - 1) {
+          this.createNewLine()
+        } else {
+          this.list.selectIndex(this.list.selected.index + 1)
+        }
       },
     },
     {

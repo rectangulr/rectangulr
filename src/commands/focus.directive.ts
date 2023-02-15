@@ -5,13 +5,14 @@ import { Subject } from 'rxjs'
 
 @Directive({
   standalone: true,
-  selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts]',
+  selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts], [focusFull]',
   providers: [ShortcutService],
 })
 export class FocusDirective {
   @Input() focusPropagateUp = true
   @Input() focusIf = true
   @Input() focusShortcuts = []
+  @Input() focusFull = false
 
   constructor(@Self() public shortcutService: ShortcutService) {}
 
@@ -27,9 +28,19 @@ export class FocusDirective {
     })
 
     registerShortcuts(this, this.focusShortcuts)
+    if (this.focusFull) {
+      registerShortcuts(this, this.focusFullShortcuts)
+    }
     this.shortcutService.focusPropagateUp = this.focusPropagateUp
     this.shortcutService.requestFocus()
   }
+
+  focusFullShortcuts = [
+    {
+      keys: 'else',
+      func: () => {},
+    },
+  ]
 
   destroy$ = new Subject()
   ngOnDestroy() {
