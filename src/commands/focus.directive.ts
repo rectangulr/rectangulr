@@ -29,11 +29,11 @@ export class FocusDirective {
     })
 
     registerShortcuts(this, this.focusShortcuts)
-    if (this.focusFull == true) {
+    if (this.focusFull) {
       registerShortcuts(this, this.focusFullShortcuts)
     }
     this.shortcutService.focusPropagateUp = this.focusPropagateUp
-    if (this.focusOnInit == true) {
+    if (this.focusOnInit) {
       this.shortcutService.requestFocus()
     }
   }

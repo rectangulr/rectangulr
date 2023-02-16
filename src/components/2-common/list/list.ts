@@ -231,7 +231,7 @@ export class List<T> {
   toString() {
     const items = this._items.value
     // .map(i => json5.stringify(i)).join()
-    return `List: ${items}`
+    return `List: ${items.length}`
   }
 
   destroy$ = new Subject()
