@@ -5,7 +5,7 @@ import { Subject } from 'rxjs'
 
 @Directive({
   standalone: true,
-  selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts], [focusFull]',
+  selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts], [focusFull], [focusOnInit]',
   providers: [ShortcutService],
 })
 export class FocusDirective {
@@ -13,6 +13,7 @@ export class FocusDirective {
   @Input() focusIf = true
   @Input() focusShortcuts = []
   @Input() focusFull = false
+  @Input() focusOnInit = true
 
   constructor(@Self() public shortcutService: ShortcutService) {}
 
@@ -28,11 +29,13 @@ export class FocusDirective {
     })
 
     registerShortcuts(this, this.focusShortcuts)
-    if (this.focusFull) {
+    if (this.focusFull == true) {
       registerShortcuts(this, this.focusFullShortcuts)
     }
     this.shortcutService.focusPropagateUp = this.focusPropagateUp
-    this.shortcutService.requestFocus()
+    if (this.focusOnInit == true) {
+      this.shortcutService.requestFocus()
+    }
   }
 
   focusFullShortcuts = [
