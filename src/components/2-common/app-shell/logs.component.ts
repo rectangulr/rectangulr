@@ -12,9 +12,10 @@ class NullLogger {
 }
 
 @Component({
+  selector: 'logs-view',
   standalone: true,
   imports: [Box, List, ClassesDirective],
-  selector: 'logs-view',
+  host: { '[style]': "{height: '100%'}" },
   template: `
     <box [classes]="[blackOnWhite]">Logs</box>
     <list [items]="logs"></list>

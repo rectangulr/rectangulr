@@ -16,7 +16,6 @@ export class OnEnterDirective {
   shortcuts: Partial<Command>[] = [
     {
       keys: 'enter',
-      id: 'onEnter',
       func: key => {
         if (this.currentValue == undefined) return key
 

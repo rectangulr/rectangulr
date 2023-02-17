@@ -29,9 +29,9 @@ import { ListItem } from '../list/list-item'
     </box>
 
     <ng-container [focusIf]="focused == 'value'">
-      <ng-container *ngIf="['string', 'number', 'boolean', 'null'].includes(type)">
-        <text-input [(text)]="keyValue.value"></text-input>
-      </ng-container>
+      <text-input
+        *ngIf="['string', 'number', 'boolean', 'null'].includes(type)"
+        [(text)]="keyValue.value"></text-input>
       <ng-container *ngIf="type == 'object' || type == 'array'">
         <list [items]="childrenKeyValues">
           <json-editor

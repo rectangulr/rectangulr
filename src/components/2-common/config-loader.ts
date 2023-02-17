@@ -8,7 +8,7 @@ import { Logger } from '../../angular-terminal/logger'
 })
 export class ConfigLoader {
   fileName = 'config.json'
-  config: any = {}
+  config?: any = {}
 
   constructor(public logger: Logger) {
     let jsonData = null
