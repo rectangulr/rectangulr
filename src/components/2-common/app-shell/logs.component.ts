@@ -1,4 +1,4 @@
-import { Component, SkipSelf } from '@angular/core'
+import { ChangeDetectionStrategy, Component, SkipSelf } from '@angular/core'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { forceRefresh, subscribe } from '../../../utils/reactivity'
@@ -21,6 +21,7 @@ class NullLogger {
     <list [items]="logs"></list>
   `,
   providers: [{ provide: Logger, useClass: NullLogger }],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Logs {
   logs = null

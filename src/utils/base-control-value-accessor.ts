@@ -7,29 +7,29 @@ import { ControlValueAccessor } from '@angular/forms'
  * This BaseControlValueAccessor gives a good starting point
  * to implement the ControlValueAccessor interface for a component.
  */
-export class BaseControlValueAccessor implements ControlValueAccessor {
-  value = undefined
+export class BaseControlValueAccessor<T> implements ControlValueAccessor {
+  value: T = undefined
   onChangeHandlers = []
   onTouchHandlers = []
   disabled = false
   emitOnWrite = true
 
-  writeValue(value: any): void {
+  writeValue(value: T) {
     this.value = value
     if (this.emitOnWrite == true) {
       this.emitChange(value)
     }
   }
 
-  registerOnChange(fn: any): void {
+  registerOnChange(fn: any) {
     this.onChangeHandlers.push(fn)
   }
 
-  registerOnTouched(fn: any): void {
+  registerOnTouched(fn: any) {
     this.onTouchHandlers.push(fn)
   }
 
-  setDisabledState?(isDisabled: boolean): void {
+  setDisabledState?(isDisabled: boolean) {
     this.disabled = isDisabled
   }
 

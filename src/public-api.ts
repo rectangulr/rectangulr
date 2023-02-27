@@ -2,6 +2,8 @@
  * Public API Surface of Rectangulr
  */
 
+import { fromPairs } from 'lodash'
+
 // Basics
 export { Element, Event, makeRuleset, TermScreen } from './angular-terminal/dom-terminal/'
 export { Logger } from './angular-terminal/logger'
@@ -38,7 +40,8 @@ export { ListItem } from './components/2-common/list/list-item'
 export { BasicObjectDisplay } from './components/2-common/list/basic-object-display'
 
 // Common
-export { OnEnterDirective } from './components/2-common/list/list-on-enter'
+export { OnEnterDirective } from './components/2-common/on-enter'
+export { ValueDirective } from './components/2-common/value.directive'
 export { ObjectDisplay } from './components/2-common/object-display'
 export { SearchList } from './components/2-common/search-list'
 export { Table, Row } from './components/2-common/table/table.component'
@@ -55,3 +58,4 @@ export {
   State,
   subscribe,
 } from './utils/reactivity'
+export { DataFormat } from './utils/data-format'

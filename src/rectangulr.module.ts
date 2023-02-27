@@ -37,13 +37,14 @@ import { Json5Pipe } from './components/2-common/json5.pipe'
 import { List } from './components/2-common/list/list'
 import { BasicObjectDisplay } from './components/2-common/list/basic-object-display'
 import { ListItem } from './components/2-common/list/list-item'
-import { OnEnterDirective } from './components/2-common/list/list-on-enter'
+import { OnEnterDirective } from './components/2-common/on-enter'
 import { ObjectDisplay } from './components/2-common/object-display'
 import { SearchList } from './components/2-common/search-list'
 // import { Row } from './components/2-common/table/row.component'
 import { Row, Table } from './components/2-common/table/table.component'
 import { ComponentOutletInputs } from './utils/componentOutletInput'
 import { addToGlobalRg, InjectFunction } from './utils/utils'
+import { ValueDirective } from './components/2-common/value.directive'
 
 // @ts-ignore
 const NG_DEV_MODE = typeof ngDevMode === 'undefined' || !!ngDevMode
@@ -79,6 +80,7 @@ const TEMPLATE_COMPONENTS = [
   ComponentOutletInputs,
   Logs,
   JsonEditor,
+  ValueDirective,
 ]
 
 export const RECTANGULR_MODULE_PROVIDERS = [

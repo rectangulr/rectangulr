@@ -4,6 +4,7 @@ import {
   ContentChild,
   ContentChildren,
   ElementRef,
+  EventEmitter,
   Inject,
   Input,
   Optional,
@@ -13,17 +14,24 @@ import {
   TemplateRef,
   ViewChildren,
 } from '@angular/core'
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
+import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { DynamicModule } from 'ng-dynamic-component'
-import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs'
+import {
+  BehaviorSubject,
+  combineLatest,
+  Observable,
+  Subject,
+  isObservable,
+  Subscription,
+} from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
-import { makeObservable, State, subscribe } from '../../../utils/reactivity'
+import { makeObservable, onChange, subscribe } from '../../../utils/reactivity'
 import { assert, filterNulls } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
@@ -39,7 +47,7 @@ import { ListItem } from './list-item'
   standalone: true,
   selector: 'list',
   template: `
-    <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ _items.value?.length || 0 }}</box>
+    <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items.value?.length || 0 }}</box>
     <box [style]="{ flexShrink: 0 }">
       <box
         #elementRef
@@ -75,16 +83,14 @@ import { ListItem } from './list-item'
   ],
 })
 export class List<T> {
-  @Input() set items(items: Observable<T[]> | T[]) {
-    this._items.subscribeSource(items)
-  }
+  @Input('items') itemsInput: T[] | Observable<T[]>
   @Input() trackByFn = (index, item) => item
   @Input() showIndex = false
   @Input() displayComponent: any
   @Input() template: TemplateRef<any>
   @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
-  @Output('selectedItem') $selectedItem = new BehaviorSubject(null)
+  @Output('selectedItem') $selectedItem = new EventEmitter<T>()
   @Output('visibleItems') $visibleItems: Observable<T[]>
 
   selected = {
@@ -92,13 +98,15 @@ export class List<T> {
     value: undefined,
   }
 
-  _items: State<T[]>
-  _displayComponent: any
+  $items = new BehaviorSubject([])
+  itemsSubscription: Subscription = undefined
+
+  _displayComponent = undefined
   windowSize = 20
   visibleRange: Range = { start: 0, end: this.windowSize }
   $visibleRange = new BehaviorSubject(this.visibleRange)
   visibleItems = []
-  controlValueAccessor: BaseControlValueAccessor
+  controlValueAccessor = new BaseControlValueAccessor<T>()
 
   @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs: QueryList<ElementRef>
   @ContentChildren(FocusDirective) focusRefs: QueryList<FocusDirective>
@@ -108,9 +116,22 @@ export class List<T> {
     @Inject('itemComponent') @Optional() public itemComponentInjected: any,
     public logger: Logger
   ) {
-    this._items = new State([], this.destroy$)
+    onChange(this, 'itemsInput', input => {
+      if (isObservable(input)) {
+        this.itemsSubscription?.unsubscribe()
+        this.itemsSubscription = subscribe(this, input, value => {
+          // @ts-ignore
+          this.$items.next(value)
+        })
+      } else {
+        this.$items.next(input)
+      }
+    })
+
+    makeObservable(this, 'visibleRange', '$visibleRange')
+
     this.$visibleItems = combineLatest([
-      this._items.$.pipe(filterNulls),
+      this.$items.pipe(filterNulls),
       this.$visibleRange.pipe(filterNulls),
     ]).pipe(
       takeUntil(this.destroy$),
@@ -118,12 +139,11 @@ export class List<T> {
         return items.slice(visibleRange.start, visibleRange.end)
       })
     )
-    makeObservable(this, 'visibleRange', '$visibleRange')
 
-    this.controlValueAccessor = new BaseControlValueAccessor()
     subscribe(this, this.$selectedItem, newValue => {
       this.controlValueAccessor.emitChange(newValue)
     })
+    registerShortcuts(this, this.shortcuts)
   }
 
   ngOnInit() {
@@ -131,8 +151,7 @@ export class List<T> {
     this._displayComponent =
       this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay
 
-    this.selectIndex(0)
-    subscribe(this, this._items.$.pipe(filterNulls), items => {
+    subscribe(this, this.$items.pipe(filterNulls), items => {
       if (this.onItemsChangeSelect == 'first') {
         this.selectIndex(0)
       } else if (this.onItemsChangeSelect == 'last') {
@@ -148,7 +167,6 @@ export class List<T> {
         // nothing
       }
     })
-    registerShortcuts(this, this.shortcuts)
 
     subscribe(this, this.$visibleItems, visibleItems => {
       this.visibleItems = visibleItems
@@ -156,22 +174,21 @@ export class List<T> {
   }
 
   selectIndex(value) {
-    if (!this._items.value || this._items.value.length == 0) {
-      this.selected.index = 0
+    if (!this.$items.value || this.$items.value.length == 0) {
+      this.selected.index = null
       this.selected.value = null
-      this.$selectedItem.next(null)
       return
     }
 
-    this.selected.index = _.clamp(value, 0, this._items.value.length - 1)
-    this.selected.value = this._items.value[this.selected.index]
+    this.selected.index = _.clamp(value, 0, this.$items.value.length - 1)
+    this.selected.value = this.$items.value[this.selected.index]
+    this.$selectedItem.emit(this.selected.value)
+
     this.visibleRange = rangeCenteredAroundIndex(
       this.selected.index,
       this.windowSize,
-      this._items.value.length
+      this.$items.value.length
     )
-
-    this.$selectedItem.next(this.selected.value)
 
     // this.logger.log(`selectIndex - ${this.selected.index}`)
     setTimeout(() => {
@@ -229,7 +246,7 @@ export class List<T> {
   ]
 
   toString() {
-    const items = this._items.value
+    const items = this.$items.value
     // .map(i => json5.stringify(i)).join()
     return `List: ${items.length}`
   }
@@ -260,7 +277,7 @@ function rangeCenteredAroundIndex(index, rangeSize, length) {
 }
 
 export function selectItem(list: List<any>, item: any) {
-  const index = list._items.value.indexOf(item)
+  const index = list.$items.value.indexOf(item)
   assert(index !== -1, 'item not in list')
   list.selectIndex(index)
 }

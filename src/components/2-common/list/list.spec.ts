@@ -26,7 +26,7 @@ describe('List - ', () => {
   it(`should have length 3`, async () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
 
-    expect(component.list._items.value.length).toEqual(3)
+    expect(component.list.$items.value.length).toEqual(3)
   })
 
   it(`should move down`, async () => {

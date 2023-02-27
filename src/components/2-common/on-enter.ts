@@ -1,8 +1,8 @@
-import { Directive, EventEmitter, Inject, Output } from '@angular/core'
+import { Directive, EventEmitter, Inject, Optional, Output, Self } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
-import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
-import { assert } from '../../../utils/utils'
+import { Command, registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
+import { assert } from '../../utils/utils'
 
 @Directive({
   standalone: true,
@@ -11,13 +11,13 @@ import { assert } from '../../../utils/utils'
 export class OnEnterDirective {
   @Output() onEnter = new EventEmitter()
 
-  currentValue = null
+  currentValue = undefined
 
   shortcuts: Partial<Command>[] = [
     {
       keys: 'enter',
       func: key => {
-        if (this.currentValue == undefined) return key
+        if (this.valueAccessor && this.currentValue == undefined) return key
 
         this.onEnter.emit(this.currentValue)
       },
@@ -25,16 +25,20 @@ export class OnEnterDirective {
   ]
 
   constructor(
-    @Inject(NG_VALUE_ACCESSOR) valueAccessor: ControlValueAccessor,
+    @Optional() @Self() @Inject(NG_VALUE_ACCESSOR) public valueAccessor: ControlValueAccessor,
     public shortcutService: ShortcutService
   ) {
-    assert(valueAccessor)
-
-    valueAccessor.registerOnChange(value => {
-      this.currentValue = value
-    })
+    if (valueAccessor) {
+      valueAccessor.registerOnChange(value => {
+        this.currentValue = value
+      })
+    }
 
     registerShortcuts(this, this.shortcuts)
+  }
+
+  ngOnInit() {
+    this.shortcutService.requestFocus()
   }
 
   destroy$ = new Subject()

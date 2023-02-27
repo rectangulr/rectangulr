@@ -9,7 +9,7 @@ import { Shortcuts } from '../../../commands/shortcuts.component'
 import { makeProperty } from '../../../utils/reactivity'
 import { Box } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
-import { whiteOnGray } from '../styles'
+import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
 import { View, ViewService } from './view.service'
 
@@ -31,10 +31,10 @@ import { View, ViewService } from './view.service'
     <box [style]="{ flexGrow: 1 }"></box>
 
     <!-- Bottom bar. List of tabs. -->
-    <box [style]="{ flexDirection: 'row', flexShrink: 0 }">
+    <box [style]="{ flexDirection: 'row', flexShrink: 0, backgroundColor: 'grey' }">
       <box
         *ngFor="let view of viewService.tabs"
-        [classes]="[nullOnNull, [whiteOnGray, view == currentTab]]"
+        [classes]="[[s.blackOnWhite, view == currentTab]]"
         [style]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</box
       >
@@ -76,8 +76,11 @@ export class AppShell {
     registerShortcuts(this, this.commands)
   }
 
-  whiteOnGray = whiteOnGray
-  nullOnNull = makeRuleset({ backgroundColor: null, color: null })
+  s = {
+    blackOnWhite: blackOnWhite,
+    whiteOnGray: whiteOnGray,
+    nullOnNull: makeRuleset({ backgroundColor: null, color: null }),
+  }
 
   commands: Partial<Command>[] = [
     {

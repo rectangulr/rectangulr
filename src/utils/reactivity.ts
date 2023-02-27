@@ -96,13 +96,13 @@ export class State<T> {
  * 		}
  * }
  */
-export function onChange<T, K extends keyof T>(
-  object: T,
+export function onChange<C, K extends keyof C>(
+  object: C,
   key: K,
-  func: (value) => void,
+  func: (value: C[K]) => void,
   transformValue?: (value: any, oldValue: any) => any | undefined
 ) {
-  let storedValue = object[key]
+  let storedValue: C[K] = object[key]
 
   Object.defineProperty(object, key, {
     get: () => {
@@ -160,7 +160,7 @@ export function subscribe<T>(
   observable: Observable<T>,
   func: (value: T) => void
 ) {
-  observable.pipe(takeUntil(component.destroy$)).subscribe(func)
+  return observable.pipe(takeUntil(component.destroy$)).subscribe(func)
 }
 
 /**
@@ -216,7 +216,7 @@ export function makeProperty<T, K extends keyof T>(
 // }
 
 export function forceRefresh() {
-  globalThis['angularZone'].run(() => {})
+  globalThis['angularZone'].run(() => { })
 }
 
 addToGlobalRg({

@@ -1,10 +1,12 @@
 import { NgIf } from '@angular/common'
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core'
 import json5 from 'json5'
+import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { DataFormat } from '../../../utils/data-format'
 import { assert, removeFromArray } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { NewClassesDirective } from '../../1-basics/classes'
@@ -19,26 +21,28 @@ import { ListItem } from '../list/list-item'
   host: { '[style]': "{flexDirection: 'row'}" },
   template: `
     <box
-      *ngIf="keyValue.key != null"
+      *ngIf="valueRef.key != null"
       [focusIf]="focused == 'key'"
       [style]="{
         flexDirection: 'row',
         alignItems: 'flexStart'
       }">
-      <text-input [(text)]="keyValue.key"></text-input>:
+      <text-input [(text)]="valueRef.key"></text-input>:
     </box>
 
     <ng-container [focusIf]="focused == 'value'">
       <text-input
-        *ngIf="['string', 'number', 'boolean', 'null'].includes(type)"
-        [(text)]="keyValue.value"></text-input>
-      <ng-container *ngIf="type == 'object' || type == 'array'">
-        <list [items]="childrenKeyValues">
+        *ngIf="['string', 'number', 'boolean', 'null'].includes(valueRef.type)"
+        [text]="valueText"
+        (textChange)="textChange($event)"></text-input>
+      <ng-container *ngIf="valueRef.type == 'object' || valueRef.type == 'array'">
+        <list [items]="childrenValueRefs">
           <json-editor
-            *item="let kv; type: childrenKeyValues"
+            *item="let ref; type: childrenValueRefs"
             focus
-            [keyValue]="kv"
-            [newclasses]="[isRoot(), { paddingLeft: 2 }]"></json-editor>
+            [valueRef]="ref"
+            [isRoot]="false"
+            [newclasses]="[isRoot, { paddingLeft: 2 }]"></json-editor>
         </list>
       </ng-container>
     </ng-container>
@@ -58,37 +62,45 @@ import { ListItem } from '../list/list-item'
 })
 export class JsonEditor {
   @Input() value = null
-  @Input() keyValue: KeyValue = null
+  @Input() valueRef: ValueRef = { key: null, value: null, type: 'null' }
+  @Input() dataFormat: DataFormat | undefined = null
   @Input() path: string[] = []
+  @Input() isRoot = true
 
   @Output() submit = new EventEmitter()
 
-  type: Type = 'object'
-  childrenKeyValues: KeyValue[] = []
+  childrenValueRefs: ValueRef[] = []
   focused: 'key' | 'value' = 'key'
+  valueText: string = ''
 
   @ViewChild(List) list: List<any>
 
   constructor(public shortcutService: ShortcutService, public logger: Logger) {}
 
-  ngOnInit() {
-    assert(!(this.value && this.keyValue), 'Use [value] or [keyValue]. Not both.')
-    if (this.value) {
-      this.keyValue = { key: null, value: this.value }
+  async ngOnInit() {
+    // assert(!(this.value && this.valueRef), 'Use [value] or [keyValue]. Not both.')
+
+    if (this.isRoot) {
+      if (this.value) {
+        this.valueRef = { key: null, value: this.value, type: typeFromValue(this.value) }
+      } else if (this.dataFormat) {
+        const expandedValue = await this.dataFormat.expand()
+        this.valueRef = { key: null, value: expandedValue, type: typeFromValue(expandedValue) }
+      } else {
+        assert(false)
+      }
     }
 
-    //@ts-ignore
-    this.type = typeof this.keyValue.value
-    if (this.keyValue.value == null) this.type = 'null'
-    else if (Array.isArray(this.keyValue.value)) this.type = 'array'
-
-    this.focused = this.keyValue.key != null ? 'key' : 'value'
+    this.focused = this.valueRef.key != null ? 'key' : 'value'
 
     if (this.hasChildren()) {
-      this.childrenKeyValues = Object.entries(this.keyValue.value).map(([key, value]) => ({
+      this.childrenValueRefs = Object.entries(this.valueRef.value).map(([key, value]) => ({
         key: key,
         value: value,
+        type: typeFromValue(value),
       }))
+    } else {
+      this.valueText = textFromValue(this.valueRef.value)
     }
 
     if (this.hasChildren()) {
@@ -100,14 +112,19 @@ export class JsonEditor {
     this.shortcutService.requestFocus()
   }
 
+  textChange(text: string) {
+    this.valueText = text
+    this.valueRef.value = valueFromText(text)
+  }
+
   /**
    * Creates a javascript object from the json-editor.
    */
   getValue(): any {
     if (this.hasChildren()) {
-      return getValueFromKVs(this.childrenKeyValues)
+      return getValueFromKVs(this.childrenValueRefs)
     } else {
-      return this.keyValue.value
+      return this.valueRef.value
     }
   }
 
@@ -115,18 +132,14 @@ export class JsonEditor {
     return [...paths]
   }
 
-  isRoot() {
-    return this.value
-  }
-
   private createNewLine() {
-    const newKV = { key: '', value: '' }
-    this.childrenKeyValues.push(newKV)
+    const newKV = { key: '', value: '', type: 'string' }
+    this.childrenValueRefs.push(newKV)
     selectItem(this.list, newKV)
   }
 
   private hasChildren() {
-    return this.type == 'object' || this.type == 'array'
+    return this.valueRef.type == 'object' || this.valueRef.type == 'array'
   }
 
   /**
@@ -155,6 +168,7 @@ export class JsonEditor {
       },
     },
   ]
+
   /**
    * Shortcuts registered only if editing an object or array
    */
@@ -162,7 +176,7 @@ export class JsonEditor {
     {
       keys: ['enter', 'tab'],
       func: () => {
-        if (this.list.selected.index == this.list._items.value.length - 1) {
+        if (this.list.selected.index == this.list.$items.value.length - 1) {
           this.createNewLine()
         } else {
           this.list.selectIndex(this.list.selected.index + 1)
@@ -184,14 +198,14 @@ export class JsonEditor {
     {
       keys: 'backspace',
       func: () => {
-        this.childrenKeyValues = removeFromArray(this.childrenKeyValues, this.list.selected.value)
+        this.childrenValueRefs = removeFromArray(this.childrenValueRefs, this.list.selected.value)
         this.list.selectIndex(this.list.selected.index - 1)
       },
     },
   ]
 
   toString() {
-    const keyValue = json5.stringify(this.keyValue)
+    const keyValue = json5.stringify(this.valueRef)
     return `JsonEditor: ${keyValue}`
   }
 
@@ -202,18 +216,45 @@ export class JsonEditor {
   }
 }
 
-export interface KeyValue {
-  key: string
-  value: any
+function valueFromText(text: string): any {
+  const jsonNumber = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/gm
+  if (text == 'false') {
+    return false
+  } else if (text == 'true') {
+    return true
+  } else if (text == 'null') {
+    return null
+  } else if (jsonNumber.test(text)) {
+    const number = Number(text)
+    if (_.isNaN(number)) debugger
+    return number
+  } else {
+    return text
+  }
 }
 
-function valueHasChildren(value: any) {
+function textFromValue(value: any): string {
+  return String(value)
+}
+
+function typeFromValue(value: any) {
+  let type: string = typeof value
+  if (value == null) type = 'null'
+  else if (Array.isArray(value)) type = 'array'
+  return type
+}
+
+export interface ValueRef {
+  key?: string
+  value: any
+  type: string
+}
+
+function valueHasChildren(value: any): value is any[] {
   return value && (typeof value == 'object' || Array.isArray(value))
 }
 
-type Type = 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null'
-
-function getValueFromKVs(keyValues: KeyValue[]) {
+function getValueFromKVs(keyValues: ValueRef | ValueRef[] | string | number) {
   if (valueHasChildren(keyValues)) {
     const recursedKVs = keyValues.map(kv => [kv.key, getValueFromKVs(kv.value)])
     return Object.fromEntries(recursedKVs)

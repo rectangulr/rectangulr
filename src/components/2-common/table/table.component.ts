@@ -3,11 +3,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
+import { makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
 import { assert, filterNulls } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
+import { ClassesDirective } from '../../1-basics/classes'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 
@@ -39,10 +41,10 @@ export class Row<T> {
 
 @Component({
   standalone: true,
-  imports: [Box, List, Row, ListItem],
+  imports: [Box, List, Row, ListItem, ClassesDirective],
   selector: 'table',
   template: `
-    <box [style]="{ maxHeight: 1 }">{{ headers }}</box>
+    <box [style]="{ maxHeight: 1 }" [classes]="[]">{{ headers }}</box>
     <list
       [items]="_items.$"
       [trackByFn]="trackByFn"
@@ -69,7 +71,7 @@ export class Table<T> {
   @Input() includeKeys: string[] = []
   @Input() excludeKeys: string[] = []
   @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any>
-  @Output('selectedItem') $selectedItem = new BehaviorSubject<T[]>(null)
+  @Output('selectedItem') $selectedItem = new BehaviorSubject<T>(null)
   @Output('visibleItems') $visibleItems = new BehaviorSubject<T[]>(null)
 
   _items: State<T[]>
@@ -161,6 +163,10 @@ export class Table<T> {
       },
     },
   ]
+
+  s = {
+    header: makeRuleset({ backgroundColor: 'gray', color: 'white' }),
+  }
 
   destroy$ = new Subject()
   ngOnDestroy() {
