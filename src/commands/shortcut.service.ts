@@ -99,7 +99,7 @@ export class ShortcutService {
 
   incomingKey(keyEvent) {
     let key = keyEvent.key as unknown as Key
-    // this.logger.log(`key: ${keyToString(key)}`)
+    this.logger.log(`key: ${keyToString(key)}`)
     if (this.before) {
       key = this.before.propagateKeypress(key)
     }

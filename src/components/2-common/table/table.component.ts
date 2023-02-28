@@ -39,12 +39,17 @@ export class Row<T> {
   }
 }
 
+interface Column {
+  name: string
+  width: number
+}
+
 @Component({
   standalone: true,
   imports: [Box, List, Row, ListItem, ClassesDirective],
   selector: 'table',
   template: `
-    <box [style]="{ maxHeight: 1 }" [classes]="[]">{{ headers }}</box>
+    <box [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ headers }}</box>
     <list
       [items]="_items.$"
       [trackByFn]="trackByFn"
@@ -59,7 +64,7 @@ export class Row<T> {
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useFactory: table => table.controlValueAccessor,
+      useFactory: (table: Table<any>) => table.controlValueAccessor,
       deps: [Table],
     },
   ],
@@ -76,17 +81,19 @@ export class Table<T> {
 
   _items: State<T[]>
   headers: string = ''
-  columns: { name: string; width: number }[] = []
+  columns: Column[] = []
+  selectedColumn: Column
+
   @ViewChild(List) list: List<T>
   /**
    * To allow the \<list> to be accessed from outside the \<table> using PROVIDE_LIST
    */
   $list = new BehaviorSubject<List<T>>(null)
-  rowComponent = Row
   controlValueAccessor: ControlValueAccessor = null
 
   constructor(public shortcutService: ShortcutService) {
     this._items = new State([], this.destroy$)
+    this.selectedColumn = this.columns.find(t => t)
     onChange(this, 'items', items => {
       this._items.subscribeSource(items)
     })
