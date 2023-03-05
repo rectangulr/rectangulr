@@ -108,12 +108,6 @@ export class AppShell {
       },
     },
     {
-      id: 'throwError',
-      func: () => {
-        this.logger.log({ level: 'error', message: 'test notification error' })
-      },
-    },
-    {
       keys: 'alt+shift+l',
       id: 'showLogs',
       keywords: 'errors',

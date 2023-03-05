@@ -84,7 +84,7 @@ export class JsonEditor {
       if (this.value) {
         this.valueRef = { key: null, value: this.value, type: typeFromValue(this.value) }
       } else if (this.dataFormat) {
-        const expandedValue = await this.dataFormat.expand()
+        const expandedValue = await this.dataFormat.completions()
         this.valueRef = { key: null, value: expandedValue, type: typeFromValue(expandedValue) }
       } else {
         assert(false)

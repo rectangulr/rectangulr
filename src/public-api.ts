@@ -2,6 +2,7 @@
  * Public API Surface of Rectangulr
  */
 
+import { signal } from '@angular/core'
 import { fromPairs } from 'lodash'
 
 // Basics
@@ -48,6 +49,7 @@ export { Table, Row } from './components/2-common/table/table.component'
 export { RectangulrModule } from './rectangulr.module'
 export { ComponentOutletInputs } from './utils/componentOutletInput'
 export { KeyValue } from './utils/interfaces'
+export * from './angular-terminal/signals/index'
 
 // Utils
 export {
@@ -57,5 +59,6 @@ export {
   onChange,
   State,
   subscribe,
+  makeSignal,
 } from './utils/reactivity'
 export { DataFormat } from './utils/data-format'

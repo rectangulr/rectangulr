@@ -150,6 +150,29 @@ export function makeObservable<T, K extends keyof T>(_component: T, key: K, obse
 }
 
 /**
+ * Listens for changes on a property and exposes it as a Signal.
+ * Replaces the property with a getter/setter so it can detect changes.
+ *
+ * Example: listens for a property `text` and creates a Signal `$text`.
+ * ```ts
+ * this.text = 'blabla'
+ * this.$text = signal(null)
+ * makeSignal(this, 'text', '$text')
+ * ```
+ */
+export function makeSignal<T, K extends keyof T>(_component: T, key: K, observableKey: K) {
+  const component = _component as any
+
+  // Emit initial value
+  component[observableKey].set(component[key])
+
+  // Emit following values
+  onChange(component, key, value => {
+    component[observableKey].set(value)
+  })
+}
+
+/**
  * Subscribes to an observable for the lifetime of the component.
  * @param component The subscription gets cleaned up when this component gets destroyed.
  * @param observable The observable to subscribe to.
@@ -216,7 +239,7 @@ export function makeProperty<T, K extends keyof T>(
 // }
 
 export function forceRefresh() {
-  globalThis['angularZone'].run(() => { })
+  globalThis['angularZone'].run(() => {})
 }
 
 addToGlobalRg({
