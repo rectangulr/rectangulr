@@ -1,4 +1,5 @@
 import { Directive, Input, ElementRef } from '@angular/core'
+import { assert } from 'console'
 import { onChange } from '../../utils/reactivity'
 import { IStyle } from './style'
 
@@ -10,15 +11,17 @@ import { IStyle } from './style'
   selector: '[newclasses]',
 })
 export class NewClassesDirective {
-  @Input() newclasses: any[]
+  @Input() newclasses: (IStyle | [style: IStyle, condition: boolean])[]
 
   constructor(public element: ElementRef) {
     onChange(this, 'newclasses', (classes: IStyle[] | IStyle[]) => {
       const enabledClasses = classes
         .map(item => {
           if (Array.isArray(item)) {
-            const [klass, condition] = item
-            return condition ? klass : null
+            const [style, condition] = item
+            assert(typeof style == 'object')
+            assert(typeof condition == 'boolean')
+            return condition ? style : null
           } else {
             return item
           }
@@ -32,7 +35,7 @@ export class NewClassesDirective {
         })
       })
 
-      this.element.nativeElement.style.$
+      this.element.nativeElement.style.assign(newStyle)
     })
   }
 }

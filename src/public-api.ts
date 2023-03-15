@@ -2,9 +2,6 @@
  * Public API Surface of Rectangulr
  */
 
-import { signal } from '@angular/core'
-import { fromPairs } from 'lodash'
-
 // Basics
 export { Element, Event, makeRuleset, TermScreen } from './angular-terminal/dom-terminal/'
 export { Logger } from './angular-terminal/logger'

@@ -20,9 +20,9 @@ import { DynamicModule } from 'ng-dynamic-component'
 import {
   BehaviorSubject,
   combineLatest,
+  isObservable,
   Observable,
   Subject,
-  isObservable,
   Subscription,
 } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'

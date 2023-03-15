@@ -1,9 +1,11 @@
 import { Component, ContentChild, Input, Output, TemplateRef, ViewChild } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
+import { style } from '@manaflair/term-strings'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { computed, effect, signal } from '../../../angular-terminal/signals'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
@@ -28,14 +30,22 @@ export class Row<T> {
   ngOnInit() {
     assert(this.data)
     assert(typeof this.data == 'object')
-    assert(this.table.columns)
+    assert(this.table.$columns)
 
-    this.text = this.table.columns
-      .map(column => {
-        const value = this.data[column.name]
-        return String(value).slice(0, column.width).padEnd(column.width)
-      })
-      .join(' | ')
+    effect(() => {
+      this.text = this.table
+        .$columns()
+        .map(column => {
+          let value = this.data[column.name]
+          value = String(value).slice(0, column.width).padEnd(column.width)
+          if (column.name == this.table.$selectedColumn().name) {
+            value = style.emboldened.in + value + style.emboldened.out
+          }
+
+          return value
+        })
+        .join(' | ')
+    })
   }
 }
 
@@ -81,8 +91,10 @@ export class Table<T> {
 
   _items: State<T[]>
   headers: string = ''
-  columns: Column[] = []
-  selectedColumn: Column
+
+  $columns = signal<Column[]>([])
+  $selectedColumnIndex = signal(0)
+  $selectedColumn = computed(() => this.$columns()[this.$selectedColumnIndex()])
 
   @ViewChild(List) list: List<T>
   /**
@@ -93,7 +105,6 @@ export class Table<T> {
 
   constructor(public shortcutService: ShortcutService) {
     this._items = new State([], this.destroy$)
-    this.selectedColumn = this.columns.find(t => t)
     onChange(this, 'items', items => {
       this._items.subscribeSource(items)
     })
@@ -103,7 +114,7 @@ export class Table<T> {
       this.udpateColumns(visibleItems)
     })
 
-    registerShortcuts(this, this.commands)
+    registerShortcuts(this, this.shortcuts)
 
     this.controlValueAccessor = new BaseControlValueAccessor()
     subscribe(
@@ -130,25 +141,27 @@ export class Table<T> {
       const keys = Object.keys(visibleItems[0])
       const keysChanged = !_.isEqual(
         keys,
-        this.columns.map(c => c.name)
+        this.$columns().map(c => c.name)
       )
-      const shouldUpdateWidths = !this.columns || keysChanged
+      const shouldUpdateWidths = !this.$columns || keysChanged
 
-      this.columns = _.map(keys, key => {
-        if (shouldUpdateWidths) {
-          var columnWidth = computeWidth(visibleItems, key)
-        } else {
-          var columnWidth = this.columns.find(c => c.name == key).width
-        }
-        const res = { name: key, width: columnWidth }
-        return res
-      })
+      this.$columns.set(
+        _.map(keys, key => {
+          if (shouldUpdateWidths) {
+            var columnWidth = computeWidth(visibleItems, key)
+          } else {
+            var columnWidth = this.$columns().find(c => c.name == key).width
+          }
+          const res = { name: key, width: columnWidth }
+          return res
+        })
+      )
 
-      this.headers = _.map(this.columns, column => {
+      this.headers = _.map(this.$columns(), column => {
         return column.name.slice(0, column.width).padEnd(column.width)
       }).join(' | ')
     } else {
-      this.columns = []
+      this.$columns.set([])
       this.headers = 'No rows'
     }
 
@@ -161,12 +174,30 @@ export class Table<T> {
     }
   }
 
-  commands: Partial<Command>[] = [
+  shortcuts: Partial<Command>[] = [
     {
       keys: 'ctrl+shift+l',
       id: 'resizeColumns',
       func: () => {
         this.udpateColumns(this.$visibleItems.value)
+      },
+    },
+    {
+      keys: 'left',
+      id: 'left',
+      func: () => {
+        this.$selectedColumnIndex.update(index => {
+          return _.clamp(--index, 0, this.$columns().length - 1)
+        })
+      },
+    },
+    {
+      keys: 'right',
+      id: 'right',
+      func: () => {
+        this.$selectedColumnIndex.update(index => {
+          return _.clamp(++index, 0, this.$columns().length - 1)
+        })
       },
     },
   ]

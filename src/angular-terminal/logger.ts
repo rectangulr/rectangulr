@@ -24,8 +24,8 @@ export class Logger {
   log(thing) {
     // String or Object
     let logObject = null
-    if (typeof thing == 'string') {
-      logObject = { message: thing }
+    if (['string', 'number', 'null'].includes(typeof thing)) {
+      logObject = { message: String(thing) }
     } else {
       logObject = thing
     }
