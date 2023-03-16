@@ -136,7 +136,7 @@ export class Table<T> {
       const shouldUpdateWidths = !this.$columns || keysChanged
 
       this.$columns.set(
-        _.map(keys, key => {
+        keys.map(key => {
           if (shouldUpdateWidths) {
             var columnWidth = computeWidth(visibleItems, key)
           } else {
