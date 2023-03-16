@@ -38,7 +38,7 @@ export class Row<T> {
         .map(column => {
           let value = this.data[column.id]
           value = String(value).slice(0, column.width).padEnd(column.width)
-          if (column.id == this.table.$selectedColumn().id) {
+          if (column.id == this.table.$selectedColumn()?.id) {
             value = style.emboldened.in + value + style.emboldened.out
           }
           return value
@@ -148,7 +148,11 @@ export class Table<T> {
       )
 
       this.headers = _.map(this.$columns(), column => {
-        return column.id.slice(0, column.width).padEnd(column.width)
+        let value = column.id.slice(0, column.width).padEnd(column.width)
+        if (column == this.$selectedColumn()) {
+          value = style.emboldened.in + value + style.emboldened.out
+        }
+        return value
       }).join(' | ')
     } else {
       this.$columns.set([])

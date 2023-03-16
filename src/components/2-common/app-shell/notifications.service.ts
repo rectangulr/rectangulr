@@ -30,7 +30,7 @@ export class NotificationsService {
 
 export interface Notification {
   name: string
-  message: string
+  message?: string
 }
 
 export const INJECT_NOTIFICATIONS_SERVICE = new InjectionToken<NotificationsService>(

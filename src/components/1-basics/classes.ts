@@ -1,6 +1,6 @@
-import { Directive, Input, ElementRef } from '@angular/core'
-import { assert } from 'console'
+import { Directive, ElementRef, Input } from '@angular/core'
 import { onChange } from '../../utils/reactivity'
+import { assert } from '../../utils/utils'
 import { IStyle } from './style'
 
 /**
