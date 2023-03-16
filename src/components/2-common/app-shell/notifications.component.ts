@@ -12,7 +12,7 @@ import { Notification, NotificationsService } from './notifications.service'
   selector: 'notifications',
   host: {
     '[style]':
-      "{position: 'absolute', top: 1, right: 1, width: '50%', backgroundColor: 'darkgray', color: 'white', borderColor: 'white' }",
+      "{position: 'absolute', bottom: 1, right: 0, width: '50%', backgroundColor: 'darkgray', color: 'white', borderColor: 'white' }",
   },
   template: `
     <box

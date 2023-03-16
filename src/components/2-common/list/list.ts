@@ -28,6 +28,7 @@ import {
 import { map, takeUntil } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
+import { effect, isSignal, Signal } from '../../../angular-terminal/signals'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
@@ -83,7 +84,7 @@ import { ListItem } from './list-item'
   ],
 })
 export class List<T> {
-  @Input('items') itemsInput: T[] | Observable<T[]>
+  @Input('items') itemsInput: T[] | Observable<T[]> | Signal<T[]>
   @Input() trackByFn = (index, item) => item
   @Input() showIndex = false
   @Input() displayComponent: any
@@ -123,7 +124,14 @@ export class List<T> {
           // @ts-ignore
           this.$items.next(value)
         })
+      }
+      // @ts-ignore
+      else if (input && isSignal(input)) {
+        effect(() => {
+          this.$items.next(input())
+        })
       } else {
+        // @ts-ignore
         this.$items.next(input)
       }
     })

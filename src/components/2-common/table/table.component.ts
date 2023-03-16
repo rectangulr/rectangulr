@@ -5,10 +5,10 @@ import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
-import { computed, effect, signal } from '../../../angular-terminal/signals'
+import { computed, effect, Signal, signal } from '../../../angular-terminal/signals'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
-import { makeObservable, onChange, State, subscribe } from '../../../utils/reactivity'
+import { makeObservable, subscribe } from '../../../utils/reactivity'
 import { assert, filterNulls } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
@@ -36,12 +36,11 @@ export class Row<T> {
       this.text = this.table
         .$columns()
         .map(column => {
-          let value = this.data[column.name]
+          let value = this.data[column.id]
           value = String(value).slice(0, column.width).padEnd(column.width)
-          if (column.name == this.table.$selectedColumn().name) {
+          if (column.id == this.table.$selectedColumn().id) {
             value = style.emboldened.in + value + style.emboldened.out
           }
-
           return value
         })
         .join(' | ')
@@ -50,7 +49,7 @@ export class Row<T> {
 }
 
 interface Column {
-  name: string
+  id: string
   width: number
 }
 
@@ -61,7 +60,7 @@ interface Column {
   template: `
     <box [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ headers }}</box>
     <list
-      [items]="_items.$"
+      [items]="items"
       [trackByFn]="trackByFn"
       [template]="template || template2 || defaultTemplate"
       (selectedItem)="$selectedItem.next($event)"
@@ -80,7 +79,7 @@ interface Column {
   ],
 })
 export class Table<T> {
-  @Input() items: T[] | Observable<T[]>
+  @Input() items: T[] | Observable<T[]> | Signal<T[]>
   @Input() template: TemplateRef<any>
   @Input() trackByFn = (index, item) => item
   @Input() includeKeys: string[] = []
@@ -89,7 +88,6 @@ export class Table<T> {
   @Output('selectedItem') $selectedItem = new BehaviorSubject<T>(null)
   @Output('visibleItems') $visibleItems = new BehaviorSubject<T[]>(null)
 
-  _items: State<T[]>
   headers: string = ''
 
   $columns = signal<Column[]>([])
@@ -97,18 +95,10 @@ export class Table<T> {
   $selectedColumn = computed(() => this.$columns()[this.$selectedColumnIndex()])
 
   @ViewChild(List) list: List<T>
-  /**
-   * To allow the \<list> to be accessed from outside the \<table> using PROVIDE_LIST
-   */
   $list = new BehaviorSubject<List<T>>(null)
   controlValueAccessor: ControlValueAccessor = null
 
   constructor(public shortcutService: ShortcutService) {
-    this._items = new State([], this.destroy$)
-    onChange(this, 'items', items => {
-      this._items.subscribeSource(items)
-    })
-
     makeObservable(this, 'list', '$list')
     subscribe(this, this.$visibleItems, visibleItems => {
       this.udpateColumns(visibleItems)
@@ -141,7 +131,7 @@ export class Table<T> {
       const keys = Object.keys(visibleItems[0])
       const keysChanged = !_.isEqual(
         keys,
-        this.$columns().map(c => c.name)
+        this.$columns().map(c => c.id)
       )
       const shouldUpdateWidths = !this.$columns || keysChanged
 
@@ -150,15 +140,15 @@ export class Table<T> {
           if (shouldUpdateWidths) {
             var columnWidth = computeWidth(visibleItems, key)
           } else {
-            var columnWidth = this.$columns().find(c => c.name == key).width
+            var columnWidth = this.$columns().find(c => c.id == key).width
           }
-          const res = { name: key, width: columnWidth }
+          const res = { id: key, width: columnWidth }
           return res
         })
       )
 
       this.headers = _.map(this.$columns(), column => {
-        return column.name.slice(0, column.width).padEnd(column.width)
+        return column.id.slice(0, column.width).padEnd(column.width)
       }).join(' | ')
     } else {
       this.$columns.set([])

@@ -7,7 +7,7 @@ import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { DataFormat } from '../../../utils/data-format'
-import { assert, removeFromArray } from '../../../utils/utils'
+import { Anything, assert, removeFromArray } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { NewClassesDirective } from '../../1-basics/classes'
 import { StyleDirective } from '../../1-basics/style'
@@ -42,7 +42,7 @@ import { ListItem } from '../list/list-item'
             focus
             [valueRef]="ref"
             [isRoot]="false"
-            [newclasses]="[isRoot, { paddingLeft: 2 }]"></json-editor>
+            [newclasses]="[[isRoot, { paddingLeft: 2 }]]"></json-editor>
         </list>
       </ng-container>
     </ng-container>
@@ -120,7 +120,7 @@ export class JsonEditor {
   /**
    * Creates a javascript object from the json-editor.
    */
-  getValue(): any {
+  getValue(): Anything {
     if (this.hasChildren()) {
       return getValueFromKVs(this.childrenValueRefs)
     } else {

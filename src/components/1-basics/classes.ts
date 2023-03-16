@@ -11,14 +11,14 @@ import { IStyle } from './style'
   selector: '[newclasses]',
 })
 export class NewClassesDirective {
-  @Input() newclasses: (IStyle | [style: IStyle, condition: boolean])[]
+  @Input() newclasses: (IStyle | [condition: boolean, style: IStyle])[]
 
   constructor(public element: ElementRef) {
     onChange(this, 'newclasses', (classes: IStyle[] | IStyle[]) => {
       const enabledClasses = classes
         .map(item => {
           if (Array.isArray(item)) {
-            const [style, condition] = item
+            const [condition, style] = item
             assert(typeof style == 'object')
             assert(typeof condition == 'boolean')
             return condition ? style : null
