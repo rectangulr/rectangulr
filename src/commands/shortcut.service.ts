@@ -189,7 +189,7 @@ export class ShortcutService {
   callCommand(arg: { id: string; keys?: string; args?: any[] }) {
     const { id, keys, args } = arg
     const command = this.findCommand(id)
-    const res = command.func(keys)
+    let res = command.func(keys)
     return res
   }
 

@@ -8,11 +8,11 @@ abstract class ValueProxy {}
 
 @Directive({
   standalone: true,
-  selector: '[valueAccessor]',
+  selector: '[value]',
 })
 export class ValueDirective {
-  @Input() valueAccessor = undefined
-  @Output() valueAccessorChange = new EventEmitter()
+  @Input() value = undefined
+  @Output() valueChange = new EventEmitter(true)
 
   // TODO
   @Input() valueProxy: ValueProxy = null
@@ -20,14 +20,18 @@ export class ValueDirective {
   currentValue = null
 
   constructor(
-    @Inject(NG_VALUE_ACCESSOR) valueAccessor: ControlValueAccessor,
+    @Inject(NG_VALUE_ACCESSOR) public valueAccessor: ControlValueAccessor,
     public shortcutService: ShortcutService
   ) {
     assert(valueAccessor)
     valueAccessor.registerOnChange(value => {
       this.currentValue = value
-      this.valueAccessorChange.emit(value)
+      this.valueChange.emit(value)
     })
+  }
+
+  ngOnInit() {
+    this.valueAccessor.writeValue(this.value)
   }
 
   destroy$ = new Subject()

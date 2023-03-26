@@ -9,7 +9,7 @@ import { JsonEditor } from './json-editor'
 @Component({
   standalone: true,
   imports: [Box, FocusDirective, NgIf, JsonEditor],
-  template: ` <json-editor value="string"></json-editor> `,
+  template: ` <json-editor data="string"></json-editor> `,
 })
 export class Test {
   @ViewChild(JsonEditor) jsonEditor: JsonEditor
@@ -18,7 +18,7 @@ export class Test {
 @Component({
   standalone: true,
   imports: [Box, FocusDirective, NgIf, JsonEditor],
-  template: ` <json-editor [value]="{ test: 'a' }"></json-editor> `,
+  template: ` <json-editor [data]="{ test: 'a' }"></json-editor> `,
 })
 export class Test2 {
   @ViewChild(JsonEditor) jsonEditor: JsonEditor

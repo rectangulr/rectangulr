@@ -61,7 +61,7 @@ import { ListItem } from '../list/list-item'
   providers: [ShortcutService],
 })
 export class JsonEditor {
-  @Input() value = null
+  @Input() data = null
   @Input() valueRef: ValueRef = { key: null, value: null, type: 'null' }
   @Input() dataFormat: DataFormat | undefined = null
   @Input() path: string[] = []
@@ -78,11 +78,15 @@ export class JsonEditor {
   constructor(public shortcutService: ShortcutService, public logger: Logger) {}
 
   async ngOnInit() {
-    // assert(!(this.value && this.valueRef), 'Use [value] or [keyValue]. Not both.')
+    // assert(!(this.value && this.valueRef), 'Use [value] or [valueRef]. Not both.')
 
     if (this.isRoot) {
-      if (this.value) {
-        this.valueRef = { key: null, value: this.value, type: typeFromValue(this.value) }
+      if (this.data !== undefined) {
+        this.valueRef = {
+          key: null,
+          value: this.data,
+          type: typeFromValue(this.data),
+        }
       } else if (this.dataFormat) {
         const expandedValue = await this.dataFormat.completions()
         this.valueRef = { key: null, value: expandedValue, type: typeFromValue(expandedValue) }
@@ -120,7 +124,7 @@ export class JsonEditor {
   /**
    * Creates a javascript object from the json-editor.
    */
-  getValue(): Anything {
+  getValue(): Anything | string | null | number {
     if (this.hasChildren()) {
       return getValueFromKVs(this.childrenValueRefs)
     } else {

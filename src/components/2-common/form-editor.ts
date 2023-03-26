@@ -53,6 +53,7 @@ export class KeyValueEditor {
     <list [items]="keyValues">
       <keyvalue-editor
         *item="let keyValue; type: keyValues"
+        focus
         [keyValue]="keyValue"
         [keyWidth]="longestKey"></keyvalue-editor>
     </list>

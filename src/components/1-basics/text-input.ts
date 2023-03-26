@@ -25,7 +25,6 @@ let globalId = 0
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => TextInput),
-      multi: true,
     },
     { provide: ShortcutService },
   ],

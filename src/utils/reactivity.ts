@@ -160,15 +160,15 @@ export function makeObservable<T, K extends keyof T>(_component: T, key: K, obse
  * makeSignal(this, 'text', '$text')
  * ```
  */
-export function makeSignal<T, K extends keyof T>(_component: T, key: K, observableKey: K) {
+export function makeSignal<T, K extends keyof T>(_component: T, key: K, signalKey: K) {
   const component = _component as any
 
   // Emit initial value
-  component[observableKey].set(component[key])
+  component[signalKey].set(component[key])
 
   // Emit following values
   onChange(component, key, value => {
-    component[observableKey].set(value)
+    component[signalKey].set(value)
   })
 }
 
