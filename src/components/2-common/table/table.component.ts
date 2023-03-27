@@ -25,7 +25,7 @@ export class Row<T> {
   @Input() data: T
   text: string
 
-  constructor(public table: Table<T>) {}
+  constructor(public table: Table<T>) { }
 
   ngOnInit() {
     assert(this.data)
@@ -33,17 +33,21 @@ export class Row<T> {
     assert(this.table.$columns)
 
     effect(() => {
-      this.text = this.table
+      this.text = ''
+      this.table
         .$columns()
         .map(column => {
           let value = this.data[column.id]
           value = String(value).slice(0, column.width).padEnd(column.width)
-          if (column.id == this.table.$selectedColumn()?.id) {
-            value = style.emboldened.in + value + style.emboldened.out
-          }
-          return value
+          return { ...column, string: value }
         })
-        .join(' | ')
+        .forEach(column => {
+          if (column.id == this.table.$selectedColumn().id) {
+            this.text += '_' + column.string + '_|'
+          } else {
+            this.text += ' ' + column.string + ' |'
+          }
+        })
     })
   }
 }
@@ -147,13 +151,17 @@ export class Table<T> {
         })
       )
 
-      this.headers = _.map(this.$columns(), column => {
+      this.headers = ''
+      _.map(this.$columns(), column => {
         let value = column.id.slice(0, column.width).padEnd(column.width)
-        if (column == this.$selectedColumn()) {
-          value = style.emboldened.in + value + style.emboldened.out
+        return { ...column, string: value }
+      }).forEach(column => {
+        if (column.id == this.$selectedColumn().id) {
+          this.headers += '_' + column.string + '_|'
+        } else {
+          this.headers += ' ' + column.string + ' |'
         }
-        return value
-      }).join(' | ')
+      })
     } else {
       this.$columns.set([])
       this.headers = 'No rows'
