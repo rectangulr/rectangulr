@@ -11,7 +11,15 @@ export class ListItem<T> {
   static ngTemplateContextGuard<T>(
     directive: ListItem<T>,
     context: any
-  ): context is { $implicit: T } {
+  ): context is {
+    $implicit: T
+    index: number
+    count: number
+    first: boolean
+    last: boolean
+    even: boolean
+    odd: boolean
+  } {
     return true
   }
 }

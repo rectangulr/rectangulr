@@ -52,11 +52,28 @@ import { ListItem } from './list-item'
     <box [style]="{ flexShrink: 0 }">
       <box
         #elementRef
-        *ngFor="let item of visibleItems; index as index; trackBy: trackByFn"
+        *ngFor="
+          let item of visibleItems;
+          index as index;
+          count as count;
+          first as first;
+          last as last;
+          even as even;
+          odd as odd;
+          trackBy: trackByFn
+        "
         [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
         <ng-container
           [ngTemplateOutlet]="template || template2 || defaultTemplate"
-          [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
+          [ngTemplateOutletContext]="{
+            $implicit: item,
+            index: index,
+            count: count,
+            first: first,
+            last: last,
+            even: even,
+            odd: odd
+          }"></ng-container>
 
         <ng-container
           *ngIf="!template && !template2 && _displayComponent"

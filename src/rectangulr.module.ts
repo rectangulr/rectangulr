@@ -40,6 +40,7 @@ import { ListItem } from './components/2-common/list/list-item'
 import { ObjectDisplay } from './components/2-common/object-display'
 import { OnEnterDirective } from './components/2-common/on-enter'
 import { SearchList } from './components/2-common/search-list'
+import { SignalDirective } from './components/2-common/signal.directive'
 import { Table, Row } from './components/2-common/table/table.component'
 import { ValueDirective } from './components/2-common/value.directive'
 import { ComponentOutletInputs } from './utils/componentOutletInput'
@@ -80,6 +81,7 @@ const TEMPLATE_COMPONENTS = [
   Logs,
   JsonEditor,
   ValueDirective,
+  SignalDirective,
 ]
 
 export const RECTANGULR_MODULE_PROVIDERS = [

@@ -1,6 +1,6 @@
 import { Component, ContentChild, Input, Output, TemplateRef, ViewChild } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
-import { style } from '@manaflair/term-strings'
+import * as json5 from 'json5'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
@@ -25,7 +25,7 @@ export class Row<T> {
   @Input() data: T
   text: string
 
-  constructor(public table: Table<T>) { }
+  constructor(public table: Table<T>) {}
 
   ngOnInit() {
     assert(this.data)
@@ -38,12 +38,19 @@ export class Row<T> {
         .$columns()
         .map(column => {
           let value = this.data[column.id]
-          value = String(value).slice(0, column.width).padEnd(column.width)
+          if (typeof value == 'string') {
+            value = String(value).slice(0, column.width).padEnd(column.width)
+          } else {
+            value = json5.stringify(value).slice(0, column.width).padEnd(column.width)
+          }
           return { ...column, string: value }
         })
         .forEach(column => {
-          if (column.id == this.table.$selectedColumn().id) {
-            this.text += '_' + column.string + '_|'
+          if (
+            column.id == this.table.$selectedColumn().id &&
+            this.data == this.table.$selectedItem.value
+          ) {
+            this.text += '➡️' + column.string + '⬅️|'
           } else {
             this.text += ' ' + column.string + ' |'
           }
@@ -157,7 +164,7 @@ export class Table<T> {
         return { ...column, string: value }
       }).forEach(column => {
         if (column.id == this.$selectedColumn().id) {
-          this.headers += '_' + column.string + '_|'
+          this.headers += '>' + column.string + '<|'
         } else {
           this.headers += ' ' + column.string + ' |'
         }
@@ -186,7 +193,6 @@ export class Table<T> {
     },
     {
       keys: 'left',
-      id: 'left',
       func: () => {
         this.$selectedColumnIndex.update(index => {
           return _.clamp(--index, 0, this.$columns().length - 1)
@@ -195,11 +201,22 @@ export class Table<T> {
     },
     {
       keys: 'right',
-      id: 'right',
       func: () => {
         this.$selectedColumnIndex.update(index => {
           return _.clamp(++index, 0, this.$columns().length - 1)
         })
+      },
+    },
+    {
+      keys: 'home',
+      func: () => {
+        this.$selectedColumnIndex.set(0)
+      },
+    },
+    {
+      keys: 'end',
+      func: () => {
+        this.$selectedColumnIndex.set(this.$columns().length - 1)
       },
     },
   ]

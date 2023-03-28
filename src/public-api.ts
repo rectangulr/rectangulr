@@ -40,6 +40,7 @@ export { BasicObjectDisplay } from './components/2-common/list/basic-object-disp
 // Common
 export { OnEnterDirective } from './components/2-common/on-enter'
 export { ValueDirective } from './components/2-common/value.directive'
+export { SignalDirective } from './components/2-common/signal.directive'
 export { ObjectDisplay } from './components/2-common/object-display'
 export { SearchList } from './components/2-common/search-list'
 export { Table, Row } from './components/2-common/table/table.component'

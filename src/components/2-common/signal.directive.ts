@@ -1,21 +1,20 @@
-import { Directive, EventEmitter, Inject, Input, Output } from '@angular/core'
+import { Directive, Inject, Input } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
-import { ShortcutService } from '../../commands/shortcut.service'
+import { signal } from '../../angular-terminal/signals'
 import { assert } from '../../utils/utils'
 
 abstract class ValueProxy {}
 
 @Directive({
   standalone: true,
-  selector: '[value]',
+  selector: '[signal]',
 })
-export class ValueDirective {
-  @Input() value = undefined
-  @Output() valueChange = new EventEmitter(true)
+export class SignalDirective {
+  @Input() signal = signal(undefined)
 
   // TODO
-  @Input() valueProxy: ValueProxy = null
+  @Input() signalProxy: ValueProxy = null
 
   currentValue = null
 
@@ -24,14 +23,14 @@ export class ValueDirective {
     valueAccessors.forEach(accessor => {
       accessor.registerOnChange(value => {
         this.currentValue = value
-        this.valueChange.emit(value)
+        this.signal.set(value)
       })
     })
   }
 
   ngOnInit() {
     this.valueAccessors.forEach(accessor => {
-      accessor.writeValue(this.value)
+      accessor.writeValue(this.signal())
     })
   }
 
