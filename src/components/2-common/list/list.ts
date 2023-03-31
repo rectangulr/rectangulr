@@ -25,7 +25,7 @@ import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
-import { assert, inputSignal } from '../../../utils/utils'
+import { assert, inputToSignal } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
@@ -124,7 +124,7 @@ export class List<T> {
     @Inject('itemComponent') @Optional() public itemComponentInjected: any,
     public logger: Logger
   ) {
-    inputSignal(this, 'items', '$items')
+    inputToSignal(this, 'items', '$items')
 
     this.$visibleItems = computed(() => {
       const visibleRange = this.$visibleRange()

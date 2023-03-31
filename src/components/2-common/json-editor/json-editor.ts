@@ -216,11 +216,13 @@ export class JsonEditor {
     {
       keys: 'backspace',
       func: () => {
-        this.valueRef.childrenValueRefs = removeFromArray(
-          this.valueRef.childrenValueRefs,
-          this.list.selected.value
-        )
-        this.list.selectIndex(this.list.selected.index - 1)
+        if (this.valueRef.childrenValueRefs.length > 1) {
+          this.valueRef.childrenValueRefs = removeFromArray(
+            this.valueRef.childrenValueRefs,
+            this.list.selected.value
+          )
+          this.list.selectIndex(this.list.selected.index - 1)
+        }
       },
     },
   ]

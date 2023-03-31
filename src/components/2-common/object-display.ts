@@ -40,10 +40,11 @@ export class ObjectDisplay {
         object = {}
       }
       this.keyValues = Object.entries(object).map(([key, value]) => {
-        if (_.isPlainObject(value)) {
+        if (typeof value == 'string') {
+          return { key, value }
+        } else {
           return { key, value: json5.stringify(value, stringifyReplacer()) }
         }
-        return { key, value }
       })
       this.longestKey = longest(this.keyValues)
     })

@@ -9,7 +9,7 @@ import { computed, effect, Signal, signal } from '../../../angular-terminal/sign
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, subscribe } from '../../../utils/reactivity'
-import { assert, filterNulls, inputSignal } from '../../../utils/utils'
+import { assert, filterNulls, inputToSignal } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { List } from '../list/list'
@@ -19,11 +19,11 @@ import { ListItem } from '../list/list-item'
   standalone: true,
   selector: 'row',
   host: { '[style]': '{ height: 1 }' },
-  template: `{{ text }}`,
+  template: `{{ $line() }}`,
 })
 export class Row<T> {
   @Input() data: T
-  text: string
+  $line: Signal<string>
 
   constructor(public table: Table<T>) {}
 
@@ -32,15 +32,18 @@ export class Row<T> {
     assert(typeof this.data == 'object')
     assert(this.table.$columns)
 
-    effect(() => {
-      this.text = ''
+    this.$line = computed(() => {
       const columns = this.table.$columns()
       const selectedColumn = this.table.$selectedColumn()
       const selectedItem = this.table.$selectedItem()
 
+      let line = ''
+
       columns
         .map(column => {
           let value = this.data[column.id]
+          assert(value !== undefined)
+
           if (typeof value == 'string') {
             value = String(value).slice(0, column.width).padEnd(column.width)
           } else {
@@ -50,11 +53,13 @@ export class Row<T> {
         })
         .forEach(column => {
           if (column.id == selectedColumn.id && this.data == selectedItem) {
-            this.text += '>' + column.string + '<|'
+            line += '>' + column.string + '<|'
           } else {
-            this.text += ' ' + column.string + ' |'
+            line += ' ' + column.string + ' |'
           }
         })
+
+      return line
     })
   }
 }
@@ -101,9 +106,7 @@ export class Table<T> {
 
   $items = signal([])
   $columns = computed(() => {
-    const res = this.computeColumnWidths(this.$items(), this.prevColumns)
-    this.prevColumns = res
-    return res
+    return this.computeColumnWidths(this.$items())
   })
   $headers = computed(() => {
     return this.computedHeaders(this.$columns(), this.$selectedColumn())
@@ -122,7 +125,7 @@ export class Table<T> {
   constructor(public shortcutService: ShortcutService) {
     makeObservable(this, 'list', '$list')
 
-    inputSignal(this, 'items', '$items')
+    inputToSignal(this, 'items', '$items')
 
     effect(() => {
       this.$$visibleItems.next(this.$visibleItems())
@@ -169,30 +172,20 @@ export class Table<T> {
     return headers
   }
 
-  computeColumnWidths(items, columns: Column[]) {
+  computeColumnWidths(items: any[]) {
     if (!items || items.length == 0) {
       return []
     }
 
     const keys = Object.keys(items[0])
-    const keysChanged = !_.isEqual(
-      keys,
-      columns.map(c => c.id)
-    )
-    const shouldUpdateWidths = !columns || keysChanged
 
     return keys.map(key => {
-      if (shouldUpdateWidths) {
-        var columnWidth = computeWidth(items, key)
-      } else {
-        // @ts-ignore
-        var columnWidth = columns.find(c => c.id == key).width
-      }
+      const columnWidth = computeWidth(items.slice(0, 20), key)
       const res = { id: key, width: columnWidth }
       return res
     })
 
-    function computeWidth(items: [], key: string) {
+    function computeWidth(items: any[], key: string) {
       const valuesWidth = items.map(item => String(item[key]).length)
       const averageWidth = _.sum(valuesWidth) / items.length
       const headerWidth = _.clamp(key.length, 2, 15)
@@ -201,40 +194,45 @@ export class Table<T> {
     }
   }
 
+  selectColumnIndex(value) {
+    if (!this.$columns() || this.$columns().length == 0) {
+      this.$selectedColumnIndex.set(null)
+      return
+    }
+
+    this.$selectedColumnIndex.set(_.clamp(value, 0, this.$columns().length - 1))
+  }
+
   shortcuts: Partial<Command>[] = [
     {
       keys: 'ctrl+shift+l',
       id: 'resizeColumns',
       func: () => {
-        this.computeColumnWidths(this.$items(), this.$columns())
+        this.computeColumnWidths(this.$items())
       },
     },
     {
       keys: 'left',
       func: () => {
-        this.$selectedColumnIndex.update(index => {
-          return _.clamp(--index, 0, this.$columns().length - 1)
-        })
+        this.selectColumnIndex(this.$selectedColumnIndex() - 1)
       },
     },
     {
       keys: 'right',
       func: () => {
-        this.$selectedColumnIndex.update(index => {
-          return _.clamp(++index, 0, this.$columns().length - 1)
-        })
+        this.selectColumnIndex(this.$selectedColumnIndex() + 1)
       },
     },
     {
       keys: 'home',
       func: () => {
-        this.$selectedColumnIndex.set(0)
+        this.selectColumnIndex(0)
       },
     },
     {
       keys: 'end',
       func: () => {
-        this.$selectedColumnIndex.set(this.$columns().length - 1)
+        this.selectColumnIndex(this.$columns().length - 1)
       },
     },
   ]

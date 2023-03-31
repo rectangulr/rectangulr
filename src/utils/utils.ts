@@ -118,10 +118,10 @@ export function waitFor(observable: Observable<any>) {
  * ```ts
  * this.text = 'blabla'
  * this.$text = new BehaviorSubject(null)
- * makeSignal(this, 'text', '$text')
+ * inputToSignal(this, 'text', '$text')
  * ```
  */
-export function inputSignal<T, K extends keyof T>(_component: T, key: K, signalKey: K) {
+export function inputToSignal<T, K extends keyof T>(_component: T, key: K, signalKey: K) {
   const component = _component as any
 
   // // Emit initial value
@@ -138,19 +138,19 @@ export function inputSignal<T, K extends keyof T>(_component: T, key: K, signalK
 
   // Emit following values
   onChange(component, key, input => {
-    if (!input) {
-      component[signalKey].set(input)
-      return
-    }
-    if (isObservable(input)) {
-      subscription?.unsubscribe()
-      subscription = subscribe(component, input, value => {
-        component[signalKey].set(value)
-      })
-    } else if (isSignal(input)) {
-      effect(() => {
-        component[signalKey].set(input())
-      })
+    if (input) {
+      if (isObservable(input)) {
+        subscription?.unsubscribe()
+        subscription = subscribe(component, input, value => {
+          component[signalKey].set(value)
+        })
+      } else if (isSignal(input)) {
+        effect(() => {
+          component[signalKey].set(input())
+        })
+      } else {
+        component[signalKey].set(input)
+      }
     } else {
       component[signalKey].set(input)
     }
