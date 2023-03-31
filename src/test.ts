@@ -1,6 +1,5 @@
 // Use require() to make sure webpack doesnt change the order of the imports
-const Jasmine = require('jasmine')
-// @ts-ignore
+import Jasmine from 'jasmine'
 const jasmine = new Jasmine()
 
 require('zone.js/dist/zone-node.js')
@@ -17,9 +16,8 @@ getTestBed().initTestEnvironment(
   { teardown: { destroyAfterEach: true } }
 )
 
-// Then we find all the tests.
-const context = import.meta.webpackContext('./', { recursive: true, regExp: /\.spec\.ts$/ })
-// And load the modules.
-context.keys().map(context)
+require('./commands/shortcut.service.spec')
+require('./components/2-common/json-editor/json-editor.spec')
+require('./components/2-common/list/list.spec')
 
 jasmine.execute()

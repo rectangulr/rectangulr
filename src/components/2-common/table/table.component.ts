@@ -9,7 +9,7 @@ import { computed, effect, Signal, signal } from '../../../angular-terminal/sign
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, subscribe } from '../../../utils/reactivity'
-import { assert, filterNulls } from '../../../utils/utils'
+import { assert, filterNulls, inputSignal } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { List } from '../list/list'
@@ -34,8 +34,11 @@ export class Row<T> {
 
     effect(() => {
       this.text = ''
-      this.table
-        .$columns()
+      const columns = this.table.$columns()
+      const selectedColumn = this.table.$selectedColumn()
+      const selectedItem = this.table.$selectedItem()
+
+      columns
         .map(column => {
           let value = this.data[column.id]
           if (typeof value == 'string') {
@@ -46,11 +49,8 @@ export class Row<T> {
           return { ...column, string: value }
         })
         .forEach(column => {
-          if (
-            column.id == this.table.$selectedColumn().id &&
-            this.data == this.table.$selectedItem.value
-          ) {
-            this.text += '➡️' + column.string + '⬅️|'
+          if (column.id == selectedColumn.id && this.data == selectedItem) {
+            this.text += '>' + column.string + '<|'
           } else {
             this.text += ' ' + column.string + ' |'
           }
@@ -69,13 +69,13 @@ interface Column {
   imports: [Box, List, Row, ListItem, ClassesDirective],
   selector: 'table',
   template: `
-    <box [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ headers }}</box>
+    <box [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ $headers() }}</box>
     <list
       [items]="items"
       [trackByFn]="trackByFn"
       [template]="template || template2 || defaultTemplate"
-      (selectedItem)="$selectedItem.next($event)"
-      (visibleItems)="$visibleItems.next($event)">
+      (selectedItem)="$selectedItem.set($event)"
+      (visibleItems)="$visibleItems.set($event)">
       <ng-template #defaultTemplate>
         <row *item="let item" [data]="item"></row>
       </ng-template>
@@ -96,23 +96,40 @@ export class Table<T> {
   @Input() includeKeys: string[] = []
   @Input() excludeKeys: string[] = []
   @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any>
-  @Output('selectedItem') $selectedItem = new BehaviorSubject<T>(null)
-  @Output('visibleItems') $visibleItems = new BehaviorSubject<T[]>(null)
+  @Output('selectedItem') $$selectedItem = new BehaviorSubject<T>(null)
+  @Output('visibleItems') $$visibleItems = new BehaviorSubject<T[]>(null)
 
-  headers: string = ''
+  $items = signal([])
+  $columns = computed(() => {
+    const res = this.computeColumnWidths(this.$items(), this.prevColumns)
+    this.prevColumns = res
+    return res
+  })
+  $headers = computed(() => {
+    return this.computedHeaders(this.$columns(), this.$selectedColumn())
+  })
 
-  $columns = signal<Column[]>([])
   $selectedColumnIndex = signal(0)
   $selectedColumn = computed(() => this.$columns()[this.$selectedColumnIndex()])
+  $selectedItem = signal(null)
 
   @ViewChild(List) list: List<T>
   $list = new BehaviorSubject<List<T>>(null)
   controlValueAccessor: ControlValueAccessor = null
+  prevColumns: { id: string; width: number }[]
+  $visibleItems = signal([])
 
   constructor(public shortcutService: ShortcutService) {
     makeObservable(this, 'list', '$list')
-    subscribe(this, this.$visibleItems, visibleItems => {
-      this.udpateColumns(visibleItems)
+
+    inputSignal(this, 'items', '$items')
+
+    effect(() => {
+      this.$$visibleItems.next(this.$visibleItems())
+    })
+
+    effect(() => {
+      this.$$selectedItem.next(this.$selectedItem())
     })
 
     registerShortcuts(this, this.shortcuts)
@@ -137,46 +154,47 @@ export class Table<T> {
     )
   }
 
-  udpateColumns(visibleItems) {
-    if (visibleItems && visibleItems.length > 0) {
-      const keys = Object.keys(visibleItems[0])
-      const keysChanged = !_.isEqual(
-        keys,
-        this.$columns().map(c => c.id)
-      )
-      const shouldUpdateWidths = !this.$columns || keysChanged
+  computedHeaders(columns: Column[], selectedColumn: Column) {
+    let headers = ''
+    _.map(columns, column => {
+      let value = column.id.slice(0, column.width).padEnd(column.width)
+      return { ...column, string: value }
+    }).forEach(column => {
+      if (column.id == selectedColumn.id) {
+        headers += '>' + column.string + '<|'
+      } else {
+        headers += ' ' + column.string + ' |'
+      }
+    })
+    return headers
+  }
 
-      this.$columns.set(
-        keys.map(key => {
-          if (shouldUpdateWidths) {
-            var columnWidth = computeWidth(visibleItems, key)
-          } else {
-            var columnWidth = this.$columns().find(c => c.id == key).width
-          }
-          const res = { id: key, width: columnWidth }
-          return res
-        })
-      )
-
-      this.headers = ''
-      _.map(this.$columns(), column => {
-        let value = column.id.slice(0, column.width).padEnd(column.width)
-        return { ...column, string: value }
-      }).forEach(column => {
-        if (column.id == this.$selectedColumn().id) {
-          this.headers += '>' + column.string + '<|'
-        } else {
-          this.headers += ' ' + column.string + ' |'
-        }
-      })
-    } else {
-      this.$columns.set([])
-      this.headers = 'No rows'
+  computeColumnWidths(items, columns: Column[]) {
+    if (!items || items.length == 0) {
+      return []
     }
 
-    function computeWidth(visibleItems: [], key: string) {
-      const valuesWidth = visibleItems.map(item => String(item[key]).length)
-      const averageWidth = _.sum(valuesWidth) / visibleItems.length
+    const keys = Object.keys(items[0])
+    const keysChanged = !_.isEqual(
+      keys,
+      columns.map(c => c.id)
+    )
+    const shouldUpdateWidths = !columns || keysChanged
+
+    return keys.map(key => {
+      if (shouldUpdateWidths) {
+        var columnWidth = computeWidth(items, key)
+      } else {
+        // @ts-ignore
+        var columnWidth = columns.find(c => c.id == key).width
+      }
+      const res = { id: key, width: columnWidth }
+      return res
+    })
+
+    function computeWidth(items: [], key: string) {
+      const valuesWidth = items.map(item => String(item[key]).length)
+      const averageWidth = _.sum(valuesWidth) / items.length
       const headerWidth = _.clamp(key.length, 2, 15)
       const columnWidth = _.clamp(averageWidth, headerWidth, 40)
       return columnWidth
@@ -188,7 +206,7 @@ export class Table<T> {
       keys: 'ctrl+shift+l',
       id: 'resizeColumns',
       func: () => {
-        this.udpateColumns(this.$visibleItems.value)
+        this.computeColumnWidths(this.$items(), this.$columns())
       },
     },
     {

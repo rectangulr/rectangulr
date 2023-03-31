@@ -1,11 +1,13 @@
 import { Component, QueryList, ViewChild, ViewChildren } from '@angular/core'
-import { fakeAsync } from '@angular/core/testing'
+import { fakeAsync, tick } from '@angular/core/testing'
+import { signal } from '../../../angular-terminal/signals'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
 import { Box } from '../../1-basics/box'
 import { TextInput } from '../../1-basics/text-input'
 import { List } from './list'
 import { ListItem } from './list-item'
+import { BehaviorSubject } from 'rxjs'
 
 @Component({
   standalone: true,
@@ -26,7 +28,7 @@ describe('List - ', () => {
   it(`should have length 3`, async () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
 
-    expect(component.list.$items.value.length).toEqual(3)
+    expect(component.list.$items().length).toEqual(3)
   })
 
   it(`should move down`, async () => {
@@ -120,4 +122,36 @@ describe('List - ', () => {
   }))
 
   it(`should work with observables`, async () => {})
+})
+
+@Component({
+  standalone: true,
+  imports: [List],
+  template: `<list [items]="$any(items)"></list> `,
+})
+export class Test4 {
+  items = signal([]) as any
+  @ViewChild(List) list: List<any>
+}
+
+describe('List - ', () => {
+  it(`should work with signals`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test4)
+    tick()
+    expect(component.list.selected.value).toEqual(null)
+    component.items.set([1, 2, 3])
+    tick()
+    expect(component.list.selected.value).toEqual(1)
+  }))
+
+  it(`should work with observables`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test4)
+    component.items = new BehaviorSubject([])
+    fixture.detectChanges()
+    tick()
+    expect(component.list.selected.value).toEqual(null)
+    component.items.next([1, 2, 3])
+    tick()
+    expect(component.list.selected.value).toEqual(1)
+  }))
 })

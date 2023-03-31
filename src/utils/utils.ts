@@ -1,7 +1,9 @@
 import { ProviderToken } from '@angular/core'
 import _ from 'lodash'
-import { Observable } from 'rxjs'
+import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
+import { effect, isSignal } from '../angular-terminal/signals'
+import { onChange, subscribe } from './reactivity'
 
 /**
  * @example
@@ -106,6 +108,53 @@ export function waitFor(observable: Observable<any>) {
       first()
     )
     .toPromise()
+}
+
+/**
+ * Listens for changes on a property and exposes it as a Signal.
+ * Replaces the property with a getter/setter so it can detect changes.
+ *
+ * Example: listens for a property `text` and creates an Signal `$text`.
+ * ```ts
+ * this.text = 'blabla'
+ * this.$text = new BehaviorSubject(null)
+ * makeSignal(this, 'text', '$text')
+ * ```
+ */
+export function inputSignal<T, K extends keyof T>(_component: T, key: K, signalKey: K) {
+  const component = _component as any
+
+  // // Emit initial value
+  // const initialValue = component[key]
+  // if (initialValue && isObservable(initialValue) && initialValue['value']) {
+  //   component[signalKey].set(initialValue['value'])
+  // } else if (initialValue && isSignal(initialValue)) {
+  //   component[signalKey].set(initialValue())
+  // } else {
+  //   component[signalKey].set(initialValue)
+  // }
+
+  let subscription
+
+  // Emit following values
+  onChange(component, key, input => {
+    if (!input) {
+      component[signalKey].set(input)
+      return
+    }
+    if (isObservable(input)) {
+      subscription?.unsubscribe()
+      subscription = subscribe(component, input, value => {
+        component[signalKey].set(value)
+      })
+    } else if (isSignal(input)) {
+      effect(() => {
+        component[signalKey].set(input())
+      })
+    } else {
+      component[signalKey].set(input)
+    }
+  })
 }
 
 export type InjectFunction = <T>(token: ProviderToken<T>) => T

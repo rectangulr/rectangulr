@@ -17,23 +17,15 @@ import {
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { DynamicModule } from 'ng-dynamic-component'
-import {
-  BehaviorSubject,
-  combineLatest,
-  isObservable,
-  Observable,
-  Subject,
-  Subscription,
-} from 'rxjs'
-import { map, takeUntil } from 'rxjs/operators'
+import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
-import { effect, isSignal, Signal } from '../../../angular-terminal/signals'
+import { computed, effect, Signal, signal } from '../../../angular-terminal/signals'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
-import { makeObservable, onChange, subscribe } from '../../../utils/reactivity'
-import { assert, filterNulls } from '../../../utils/utils'
+import { subscribe } from '../../../utils/reactivity'
+import { assert, inputSignal } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
@@ -48,12 +40,12 @@ import { ListItem } from './list-item'
   standalone: true,
   selector: 'list',
   template: `
-    <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items.value?.length || 0 }}</box>
+    <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items()?.length || 0 }}</box>
     <box [style]="{ flexShrink: 0 }">
       <box
         #elementRef
         *ngFor="
-          let item of visibleItems;
+          let item of $visibleItems();
           index as index;
           count as count;
           first as first;
@@ -101,7 +93,7 @@ import { ListItem } from './list-item'
   ],
 })
 export class List<T> {
-  @Input('items') itemsInput: T[] | Observable<T[]> | Signal<T[]>
+  @Input() items: T[] | Observable<T[]> | Signal<T[]>
   @Input() trackByFn = (index, item) => item
   @Input() showIndex = false
   @Input() displayComponent: any
@@ -109,23 +101,21 @@ export class List<T> {
   @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
   @Output('selectedItem') $selectedItem = new EventEmitter<T>()
-  @Output('visibleItems') $visibleItems: Observable<T[]>
+  @Output('visibleItems') $$visibleItems = new BehaviorSubject<T[]>(null)
 
   selected = {
     index: undefined,
     value: undefined,
   }
 
-  $items = new BehaviorSubject([])
-  itemsSubscription: Subscription = undefined
+  $items = signal([])
+
+  windowSize = 20
+  $visibleRange = signal({ start: 0, end: this.windowSize })
+  $visibleItems: Signal<any[]>
 
   _displayComponent = undefined
-  windowSize = 20
-  visibleRange: Range = { start: 0, end: this.windowSize }
-  $visibleRange = new BehaviorSubject(this.visibleRange)
-  visibleItems = []
   controlValueAccessor = new BaseControlValueAccessor<T>()
-
   @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs: QueryList<ElementRef>
   @ContentChildren(FocusDirective) focusRefs: QueryList<FocusDirective>
 
@@ -134,36 +124,21 @@ export class List<T> {
     @Inject('itemComponent') @Optional() public itemComponentInjected: any,
     public logger: Logger
   ) {
-    onChange(this, 'itemsInput', input => {
-      if (isObservable(input)) {
-        this.itemsSubscription?.unsubscribe()
-        this.itemsSubscription = subscribe(this, input, value => {
-          // @ts-ignore
-          this.$items.next(value)
-        })
-      }
-      // @ts-ignore
-      else if (input && isSignal(input)) {
-        effect(() => {
-          this.$items.next(input())
-        })
+    inputSignal(this, 'items', '$items')
+
+    this.$visibleItems = computed(() => {
+      const visibleRange = this.$visibleRange()
+      const items = this.$items()
+      if (items != null && visibleRange != null) {
+        return items.slice(visibleRange.start, visibleRange.end)
       } else {
-        // @ts-ignore
-        this.$items.next(input)
+        return []
       }
     })
 
-    makeObservable(this, 'visibleRange', '$visibleRange')
-
-    this.$visibleItems = combineLatest([
-      this.$items.pipe(filterNulls),
-      this.$visibleRange.pipe(filterNulls),
-    ]).pipe(
-      takeUntil(this.destroy$),
-      map(([items, visibleRange]) => {
-        return items.slice(visibleRange.start, visibleRange.end)
-      })
-    )
+    effect(() => {
+      this.$$visibleItems.next(this.$visibleItems())
+    })
 
     subscribe(this, this.$selectedItem, newValue => {
       this.controlValueAccessor.emitChange(newValue)
@@ -176,7 +151,9 @@ export class List<T> {
     this._displayComponent =
       this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay
 
-    subscribe(this, this.$items.pipe(filterNulls), items => {
+    const selectNewIndex = () => {
+      const items = this.$items()
+      if (!items) return
       if (this.onItemsChangeSelect == 'first') {
         this.selectIndex(0)
       } else if (this.onItemsChangeSelect == 'last') {
@@ -191,28 +168,62 @@ export class List<T> {
       } else if (this.onItemsChangeSelect == 'nothing') {
         // nothing
       }
-    })
+    }
+    selectNewIndex()
+    effect(() => selectNewIndex())
 
-    subscribe(this, this.$visibleItems, visibleItems => {
-      this.visibleItems = visibleItems
-    })
+    // subscribe(this, this.$items.pipe(filterNulls), items => {
+    //   if (this.onItemsChangeSelect == 'first') {
+    //     this.selectIndex(0)
+    //   } else if (this.onItemsChangeSelect == 'last') {
+    //     this.selectIndex(items.length - 1)
+    //   } else if (this.onItemsChangeSelect == 'same') {
+    //     const index = items.indexOf(this.selected.value)
+    //     if (index != -1) {
+    //       this.selectIndex(index)
+    //     } else {
+    //       this.selectIndex(0)
+    //     }
+    //   } else if (this.onItemsChangeSelect == 'nothing') {
+    //     // nothing
+    //   }
+    // })
+
+    // subscribe(this, this.$items.pipe(filterNulls), items => {
+    //   if (this.onItemsChangeSelect == 'first') {
+    //     this.selectIndex(0)
+    //   } else if (this.onItemsChangeSelect == 'last') {
+    //     this.selectIndex(items.length - 1)
+    //   } else if (this.onItemsChangeSelect == 'same') {
+    //     const index = items.indexOf(this.selected.value)
+    //     if (index != -1) {
+    //       this.selectIndex(index)
+    //     } else {
+    //       this.selectIndex(0)
+    //     }
+    //   } else if (this.onItemsChangeSelect == 'nothing') {
+    //     // nothing
+    //   }
+    // })
+
+    // subscribe(this, this.$visibleItems, visibleItems => {
+    //   this.visibleItems = visibleItems
+    // })
   }
 
   selectIndex(value) {
-    if (!this.$items.value || this.$items.value.length == 0) {
+    if (!this.$items() || this.$items().length == 0) {
       this.selected.index = null
       this.selected.value = null
       return
     }
 
-    this.selected.index = _.clamp(value, 0, this.$items.value.length - 1)
-    this.selected.value = this.$items.value[this.selected.index]
+    this.selected.index = _.clamp(value, 0, this.$items().length - 1)
+    this.selected.value = this.$items()[this.selected.index]
     this.$selectedItem.emit(this.selected.value)
 
-    this.visibleRange = rangeCenteredAroundIndex(
-      this.selected.index,
-      this.windowSize,
-      this.$items.value.length
+    this.$visibleRange.set(
+      rangeCenteredAroundIndex(this.selected.index, this.windowSize, this.$items().length)
     )
 
     // this.logger.log(`selectIndex - ${this.selected.index}`)
@@ -234,7 +245,7 @@ export class List<T> {
 
     if (this.elementRefs?.length > 0) {
       const element: Element = this.elementRefs.get(
-        this.selected.index - this.visibleRange.start
+        this.selected.index - this.$visibleRange().start
       )?.nativeElement
       element?.scrollIntoView()
     }
@@ -271,7 +282,7 @@ export class List<T> {
   ]
 
   toString() {
-    const items = this.$items.value
+    const items = this.$items()
     // .map(i => json5.stringify(i)).join()
     return `List: ${items.length}`
   }
@@ -302,7 +313,7 @@ function rangeCenteredAroundIndex(index, rangeSize, length) {
 }
 
 export function selectItem(list: List<any>, item: any) {
-  const index = list.$items.value.indexOf(item)
+  const index = list.$items().indexOf(item)
   assert(index !== -1, 'item not in list')
   list.selectIndex(index)
 }

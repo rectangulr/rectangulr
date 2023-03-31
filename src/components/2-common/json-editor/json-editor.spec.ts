@@ -24,6 +24,15 @@ export class Test2 {
   @ViewChild(JsonEditor) jsonEditor: JsonEditor
 }
 
+@Component({
+  standalone: true,
+  imports: [Box, FocusDirective, NgIf, JsonEditor],
+  template: ` <json-editor [data]="1"></json-editor> `,
+})
+export class Test3 {
+  @ViewChild(JsonEditor) jsonEditor: JsonEditor
+}
+
 describe('JsonEditor - ', () => {
   it(`should edit a string`, fakeAsync(async () => {
     const { fixture, component, shortcuts } = setupTest(Test)
@@ -55,5 +64,11 @@ describe('JsonEditor - ', () => {
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'Y' })
     expect(component.jsonEditor.getValue()).toEqual({ test: 'a', key: 'Y' })
+  }))
+
+  it(`should edit a number`, fakeAsync(async () => {
+    const { fixture, component, shortcuts } = setupTest(Test3)
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: '2' })
+    expect(component.jsonEditor.getValue()).toEqual(12)
   }))
 })

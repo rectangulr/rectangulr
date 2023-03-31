@@ -21,7 +21,7 @@ import { ListItem } from '../list/list-item'
   host: { '[style]': "{flexDirection: 'row'}" },
   template: `
     <box
-      *ngIf="valueRef.key != null"
+      *ngIf="hasKey()"
       [focusIf]="focused == 'key'"
       [style]="{
         flexDirection: 'row',
@@ -36,13 +36,13 @@ import { ListItem } from '../list/list-item'
         [text]="valueText"
         (textChange)="textChange($event)"></text-input>
       <ng-container *ngIf="valueRef.type == 'object' || valueRef.type == 'array'">
-        <list [items]="childrenValueRefs">
+        <list [items]="valueRef.childrenValueRefs">
           <json-editor
-            *item="let ref; type: childrenValueRefs"
+            *item="let ref; type: valueRef.childrenValueRefs"
             focus
             [valueRef]="ref"
             [isRoot]="false"
-            [newclasses]="[[isRoot, { paddingLeft: 2 }]]"></json-editor>
+            [newclasses]="[[!isRoot, { paddingLeft: 2 }]]"></json-editor>
         </list>
       </ng-container>
     </ng-container>
@@ -62,14 +62,14 @@ import { ListItem } from '../list/list-item'
 })
 export class JsonEditor {
   @Input() data = null
-  @Input() valueRef: ValueRef = { key: null, value: null, type: 'null' }
+  @Input() valueRef: ValueRef = { key: null, value: null, type: 'null', childrenValueRefs: [] }
   @Input() dataFormat: DataFormat | undefined = null
   @Input() path: string[] = []
   @Input() isRoot = true
 
   @Output() submit = new EventEmitter()
 
-  childrenValueRefs: ValueRef[] = []
+  // childrenValueRefs: ValueRef[] = []
   focused: 'key' | 'value' = 'key'
   valueText: string = ''
 
@@ -95,11 +95,17 @@ export class JsonEditor {
       }
     }
 
-    this.focused = this.valueRef.key != null ? 'key' : 'value'
+    this.focused = this.hasKey() ? 'key' : 'value'
 
-    if (this.hasChildren()) {
-      this.childrenValueRefs = Object.entries(this.valueRef.value).map(([key, value]) => ({
+    if (this.valueRef.type == 'object') {
+      this.valueRef.childrenValueRefs = Object.entries(this.valueRef.value).map(([key, value]) => ({
         key: key,
+        value: value,
+        type: typeFromValue(value),
+      }))
+    } else if (this.valueRef.type == 'array') {
+      this.valueRef.childrenValueRefs = Object.entries(this.valueRef.value).map(([key, value]) => ({
+        key: null,
         value: value,
         type: typeFromValue(value),
       }))
@@ -107,7 +113,7 @@ export class JsonEditor {
       this.valueText = textFromValue(this.valueRef.value)
     }
 
-    if (this.hasChildren()) {
+    if (this.valueRef.type == 'object' || this.valueRef.type == 'array') {
       registerShortcuts(this, this.shortcutsForArrayOrObject)
     } else {
       registerShortcuts(this, this.shortcutsForKeyValues)
@@ -125,11 +131,11 @@ export class JsonEditor {
    * Creates a javascript object from the json-editor.
    */
   getValue(): Anything | string | null | number {
-    if (this.hasChildren()) {
-      return getValueFromKVs(this.childrenValueRefs)
-    } else {
-      return this.valueRef.value
-    }
+    return getValueFromRef(this.valueRef)
+  }
+
+  hasKey() {
+    return this.valueRef.key != null
   }
 
   concat(...paths) {
@@ -137,13 +143,14 @@ export class JsonEditor {
   }
 
   private createNewLine() {
-    const newKV = { key: '', value: '', type: 'string' }
-    this.childrenValueRefs.push(newKV)
-    selectItem(this.list, newKV)
-  }
-
-  private hasChildren() {
-    return this.valueRef.type == 'object' || this.valueRef.type == 'array'
+    var newValueRef
+    if (this.valueRef.type == 'object') {
+      newValueRef = { key: '', value: '', type: 'string' }
+    } else if (this.valueRef.type == 'array') {
+      newValueRef = { key: null, value: '', type: 'string' }
+    }
+    this.valueRef.childrenValueRefs.push(newValueRef)
+    selectItem(this.list, newValueRef)
   }
 
   /**
@@ -153,14 +160,21 @@ export class JsonEditor {
     {
       keys: 'backspace',
       func: key => {
-        if (this.focused == 'value') this.focused = 'key'
-        else if (this.focused == 'key') return key
+        if (this.focused == 'value') {
+          if (this.hasKey()) {
+            this.focused = 'key'
+          } else {
+            return key
+          }
+        } else if (this.focused == 'key') {
+          return key
+        }
       },
     },
     {
       keys: ['left', 'ctrl+left', 'shift+tab', 'home'],
       func: key => {
-        if (this.focused == 'value') this.focused = 'key'
+        if (this.focused == 'value' && this.hasKey()) this.focused = 'key'
         else if (this.focused == 'key') return key
       },
     },
@@ -178,9 +192,9 @@ export class JsonEditor {
    */
   shortcutsForArrayOrObject: Partial<Command>[] = [
     {
-      keys: ['enter', 'tab'],
+      keys: ['tab'],
       func: () => {
-        if (this.list.selected.index == this.list.$items.value.length - 1) {
+        if (this.list.selected.index == this.list.$items().length - 1) {
           this.createNewLine()
         } else {
           this.list.selectIndex(this.list.selected.index + 1)
@@ -202,7 +216,10 @@ export class JsonEditor {
     {
       keys: 'backspace',
       func: () => {
-        this.childrenValueRefs = removeFromArray(this.childrenValueRefs, this.list.selected.value)
+        this.valueRef.childrenValueRefs = removeFromArray(
+          this.valueRef.childrenValueRefs,
+          this.list.selected.value
+        )
         this.list.selectIndex(this.list.selected.index - 1)
       },
     },
@@ -249,20 +266,19 @@ function typeFromValue(value: any) {
 }
 
 export interface ValueRef {
-  key?: string
+  key?: any
   value: any
   type: string
+  childrenValueRefs?: ValueRef[]
 }
 
-function valueHasChildren(value: any): value is any[] {
-  return value && (typeof value == 'object' || Array.isArray(value))
-}
-
-function getValueFromKVs(keyValues: ValueRef | ValueRef[] | string | number) {
-  if (valueHasChildren(keyValues)) {
-    const recursedKVs = keyValues.map(kv => [kv.key, getValueFromKVs(kv.value)])
-    return Object.fromEntries(recursedKVs)
+function getValueFromRef(valueRef: ValueRef) {
+  if (valueRef.type == 'object') {
+    const recursedValueRefs = valueRef.childrenValueRefs.map(ref => [ref.key, getValueFromRef(ref)])
+    return Object.fromEntries(recursedValueRefs)
+  } else if (valueRef.type == 'array') {
+    return valueRef.childrenValueRefs.map(vr => getValueFromRef(vr))
   } else {
-    return keyValues
+    return valueRef.value
   }
 }
