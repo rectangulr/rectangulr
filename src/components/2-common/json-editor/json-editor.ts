@@ -36,7 +36,7 @@ import { ListItem } from '../list/list-item'
         [text]="valueText"
         (textChange)="textChange($event)"></text-input>
       <ng-container *ngIf="valueRef.type == 'object' || valueRef.type == 'array'">
-        <list [items]="valueRef.childrenValueRefs">
+        <list [items]="valueRef.childrenValueRefs" onItemsChangeSelect="same">
           <json-editor
             *item="let ref; type: valueRef.childrenValueRefs"
             focus

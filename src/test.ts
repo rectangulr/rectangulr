@@ -19,5 +19,6 @@ getTestBed().initTestEnvironment(
 require('./commands/shortcut.service.spec')
 require('./components/2-common/json-editor/json-editor.spec')
 require('./components/2-common/list/list.spec')
+require('./components/2-common/form-editor.spec')
 
 jasmine.execute()

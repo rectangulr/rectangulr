@@ -1,4 +1,4 @@
-import { Component, Input, Output } from '@angular/core'
+import { Component, Input, Output, ViewChild } from '@angular/core'
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import * as json5 from 'json5'
 import _ from 'lodash'
@@ -13,6 +13,7 @@ import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
 import { blackOnWhite } from './styles'
+import { FocusDirective } from '../../public-api'
 
 @Component({
   standalone: true,
@@ -24,7 +25,6 @@ import { blackOnWhite } from './styles'
       <text-input [formControlName]="keyValue.key" [text]="keyValue.value"></text-input>
     </box>
   `,
-  providers: [ShortcutService],
 })
 export class KeyValueEditor {
   @Input() keyValue: { key: string; value: any } = null
@@ -47,7 +47,7 @@ export class KeyValueEditor {
 
 @Component({
   standalone: true,
-  imports: [List, KeyValueEditor, ListItem],
+  imports: [List, KeyValueEditor, ListItem, FocusDirective],
   selector: 'form-editor',
   template: `
     <list [items]="keyValues">
@@ -72,6 +72,8 @@ export class FormEditor {
   }
   @Output() onSubmit = new Subject()
 
+  @ViewChild(List) list: List<any>
+
   _object: State<any>
   keyValues: { key: string; value: any }[]
   longestKey = 0
@@ -80,10 +82,7 @@ export class FormEditor {
     {
       keys: 'enter',
       func: () => {
-        const value = mapBackToOriginalTypes({
-          formObject: this.form.value,
-          originalObject: this._object.value,
-        })
+        const value = this.getValue()
         this.onSubmit.next(value)
       },
     },
@@ -109,6 +108,14 @@ export class FormEditor {
     })
 
     registerShortcuts(this, this.keybinds)
+  }
+
+  getValue() {
+    const value = mapBackToOriginalTypes({
+      formObject: this.form.value,
+      originalObject: this._object.value,
+    })
+    return value
   }
 
   blackOnWhite = blackOnWhite
