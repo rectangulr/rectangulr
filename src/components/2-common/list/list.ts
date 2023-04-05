@@ -89,7 +89,7 @@ import { ListItem } from './list-item'
     BasicObjectDisplay,
   ],
   providers: [
-    { provide: NG_VALUE_ACCESSOR, useFactory: list => list.controlValueAccessor, deps: [List] },
+    { provide: NG_VALUE_ACCESSOR, useFactory: list => list.controlValueAccessor, deps: [List], multi: true },
   ],
 })
 export class List<T> {

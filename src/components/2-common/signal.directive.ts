@@ -1,4 +1,4 @@
-import { Directive, Inject, Input } from '@angular/core'
+import { Directive, Inject, Input, inject } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
 import { signal } from '../../angular-terminal/signals'
@@ -17,10 +17,12 @@ export class SignalDirective {
   @Input() signalProxy: ValueProxy = null
 
   currentValue = null
+  valueAccessors: readonly ControlValueAccessor[]
 
-  constructor(@Inject(NG_VALUE_ACCESSOR) public valueAccessors: ControlValueAccessor[]) {
-    assert(valueAccessors)
-    valueAccessors.forEach(accessor => {
+  constructor() {
+    this.valueAccessors = inject(NG_VALUE_ACCESSOR)
+    assert(this.valueAccessors)
+    this.valueAccessors.forEach(accessor => {
       accessor.registerOnChange(value => {
         this.currentValue = value
         this.signal.set(value)

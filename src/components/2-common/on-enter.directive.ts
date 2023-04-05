@@ -1,7 +1,7 @@
-import { Directive, EventEmitter, Inject, Optional, Output, Self } from '@angular/core'
+import { Directive, EventEmitter, Inject, Output, inject } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
-import { Command, registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
+import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
 import { assert } from '../../utils/utils'
 
 @Directive({
@@ -17,7 +17,7 @@ export class OnEnterDirective {
     {
       keys: 'enter',
       func: key => {
-        if (this.valueAccessor && this.currentValue == undefined) return key
+        if (this.valueAccessors && this.currentValue == undefined) return key
 
         this.onEnter.emit(this.currentValue)
       },
@@ -25,14 +25,15 @@ export class OnEnterDirective {
   ]
 
   constructor(
-    @Optional() @Self() @Inject(NG_VALUE_ACCESSOR) public valueAccessor: ControlValueAccessor,
+    @Inject(NG_VALUE_ACCESSOR) public valueAccessors: ControlValueAccessor[],
     public shortcutService: ShortcutService
   ) {
-    if (valueAccessor) {
-      valueAccessor.registerOnChange(value => {
+    assert(this.valueAccessors)
+    this.valueAccessors.forEach(accessor => {
+      accessor.registerOnChange(value => {
         this.currentValue = value
       })
-    }
+    })
 
     registerShortcuts(this, this.shortcuts)
   }

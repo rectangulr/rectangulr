@@ -38,7 +38,7 @@ export { ListItem } from './components/2-common/list/list-item'
 export { BasicObjectDisplay } from './components/2-common/list/basic-object-display'
 
 // Common
-export { OnEnterDirective } from './components/2-common/on-enter'
+export { OnEnterDirective } from './components/2-common/on-enter.directive'
 export { ValueDirective } from './components/2-common/value.directive'
 export { SignalDirective } from './components/2-common/signal.directive'
 export { ObjectDisplay } from './components/2-common/object-display'

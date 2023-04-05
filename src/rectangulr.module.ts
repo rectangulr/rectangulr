@@ -38,7 +38,7 @@ import { BasicObjectDisplay } from './components/2-common/list/basic-object-disp
 import { List } from './components/2-common/list/list'
 import { ListItem } from './components/2-common/list/list-item'
 import { ObjectDisplay } from './components/2-common/object-display'
-import { OnEnterDirective } from './components/2-common/on-enter'
+import { OnEnterDirective } from './components/2-common/on-enter.directive'
 import { SearchList } from './components/2-common/search-list'
 import { SignalDirective } from './components/2-common/signal.directive'
 import { Table, Row } from './components/2-common/table/table.component'

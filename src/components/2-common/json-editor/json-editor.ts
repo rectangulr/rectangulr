@@ -1,11 +1,13 @@
 import { NgIf } from '@angular/common'
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core'
+import { Component, Input, ViewChild } from '@angular/core'
+import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
-import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { DataFormat } from '../../../utils/data-format'
 import { Anything, assert, removeFromArray } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
@@ -58,7 +60,15 @@ import { ListItem } from '../list/list-item'
     StyleDirective,
     NewClassesDirective,
   ],
-  providers: [ShortcutService],
+  providers: [
+    ShortcutService,
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useFactory: (json: JsonEditor) => json.controlValueAccessor,
+      deps: [JsonEditor],
+      multi: true,
+    },
+  ],
 })
 export class JsonEditor {
   @Input() data = null
@@ -67,12 +77,10 @@ export class JsonEditor {
   @Input() path: string[] = []
   @Input() isRoot = true
 
-  @Output() submit = new EventEmitter()
-
-  // childrenValueRefs: ValueRef[] = []
   focused: 'key' | 'value' = 'key'
   valueText: string = ''
 
+  controlValueAccessor = new BaseControlValueAccessor()
   @ViewChild(List) list: List<any>
 
   constructor(public shortcutService: ShortcutService, public logger: Logger) {}
@@ -216,7 +224,7 @@ export class JsonEditor {
     {
       keys: 'backspace',
       func: () => {
-        if (this.valueRef.childrenValueRefs.length > 1) {
+        if (this.valueRef.childrenValueRefs.length >= 2) {
           this.valueRef.childrenValueRefs = removeFromArray(
             this.valueRef.childrenValueRefs,
             this.list.selected.value
