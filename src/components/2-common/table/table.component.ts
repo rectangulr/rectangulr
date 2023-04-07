@@ -1,7 +1,7 @@
 import { Component, ContentChild, Input, Output, TemplateRef, ViewChild } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
-import _ from 'lodash'
+import _, { values } from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { makeRuleset } from '../../../angular-terminal/dom-terminal'
@@ -52,7 +52,7 @@ export class Row<T> {
           return { ...column, string: value }
         })
         .forEach(column => {
-          if (column.id == selectedColumn.id && this.data == selectedItem) {
+          if (selectedColumn && column.id == selectedColumn.id && this.data == selectedItem) {
             line += '>' + column.string + '<|'
           } else {
             line += ' ' + column.string + ' |'
@@ -163,7 +163,7 @@ export class Table<T> {
       let value = column.id.slice(0, column.width).padEnd(column.width)
       return { ...column, string: value }
     }).forEach(column => {
-      if (column.id == selectedColumn.id) {
+      if (selectedColumn && column.id == selectedColumn.id) {
         headers += '>' + column.string + '<|'
       } else {
         headers += ' ' + column.string + ' |'
@@ -187,10 +187,8 @@ export class Table<T> {
 
     function computeWidth(items: any[], key: string) {
       const valuesWidth = items.map(item => String(item[key]).length)
-      const averageWidth = _.sum(valuesWidth) / items.length
-      const headerWidth = _.clamp(key.length, 2, 15)
-      const columnWidth = _.clamp(averageWidth, headerWidth, 40)
-      return columnWidth
+      const max = _.max(valuesWidth)
+      return _.clamp(max, key.length, 50)
     }
   }
 

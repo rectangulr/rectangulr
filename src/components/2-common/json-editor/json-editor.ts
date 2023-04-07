@@ -38,7 +38,10 @@ import { ListItem } from '../list/list-item'
         [text]="valueText"
         (textChange)="textChange($event)"></text-input>
       <ng-container *ngIf="valueRef.type == 'object' || valueRef.type == 'array'">
-        <list [items]="valueRef.childrenValueRefs" onItemsChangeSelect="same">
+        <list
+          [items]="valueRef.childrenValueRefs"
+          onItemsChangeSelect="same"
+          [focusShortcuts]="shortcutsForList">
           <json-editor
             *item="let ref; type: valueRef.childrenValueRefs"
             focus
@@ -121,11 +124,7 @@ export class JsonEditor {
       this.valueText = textFromValue(this.valueRef.value)
     }
 
-    if (this.valueRef.type == 'object' || this.valueRef.type == 'array') {
-      registerShortcuts(this, this.shortcutsForArrayOrObject)
-    } else {
-      registerShortcuts(this, this.shortcutsForKeyValues)
-    }
+    registerShortcuts(this, this.shortcuts)
 
     this.shortcutService.requestFocus()
   }
@@ -150,7 +149,7 @@ export class JsonEditor {
     return [...paths]
   }
 
-  private createNewLine() {
+  createNewLine() {
     var newValueRef
     if (this.valueRef.type == 'object') {
       newValueRef = { key: '', value: '', type: 'string' }
@@ -162,9 +161,9 @@ export class JsonEditor {
   }
 
   /**
-   * Shortcuts registered only if editing a value (string, number, boolean, null)
+   * Shortcuts
    */
-  shortcutsForKeyValues: Partial<Command>[] = [
+  shortcuts: Partial<Command>[] = [
     {
       keys: 'backspace',
       func: key => {
@@ -183,7 +182,7 @@ export class JsonEditor {
       keys: ['left', 'ctrl+left', 'shift+tab', 'home'],
       func: key => {
         if (this.focused == 'value' && this.hasKey()) this.focused = 'key'
-        else if (this.focused == 'key') return key
+        else return key
       },
     },
     {
@@ -196,13 +195,14 @@ export class JsonEditor {
   ]
 
   /**
-   * Shortcuts registered only if editing an object or array
+   * Shortcuts that only apply when focused on a list
    */
-  shortcutsForArrayOrObject: Partial<Command>[] = [
+  shortcutsForList: Partial<Command>[] = [
     {
-      keys: ['tab'],
+      keys: ['tab', 'ctrl+n'],
       func: () => {
-        if (this.list.selected.index == this.list.$items().length - 1) {
+        const length = this.list.$items().length
+        if (length == 0 || this.list.selected.index == length - 1) {
           this.createNewLine()
         } else {
           this.list.selectIndex(this.list.selected.index + 1)
@@ -211,13 +211,17 @@ export class JsonEditor {
     },
     {
       keys: ['left', 'ctrl+left', 'shift+tab', 'home'],
-      func: () => {
+      func: key => {
+        if (this.list.$items().length == 0) return key
+        if (this.list.selected.index == 0) return key
         this.list.selectIndex(this.list.selected.index - 1)
       },
     },
     {
       keys: ['right', 'ctrl+right', 'end'],
-      func: () => {
+      func: key => {
+        if (this.list.$items().length == 0) return key
+        if (this.list.selected.index == this.list.$items().length - 1) return key
         this.list.selectIndex(this.list.selected.index + 1)
       },
     },
