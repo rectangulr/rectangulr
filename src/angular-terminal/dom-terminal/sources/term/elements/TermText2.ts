@@ -1,6 +1,9 @@
 import _ from 'lodash'
-import { assert } from '../../../../../utils/utils'
+import { Anything, assert } from '../../../../../utils/utils'
 import { TermElement } from './TermElement'
+import cliTruncate from 'cli-truncate'
+import wrapAnsi from 'wrap-ansi'
+import widestLine from 'widest-line'
 
 export class TermText2 extends TermElement {
   textContent: string
@@ -23,9 +26,9 @@ export class TermText2 extends TermElement {
   }
 
   getPreferredSize(maxWidth, widthMode, maxHeight, heightMode) {
-    if (this.textLayout.maxWidth == Infinity) {
-      this.textLayout.maxWidth = maxWidth
-    }
+    this.textLayout.setConfiguration({ maxWidth })
+    this.textLayout.setConfiguration({ maxHeight })
+
     this.textLayout.update()
     this.yogaNode.markDirty()
     this.setDirtyLayoutFlag()
@@ -79,22 +82,35 @@ export class TermText2 extends TermElement {
  */
 export class TextLayout2 {
   text = ''
-  maxWidth = Infinity
   lines = []
 
+  maxWidth = Number.MAX_SAFE_INTEGER
+  maxHeight = Number.MAX_SAFE_INTEGER
+
+  dimensions = { width: 0, height: 0 }
+  textDimensions = { width: 0, height: 0 }
+  conf: Anything = {}
+
+  setConfiguration(keyValues: Anything) {
+    Object.assign(this.conf, keyValues)
+    this.maxWidth = this.conf.maxWidth ?? Number.MAX_SAFE_INTEGER
+    this.update()
+  }
+
   update() {
-    this.lines = []
+    const textWrap = this.conf.wrap ?? 'truncate-end'
+    const wrappedText = wrapText(this.text, this.maxWidth, textWrap)
+    this.lines = wrappedText.split('\n')
 
-    const nbOfLines = Number(this.text.length / this.maxWidth)
-    assert(nbOfLines < 10_000)
+    this.textDimensions = measureText(wrappedText)
 
-    for (let i = 0; i < nbOfLines; i++) {
-      const nextLine = this.text.slice(this.maxWidth * i, this.maxWidth * (i + 1))
-      this.lines.push(nextLine)
-    }
-    if (this.lines.length == 0) {
-      this.lines = ['']
-    }
+    this.dimensions.width = _.clamp(this.textDimensions.width, 0, this.maxWidth)
+    this.dimensions.height = _.clamp(this.textDimensions.height, 0, this.maxHeight)
+
+    assert(this.dimensions.width <= this.maxWidth)
+    assert(this.dimensions.height <= this.maxHeight)
+
+    // this.queueDirtyRect()
   }
 
   getLine(y: number) {
@@ -102,16 +118,57 @@ export class TextLayout2 {
   }
 
   getHeight() {
-    return this.lines.length
+    return this.dimensions.height
   }
 
   getWidth() {
-    if (this.lines.length > 1) {
-      return this.maxWidth
-    } else if (this.lines.length == 1) {
-      return this.lines[0].length
-    } else {
-      return 0
+    return this.dimensions.width
+  }
+}
+
+export function wrapText(text: string, maxWidth: number, wrapType: string): string {
+  let wrappedText = text
+
+  if (wrapType === 'wrap') {
+    wrappedText = wrapAnsi(text, maxWidth, {
+      trim: false,
+      hard: true,
+    })
+  }
+
+  if (wrapType!.startsWith('truncate')) {
+    let position: 'end' | 'middle' | 'start' = 'end'
+
+    if (wrapType === 'truncate-middle') {
+      position = 'middle'
+    }
+
+    if (wrapType === 'truncate-start') {
+      position = 'start'
+    }
+
+    wrappedText = cliTruncate(text, maxWidth, { position })
+  }
+
+  return wrappedText
+}
+
+export interface TextSize {
+  width: number
+  height: number
+}
+
+function measureText(text: string): TextSize {
+  if (text.length === 0) {
+    return {
+      width: 0,
+      height: 0,
     }
   }
+
+  const width = widestLine(text)
+  const height = text.split('\n').length
+  const size = { width, height }
+
+  return size
 }

@@ -206,6 +206,7 @@ export class Element extends Node {
     node.styleManager.setStateStatus('lastChild', true)
 
     this.yogaNode.removeChild(node.yogaNode)
+    this.yogaNode.calculateLayout()
 
     if (this.childNodes.length === 0)
       this.yogaNode.setMeasureFunc(getPreferredSize.bind(null, this))

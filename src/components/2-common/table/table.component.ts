@@ -18,12 +18,12 @@ import { ListItem } from '../list/list-item'
 @Component({
   standalone: true,
   selector: 'row',
-  host: { '[style]': '{ height: 1 }' },
-  template: `{{ $line() }}`,
+  host: { '[style]': `{ height: 1 }` },
+  template: `{{ text() }}`,
 })
 export class Row<T> {
   @Input() data: T
-  $line: Signal<string>
+  text: Signal<string>
 
   constructor(public table: Table<T>) {}
 
@@ -32,7 +32,7 @@ export class Row<T> {
     assert(typeof this.data == 'object')
     assert(this.table.$columns)
 
-    this.$line = computed(() => {
+    this.text = computed(() => {
       const columns = this.table.$columns()
       const selectedColumn = this.table.$selectedColumn()
       const selectedItem = this.table.$selectedItem()

@@ -20,7 +20,7 @@ import { blackOnWhite } from './styles'
       <box [style]="{ flexShrink: 0, width: longestKey + 1 }" [classes]="[blackOnWhite]">{{
         keyValue.key
       }}</box>
-      <box>{{ keyValue.value }}</box>
+      <box [style]="{ wrap: 'wrap' }">{{ keyValue.value }}</box>
     </box>
   `,
 })

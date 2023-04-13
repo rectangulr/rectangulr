@@ -1,7 +1,6 @@
 import { Inject, Injectable, NgZone } from '@angular/core'
-import { TermElement, TermScreen } from './dom-terminal'
-import { elementsFactory } from './elements-registry'
-import { InputOutput, INPUT_OUTPUT } from './input-output'
+import { TermScreen } from './dom-terminal'
+import { INPUT_OUTPUT, InputOutput } from './input-output'
 import { Logger } from './logger'
 
 @Injectable({
@@ -36,16 +35,6 @@ export class ScreenService {
     })
 
     globalThis['DOM'] = this.termScreen
-  }
-
-  createElement(name: string, options: any = {}): TermElement {
-    let elementFactory = elementsFactory.get(name)
-
-    if (!elementFactory) {
-      elementFactory = elementsFactory.get('box')
-    }
-
-    return new elementFactory(options)
   }
 
   selectRootElement(): TermScreen {

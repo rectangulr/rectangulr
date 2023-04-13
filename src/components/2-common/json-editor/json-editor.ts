@@ -27,7 +27,8 @@ import { ListItem } from '../list/list-item'
       [focusIf]="focused == 'key'"
       [style]="{
         flexDirection: 'row',
-        alignItems: 'flexStart'
+        alignItems: 'flexStart',
+        flexShrink: 0
       }">
       <text-input [(text)]="valueRef.key"></text-input>:
     </box>

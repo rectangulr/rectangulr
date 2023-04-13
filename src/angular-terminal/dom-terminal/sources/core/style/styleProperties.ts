@@ -5,8 +5,8 @@ import {
   dirtyClipping,
   dirtyFocusList,
   dirtyLayout,
-  dirtyRendering,
   dirtyRenderList,
+  dirtyRendering,
   forwardToTextLayout,
   forwardToYoga,
   onNullSwitch,
@@ -454,6 +454,13 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     setter: (style, wordWrap) => {
       throw new Error('Please use the "overflow-wrap" property instead.')
     },
+  },
+
+  wrap: {
+    parsers: ['wrap', 'truncate-start', 'truncate-middle', 'truncate-end'],
+    triggers: [dirtyLayout, forwardToTextLayout('wrap', value => value)],
+    initial: 'inherit',
+    default: 'truncate-end',
   },
 
   color: {

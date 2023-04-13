@@ -2,6 +2,7 @@
 {
   "files": [
     "src/public-api.ts",
+    "./src/angular-terminal/dom-terminal/sources/term/elements/TextLayout2.ts",
   ],
   "include": [
     "**/*.spec.ts",

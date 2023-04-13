@@ -18,8 +18,9 @@ import { Notification, NotificationsService } from './notifications.service'
     <box
       *ngIf="notification"
       [style]="{ display: notification ? 'flex' : 'none', border: 'rounded' }">
-      <object-display [object]="notification"></object-display>
-      <box [style]="{ flexGrow: 1, alignItems: 'flexEnd' }">Go To Logs: alt+l</box>
+      <box *ngIf="notification.name">{{ notification.name }}</box>
+      <object-display *ngIf="!notification.name" [object]="notification"></object-display>
+      <!-- <box [style]="{ flexGrow: 1, alignItems: 'flexEnd' }">Go To Logs: alt+l</box> -->
     </box>
   `,
 })

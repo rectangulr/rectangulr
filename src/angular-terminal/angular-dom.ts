@@ -8,7 +8,7 @@ import {
 import * as json5 from 'json5'
 import _ from 'lodash'
 import { addToGlobalRg, mergeDeep } from '../utils/utils'
-import { TermElement, TermScreen } from './dom-terminal'
+import { Element, TermElement, TermScreen, TermText2 } from './dom-terminal'
 import { ScreenService } from './screen-service'
 
 @Injectable({ providedIn: 'root' })
@@ -30,6 +30,8 @@ export class RectangulrRendererFactory implements RendererFactory2 {
   }
 }
 
+const basicElements = new Map<string, any>().set('box', TermElement).set('text', TermText2)
+
 export class TerminalRenderer implements Renderer2 {
   readonly data: { [p: string]: any }
   destroyNode = null
@@ -42,19 +44,27 @@ export class TerminalRenderer implements Renderer2 {
     return this.screen.selectRootElement()
   }
 
-  createElement(name: string, namespace?: string | null): any {
-    return this.screen.createElement(name)
+  createElement(name: string, namespace?: string | null): Element {
+    let elementContructor = basicElements.get(name)
+
+    if (!elementContructor) {
+      elementContructor = basicElements.get('box')
+    }
+
+    const element = new elementContructor()
+    element.name = name
+    return element
   }
 
   createComment(value: string): any {
-    const comment = this.screen.createElement('text')
+    const comment = this.createElement('text')
     comment.style.display = 'none'
     comment.nodeName = 'TermComment'
     return comment
   }
 
   createText(value: string): any {
-    const element = this.screen.createElement('text') as any
+    const element = this.createElement('text') as any
     element.textContent = value
     return element
   }
@@ -167,6 +177,7 @@ function stringifyDomNode(node, options?: StringifyOptions) {
     )
     res.infos = mergeDeep(res.infos, _.pick(node, ['elementRect', 'scrollRect']))
     res.ref = node
+    res.name = node.name
 
     // Prevent infinite loop
     if (!cache.has(node)) {
@@ -183,7 +194,7 @@ function stringifyDomNode(node, options?: StringifyOptions) {
     }
 
     res.toString = () => {
-      return node.nodeName + ' #' + node.id + '  ' + json5.stringify(res.infos)
+      return node.name + ' #' + node.id + '  ' + json5.stringify(res.infos)
     }
 
     return res

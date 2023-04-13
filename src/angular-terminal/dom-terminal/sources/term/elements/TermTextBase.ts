@@ -184,7 +184,7 @@ export class TermTextBase extends TermElement {
 
     this.addEventListener(`layout`, () => {
       if (this.style.$.display.serialize() == 'flex') {
-        this.textLayout.setConfiguration({ columns: this.contentRect.width })
+        this.textLayout.setConfiguration({ maxWidth: this.contentRect.width })
       }
     })
 
@@ -503,7 +503,7 @@ export class TermTextBase extends TermElement {
   }
 
   getPreferredSize(maxWidth) {
-    this.textLayout.setConfiguration({ columns: maxWidth })
+    this.textLayout.setConfiguration({ maxWidth: maxWidth })
 
     let width = this.textLayout ? this.textLayout.getColumnCount() : 0
 
