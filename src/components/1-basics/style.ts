@@ -57,7 +57,7 @@ export interface IStyle {
   backgroundCharacter?: string
   focusEvents?: boolean
   pointerEvents?: boolean
-  scroll?: boolean
+  scroll?: true | null | 'x' | 'y'
 }
 
 /**

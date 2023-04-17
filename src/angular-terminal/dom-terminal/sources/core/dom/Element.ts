@@ -14,8 +14,10 @@ import { runPropertyTriggers } from '../style/tools/runPropertyTriggers'
 import { flags } from './flags'
 import { Node } from './Node'
 import { isChildOf } from './traverse'
+import { assert } from '../../../../../utils/utils'
 
 let yogaConfig = Yoga.Config.create()
+yogaConfig.setPointScaleFactor(2)
 
 // yogaConfig.setExperimentalFeatureEnabled(Yoga.EXPE, true)
 
@@ -31,6 +33,7 @@ function mergeNewStyles(node) {
 }
 
 export class Element extends Node {
+  name: string = 'element'
   yogaNode: Yoga.YogaNode
   flags = flags.ELEMENT_HAS_DIRTY_NODE_LIST | flags.ELEMENT_HAS_DIRTY_LAYOUT
   styleManager: StyleManager
@@ -51,7 +54,7 @@ export class Element extends Node {
   contentWorldRect: Rect = new Rect()
   /** Position & size of the actual visible box inside the element */
   elementClipRect: Rect = this.elementWorldRect
-  /** Position & size of the actual visible box inside the element */
+  /** Used to check if the caret is visible */
   contentClipRect: Rect = this.contentWorldRect
   /** Position & size of the visible box that contains both the element itself and each of its children */
   elementBoundingRect: Rect = null
@@ -206,6 +209,7 @@ export class Element extends Node {
     node.styleManager.setStateStatus('lastChild', true)
 
     this.yogaNode.removeChild(node.yogaNode)
+    // yes it's important
     this.yogaNode.calculateLayout()
 
     if (this.childNodes.length === 0)
@@ -462,6 +466,15 @@ export class Element extends Node {
     this.focusRelativeElement(+1)
   }
 
+  scrollIntoView2() {
+    this.parentNode?.parentScrollIntoView2(this)
+  }
+
+  parentScrollIntoView2(child: Element) {
+    const scroll = this.style.$.scroll
+    this.scrollCellIntoView(child.elementRect)
+  }
+
   scrollIntoView({
     align = 'auto',
     alignX = align,
@@ -516,7 +529,6 @@ export class Element extends Node {
       let y = this.elementRect.y
 
       if (effectiveAlignX === 'end') x += this.elementRect.width - 1
-
       if (effectiveAlignY === 'end') y += this.elementRect.height - 1
 
       this.parentNode.scrollCellIntoView(new Point({ x, y }), {
@@ -541,21 +553,15 @@ export class Element extends Node {
   ) {
     this.triggerUpdates()
 
-    if (this.style.$.overflow?.doesHideOverflow) {
+    const scroll = this.style.$.scroll
+
+    if (scroll === true || scroll == 'x') {
       let effectiveAlignX = alignX
-      let effectiveAlignY = alignY
 
       if (effectiveAlignX === 'auto')
         effectiveAlignX =
           Math.abs(position.x - this.scrollLeft) <
           Math.abs(position.x - (this.scrollLeft + this.elementRect.width - 1))
-            ? 'start'
-            : 'end'
-
-      if (effectiveAlignY === 'auto')
-        effectiveAlignY =
-          Math.abs(position.y - this.scrollTop) <
-          Math.abs(position.y - (this.scrollTop + this.elementRect.height - 1))
             ? 'start'
             : 'end'
 
@@ -578,6 +584,17 @@ export class Element extends Node {
             break
         }
       }
+    }
+
+    if (scroll === true || scroll == 'y') {
+      let effectiveAlignY = alignY
+
+      if (effectiveAlignY === 'auto')
+        effectiveAlignY =
+          Math.abs(position.y - this.scrollTop) <
+          Math.abs(position.y - (this.scrollTop + this.elementRect.height - 1))
+            ? 'start'
+            : 'end'
 
       if (
         forceY ||
@@ -711,7 +728,13 @@ export class Element extends Node {
         dirtyRect.excludeRect(this.dirtyRects[intersectorIndex]),
         intersectorIndex + 1
       )
-    else this.dirtyRects.push(dirtyRect)
+    else {
+      assert(dirtyRect.x % 1 == 0)
+      assert(dirtyRect.y % 1 == 0)
+      assert(dirtyRect.width % 1 == 0)
+      assert(dirtyRect.height % 1 == 0)
+      this.dirtyRects.push(dirtyRect)
+    }
 
     this.rootNode.requestUpdates()
   }
@@ -871,11 +894,16 @@ export class Element extends Node {
         let prevElementRect = this.elementRect.clone()
         let prevContentRect = this.contentRect.clone()
 
-        this.elementRect.x = this.yogaNode.getComputedLeft()
-        this.elementRect.y = this.yogaNode.getComputedTop()
+        this.elementRect.x = Math.round(this.yogaNode.getComputedLeft())
+        this.elementRect.y = Math.round(this.yogaNode.getComputedTop())
 
-        this.elementRect.width = this.yogaNode.getComputedWidth()
-        this.elementRect.height = this.yogaNode.getComputedHeight()
+        this.elementRect.width = Math.round(this.yogaNode.getComputedWidth())
+        this.elementRect.height = Math.round(this.yogaNode.getComputedHeight())
+
+        assert(this.elementRect.x % 1 == 0)
+        assert(this.elementRect.y % 1 == 0)
+        assert(this.elementRect.width % 1 == 0)
+        assert(this.elementRect.height % 1 == 0)
 
         // We try to optimize away the iterations inside elements that haven't changed and aren't marked as dirty, because we know their children's layouts won't change either
         doesLayoutChange = !Rect.areEqual(this.elementRect, prevElementRect)
@@ -944,7 +972,7 @@ export class Element extends Node {
         let prevScrollX = this.scrollRect.x
         let prevScrollY = this.scrollRect.y
 
-        if (this.style.$.overflow?.doesHideOverflow) {
+        if (this.style.$.scroll) {
           this.scrollRect.x = Math.max(
             0,
             Math.min(this.scrollRect.x, this.scrollRect.width - this.elementRect.width)
@@ -1008,8 +1036,7 @@ export class Element extends Node {
         }
       }
 
-      if (this.style.$.overflow?.doesHideOverflow || !relativeClipRect)
-        relativeClipRect = this.elementClipRect
+      if (this.style.$.scroll || !relativeClipRect) relativeClipRect = this.elementClipRect
 
       for (let child of this.childNodes)
         child.cascadeClipping({

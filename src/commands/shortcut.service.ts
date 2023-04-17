@@ -91,6 +91,15 @@ export class ShortcutService {
       updateTree(this.rootNode)
     })
 
+    onChange(this, 'caretElement', value => {
+      const rootNode = this.rootNode
+      forFocusedChild(rootNode, child => {
+        if (rootNode.screen) {
+          rootNode.screen.termScreen.activeElement = child.caretElement
+        }
+      })
+    })
+
     // subscribe(this, this.ngZone.onStable, () => {
     //   this.receivedFocusThisTick = 0
     //   // this.logger.log(`reset receivedFocusThisTick to ${this.receivedFocusThisTick}`)
@@ -410,7 +419,7 @@ function forEachChildInFocusPath(shortcutService: ShortcutService, func) {
 
 function forFocusedChild(shortcutService: ShortcutService, func) {
   if (shortcutService.focusedChild) {
-    forEachChildInFocusPath(shortcutService.focusedChild, func)
+    forFocusedChild(shortcutService.focusedChild, func)
   } else {
     func(shortcutService)
   }
@@ -436,10 +445,8 @@ function updateTree(rootNode: ShortcutService) {
   })
 
   forFocusedChild(rootNode, child => {
-    if (!child.focusedChild) {
-      if (rootNode.screen) {
-        rootNode.screen.termScreen.activeElement = child.caretElement
-      }
+    if (rootNode.screen) {
+      rootNode.screen.termScreen.activeElement = child.caretElement
     }
   })
 

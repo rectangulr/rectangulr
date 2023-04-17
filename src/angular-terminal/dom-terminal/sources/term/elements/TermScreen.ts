@@ -37,7 +37,8 @@ export class TermScreen extends TermElement {
         position: `relative`,
         width: 0,
         height: 0,
-        overflow: `hidden`,
+        // overflow: `hidden`,
+        scroll: null,
       }),
       StyleManager.RULESET_NATIVE
     )
@@ -202,6 +203,10 @@ export class TermScreen extends TermElement {
     this.stdout = null
 
     this.ready = false
+  }
+
+  clearScreen() {
+    this.stdout.write(screen.clear)
   }
 
   terminate() {

@@ -68,7 +68,7 @@ describe('List - ', () => {
   it('should use the item template', async () => {
     const { fixture, component, shortcuts } = setupTest(Test2)
     const elements = fixture.debugElement
-      .queryAllNodes(node => node.nativeNode.nodeName == 'TermText2')
+      .queryAllNodes(node => node.nativeNode.name == 'text')
       .map(n => n.nativeNode)
     expect(elements[0].textContent).toBe('item: 1')
   })

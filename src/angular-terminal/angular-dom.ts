@@ -20,9 +20,9 @@ export class RectangulrRendererFactory implements RendererFactory2 {
   }
 
   end() {
-    // if (this.screen.screen.stdout) {
-    this.screen.selectRootElement().renderScreen()
-    // }
+    if (this.screen.termScreen.stdout) {
+      this.screen.selectRootElement().renderScreen()
+    }
   }
 
   createRenderer(hostElement: any, type: RendererType2 | null): Renderer2 {
@@ -59,7 +59,7 @@ export class TerminalRenderer implements Renderer2 {
   createComment(value: string): any {
     const comment = this.createElement('text')
     comment.style.display = 'none'
-    comment.nodeName = 'TermComment'
+    comment.name = 'comment'
     return comment
   }
 
@@ -216,15 +216,13 @@ function globalDebugDOMSearch(condition: string | Function, options?: StringifyO
   const rootNode = globalThis['DOM']
   let result = []
   function searchRecursive(node, condition, result) {
-    if (node.nodeName == 'TermText2') {
-      if (typeof condition == 'string') {
-        if (node.textContent.includes(condition)) {
-          result.push(node)
-        }
-      } else {
-        if (condition(node)) {
-          result.push(node)
-        }
+    if (typeof condition == 'string') {
+      if (node.textContent?.includes(condition)) {
+        result.push(node)
+      }
+    } else {
+      if (condition(node)) {
+        result.push(node)
       }
     }
     for (const child of [...node.childNodes]) {

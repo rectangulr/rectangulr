@@ -199,16 +199,16 @@ export class Rect {
     return distance
   }
 
-  get barycenter() {
-    if (Rect.isEmpty(this)) return null
+  // get barycenter() {
+  //   if (Rect.isEmpty(this)) return null
 
-    let point = new Point()
+  //   let point = new Point()
 
-    point.x = this.x + this.width / 2
-    point.y = this.y + this.height / 2
+  //   point.x = this.x + this.width / 2
+  //   point.y = this.y + this.height / 2
 
-    return point
-  }
+  //   return point
+  // }
 
   // toString() {
   //     return `<Rect#x: ${this.x} y: ${this.y} | w: ${this.width} h: ${this.height}>`

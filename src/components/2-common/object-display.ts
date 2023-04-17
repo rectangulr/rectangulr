@@ -16,7 +16,9 @@ import { blackOnWhite } from './styles'
   imports: [Box, ClassesDirective, NgFor],
   selector: 'object-display',
   template: `
-    <box [style]="{ flexDirection: 'row' }" *ngFor="let keyValue of keyValues; trackBy: trackByFn">
+    <box
+      [style]="{ flexDirection: 'row', scroll: 'y' }"
+      *ngFor="let keyValue of keyValues; trackBy: trackByFn">
       <box [style]="{ flexShrink: 0, width: longestKey + 1 }" [classes]="[blackOnWhite]">{{
         keyValue.key
       }}</box>

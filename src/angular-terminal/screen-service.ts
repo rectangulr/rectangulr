@@ -27,17 +27,29 @@ export class ScreenService {
       }
     }
 
-    this.termScreen.attachScreen({
-      stdin: inputOutput.input,
-      stdout: inputOutput.output,
-      trackOutputSize: true,
-      throttleMouseMoveEvents: 1000 / 60,
-    })
+    this.attachScreen()
 
     globalThis['DOM'] = this.termScreen
   }
 
+  attachScreen() {
+    this.termScreen.attachScreen({
+      stdin: this.inputOutput.input,
+      stdout: this.inputOutput.output,
+      trackOutputSize: true,
+      throttleMouseMoveEvents: 1000 / 60,
+    })
+  }
+
+  releaseScreen() {
+    this.termScreen.releaseScreen()
+  }
+
   selectRootElement(): TermScreen {
     return this.termScreen
+  }
+
+  clearScreen() {
+    this.termScreen.clearScreen()
   }
 }

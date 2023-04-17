@@ -22,6 +22,7 @@ import { StyleOverflowWrap } from './types/StyleOverflowWrap'
 import { StylePosition } from './types/StylePosition'
 import { StyleWeight } from './types/StyleWeight'
 import { StyleWhiteSpace } from './types/StyleWhiteSpace'
+import { Element } from '../dom/Element'
 
 let simple = ['+', '+', '+', '+', '-', '|']
 let modern = ['┌', '┐', '└', '┘', '─', '│']
@@ -221,11 +222,12 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     initial: Infinity,
   },
 
-  overflow: {
-    parsers: [_.pick(StyleOverflow, 'visible', 'hidden')],
-    triggers: [dirtyClipping],
-    initial: 'hidden',
-  },
+  // overflow: {
+  //   parsers: [_.pick(StyleOverflow, 'visible', 'hidden')],
+  //   triggers: [dirtyClipping],
+  //   initial: 'inherit',
+  //   default: 'visible',
+  // },
 
   border: {
     parsers: [
@@ -446,16 +448,6 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     initial: 'normal',
   },
 
-  wordWrap: {
-    parsers: [rawValue => rawValue],
-    getter: style => {
-      throw new Error('Please use the "overflow-wrap" property instead.')
-    },
-    setter: (style, wordWrap) => {
-      throw new Error('Please use the "overflow-wrap" property instead.')
-    },
-  },
-
   wrap: {
     parsers: ['wrap', 'truncate-start', 'truncate-middle', 'truncate-end'],
     triggers: [dirtyLayout, forwardToTextLayout('wrap', value => value)],
@@ -521,8 +513,18 @@ export let styleProperties: { [name: string]: StyleProperty } = {
   },
 
   scroll: {
-    parsers: [true, null],
-    triggers: [],
+    parsers: [true, null, 'x', 'y'],
+    triggers: [
+      (node: Element, value) => {
+        if (value === true || value == 'x') {
+          node.yogaNode.setMaxWidth(Number.MAX_SAFE_INTEGER)
+        }
+        if (value === true || value == 'y') {
+          node.yogaNode.setMaxHeight(Number.MAX_SAFE_INTEGER)
+        }
+      },
+    ],
     initial: null,
+    default: null,
   },
 }

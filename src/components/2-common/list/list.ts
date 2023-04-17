@@ -41,7 +41,7 @@ import { ListItem } from './list-item'
   selector: 'list',
   template: `
     <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items()?.length || 0 }}</box>
-    <box [style]="{ flexShrink: 0 }">
+    <box [style]="{ flexShrink: 0, scroll: 'y' }">
       <box
         #elementRef
         *ngFor="
@@ -89,7 +89,12 @@ import { ListItem } from './list-item'
     BasicObjectDisplay,
   ],
   providers: [
-    { provide: NG_VALUE_ACCESSOR, useFactory: list => list.controlValueAccessor, deps: [List], multi: true },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useFactory: list => list.controlValueAccessor,
+      deps: [List],
+      multi: true,
+    },
   ],
 })
 export class List<T> {
@@ -171,44 +176,6 @@ export class List<T> {
     }
     selectNewIndex()
     effect(() => selectNewIndex())
-
-    // subscribe(this, this.$items.pipe(filterNulls), items => {
-    //   if (this.onItemsChangeSelect == 'first') {
-    //     this.selectIndex(0)
-    //   } else if (this.onItemsChangeSelect == 'last') {
-    //     this.selectIndex(items.length - 1)
-    //   } else if (this.onItemsChangeSelect == 'same') {
-    //     const index = items.indexOf(this.selected.value)
-    //     if (index != -1) {
-    //       this.selectIndex(index)
-    //     } else {
-    //       this.selectIndex(0)
-    //     }
-    //   } else if (this.onItemsChangeSelect == 'nothing') {
-    //     // nothing
-    //   }
-    // })
-
-    // subscribe(this, this.$items.pipe(filterNulls), items => {
-    //   if (this.onItemsChangeSelect == 'first') {
-    //     this.selectIndex(0)
-    //   } else if (this.onItemsChangeSelect == 'last') {
-    //     this.selectIndex(items.length - 1)
-    //   } else if (this.onItemsChangeSelect == 'same') {
-    //     const index = items.indexOf(this.selected.value)
-    //     if (index != -1) {
-    //       this.selectIndex(index)
-    //     } else {
-    //       this.selectIndex(0)
-    //     }
-    //   } else if (this.onItemsChangeSelect == 'nothing') {
-    //     // nothing
-    //   }
-    // })
-
-    // subscribe(this, this.$visibleItems, visibleItems => {
-    //   this.visibleItems = visibleItems
-    // })
   }
 
   selectIndex(value) {

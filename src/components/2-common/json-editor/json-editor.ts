@@ -7,8 +7,10 @@ import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { TextEditor } from '../../../text-editor'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { DataFormat } from '../../../utils/data-format'
+import { onChange, subscribe } from '../../../utils/reactivity'
 import { Anything, assert, removeFromArray } from '../../../utils/utils'
 import { Box } from '../../1-basics/box'
 import { NewClassesDirective } from '../../1-basics/classes'
@@ -87,26 +89,44 @@ export class JsonEditor {
   controlValueAccessor = new BaseControlValueAccessor()
   @ViewChild(List) list: List<any>
 
-  constructor(public shortcutService: ShortcutService, public logger: Logger) {}
+  constructor(
+    public shortcutService: ShortcutService,
+    public logger: Logger,
+    public textEditor: TextEditor
+  ) {
+    onChange(this, 'valueRef', valueRef => {
+      this.onValueRefChange(valueRef)
+    })
+  }
 
   async ngOnInit() {
     // assert(!(this.value && this.valueRef), 'Use [value] or [valueRef]. Not both.')
 
+    let value = undefined
     if (this.isRoot) {
       if (this.data !== undefined) {
-        this.valueRef = {
-          key: null,
-          value: this.data,
-          type: typeFromValue(this.data),
-        }
+        value = this.data
       } else if (this.dataFormat) {
-        const expandedValue = await this.dataFormat.completions()
-        this.valueRef = { key: null, value: expandedValue, type: typeFromValue(expandedValue) }
+        value = await this.dataFormat.completions()
       } else {
         assert(false)
       }
+      this.valueRef = {
+        key: null,
+        value: value,
+        type: typeFromValue(value),
+      }
     }
 
+    registerShortcuts(this, this.shortcuts)
+    if (this.isRoot) {
+      registerShortcuts(this, this.rootShortcuts)
+    }
+
+    this.shortcutService.requestFocus()
+  }
+
+  onValueRefChange(value: any) {
     this.focused = this.hasKey() ? 'key' : 'value'
 
     if (this.valueRef.type == 'object') {
@@ -124,10 +144,6 @@ export class JsonEditor {
     } else {
       this.valueText = textFromValue(this.valueRef.value)
     }
-
-    registerShortcuts(this, this.shortcuts)
-
-    this.shortcutService.requestFocus()
   }
 
   textChange(text: string) {
@@ -140,6 +156,14 @@ export class JsonEditor {
    */
   getValue(): Anything | string | null | number {
     return getValueFromRef(this.valueRef)
+  }
+
+  setValue(value: any) {
+    this.valueRef = {
+      key: null,
+      value: value,
+      type: typeFromValue(value),
+    }
   }
 
   hasKey() {
@@ -191,6 +215,20 @@ export class JsonEditor {
       func: key => {
         if (this.focused == 'key') this.focused = 'value'
         else if (this.focused == 'value') return key
+      },
+    },
+  ]
+
+  rootShortcuts: Partial<Command>[] = [
+    {
+      id: 'openInTextEditor',
+      func: () => {
+        const text = json5.stringify(this.getValue(), null, 2)
+        const stream = this.textEditor.edit(text)
+        subscribe(this, stream, text => {
+          const value = json5.parse(text)
+          this.setValue(value)
+        })
       },
     },
   ]
