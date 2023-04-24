@@ -57,14 +57,17 @@ export interface IStyle {
   backgroundCharacter?: string
   focusEvents?: boolean
   pointerEvents?: boolean
+
   scroll?: true | null | 'x' | 'y'
+  hgrow?: boolean
+  vgrow?: boolean
 }
 
 /**
  * Does nothing. Just there for autocompletion and type checking.
  * This behavior is handled by the renderer.
  * @example
- * <box [style]="{color: 'red'}">Some red text</box>
+ * <hbox [style]="{color: 'red'}">Some red text</hbox>
  */
 @Directive({
   standalone: true,
@@ -78,7 +81,7 @@ export class StyleDirective {
  * Does nothing. Just there for autocompletion and type checking.
  * This behavior is handled by the renderer.
  * @example
- * <box [styles]="{color: 'red'}">Some red text</box>
+ * <hbox [styles]="{color: 'red'}">Some red text</hbox>
  */
 @Directive({
   standalone: true,

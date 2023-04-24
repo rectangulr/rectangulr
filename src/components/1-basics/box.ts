@@ -1,30 +1,41 @@
-import { Component, Directive, Input } from '@angular/core'
-import { FocusDirective } from '../../commands/focus.directive'
-import { ShortcutService } from '../../commands/shortcut.service'
+import { Directive, ElementRef } from '@angular/core'
+import { Element } from '../../angular-terminal/dom-terminal/sources/core/index'
 
 /**
- * The basic building block for templates. Think of it as `div` for the terminal.
+ * Think of it as `div` for the terminal. The basic building block for templates.
+ * It displays its children horizontally.
  *
  * @example
- * <box>Some text</box>
+ * <hbox>Same thing</hbox>
  */
 // This directive does nothing. It's just there for autocompletion from Angular.
 // This is handled by the dom - terminal renderer.
 @Directive({
   standalone: true,
-  selector: 'box',
+  selector: 'hbox',
 })
-export class Box {}
+export class HBox {
+  constructor(public elementRef: ElementRef<Element>) {}
 
-// @Component({
-//   standalone: true,
-//   selector: 'box [focus]',
-//   template: `<ng-content></ng-content>`,
-//   hostDirectives: [
-//     { directive: FocusDirective, inputs: ['focusIf', 'focusPropagateUp', 'focusShortcuts'] },
-//   ],
-//   providers: [ShortcutService],
-// })
-// export class BoxFocus {
-//   constructor(public shortcutService: ShortcutService) {}
-// }
+  ngOnInit() {
+    this.elementRef.nativeElement.style.assign({ flexDirection: 'row' })
+  }
+}
+
+/**
+ * Think of it as `div` for the terminal. The basic building block for templates.
+ * It displays its children vertically.
+ * @example
+ * <vbox>Some text</vbox>
+ */
+@Directive({
+  standalone: true,
+  selector: 'vbox',
+})
+export class VBox {
+  constructor(public elementRef: ElementRef<Element>) {}
+
+  ngOnInit() {
+    this.elementRef.nativeElement.style.assign({ flexDirection: 'column' })
+  }
+}

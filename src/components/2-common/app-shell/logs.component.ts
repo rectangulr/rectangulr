@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, SkipSelf } from '@angular/core'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { forceRefresh, subscribe } from '../../../utils/reactivity'
-import { Box } from '../../1-basics/box'
+import { HBox } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { List } from '../list/list'
 import { blackOnWhite } from '../styles'
@@ -14,10 +14,10 @@ class NullLogger {
 @Component({
   selector: 'logs-view',
   standalone: true,
-  imports: [Box, List, ClassesDirective],
+  imports: [HBox, List, ClassesDirective],
   host: { '[style]': "{height: '100%'}" },
   template: `
-    <box [classes]="[blackOnWhite]">Logs</box>
+    <vbox [classes]="[blackOnWhite]">Logs</vbox>
     <list [items]="logs"></list>
   `,
   providers: [{ provide: Logger, useClass: NullLogger }],

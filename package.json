@@ -17,14 +17,15 @@
   },
   "peerDependencies": {
     "@types/node": "^12.11.1",
+    "chai": "^4.3.7",
+    "cli-truncate": "^3.1.0",
     "core-decorators": "^0.13.0",
     "fuse.js": "^6.4.6",
     "json5": "^2.2.0",
     "lodash": "^4.17.21",
+    "widest-line": "^4.0.1",
     "yoga-layout-prebuilt": "^1.10.0",
-    "zone.js": "~0.11.3",
-    "cli-truncate": "^3.1.0",
-    "widest-line": "^4.0.1"
+    "zone.js": "~0.11.3"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^15.0.0",
@@ -53,6 +54,7 @@
     "lodash": "^4.17.21",
     "ng-dynamic-component": "^10.5.1",
     "ng-packagr": "^15.1.1",
+    "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "ts-patch": "^2.0.2",
     "ts-transform-esm-import": "^0.9.0",

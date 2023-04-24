@@ -14,7 +14,7 @@ export { DetachedCommandServiceDirective } from './commands/commands-detach'
 export { Shortcuts as ShortcutsDisplay } from './commands/shortcuts.component'
 export { FocusDirective, FocusDebugDirective } from './commands/focus.directive'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
-export { Box } from './components/1-basics/box'
+export { HBox as Box, VBox } from './components/1-basics/box'
 export {
   NewClassesDirective as ClassesDirective,
   ClassesDirective as NativeClassesDirective,
@@ -48,6 +48,7 @@ export { RectangulrModule } from './rectangulr.module'
 export { ComponentOutletInputs } from './utils/componentOutletInput'
 export { KeyValue } from './utils/interfaces'
 export * from './angular-terminal/signals/index'
+export { StorageService } from './components/2-common/storage.service'
 
 // Utils
 export {

@@ -1,16 +1,24 @@
-import { Component, ContentChild, Input, Output, TemplateRef, ViewChild } from '@angular/core'
+import {
+  Component,
+  ContentChild,
+  ElementRef,
+  Input,
+  Output,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
-import _, { values } from 'lodash'
+import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { makeRuleset } from '../../../angular-terminal/dom-terminal'
-import { computed, effect, Signal, signal } from '../../../angular-terminal/signals'
-import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { Signal, computed, effect, signal } from '../../../angular-terminal/signals'
+import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, subscribe } from '../../../utils/reactivity'
 import { assert, filterNulls, inputToSignal } from '../../../utils/utils'
-import { Box } from '../../1-basics/box'
+import { HBox } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
@@ -42,10 +50,11 @@ export class Row<T> {
       columns
         .map(column => {
           let value = this.data[column.id]
-          assert(value !== undefined)
 
           if (typeof value == 'string') {
             value = String(value).slice(0, column.width).padEnd(column.width)
+          } else if (value === undefined) {
+            value = 'undefined'
           } else {
             value = json5.stringify(value).slice(0, column.width).padEnd(column.width)
           }
@@ -71,21 +80,23 @@ interface Column {
 
 @Component({
   standalone: true,
-  imports: [Box, List, Row, ListItem, ClassesDirective],
+  imports: [HBox, List, Row, ListItem, ClassesDirective],
   selector: 'table',
   template: `
-    <box [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ $headers() }}</box>
+    <hbox [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ $headers() }}</hbox>
     <list
+      #list
       [items]="items"
       [trackByFn]="trackByFn"
-      [template]="template || template2 || defaultTemplate"
+      [template]="template || template2 || defaultRowTemplate"
       (selectedItem)="$selectedItem.set($event)"
       (visibleItems)="$visibleItems.set($event)">
-      <ng-template #defaultTemplate>
-        <row *item="let item" [data]="item"></row>
+      <ng-template #defaultRowTemplate>
+        <row [style]="{ flexShrink: 0 }" *item="let item" [data]="item"></row>
       </ng-template>
     </list>
   `,
+  host: { '[style]': `{scroll: 'x'}` },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -109,10 +120,10 @@ export class Table<T> {
     return this.computeColumnWidths(this.$items())
   })
   $headers = computed(() => {
-    return this.computedHeaders(this.$columns(), this.$selectedColumn())
+    return this.computeHeaders(this.$columns(), this.$selectedColumn())
   })
 
-  $selectedColumnIndex = signal(0)
+  $selectedColumnIndex = signal<number | null>(0)
   $selectedColumn = computed(() => this.$columns()[this.$selectedColumnIndex()])
   $selectedItem = signal(null)
 
@@ -122,17 +133,34 @@ export class Table<T> {
   prevColumns: { id: string; width: number }[]
   $visibleItems = signal([])
 
-  constructor(public shortcutService: ShortcutService) {
+  constructor(public shortcutService: ShortcutService, public elementRef: ElementRef<Element>) {
     makeObservable(this, 'list', '$list')
 
     inputToSignal(this, 'items', '$items')
 
+    //  Emit 'visibleItems'
     effect(() => {
       this.$$visibleItems.next(this.$visibleItems())
     })
 
+    //  Emit 'selectedItem'
     effect(() => {
       this.$$selectedItem.next(this.$selectedItem())
+    })
+
+    // Scroll to selected column
+    effect(() => {
+      const columns = this.$columns()
+      const index = this.$selectedColumnIndex()
+      if (columns.length == 0 || index > columns.length - 1) return
+
+      let end = 0
+      for (let i = 0; i <= index; i++) {
+        const column = columns[i]
+        end += column.width
+      }
+
+      this.elementRef.nativeElement.scrollColumnIntoView(end)
     })
 
     registerShortcuts(this, this.shortcuts)
@@ -157,7 +185,7 @@ export class Table<T> {
     )
   }
 
-  computedHeaders(columns: Column[], selectedColumn: Column) {
+  computeHeaders(columns: Column[], selectedColumn: Column) {
     let headers = ''
     _.map(columns, column => {
       let value = column.id.slice(0, column.width).padEnd(column.width)
@@ -192,13 +220,14 @@ export class Table<T> {
     }
   }
 
-  selectColumnIndex(value) {
+  selectColumnIndex(index: number) {
     if (!this.$columns() || this.$columns().length == 0) {
       this.$selectedColumnIndex.set(null)
       return
     }
 
-    this.$selectedColumnIndex.set(_.clamp(value, 0, this.$columns().length - 1))
+    const realIndex = _.clamp(index, 0, this.$columns().length - 1)
+    this.$selectedColumnIndex.set(realIndex)
   }
 
   shortcuts: Partial<Command>[] = [

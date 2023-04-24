@@ -7,7 +7,7 @@ import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { Shortcuts } from '../../../commands/shortcuts.component'
 import { makeProperty } from '../../../utils/reactivity'
-import { Box } from '../../1-basics/box'
+import { HBox, VBox } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
@@ -19,28 +19,28 @@ import { View, ViewService } from './view.service'
   host: { '[style]': "{width: '100%', height: '100%'}" },
   template: `
     <!-- Display the currentTab. The others are styled 'display: none'. -->
-    <box
+    <vbox
       *ngFor="let view of viewService.views"
       [focusPropagateUp]="false"
       [focusIf]="view == currentTab"
       [style]="{ display: view == currentTab ? 'flex' : 'none' }">
       <ng-container [ngComponentOutlet]="view.component"></ng-container>
-    </box>
+    </vbox>
 
     <!-- Push the bottom-bar to the bottom. -->
-    <box [style]="{ flexGrow: 1 }"></box>
+    <hbox [style]="{ vgrow: true }"></hbox>
 
     <!-- Bottom bar. List of tabs. -->
-    <box [style]="{ flexDirection: 'row', flexShrink: 0, backgroundColor: 'grey' }">
-      <box
+    <hbox [style]="{ flexDirection: 'row', flexShrink: 0, backgroundColor: 'grey' }">
+      <hbox
         *ngFor="let view of viewService.tabs"
         [classes]="[[s.blackOnWhite, view == currentTab]]"
         [style]="{ paddingLeft: 1, paddingRight: 1 }"
-        >{{ view.name }}</box
+        >{{ view.name }}</hbox
       >
-      <box [style]="{ flexGrow: 1 }"></box>
-      <box [style]="{ flexShrink: 0 }">Help: alt+p</box>
-    </box>
+      <hbox [style]="{ vgrow: true }"></hbox>
+      <hbox [style]="{ flexShrink: 0 }">Help: alt+p</hbox>
+    </hbox>
 
     <!-- Popup to discover shortcuts -->
     <shortcuts
@@ -53,7 +53,7 @@ import { View, ViewService } from './view.service'
     <notifications></notifications>
   `,
   imports: [
-    Box,
+    HBox,
     NgIf,
     NgFor,
     ClassesDirective,
@@ -61,6 +61,7 @@ import { View, ViewService } from './view.service'
     NgComponentOutlet,
     Notifications,
     Shortcuts,
+    VBox,
   ],
 })
 export class AppShell {

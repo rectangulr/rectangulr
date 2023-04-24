@@ -7,20 +7,18 @@ import { Logger } from '../../angular-terminal/logger'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { onChange } from '../../utils/reactivity'
 import { assert } from '../../utils/utils'
-import { Box } from './box'
+import { HBox, VBox } from './box'
 import { StyleDirective } from './style'
 
 let globalId = 0
 
 @Component({
   standalone: true,
-  imports: [Box, StyleDirective],
   selector: 'text-input',
   host: { '[style]': "{ flexDirection: 'row', flexShrink: 0 }" },
-  template: `
-    <box>{{ text }}</box>
-    <box [style]="{ width: 1, height: 1 }"></box>
-  `,
+  template: `v
+    <vbox>{{ text }}</vbox>
+    <vbox [style]="{ width: 1, height: 1 }"></vbox> `,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -29,6 +27,7 @@ let globalId = 0
     },
     { provide: ShortcutService },
   ],
+  imports: [HBox, StyleDirective, VBox],
 })
 export class TextInput implements ControlValueAccessor {
   _id = ++globalId

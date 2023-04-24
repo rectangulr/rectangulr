@@ -57,8 +57,8 @@ forwardToYoga.value = function (value) {
 
 export function forwardToTextLayout(optName, cb) {
   return function (node, newValue) {
-    if (!node.textLayout) return
+    if (!node.conf) return
 
-    node.textLayout.setConfiguration({ [optName]: cb(newValue) })
+    node.setLayoutConfig({ [optName]: cb(newValue) })
   }
 }

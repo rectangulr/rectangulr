@@ -3,7 +3,7 @@ import { fakeAsync, tick } from '@angular/core/testing'
 import { signal } from '../../../angular-terminal/signals'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
-import { Box } from '../../1-basics/box'
+import { HBox } from '../../1-basics/box'
 import { TextInput } from '../../1-basics/text-input'
 import { List } from './list'
 import { ListItem } from './list-item'
@@ -54,9 +54,9 @@ describe('List - ', () => {
 
 @Component({
   standalone: true,
-  imports: [List, Box, ListItem],
+  imports: [List, HBox, ListItem],
   template: `<list [items]="items">
-    <box *item="let value">item: {{ value }}</box>
+    <hbox *item="let value">item: {{ value }}</hbox>
   </list> `,
 })
 export class Test2 {
@@ -82,7 +82,7 @@ describe('List - ', () => {
 
 @Component({
   standalone: true,
-  imports: [List, Box, ListItem, TextInput, FocusDirective],
+  imports: [List, HBox, ListItem, TextInput, FocusDirective],
   template: `
     <list [items]="items">
       <text-input focus *item="let value" [text]="value"></text-input>

@@ -7,7 +7,7 @@ import { Logger } from '../../angular-terminal/logger'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { State } from '../../utils/reactivity'
 import { longest, mapKeyValue } from '../../utils/utils'
-import { Box } from '../1-basics/box'
+import { HBox } from '../1-basics/box'
 import { ClassesDirective } from '../1-basics/classes'
 import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
@@ -17,13 +17,13 @@ import { FocusDirective } from '../../public-api'
 
 @Component({
   standalone: true,
-  imports: [Box, TextInput, ReactiveFormsModule, ClassesDirective],
+  imports: [HBox, TextInput, ReactiveFormsModule, ClassesDirective],
   selector: 'keyvalue-editor',
   template: `
-    <box [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
-      <box [style]="{ width: keyWidth + 1 }" [classes]="[blackOnWhite]">{{ keyValue.key }}</box>
+    <vbox [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
+      <vbox [style]="{ width: keyWidth + 1 }" [classes]="[blackOnWhite]">{{ keyValue.key }}</vbox>
       <text-input [formControlName]="keyValue.key" [text]="keyValue.value"></text-input>
-    </box>
+    </vbox>
   `,
 })
 export class KeyValueEditor {

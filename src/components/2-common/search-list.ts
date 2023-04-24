@@ -16,7 +16,7 @@ import { Logger } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
 import { makeObservable, State } from '../../utils/reactivity'
 import { filterNulls } from '../../utils/utils'
-import { Box } from '../1-basics/box'
+import { HBox, VBox } from '../1-basics/box'
 import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
@@ -24,10 +24,9 @@ import { borderTop } from './styles'
 
 @Component({
   standalone: true,
-  imports: [Box, TextInput, FocusDirective, List, NgIf],
   selector: 'search-list',
   template: `
-    <box [style]="{ flexDirection: 'column' }">
+    <vbox [style]="{ flexDirection: 'column' }">
       <text-input
         *ngIf="searchInputVisible"
         [text]="searchText"
@@ -41,7 +40,7 @@ import { borderTop } from './styles'
         [trackByFn]="trackByFn"
         [template]="template || template2">
       </list>
-    </box>
+    </vbox>
   `,
   providers: [
     {
@@ -52,6 +51,7 @@ import { borderTop } from './styles'
       },
     },
   ],
+  imports: [HBox, TextInput, FocusDirective, List, NgIf, VBox],
 })
 export class SearchList<T> {
   @Input() set items(items) {

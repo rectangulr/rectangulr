@@ -23,7 +23,7 @@ import { ScreenService } from './angular-terminal/screen-service'
 import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { FocusDebugDirective, FocusDirective } from './commands/focus.directive'
 import { Shortcuts } from './commands/shortcuts.component'
-import { Box } from './components/1-basics/box'
+import { HBox, VBox } from './components/1-basics/box'
 import { ClassesDirective, NewClassesDirective } from './components/1-basics/classes'
 import { StyleDirective, StylesDirective } from './components/1-basics/style'
 import { TextInput } from './components/1-basics/text-input'
@@ -54,7 +54,8 @@ const RECTANGULR_MODULE_PROVIDERS_MARKER = new InjectionToken(
 )
 
 const TEMPLATE_COMPONENTS = [
-  Box,
+  HBox,
+  VBox,
   List,
   ListItem,
   SearchList,

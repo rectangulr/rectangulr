@@ -2,7 +2,7 @@ import { NgIf } from '@angular/common'
 import { Component, NgZone, QueryList, ViewChild, ViewChildren } from '@angular/core'
 import { fakeAsync, TestBed, tick } from '@angular/core/testing'
 import { Logger } from '../angular-terminal/logger'
-import { Box } from '../components/1-basics/box'
+import { HBox } from '../components/1-basics/box'
 import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
@@ -49,16 +49,16 @@ describe('ShortcutService Class', () => {
 
 @Component({
   standalone: true,
-  imports: [Box, FocusDirective, NgIf],
+  imports: [HBox, FocusDirective, NgIf],
   template: `
-    <box
+    <vbox
       #first
       *ngIf="showFirst"
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></box>
-    <box
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></vbox>
+    <vbox
       #second
       *ngIf="showSecond"
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></box>
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></vbox>
   `,
   providers: [ShortcutService],
 })
@@ -172,14 +172,14 @@ describe('ShortcutService ngIf - ', () => {
 
 @Component({
   standalone: true,
-  imports: [Box, FocusDirective, NgIf],
+  imports: [HBox, FocusDirective, NgIf],
   template: `
-    <box
+    <vbox
       [focusIf]="focused == 'first'"
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></box>
-    <box
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></vbox>
+    <vbox
       [focusIf]="focused == 'second'"
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></box>
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></vbox>
   `,
   providers: [ShortcutService],
 })
@@ -236,8 +236,8 @@ describe('ShortcutService FocusIf - ', () => {
 
 @Component({
   standalone: true,
-  imports: [Box, FocusDirective, NgIf],
-  template: ` <box [focusShortcuts]="shortcuts"></box> `,
+  imports: [HBox, FocusDirective, NgIf],
+  template: ` <vbox [focusShortcuts]="shortcuts"></vbox> `,
   providers: [ShortcutService],
 })
 export class Test3 {
@@ -284,7 +284,7 @@ describe('ShortcutService - ', () => {
 
 @Component({
   standalone: true,
-  imports: [Box, FocusDirective, NgIf, TextInput],
+  imports: [HBox, FocusDirective, NgIf, TextInput],
   template: ` <text-input [focusIf]="condition"></text-input> `,
 })
 export class Test4 {
@@ -331,12 +331,12 @@ describe('ShortcutService - ', () => {
 
 @Component({
   standalone: true,
-  imports: [Box, NgIf, TextInput, List, ListItem, FocusDirective],
+  imports: [HBox, NgIf, TextInput, List, ListItem, FocusDirective],
   template: `
     <list [items]="items">
-      <box *item focus>
+      <vbox *item focus>
         <text-input [text]=""></text-input>
-      </box>
+      </vbox>
     </list>
   `,
 })

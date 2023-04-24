@@ -8,7 +8,14 @@ import { StyleManager, makeRuleset } from '../../core'
 
 export class TermText2 extends TermElement {
   textContent: string
-  textLayout: TextLayout2
+  lines = []
+
+  internalDimensions = { width: 0, height: 0 }
+  conf: Anything = {
+    maxWidth: Number.MAX_SAFE_INTEGER,
+    maxHeight: Number.MAX_SAFE_INTEGER,
+    wrap: null,
+  }
 
   constructor() {
     super()
@@ -20,53 +27,69 @@ export class TermText2 extends TermElement {
       StyleManager.RULESET_NATIVE
     )
 
-    this.textLayout = new TextLayout2()
-
     this.setPropertyTrigger('textContent', '', {
       trigger: value => {
-        this.textLayout.text = value
-        this.textLayout.update()
-        this.yogaNode.markDirty()
-        this.setDirtyLayoutFlag()
-        this.queueDirtyRect()
+        this.update()
       },
     })
+  }
+
+  setLayoutConfig(configuration: Anything) {
+    Object.assign(this.conf, configuration)
+    this.update()
+  }
+
+  update() {
+    if (this.conf.wrap) {
+      const wrappedText = wrapText(this.textContent, this.conf.maxWidth, this.conf.wrap)
+      this.lines = wrappedText.split('\n')
+      this.internalDimensions = measureText(wrappedText)
+      this.yogaNode.setFlexShrink(1)
+    } else {
+      this.lines = this.textContent.split('\n')
+      this.internalDimensions = measureText(this.textContent)
+      this.yogaNode.setFlexShrink(0)
+    }
+    this.yogaNode.markDirty()
+    this.setDirtyLayoutFlag()
+    this.queueDirtyRect()
+  }
+
+  getLine(y: number) {
+    return this.lines[y]
   }
 
   getPreferredSize(maxWidth, widthMode, maxHeight, heightMode) {
     if (!isNaN(maxWidth)) {
       maxWidth = Math.ceil(maxWidth)
-      this.textLayout.setConfiguration({ maxWidth })
+      this.setLayoutConfig({ maxWidth })
     }
 
     if (!isNaN(maxHeight)) {
       maxHeight = Math.ceil(maxHeight)
-      this.textLayout.setConfiguration({ maxHeight })
+      this.setLayoutConfig({ maxHeight })
     }
 
-    this.textLayout.update()
-    this.yogaNode.markDirty()
-    this.setDirtyLayoutFlag()
-    this.queueDirtyRect()
+    this.update()
 
     return {
-      width: this.textLayout.getWidth(),
-      height: this.textLayout.getHeight(),
+      width: this.internalDimensions.width,
+      height: this.internalDimensions.height,
     }
   }
 
   getInternalContentWidth() {
-    return this.textLayout.getWidth()
+    return this.internalDimensions.width
   }
 
   getInternalContentHeight() {
-    return this.textLayout.getHeight()
+    return this.internalDimensions.height
   }
 
   renderContent(x, y, l) {
-    if (this.textLayout.getHeight() <= y) return this.renderBackground(l)
+    if (this.getInternalContentHeight() <= y) return this.renderBackground(l)
 
-    let fullLine = y < this.textLayout.getHeight() ? this.textLayout.getLine(y) : ``
+    let fullLine = y < this.getInternalContentHeight() ? this.getLine(y) : ``
     let fullLineLength = fullLine.length
 
     let fullLineStart = 0
@@ -87,56 +110,6 @@ export class TermText2 extends TermElement {
     let suffix = this.renderBackground(suffixLength)
 
     return prefix + text + suffix
-  }
-}
-
-/**
- * Defines how text is laid-out inside a rectangle.
- * If the rectangle is too small it should go to the next line.
- * If the rectangle is big enough, fine. Just inform the parent of its size.
- */
-export class TextLayout2 {
-  text = ''
-  lines = []
-
-  /**
-   *
-   */
-  dimensions = { width: 0, height: 0 }
-  textDimensions = { width: 0, height: 0 }
-  conf: Anything = {
-    maxWidth: Number.MAX_SAFE_INTEGER,
-    maxHeight: Number.MAX_SAFE_INTEGER,
-    wrap: 'truncate-end',
-  }
-
-  setConfiguration(keyValues: Anything) {
-    Object.assign(this.conf, keyValues)
-    this.update()
-  }
-
-  update() {
-    const wrappedText = wrapText(this.text, this.conf.maxWidth, this.conf.wrap)
-    this.lines = wrappedText.split('\n')
-    this.textDimensions = measureText(wrappedText)
-
-    this.dimensions.width = _.clamp(this.textDimensions.width, 0, this.conf.maxWidth)
-    this.dimensions.height = _.clamp(this.textDimensions.height, 0, this.conf.maxHeight)
-
-    assert(this.dimensions.width <= this.conf.maxWidth)
-    assert(this.dimensions.height <= this.conf.maxHeight)
-  }
-
-  getLine(y: number) {
-    return this.lines[y]
-  }
-
-  getHeight() {
-    return this.dimensions.height
-  }
-
-  getWidth() {
-    return this.dimensions.width
   }
 }
 
@@ -167,12 +140,7 @@ export function wrapText(text: string, maxWidth: number, wrapType: string): stri
   return wrappedText
 }
 
-export interface TextSize {
-  width: number
-  height: number
-}
-
-function measureText(text: string): TextSize {
+function measureText(text: string) {
   if (text.length === 0) {
     return {
       width: 0,

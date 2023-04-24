@@ -184,9 +184,11 @@ function stringifyDomNode(node, options?: StringifyOptions) {
       cache.add(node)
 
       if (options.children && node.childNodes.length > 0) {
-        res.children = node.childNodes.map(n => {
-          return _stringifyDomNode(n, cache, options)
-        })
+        res.children = node.childNodes
+          .map(n => {
+            return _stringifyDomNode(n, cache, options)
+          })
+          .filter(n => n.name != 'comment')
       }
       if (options.parent && node.parentNode) {
         res.parent = _stringifyDomNode(node.parentNode, cache, options)

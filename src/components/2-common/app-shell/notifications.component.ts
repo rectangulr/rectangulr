@@ -2,26 +2,26 @@ import { NgIf } from '@angular/common'
 import { Component } from '@angular/core'
 import { Subject } from 'rxjs'
 import { subscribe } from '../../../utils/reactivity'
-import { Box } from '../../1-basics/box'
+import { HBox, VBox } from '../../1-basics/box'
 import { ObjectDisplay } from '../object-display'
 import { Notification, NotificationsService } from './notifications.service'
 
 @Component({
   standalone: true,
-  imports: [Box, NgIf, ObjectDisplay],
+  imports: [VBox, HBox, NgIf, ObjectDisplay],
   selector: 'notifications',
   host: {
     '[style]':
       "{position: 'absolute', bottom: 1, right: 0, width: '50%', backgroundColor: 'darkgray', color: 'white', borderColor: 'white' }",
   },
   template: `
-    <box
+    <vbox
       *ngIf="notification"
       [style]="{ display: notification ? 'flex' : 'none', border: 'rounded' }">
-      <box *ngIf="notification.name">{{ notification.name }}</box>
+      <vbox *ngIf="notification.name">{{ notification.name }}</vbox>
       <object-display *ngIf="!notification.name" [object]="notification"></object-display>
-      <!-- <box [style]="{ flexGrow: 1, alignItems: 'flexEnd' }">Go To Logs: alt+l</box> -->
-    </box>
+      <hbox [style]="{ flexGrow: 1, alignItems: 'flexEnd' }">Go To Logs: alt+l</hbox> -->
+    </vbox>
   `,
 })
 export class Notifications {

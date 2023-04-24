@@ -1,12 +1,8 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-  "files": [
-    "src/public-api.ts",
-    "./src/angular-terminal/dom-terminal/sources/term/elements/TextLayout2.ts",
-  ],
   "include": [
+    "src/**/*.ts",
     "**/*.spec.ts",
-    "src/test.ts",
   ],
   "exclude": [
     "node_modules/**"

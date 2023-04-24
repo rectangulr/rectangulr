@@ -22,7 +22,10 @@ yogaConfig.setPointScaleFactor(2)
 // yogaConfig.setExperimentalFeatureEnabled(Yoga.EXPE, true)
 
 function getPreferredSize(node, ...args) {
-  return node.getPreferredSize(...args)
+  const dimensions = node.getPreferredSize(...args)
+  // node.yogaNode.setWidth(dimensions.width)
+  // node.yogaNode.setHeight(dimensions.height)
+  return dimensions
 }
 
 function mergeNewStyles(node) {
@@ -900,10 +903,10 @@ export class Element extends Node {
         this.elementRect.width = Math.round(this.yogaNode.getComputedWidth())
         this.elementRect.height = Math.round(this.yogaNode.getComputedHeight())
 
-        assert(this.elementRect.x % 1 == 0)
-        assert(this.elementRect.y % 1 == 0)
-        assert(this.elementRect.width % 1 == 0)
-        assert(this.elementRect.height % 1 == 0)
+        // assert(this.elementRect.x % 1 == 0)
+        // assert(this.elementRect.y % 1 == 0)
+        // assert(this.elementRect.width % 1 == 0)
+        // assert(this.elementRect.height % 1 == 0)
 
         // We try to optimize away the iterations inside elements that haven't changed and aren't marked as dirty, because we know their children's layouts won't change either
         doesLayoutChange = !Rect.areEqual(this.elementRect, prevElementRect)

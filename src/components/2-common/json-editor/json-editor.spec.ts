@@ -3,12 +3,12 @@ import { Component, ViewChild } from '@angular/core'
 import { fakeAsync } from '@angular/core/testing'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
-import { Box } from '../../1-basics/box'
+import { HBox } from '../../1-basics/box'
 import { JsonEditor } from './json-editor'
 
 @Component({
   standalone: true,
-  imports: [Box, FocusDirective, NgIf, JsonEditor],
+  imports: [HBox, FocusDirective, NgIf, JsonEditor],
   template: ` <json-editor data="string"></json-editor> `,
 })
 export class Test {
@@ -17,7 +17,7 @@ export class Test {
 
 @Component({
   standalone: true,
-  imports: [Box, FocusDirective, NgIf, JsonEditor],
+  imports: [HBox, FocusDirective, NgIf, JsonEditor],
   template: ` <json-editor [data]="{ test: 'a' }"></json-editor> `,
 })
 export class Test2 {
@@ -26,7 +26,7 @@ export class Test2 {
 
 @Component({
   standalone: true,
-  imports: [Box, FocusDirective, NgIf, JsonEditor],
+  imports: [HBox, FocusDirective, NgIf, JsonEditor],
   template: ` <json-editor [data]="1"></json-editor> `,
 })
 export class Test3 {

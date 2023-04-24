@@ -61,13 +61,13 @@ export let styleProperties: { [name: string]: StyleProperty } = {
       ),
     ],
     triggers: [dirtyLayout, forwardToYoga('setAlignContent', forwardToYoga.value)],
-    initial: 'stretch',
+    initial: 'flexStart',
   },
 
   alignItems: {
     parsers: [_.pick(StyleFlexAlignment, 'flexStart', 'flexEnd', 'center', 'baseline', 'stretch')],
     triggers: [dirtyLayout, forwardToYoga('setAlignItems', forwardToYoga.value)],
-    initial: 'stretch',
+    initial: 'flexStart',
   },
 
   alignSelf: {
@@ -449,10 +449,10 @@ export let styleProperties: { [name: string]: StyleProperty } = {
   },
 
   wrap: {
-    parsers: ['wrap', 'truncate-start', 'truncate-middle', 'truncate-end'],
+    parsers: [null, 'wrap', 'truncate-start', 'truncate-middle', 'truncate-end'],
     triggers: [dirtyLayout, forwardToTextLayout('wrap', value => value)],
     initial: 'inherit',
-    default: 'truncate-end',
+    default: null,
   },
 
   color: {
@@ -527,4 +527,42 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     initial: null,
     default: null,
   },
+
+  hgrow: {
+    parsers: [true, false],
+    triggers: [dirtyLayout, (node, value) => grow(node, value, 'horizontal')],
+    initial: false,
+  },
+
+  vgrow: {
+    parsers: [true, false],
+    triggers: [dirtyLayout, (node, value) => grow(node, value, 'vertical')],
+    initial: false,
+  },
+}
+
+function grow(node: Element, value: boolean, direction: 'vertical' | 'horizontal') {
+  if (value == false) return
+  if (!node.parentNode) return
+
+  const flexDirection = (node.parentNode as Element).yogaNode.getFlexDirection()
+  if (
+    flexDirection == Yoga.FLEX_DIRECTION_ROW ||
+    flexDirection == Yoga.FLEX_DIRECTION_ROW_REVERSE
+  ) {
+    if (direction == 'vertical') {
+      node.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
+    } else {
+      node.yogaNode.setFlexGrow(1)
+    }
+  } else if (
+    flexDirection == Yoga.FLEX_DIRECTION_COLUMN ||
+    flexDirection == Yoga.FLEX_DIRECTION_COLUMN_REVERSE
+  ) {
+    if (direction == 'horizontal') {
+      node.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
+    } else {
+      node.yogaNode.setFlexGrow(1)
+    }
+  }
 }

@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core'
 import * as json5 from 'json5'
 import { mapKeyValue, stringifyReplacer } from '../../../utils/utils'
-import { Box } from '../../1-basics/box'
+import { HBox, VBox } from '../../1-basics/box'
 import { List } from './list'
 
 @Component({
   standalone: true,
-  imports: [Box],
   selector: 'basic-object-display',
-  template: `<box [style]="{ height: 1 }">{{ text }}</box>`,
+  template: `<hbox [style]="{ height: 1 }">{{ text }}</hbox>`,
+  imports: [HBox, VBox],
 })
 export class BasicObjectDisplay {
   @Input() data: any

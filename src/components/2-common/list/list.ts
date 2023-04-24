@@ -26,7 +26,7 @@ import { Command, registerShortcuts, ShortcutService } from '../../../commands/s
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
 import { assert, inputToSignal } from '../../../utils/utils'
-import { Box } from '../../1-basics/box'
+import { HBox, VBox } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
@@ -40,9 +40,9 @@ import { ListItem } from './list-item'
   standalone: true,
   selector: 'list',
   template: `
-    <box *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items()?.length || 0 }}</box>
-    <box [style]="{ flexShrink: 0, scroll: 'y' }">
-      <box
+    <hbox *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items()?.length || 0 }}</hbox>
+    <vbox [style]="{ flexShrink: 0, scroll: 'y' }">
+      <vbox
         #elementRef
         *ngFor="
           let item of $visibleItems();
@@ -71,23 +71,13 @@ import { ListItem } from './list-item'
           *ngIf="!template && !template2 && _displayComponent"
           [ngComponentOutlet]="_displayComponent"
           [ndcDynamicInputs]="{ data: item }"></ng-container>
-      </box>
-    </box>
+      </vbox>
+    </vbox>
 
     <ng-template #defaultTemplate let-item>
       <basic-object-display [data]="item"></basic-object-display>
     </ng-template>
   `,
-  imports: [
-    NgFor,
-    NgIf,
-    NgComponentOutlet,
-    NgTemplateOutlet,
-    Box,
-    ClassesDirective,
-    DynamicModule,
-    BasicObjectDisplay,
-  ],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -95,6 +85,17 @@ import { ListItem } from './list-item'
       deps: [List],
       multi: true,
     },
+  ],
+  imports: [
+    NgFor,
+    NgIf,
+    NgComponentOutlet,
+    NgTemplateOutlet,
+    HBox,
+    ClassesDirective,
+    DynamicModule,
+    BasicObjectDisplay,
+    VBox,
   ],
 })
 export class List<T> {

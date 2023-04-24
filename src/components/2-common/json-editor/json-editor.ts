@@ -7,12 +7,12 @@ import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
-import { TextEditor } from '../../../text-editor'
+import { TextEditor } from '../text-editor'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { DataFormat } from '../../../utils/data-format'
 import { onChange, subscribe } from '../../../utils/reactivity'
 import { Anything, assert, removeFromArray } from '../../../utils/utils'
-import { Box } from '../../1-basics/box'
+import { HBox } from '../../1-basics/box'
 import { NewClassesDirective } from '../../1-basics/classes'
 import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
@@ -24,16 +24,14 @@ import { ListItem } from '../list/list-item'
   selector: 'json-editor',
   host: { '[style]': "{flexDirection: 'row'}" },
   template: `
-    <box
+    <hbox
       *ngIf="hasKey()"
       [focusIf]="focused == 'key'"
       [style]="{
-        flexDirection: 'row',
-        alignItems: 'flexStart',
         flexShrink: 0
       }">
       <text-input [(text)]="valueRef.key"></text-input>:
-    </box>
+    </hbox>
 
     <ng-container [focusIf]="focused == 'value'">
       <text-input
@@ -56,7 +54,7 @@ import { ListItem } from '../list/list-item'
     </ng-container>
   `,
   imports: [
-    Box,
+    HBox,
     TextInput,
     NgIf,
     List,

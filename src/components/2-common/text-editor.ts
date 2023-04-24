@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { spawn } from 'child_process'
 import fs from 'fs'
 import { Subject } from 'rxjs'
-import { ScreenService } from './angular-terminal/screen-service'
+import { ScreenService } from '../../angular-terminal/screen-service'
 
 @Injectable({
   providedIn: 'root',

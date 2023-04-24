@@ -21,4 +21,10 @@ require('./components/2-common/json-editor/json-editor.spec')
 require('./components/2-common/list/list.spec')
 require('./components/2-common/form-editor.spec')
 
+require('./angular-terminal/dom-terminal/yoga.spec')
+require('./angular-terminal/dom-terminal/dom.spec')
+
+// require('./angular-terminal/dom-terminal/sources/core/dom/Node.spec')
+// require('./angular-terminal/dom-terminal/sources/core/dom/Element.spec')
+
 jasmine.execute()

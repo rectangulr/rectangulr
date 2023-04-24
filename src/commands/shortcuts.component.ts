@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, NgZone, Output, ViewChild } fro
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
-import { Box } from '../components/1-basics/box'
+import { VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
@@ -16,7 +16,7 @@ import { Command, ShortcutService } from './shortcut.service'
  */
 @Component({
   standalone: true,
-  imports: [Box, SearchList, ListItem, StyleDirective],
+  imports: [VBox, SearchList, ListItem, StyleDirective],
   selector: 'shortcuts',
   host: { '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%' }" },
   template: `
@@ -24,7 +24,9 @@ import { Command, ShortcutService } from './shortcut.service'
       #searchList
       [items]="listOfCommands"
       [style]="{ border: 'rounded', backgroundColor: 'darkgray' }">
-      <box *item="let command; type: listOfCommands">{{ command.name }} ({{ command.keys }}) </box>
+      <vbox *item="let command; type: listOfCommands"
+        >{{ command.name }} ({{ command.keys }})
+      </vbox>
     </search-list>
   `,
   providers: [
