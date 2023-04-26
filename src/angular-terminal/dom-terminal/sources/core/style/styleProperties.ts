@@ -170,13 +170,13 @@ export let styleProperties: { [name: string]: StyleProperty } = {
 
   flexGrow: {
     parsers: [number],
-    triggers: [dirtyLayout, forwardToYoga('setFlexGrow', _.identity)],
+    triggers: [dirtyLayout, forwardToYoga('setFlexGrow', value => value)],
     initial: 0,
   },
 
   flexShrink: {
     parsers: [number],
-    triggers: [dirtyLayout, forwardToYoga('setFlexShrink', _.identity)],
+    triggers: [dirtyLayout, forwardToYoga('setFlexShrink', value => value)],
     initial: 1,
   },
 
@@ -538,6 +538,12 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     parsers: [true, false],
     triggers: [dirtyLayout, (node, value) => grow(node, value, 'vertical')],
     initial: false,
+  },
+
+  justifyContent: {
+    parsers: ['flexStart', 'flexEnd', 'center', 'baseline', 'stretch'],
+    triggers: [dirtyLayout, forwardToYoga('setJustifyContent', value => value)],
+    initial: 'flexStart',
   },
 }
 

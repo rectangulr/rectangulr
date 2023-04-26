@@ -12,7 +12,7 @@ import { Element } from '../../angular-terminal/dom-terminal/sources/core/index'
 // This is handled by the dom - terminal renderer.
 @Directive({
   standalone: true,
-  selector: 'hbox',
+  selector: 'h, hbox',
 })
 export class HBox {
   constructor(public elementRef: ElementRef<Element>) {}
@@ -30,7 +30,7 @@ export class HBox {
  */
 @Directive({
   standalone: true,
-  selector: 'vbox',
+  selector: 'v, vbox',
 })
 export class VBox {
   constructor(public elementRef: ElementRef<Element>) {}

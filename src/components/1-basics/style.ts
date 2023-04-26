@@ -61,6 +61,7 @@ export interface IStyle {
   scroll?: true | null | 'x' | 'y'
   hgrow?: boolean
   vgrow?: boolean
+  justifyContent?: 'flexStart' | 'flexEnd' | 'center' | 'baseline' | 'stretch'
 }
 
 /**

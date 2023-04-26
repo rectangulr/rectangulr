@@ -16,9 +16,10 @@ let globalId = 0
   standalone: true,
   selector: 'text-input',
   host: { '[style]': "{ flexDirection: 'row', flexShrink: 0 }" },
-  template: `v
+  template: `
     <vbox>{{ text }}</vbox>
-    <vbox [style]="{ width: 1, height: 1 }"></vbox> `,
+    <vbox [style]="{ width: 1, height: 1 }"></vbox>
+  `,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

@@ -215,7 +215,7 @@ export class List<T> {
       const element: Element = this.elementRefs.get(
         this.selected.index - this.$visibleRange().start
       )?.nativeElement
-      element?.scrollIntoView()
+      element?.scrollIntoView({ direction: 'y' })
     }
   }
 

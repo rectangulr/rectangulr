@@ -6,22 +6,22 @@ import { Logger } from '../../angular-terminal/logger'
 import { KeyValue } from '../../utils/interfaces'
 import { State } from '../../utils/reactivity'
 import { longest, stringifyReplacer } from '../../utils/utils'
-import { VBox } from '../1-basics/box'
+import { HBox, VBox } from '../1-basics/box'
 import { ClassesDirective } from '../1-basics/classes'
 import { blackOnWhite } from './styles'
 
 @Component({
   standalone: true,
-  imports: [VBox, ClassesDirective, NgFor],
+  imports: [VBox, HBox, ClassesDirective, NgFor],
   selector: 'object-display',
   template: `
-    <vbox
-      [style]="{ flexDirection: 'row', scroll: 'y' }"
-      *ngFor="let keyValue of keyValues; trackBy: trackByFn">
-      <vbox [style]="{ flexShrink: 0, width: longestKey + 1 }" [classes]="[blackOnWhite]">{{
-        keyValue.key
-      }}</vbox>
-      <vbox [style]="{ wrap: 'wrap' }">{{ keyValue.value }}</vbox>
+    <vbox>
+      <hbox *ngFor="let keyValue of keyValues; trackBy: trackByFn">
+        <h [style]="{ flexShrink: 0, width: longestKey + 1 }" [classes]="[blackOnWhite]">{{
+          keyValue.key
+        }}</h>
+        <h [style]="{ wrap: 'wrap', scroll: 'y' }">{{ keyValue.value }}</h>
+      </hbox>
     </vbox>
   `,
 })

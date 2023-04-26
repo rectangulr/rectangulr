@@ -18,9 +18,11 @@ import { Notification, NotificationsService } from './notifications.service'
     <vbox
       *ngIf="notification"
       [style]="{ display: notification ? 'flex' : 'none', border: 'rounded' }">
-      <vbox *ngIf="notification.name">{{ notification.name }}</vbox>
+      <h *ngIf="notification.name">{{ notification.name }}</h>
       <object-display *ngIf="!notification.name" [object]="notification"></object-display>
-      <hbox [style]="{ flexGrow: 1, alignItems: 'flexEnd' }">Go To Logs: alt+l</hbox> -->
+      <h [style]="{ hgrow: true, justifyContent: 'flexEnd', alignItems: 'flexEnd' }"
+        >Go To Logs: alt+l</h
+      >
     </vbox>
   `,
 })

@@ -80,8 +80,8 @@ interface Column {
 
 @Component({
   standalone: true,
-  imports: [HBox, List, Row, ListItem, ClassesDirective],
   selector: 'table',
+  host: { '[style]': `{scroll: 'x'}` },
   template: `
     <hbox [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ $headers() }}</hbox>
     <list
@@ -90,13 +90,14 @@ interface Column {
       [trackByFn]="trackByFn"
       [template]="template || template2 || defaultRowTemplate"
       (selectedItem)="$selectedItem.set($event)"
-      (visibleItems)="$visibleItems.set($event)">
+      (visibleItems)="$visibleItems.set($event)"
+      [style]="{ hgrow: true }">
       <ng-template #defaultRowTemplate>
         <row [style]="{ flexShrink: 0 }" *item="let item" [data]="item"></row>
       </ng-template>
     </list>
   `,
-  host: { '[style]': `{scroll: 'x'}` },
+  imports: [HBox, List, Row, ListItem, ClassesDirective],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -116,22 +117,21 @@ export class Table<T> {
   @Output('visibleItems') $$visibleItems = new BehaviorSubject<T[]>(null)
 
   $items = signal([])
+  $visibleItems = signal([])
+  $selectedColumnIndex = signal<number | null>(0)
+  $selectedItem = signal(null)
+
   $columns = computed(() => {
     return this.computeColumnWidths(this.$items())
   })
+  $selectedColumn = computed(() => this.$columns()[this.$selectedColumnIndex()])
   $headers = computed(() => {
     return this.computeHeaders(this.$columns(), this.$selectedColumn())
   })
 
-  $selectedColumnIndex = signal<number | null>(0)
-  $selectedColumn = computed(() => this.$columns()[this.$selectedColumnIndex()])
-  $selectedItem = signal(null)
-
   @ViewChild(List) list: List<T>
   $list = new BehaviorSubject<List<T>>(null)
   controlValueAccessor: ControlValueAccessor = null
-  prevColumns: { id: string; width: number }[]
-  $visibleItems = signal([])
 
   constructor(public shortcutService: ShortcutService, public elementRef: ElementRef<Element>) {
     makeObservable(this, 'list', '$list')
@@ -152,15 +152,18 @@ export class Table<T> {
     effect(() => {
       const columns = this.$columns()
       const index = this.$selectedColumnIndex()
+
       if (columns.length == 0 || index > columns.length - 1) return
-
-      let end = 0
+      let range = { start: 0, end: 0 }
       for (let i = 0; i <= index; i++) {
-        const column = columns[i]
-        end += column.width
+        if (i < index) range.start += columns[i].width + 3
+        range.end += columns[i].width + 3
       }
-
-      this.elementRef.nativeElement.scrollColumnIntoView(end)
+      if (range.start < elementRef.nativeElement.scrollRect.x) {
+        this.elementRef.nativeElement.scrollColumnIntoView(range.start)
+      } else {
+        this.elementRef.nativeElement.scrollColumnIntoView(range.end)
+      }
     })
 
     registerShortcuts(this, this.shortcuts)
@@ -221,12 +224,13 @@ export class Table<T> {
   }
 
   selectColumnIndex(index: number) {
-    if (!this.$columns() || this.$columns().length == 0) {
+    const columns = this.$columns()
+    if (!columns || columns.length == 0) {
       this.$selectedColumnIndex.set(null)
       return
     }
 
-    const realIndex = _.clamp(index, 0, this.$columns().length - 1)
+    const realIndex = _.clamp(index, 0, columns.length - 1)
     this.$selectedColumnIndex.set(realIndex)
   }
 

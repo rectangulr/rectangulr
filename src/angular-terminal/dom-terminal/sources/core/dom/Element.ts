@@ -469,15 +469,6 @@ export class Element extends Node {
     this.focusRelativeElement(+1)
   }
 
-  scrollIntoView2() {
-    this.parentNode?.parentScrollIntoView2(this)
-  }
-
-  parentScrollIntoView2(child: Element) {
-    const scroll = this.style.$.scroll
-    this.scrollCellIntoView(child.elementRect)
-  }
-
   scrollIntoView({
     align = 'auto',
     alignX = align,
@@ -485,6 +476,7 @@ export class Element extends Node {
     force = false,
     forceX = force,
     forceY = force,
+    direction = 'both',
   } = {}) {
     this.triggerUpdates()
 
@@ -499,6 +491,7 @@ export class Element extends Node {
         alignY,
         forceX,
         forceY,
+        direction,
       })
     } else {
       let effectiveAlignX = alignX
@@ -539,6 +532,7 @@ export class Element extends Node {
         alignY,
         forceX,
         forceY,
+        direction,
       })
     }
   }
@@ -552,21 +546,23 @@ export class Element extends Node {
       force = false,
       forceX = force,
       forceY = force,
+      direction = 'both',
     } = {}
   ) {
     this.triggerUpdates()
 
     const scroll = this.style.$.scroll
 
-    if (scroll === true || scroll == 'x') {
+    if ((direction == 'both' || direction == 'x') && (scroll === true || scroll == 'x')) {
       let effectiveAlignX = alignX
 
-      if (effectiveAlignX === 'auto')
+      if (effectiveAlignX === 'auto') {
         effectiveAlignX =
           Math.abs(position.x - this.scrollLeft) <
           Math.abs(position.x - (this.scrollLeft + this.elementRect.width - 1))
             ? 'start'
             : 'end'
+      }
 
       if (
         forceX ||
@@ -589,15 +585,16 @@ export class Element extends Node {
       }
     }
 
-    if (scroll === true || scroll == 'y') {
+    if ((direction == 'both' || direction == 'y') && (scroll === true || scroll == 'y')) {
       let effectiveAlignY = alignY
 
-      if (effectiveAlignY === 'auto')
+      if (effectiveAlignY === 'auto') {
         effectiveAlignY =
           Math.abs(position.y - this.scrollTop) <
           Math.abs(position.y - (this.scrollTop + this.elementRect.height - 1))
             ? 'start'
             : 'end'
+      }
 
       if (
         forceY ||
@@ -624,7 +621,7 @@ export class Element extends Node {
       let x = this.elementRect.x + position.x - this.scrollRect.x
       let y = this.elementRect.y + position.y - this.scrollRect.y
 
-      this.parentNode.scrollCellIntoView(new Point({ x, y }), { alignX, alignY })
+      this.parentNode.scrollCellIntoView(new Point({ x, y }), { alignX, alignY, direction })
     }
   }
 
