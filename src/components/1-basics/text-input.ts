@@ -15,10 +15,10 @@ let globalId = 0
 @Component({
   standalone: true,
   selector: 'text-input',
-  host: { '[style]': "{ flexDirection: 'row', flexShrink: 0 }" },
+  host: { '[style]': "{ flexDirection: 'row', flexShrink: 0, scroll: 'x' }" },
   template: `
-    <vbox>{{ text }}</vbox>
-    <vbox [style]="{ width: 1, height: 1 }"></vbox>
+    <h>{{ text }}</h>
+    <h [style]="{ width: 1, height: 1 }"></h>
   `,
   providers: [
     {

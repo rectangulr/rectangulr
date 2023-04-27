@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { onChange } from '../utils/reactivity'
 import { InjectFunction, stringifyReplacer } from '../utils/utils'
+import { signal } from './signals'
 
 export const LOG_FILE = new InjectionToken<string>('LOG_FILE', { factory: () => 'log.json' })
 
@@ -11,15 +12,10 @@ export const LOG_FILE = new InjectionToken<string>('LOG_FILE', { factory: () => 
   providedIn: 'root',
 })
 export class Logger {
-  logs = []
-  $logs = new Subject<any[]>()
+  $logs = signal<any[]>([])
   $onLog = new Subject<any>()
 
-  constructor(@Inject(LOG_FILE) private logFile: string) {
-    onChange(this, 'logs', logs => {
-      this.$logs.next(logs)
-    })
-  }
+  constructor(@Inject(LOG_FILE) private logFile: string) {}
 
   log(thing) {
     // String or Object
@@ -31,17 +27,15 @@ export class Logger {
     }
 
     // Store in memory (max 200)
-    this.logs.push(logObject)
-    if (this.logs.length > 200) {
-      this.logs = this.logs.slice(-100)
-    }
-    this.logs = this.logs
+    this.$logs.mutate(logs => {
+      logs.push(logObject)
+      if (logs.length > 200) {
+        logs = logs.slice(-100)
+      }
+    })
 
     // Store in file
     fs.writeFileSync(this.logFile, stringify(logObject) + '\n', { flag: 'a+' })
-
-    // Notify subscribers
-    this.$onLog.next(logObject)
   }
 }
 
@@ -114,5 +108,5 @@ export function stringify(thing: any) {
 export const global_logs = function () {
   const inject: InjectFunction = globalThis.rg.inject
   const logger = inject(Logger)
-  return logger.logs.slice(-100)
+  return logger.$logs().slice(-100)
 }

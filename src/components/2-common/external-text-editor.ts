@@ -7,8 +7,10 @@ import { ScreenService } from '../../angular-terminal/screen-service'
 @Injectable({
   providedIn: 'root',
 })
-export class TextEditor {
+export class ExternalTextEditor {
   filePath = '/tmp/file.json'
+  releaseScreen = false
+
   constructor(public screenService: ScreenService) {}
 
   edit(text): Subject<any> {
@@ -16,7 +18,9 @@ export class TextEditor {
 
     fs.writeFileSync(this.filePath, text)
 
-    this.screenService.releaseScreen()
+    if (this.releaseScreen) {
+      this.screenService.releaseScreen()
+    }
     const editor = spawn('code', ['-w', this.filePath], {
       stdio: 'inherit',
     })
@@ -33,7 +37,9 @@ export class TextEditor {
     editor.on('exit', (code, signal) => {
       stream.complete()
       watcher.close()
-      this.screenService.attachScreen()
+      if (this.releaseScreen) {
+        this.screenService.attachScreen()
+      }
     })
 
     return stream

@@ -7,7 +7,7 @@ import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
-import { TextEditor } from '../text-editor'
+import { ExternalTextEditor } from '../external-text-editor'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { DataFormat } from '../../../utils/data-format'
 import { onChange, subscribe } from '../../../utils/reactivity'
@@ -24,12 +24,7 @@ import { ListItem } from '../list/list-item'
   selector: 'json-editor',
   host: { '[style]': "{flexDirection: 'row'}" },
   template: `
-    <hbox
-      *ngIf="hasKey()"
-      [focusIf]="focused == 'key'"
-      [style]="{
-        flexShrink: 0
-      }">
+    <hbox *ngIf="hasKey()" [focusIf]="focused == 'key'" [style]="{ flexShrink: 0 }">
       <text-input [(text)]="valueRef.key"></text-input>:
     </hbox>
 
@@ -90,7 +85,7 @@ export class JsonEditor {
   constructor(
     public shortcutService: ShortcutService,
     public logger: Logger,
-    public textEditor: TextEditor
+    public textEditor: ExternalTextEditor
   ) {
     onChange(this, 'valueRef', valueRef => {
       this.onValueRefChange(valueRef)

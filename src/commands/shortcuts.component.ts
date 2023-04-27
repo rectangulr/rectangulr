@@ -23,7 +23,7 @@ import { Command, ShortcutService } from './shortcut.service'
     <search-list
       #searchList
       [items]="listOfCommands"
-      [style]="{ border: 'rounded', backgroundColor: 'darkgray' }">
+      [style]="{ border: 'rounded', backgroundColor: 'darkgray', hgrow: true }">
       <vbox *item="let command; type: listOfCommands"
         >{{ command.name }} ({{ command.keys }})
       </vbox>
