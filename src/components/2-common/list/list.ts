@@ -20,14 +20,15 @@ import { DynamicModule } from 'ng-dynamic-component'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
-import { computed, effect, Signal, signal } from '../../../angular-terminal/signals'
+import { Signal, computed, effect, signal } from '../../../angular-terminal/signals'
 import { FocusDirective } from '../../../commands/focus.directive'
-import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
 import { assert, inputToSignal } from '../../../utils/utils'
 import { HBox, VBox } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
+import { JsonPath } from '../json-editor/json-editor'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
@@ -105,16 +106,23 @@ export class List<T> {
   @Input() displayComponent: any
   @Input() template: TemplateRef<any>
   @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
+  @Input() onInitSelect: 'first' | 'last' = 'first'
+  // @Input() focusPath: Signal<JsonPath | null> = signal(null)
+
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
   @Output('selectedItem') $selectedItem = new EventEmitter<T>()
   @Output('visibleItems') $$visibleItems = new BehaviorSubject<T[]>(null)
+
+  $items = signal([])
+  // $focusPath = signal(null)
+
+  $selectedIndex = signal(undefined)
+  $selectedValue = computed(() => {})
 
   selected = {
     index: undefined,
     value: undefined,
   }
-
-  $items = signal([])
 
   windowSize = 20
   $visibleRange = signal({ start: 0, end: this.windowSize })
@@ -131,6 +139,7 @@ export class List<T> {
     public logger: Logger
   ) {
     inputToSignal(this, 'items', '$items')
+    // inputToSignal(this, 'focusPath', '$focusPath')
 
     this.$visibleItems = computed(() => {
       const visibleRange = this.$visibleRange()
@@ -145,6 +154,11 @@ export class List<T> {
     effect(() => {
       this.$$visibleItems.next(this.$visibleItems())
     })
+
+    // effect(() => {
+    //   const indexToFocus = this.$focusPath()[0]
+    //   this.selectIndex(indexToFocus)
+    // })
 
     subscribe(this, this.$selectedItem, newValue => {
       this.controlValueAccessor.emitChange(newValue)
@@ -175,7 +189,15 @@ export class List<T> {
         // nothing
       }
     }
-    selectNewIndex()
+    const onInitSelect = () => {
+      const items = this.$items()
+      if (this.onInitSelect == 'first') {
+        this.selectIndex(0)
+      } else if (this.onInitSelect == 'last') {
+        this.selectIndex(items.length - 1)
+      }
+    }
+    onInitSelect()
     effect(() => selectNewIndex())
   }
 
@@ -208,7 +230,7 @@ export class List<T> {
       if (!selectedFocusDirective) {
         debugger
       }
-      selectedFocusDirective.shortcutService.requestFocus()
+      selectedFocusDirective.shortcutService.requestFocus({ reason: 'List selectIndex' })
     }
 
     if (this.elementRefs?.length > 0) {
@@ -220,7 +242,7 @@ export class List<T> {
   }
 
   whiteOnGray = whiteOnGray
-  nullOnNull = makeRuleset({ backgroundColor: null, color: null })
+  nullOnNull = makeRuleset({ backgroundColor: 'inherit', color: 'inherit' })
 
   shortcuts: Partial<Command>[] = [
     {

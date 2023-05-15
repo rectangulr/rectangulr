@@ -4,6 +4,7 @@ import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
 import { effect, isSignal } from '../angular-terminal/signals'
 import { onChange, subscribe } from './reactivity'
+import { Logger } from '../angular-terminal/logger'
 
 /**
  * @example
@@ -124,16 +125,6 @@ export function waitFor(observable: Observable<any>) {
 export function inputToSignal<T, K extends keyof T>(_component: T, key: K, signalKey: K) {
   const component = _component as any
 
-  // // Emit initial value
-  // const initialValue = component[key]
-  // if (initialValue && isObservable(initialValue) && initialValue['value']) {
-  //   component[signalKey].set(initialValue['value'])
-  // } else if (initialValue && isSignal(initialValue)) {
-  //   component[signalKey].set(initialValue())
-  // } else {
-  //   component[signalKey].set(initialValue)
-  // }
-
   let subscription
 
   // Emit following values
@@ -239,4 +230,14 @@ export function stringifyReplacer({ depth = 5 } = {}) {
 
 export function removeFromArray(array, item) {
   return _.filter(array, i => item != i)
+}
+
+export function logError(logger: Logger, thing) {
+  if (typeof thing == 'string') {
+    logger.log({ message: thing, level: 'error' })
+  } else if ('message' in thing && 'stack' in thing) {
+    logger.log({ message: thing.message, stack: thing.stack, level: 'error' })
+  } else {
+    logger.log({ ...thing, level: 'error' })
+  }
 }

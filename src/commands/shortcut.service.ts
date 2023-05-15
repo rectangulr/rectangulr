@@ -53,7 +53,7 @@ export class ShortcutService {
   rootNode: ShortcutService = null
 
   receivedCaretRequestRecently = false
-  askedForFocusThisTick = new Set()
+  askedForFocusThisTick: { child: ShortcutService; source: ShortcutService; reason: string }[] = []
   caretElement: Element = null
 
   isFocused = false
@@ -220,12 +220,17 @@ export class ShortcutService {
    * Usually called inside `ngOnInit`.
    * If the component should get focused not matter what, use `focus` instead.
    */
-  requestFocus(args?: { child?: ShortcutService; soft?: boolean }) {
+  requestFocus(args?: {
+    child?: ShortcutService
+    soft?: boolean
+    reason?: string
+    source?: ShortcutService
+  }) {
     args = { child: null, soft: true, ...args }
 
     // To be able to call focus() without arguments
     if (!args.child) {
-      this.parent?.requestFocus({ ...args, child: this })
+      this.parent?.requestFocus({ ...args, child: this, source: this })
       // this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
       return
     }
@@ -235,28 +240,28 @@ export class ShortcutService {
       return
     }
 
-    if (this.askedForFocusThisTick.has(args.child)) {
+    if (this.askedForFocusThisTick.find(item => item.child === args.child)) {
       // this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
       return
     }
 
     _.remove(this.focusStack, i => i == args.child)
     let index = this.focusStack.length
-    if (args.soft) index -= this.askedForFocusThisTick.size
+    if (args.soft) index -= this.askedForFocusThisTick.length
     index = _.clamp(index, 0, this.focusStack.length)
     const stackBefore = this.focusStack.map(i => i._id).join(',')
     this.focusStack.splice(index, 0, args.child)
     const stackAfter = this.focusStack.map(i => i._id).join(',')
     // this.logger.log(`${stringifyPathToNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
 
-    this.askedForFocusThisTick.add(args.child)
+    this.askedForFocusThisTick.push({ child: args.child, reason: args.reason, source: args.source })
     this.focusedChild = _.last(this.focusStack)
     assert(this.focusedChild, 'should focus a child')
     // log('received')
 
     // this.logger.log('setTimeout')
     setTimeout(() => {
-      this.askedForFocusThisTick.clear()
+      this.askedForFocusThisTick = []
       // this.logger.log(`focused end of tick: ${stringifyPathToLeaf(this)}`)
     })
 
@@ -425,7 +430,7 @@ function forFocusedChild(shortcutService: ShortcutService, func) {
   }
 }
 
-export function getFocusedNode(shortcutService: ShortcutService) {
+export function getFocusedNode(shortcutService: ShortcutService): ShortcutService {
   if (shortcutService.focusedChild) {
     return getFocusedNode(shortcutService.focusedChild)
   } else {

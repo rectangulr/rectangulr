@@ -30,7 +30,7 @@ export class ExternalTextEditor {
         setTimeout(() => {
           const content = fs.readFileSync(this.filePath)
           stream.next(content)
-        })
+        }, 20)
       }
     })
 

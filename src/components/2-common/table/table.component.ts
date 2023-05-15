@@ -38,7 +38,7 @@ export class Row<T> {
   ngOnInit() {
     assert(this.data)
     assert(typeof this.data == 'object')
-    assert(this.table.$columns)
+    assert(this.table.$columns())
 
     this.text = computed(() => {
       const columns = this.table.$columns()
@@ -52,13 +52,16 @@ export class Row<T> {
           let value = this.data[column.id]
 
           if (typeof value == 'string') {
-            value = String(value).slice(0, column.width).padEnd(column.width)
+            value = String(value)
           } else if (value === undefined) {
             value = 'undefined'
+          } else if (value === null) {
+            value = ''
           } else {
-            value = json5.stringify(value).slice(0, column.width).padEnd(column.width)
+            value = json5.stringify(value)
           }
-          return { ...column, string: value }
+
+          return { ...column, string: value.slice(0, column.width).padEnd(column.width) }
         })
         .forEach(column => {
           if (selectedColumn && column.id == selectedColumn.id && this.data == selectedItem) {
@@ -217,7 +220,12 @@ export class Table<T> {
     })
 
     function computeWidth(items: any[], key: string) {
-      const valuesWidth = items.map(item => String(item[key]).length)
+      const valuesWidth = items.map(item => {
+        if (item === item[key]) {
+          return 4
+        }
+        return String(item[key]).length
+      })
       const max = _.max(valuesWidth)
       return _.clamp(max, key.length, 50)
     }

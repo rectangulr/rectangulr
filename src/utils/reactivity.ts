@@ -2,6 +2,7 @@ import { BehaviorSubject, isObservable, Observable, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { Destroyable } from './mixins'
 import { addToGlobalRg } from './utils'
+import { isSignal, signal } from '../angular-terminal/signals'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.
@@ -169,6 +170,17 @@ export function makeSignal<T, K extends keyof T>(_component: T, key: K, signalKe
   // Emit following values
   onChange(component, key, value => {
     component[signalKey].set(value)
+  })
+}
+
+export function inputSignal<T, K extends keyof T>(_component: T, key: K) {
+  const component = _component as any
+  onChange(component, key, value => {
+    if (isSignal(value)) {
+      return value
+    } else {
+      return signal(value)
+    }
   })
 }
 

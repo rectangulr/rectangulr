@@ -120,8 +120,6 @@ describe('List - ', () => {
     expect(component.inputs.get(1).text).toBe('text2-')
     expect(component.inputs.get(2).text).toBe('text3')
   }))
-
-  it(`should work with observables`, async () => {})
 })
 
 @Component({

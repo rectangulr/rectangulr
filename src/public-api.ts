@@ -31,7 +31,7 @@ export {
 export { View, ViewService } from './components/2-common/app-shell/view.service'
 export { ConfigLoader } from './components/2-common/config-loader'
 export { FormEditor, KeyValueEditor } from './components/2-common/form-editor'
-export { JsonEditor } from './components/2-common/json-editor/json-editor'
+export { JsonEditor, JsonPath } from './components/2-common/json-editor/json-editor'
 export { Json5Pipe } from './components/2-common/json5.pipe'
 export { List } from './components/2-common/list/list'
 export { ListItem } from './components/2-common/list/list-item'

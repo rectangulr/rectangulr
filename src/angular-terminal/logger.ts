@@ -36,6 +36,9 @@ export class Logger {
 
     // Store in file
     fs.writeFileSync(this.logFile, stringify(logObject) + '\n', { flag: 'a+' })
+
+    // Notify subscribers
+    this.$onLog.next(logObject)
   }
 }
 

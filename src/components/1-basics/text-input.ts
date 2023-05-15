@@ -15,7 +15,7 @@ let globalId = 0
 @Component({
   standalone: true,
   selector: 'text-input',
-  host: { '[style]': "{ flexDirection: 'row', flexShrink: 0, scroll: 'x' }" },
+  host: { '[style]': "{ flexDirection: 'row', scroll: 'x' }" },
   template: `
     <h>{{ text }}</h>
     <h [style]="{ width: 1, height: 1 }"></h>
@@ -34,6 +34,7 @@ export class TextInput implements ControlValueAccessor {
   _id = ++globalId
 
   @Input() text = ''
+  @Input() focusOnInit = true
   @Output() textChange = new EventEmitter<string>()
 
   caretIndex = 0
@@ -64,7 +65,9 @@ export class TextInput implements ControlValueAccessor {
     this.caretIndex = this.text.length
 
     registerShortcuts(this, this.shortcuts)
-    this.shortcutService.requestFocus()
+    if (this.focusOnInit) {
+      this.shortcutService.requestFocus({ reason: 'TextInput onInit' })
+    }
   }
 
   ngAfterViewInit() {

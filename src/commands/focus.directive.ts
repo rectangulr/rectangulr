@@ -22,7 +22,7 @@ export class FocusDirective {
     onChange(this, 'focusIf', focusIf => {
       this.shortcutService.focusIf = focusIf
       if (focusIf) {
-        this.shortcutService.requestFocus()
+        this.shortcutService.requestFocus({ reason: 'FocusDirective focusIf true' })
       } else {
         this.shortcutService.unfocus()
       }
@@ -34,7 +34,7 @@ export class FocusDirective {
     }
     this.shortcutService.focusPropagateUp = this.focusPropagateUp
     if (this.focusOnInit) {
-      this.shortcutService.requestFocus()
+      this.shortcutService.requestFocus({ reason: 'FocusDirective onInit' })
     }
   }
 
@@ -66,7 +66,7 @@ export class FocusDebugDirective {
         return original
       },
     })
-    this.shortcutService.requestFocus()
+    this.shortcutService.requestFocus({ reason: 'focusDebugDirective onInit' })
   }
 
   destroy$ = new Subject()

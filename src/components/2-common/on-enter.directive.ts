@@ -39,7 +39,7 @@ export class OnEnterDirective {
   }
 
   ngOnInit() {
-    this.shortcutService.requestFocus()
+    this.shortcutService.requestFocus({ reason: 'OnEnterDirective onInit' })
   }
 
   destroy$ = new Subject()

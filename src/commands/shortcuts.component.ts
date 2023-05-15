@@ -7,18 +7,20 @@ import { StyleDirective } from '../components/1-basics/style'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
 import { onChange } from '../utils/reactivity'
-import { assert } from '../utils/utils'
+import { assert, logError } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Command, ShortcutService } from './shortcut.service'
 
 /**
- * Popup to discover shortcuts.
+ * Popup to discover commands.
  */
 @Component({
   standalone: true,
   imports: [VBox, SearchList, ListItem, StyleDirective],
   selector: 'shortcuts',
-  host: { '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%' }" },
+  host: {
+    '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' }",
+  },
   template: `
     <search-list
       #searchList
@@ -47,7 +49,7 @@ export class Shortcuts {
   hideCommands = true
   @ViewChild('searchList') list: SearchList<any>
 
-  constructor(public isolatedCommandService: ShortcutService) {
+  constructor(public isolatedShortcutService: ShortcutService, public logger: Logger) {
     onChange(this, 'hideCommands', hideCommands => {
       this.listOfCommands = this.listCommands()
     })
@@ -55,11 +57,11 @@ export class Shortcuts {
 
   ngOnInit() {
     this.listOfCommands = this.listCommands()
-    this.shortcutService.rootNode.before = this.isolatedCommandService
+    this.shortcutService.rootNode.before = this.isolatedShortcutService
 
     // almost like: registerShortcuts(this, this.commands)
-    const disposables = this.commands.map(command => {
-      return this.isolatedCommandService.registerCommand({ ...command, context: this })
+    const disposables = this.shortcuts.map(command => {
+      return this.isolatedShortcutService.registerCommand({ ...command, context: this })
     })
 
     this.destroy$.subscribe(() => {
@@ -88,14 +90,18 @@ export class Shortcuts {
     }
   }
 
-  commands = [
+  shortcuts = [
     {
       keys: 'enter',
       func: () => {
         let command = this.list.selectedItem.value
         if (!command) return
         const focused = focusedShortcutService(this.shortcutService)
-        focused.callCommand({ id: command.id })
+        try {
+          focused.callCommand({ id: command.id })
+        } catch (e) {
+          logError(this.logger, `callCommand failed: '${command.id}'`)
+        }
         this.onClose.emit(null)
         this.shortcutService.before = null
       },
@@ -112,6 +118,10 @@ export class Shortcuts {
       func: () => {
         this.hideCommands = !this.hideCommands
       },
+    },
+    {
+      keys: 'else',
+      func: () => {},
     },
   ]
 

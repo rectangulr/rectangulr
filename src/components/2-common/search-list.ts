@@ -36,6 +36,7 @@ import { borderTop } from './styles'
       <list
         [items]="matchingItems.$"
         (selectedItem)="selectedItem.next($event)"
+        onItemsChangeSelect="first"
         [showIndex]="showIndex"
         [trackByFn]="trackByFn"
         [template]="template || template2">
