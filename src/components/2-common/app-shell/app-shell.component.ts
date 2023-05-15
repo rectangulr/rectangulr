@@ -34,7 +34,7 @@ import { View, ViewService } from './view.service'
     <hbox [style]="{ flexDirection: 'row', flexShrink: 0, backgroundColor: 'grey' }">
       <hbox
         *ngFor="let view of viewService.tabs"
-        [classes]="[[s.blackOnWhite, view == currentTab]]"
+        [classes]="[[view == currentTab, s.blackOnWhite]]"
         [style]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</hbox
       >

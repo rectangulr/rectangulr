@@ -19,6 +19,7 @@ export class ListItem<T> {
     last: boolean
     even: boolean
     odd: boolean
+    selected: boolean
   } {
     return true
   }

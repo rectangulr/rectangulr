@@ -55,7 +55,10 @@ export class ClassesDirective {
       const enabledClasses = classes
         .map(item => {
           if (Array.isArray(item)) {
-            return item[1] ? item[0] : null
+            const [condition, style] = item
+            assert(typeof style == 'object')
+            assert(typeof condition == 'boolean')
+            return condition ? style : null
           } else {
             return item
           }

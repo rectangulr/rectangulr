@@ -27,8 +27,7 @@ import { BaseControlValueAccessor } from '../../../utils/base-control-value-acce
 import { subscribe } from '../../../utils/reactivity'
 import { assert, inputToSignal } from '../../../utils/utils'
 import { HBox, VBox } from '../../1-basics/box'
-import { ClassesDirective } from '../../1-basics/classes'
-import { JsonPath } from '../json-editor/json-editor'
+import { ClassesDirective, NewClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
@@ -55,7 +54,7 @@ import { ListItem } from './list-item'
           odd as odd;
           trackBy: trackByFn
         "
-        [classes]="[nullOnNull, [whiteOnGray, item == selected.value]]">
+        [classes]="[[styleItem && item == selected.value, s.whiteOnGray]]">
         <ng-container
           [ngTemplateOutlet]="template || template2 || defaultTemplate"
           [ngTemplateOutletContext]="{
@@ -65,7 +64,8 @@ import { ListItem } from './list-item'
             first: first,
             last: last,
             even: even,
-            odd: odd
+            odd: odd,
+            selected: item == selected.value
           }"></ng-container>
 
         <ng-container
@@ -75,8 +75,10 @@ import { ListItem } from './list-item'
       </vbox>
     </vbox>
 
-    <ng-template #defaultTemplate let-item>
-      <basic-object-display [data]="item"></basic-object-display>
+    <ng-template #defaultTemplate let-item let-selected>
+      <basic-object-display
+        [data]="item"
+        [classes]="[s.nullOnNull, [selected, s.whiteOnGray]]"></basic-object-display>
     </ng-template>
   `,
   providers: [
@@ -97,6 +99,7 @@ import { ListItem } from './list-item'
     DynamicModule,
     BasicObjectDisplay,
     VBox,
+    NewClassesDirective,
   ],
 })
 export class List<T> {
@@ -107,6 +110,7 @@ export class List<T> {
   @Input() template: TemplateRef<any>
   @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
   @Input() onInitSelect: 'first' | 'last' = 'first'
+  @Input() styleItem = true
   // @Input() focusPath: Signal<JsonPath | null> = signal(null)
 
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
@@ -241,8 +245,13 @@ export class List<T> {
     }
   }
 
-  whiteOnGray = whiteOnGray
-  nullOnNull = makeRuleset({ backgroundColor: 'inherit', color: 'inherit' })
+  @Input() s = {
+    whiteOnGrayStyle: { backgroundColor: 'dimgray', color: 'white' },
+    nullOnNullStyle: { backgroundColor: 'inherit', color: 'inherit' },
+
+    whiteOnGray: whiteOnGray,
+    nullOnNull: makeRuleset({ backgroundColor: 'inherit', color: 'inherit' }),
+  }
 
   shortcuts: Partial<Command>[] = [
     {
