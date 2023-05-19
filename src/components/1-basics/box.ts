@@ -39,3 +39,18 @@ export class VBox {
     this.elementRef.nativeElement.style.assign({ flexDirection: 'column' })
   }
 }
+
+/**
+ * <vbox grow></vbox>
+ */
+@Directive({
+  standalone: true,
+  selector: '[grow]',
+})
+export class GrowDirective {
+  constructor(public elementRef: ElementRef<Element>) {}
+
+  ngOnInit() {
+    this.elementRef.nativeElement.style.assign({ vgrow: true, hgrow: true })
+  }
+}

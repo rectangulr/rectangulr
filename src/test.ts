@@ -20,6 +20,7 @@ require('./commands/shortcut.service.spec')
 require('./components/2-common/json-editor/json-editor.spec')
 require('./components/2-common/list/list.spec')
 require('./components/2-common/form-editor.spec')
+require('./utils/derived.spec')
 
 require('./angular-terminal/dom-terminal/yoga.spec')
 require('./angular-terminal/dom-terminal/dom.spec')

@@ -26,7 +26,7 @@ import { Command, ShortcutService, registerShortcuts } from '../../../commands/s
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
 import { assert, inputToSignal } from '../../../utils/utils'
-import { HBox, VBox } from '../../1-basics/box'
+import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { ClassesDirective, NewClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
@@ -98,8 +98,9 @@ import { ListItem } from './list-item'
     ClassesDirective,
     DynamicModule,
     BasicObjectDisplay,
-    VBox,
+    GrowDirective,
     NewClassesDirective,
+    VBox,
   ],
 })
 export class List<T> {

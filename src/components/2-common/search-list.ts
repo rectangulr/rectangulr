@@ -16,7 +16,7 @@ import { Logger } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
 import { makeObservable, State } from '../../utils/reactivity'
 import { filterNulls } from '../../utils/utils'
-import { HBox, VBox } from '../1-basics/box'
+import { HBox, GrowDirective, VBox } from '../1-basics/box'
 import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
@@ -52,7 +52,7 @@ import { borderTop } from './styles'
       },
     },
   ],
-  imports: [HBox, TextInput, FocusDirective, List, NgIf, VBox],
+  imports: [HBox, VBox, TextInput, FocusDirective, List, NgIf, GrowDirective],
 })
 export class SearchList<T> {
   @Input() set items(items) {

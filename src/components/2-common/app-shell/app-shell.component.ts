@@ -7,7 +7,7 @@ import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { Shortcuts } from '../../../commands/shortcuts.component'
 import { makeProperty } from '../../../utils/reactivity'
-import { HBox, VBox } from '../../1-basics/box'
+import { HBox, GrowDirective } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
@@ -61,7 +61,7 @@ import { View, ViewService } from './view.service'
     NgComponentOutlet,
     Notifications,
     Shortcuts,
-    VBox,
+    GrowDirective,
   ],
 })
 export class AppShell {

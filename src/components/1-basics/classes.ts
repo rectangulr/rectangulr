@@ -20,7 +20,6 @@ export class NewClassesDirective {
           if (Array.isArray(item)) {
             const [condition, style] = item
             assert(typeof style == 'object')
-            assert(typeof condition == 'boolean')
             return condition ? style : null
           } else {
             return item
@@ -57,7 +56,6 @@ export class ClassesDirective {
           if (Array.isArray(item)) {
             const [condition, style] = item
             assert(typeof style == 'object')
-            assert(typeof condition == 'boolean')
             return condition ? style : null
           } else {
             return item

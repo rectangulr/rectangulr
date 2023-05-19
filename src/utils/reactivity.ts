@@ -2,7 +2,7 @@ import { BehaviorSubject, isObservable, Observable, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { Destroyable } from './mixins'
 import { addToGlobalRg } from './utils'
-import { isSignal, signal } from '../angular-terminal/signals'
+import { computed, isSignal, SettableSignal, Signal, signal } from '../angular-terminal/signals'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.
@@ -215,40 +215,22 @@ export function makeProperty<T, K extends keyof T>(
   })
 }
 
-// export function onChangeSubscribe<T extends Destroyable, K extends keyof T>(object: T, key: K, observableKey: K) {
-// 	const obj = object as any
-
-// 	// Emit initial value
-// 	obj[observableKey].next(object[key])
-
-// 	// Emit following values
-// 	onChange(obj, key, value => {
-// 		if (isObservable(value)) {
-// 			// unsubscribe
-// 			// subscribe
-// 		}
-// 		obj[observableKey].next(value)
-// 	})
-
-// }
-
-// export class RxValue<T> extends Subject<T> {
-//   constructor(private _value: T) {
-//     super()
-//   }
-
-//   get value(): T {
-//     return this._value
-//   }
-//   set value(value: T) {
-//     this._value = value
-//   }
-
-//   next(value: T): void {
-//     this._value = value
-//     super.next(value)
-//   }
-// }
+export function derived<T>(computation: () => T, updateSource: (value: T) => void) {
+  const signal = computed(computation) as unknown as SettableSignal<T>
+  signal.set = value => {
+    updateSource(value)
+  }
+  signal.update = updateFn => {
+    const value = updateFn(signal())
+    updateSource(value)
+  }
+  signal.mutate = mutatorFn => {
+    let value = signal()
+    mutatorFn(value)
+    updateSource(value)
+  }
+  return signal
+}
 
 export function forceRefresh() {
   globalThis['angularZone'].run(() => {})

@@ -2,13 +2,12 @@ import { NgIf } from '@angular/common'
 import { Component } from '@angular/core'
 import { Subject } from 'rxjs'
 import { subscribe } from '../../../utils/reactivity'
-import { HBox, VBox } from '../../1-basics/box'
+import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { ObjectDisplay } from '../object-display'
 import { Notification, NotificationsService } from './notifications.service'
 
 @Component({
   standalone: true,
-  imports: [VBox, HBox, NgIf, ObjectDisplay],
   selector: 'notifications',
   host: {
     '[style]':
@@ -23,6 +22,7 @@ import { Notification, NotificationsService } from './notifications.service'
       <!-- <h [style]="{ hgrow: true, justifyContent: 'flexEnd' }"><h>Go To Logs: alt+l</h></h> -->
     </vbox>
   `,
+  imports: [GrowDirective, HBox, NgIf, ObjectDisplay, VBox],
 })
 export class Notifications {
   notification: Notification

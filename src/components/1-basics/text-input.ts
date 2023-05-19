@@ -7,7 +7,7 @@ import { Logger } from '../../angular-terminal/logger'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { onChange } from '../../utils/reactivity'
 import { assert } from '../../utils/utils'
-import { HBox, VBox } from './box'
+import { HBox, GrowDirective } from './box'
 import { StyleDirective } from './style'
 
 let globalId = 0
@@ -28,7 +28,7 @@ let globalId = 0
     },
     { provide: ShortcutService },
   ],
-  imports: [HBox, StyleDirective, VBox],
+  imports: [HBox, StyleDirective, GrowDirective],
 })
 export class TextInput implements ControlValueAccessor {
   _id = ++globalId

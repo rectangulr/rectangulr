@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common'
 import {
-  ApplicationModule,
   APP_INITIALIZER,
+  ApplicationModule,
   ErrorHandler,
   Inject,
-  inject,
   InjectionToken,
   Injector,
   NgModule,
   Optional,
   RendererFactory2,
   SkipSelf,
+  inject,
   ɵINJECTOR_SCOPE,
 } from '@angular/core'
 import { RectangulrRendererFactory } from './angular-terminal/angular-dom'
@@ -41,10 +41,10 @@ import { ObjectDisplay } from './components/2-common/object-display'
 import { OnEnterDirective } from './components/2-common/on-enter.directive'
 import { SearchList } from './components/2-common/search-list'
 import { SignalDirective } from './components/2-common/signal.directive'
-import { Table, Row } from './components/2-common/table/table.component'
+import { Row, Table } from './components/2-common/table/table.component'
 import { ValueDirective } from './components/2-common/value.directive'
 import { ComponentOutletInputs } from './utils/componentOutletInput'
-import { addToGlobalRg, InjectFunction } from './utils/utils'
+import { InjectFunction, addToGlobalRg } from './utils/utils'
 
 // @ts-ignore
 const NG_DEV_MODE = typeof ngDevMode === 'undefined' || !!ngDevMode

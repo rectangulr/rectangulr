@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core'
-import { HBox, VBox } from '../../components/1-basics/box'
+import { HBox, GrowDirective } from '../../components/1-basics/box'
 import { setupTest } from '../../utils/tests'
 import { Element } from './sources'
 import { StyleDirective } from '../../public-api'
@@ -14,7 +14,7 @@ describe('DOM - ', () => {
   it('child should be bigger than parent', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, VBox],
+      imports: [HBox, GrowDirective],
       template: `
         <vbox #parent [style]="{ width: 5 }">
           <vbox #child [style]="{ flexShrink: 0 }">aaaaaaaaaa</vbox>
@@ -39,7 +39,7 @@ describe('DOM - ', () => {
   it('text should stretch the parent', async () => {
     @Component({
       standalone: true,
-      imports: [VBox],
+      imports: [GrowDirective],
       template: ` <vbox #parent>aaaaaaaaaa</vbox> `,
     })
     class Test {
@@ -56,7 +56,7 @@ describe('DOM - ', () => {
   it('vbox', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, VBox, StyleDirective],
+      imports: [HBox, GrowDirective, StyleDirective],
       template: `
         <vbox [style]="{ width: 20 }">
           <vbox #child1>Test</vbox>
@@ -83,7 +83,7 @@ describe('DOM - ', () => {
   it('vbox hgrow', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, VBox, StyleDirective],
+      imports: [HBox, GrowDirective, StyleDirective],
       template: `
         <vbox #parent [style]="{ width: 20 }">
           <vbox #child1 [style]="{ hgrow: true }">Test</vbox>

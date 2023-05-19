@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, NgZone, Output, ViewChild } fro
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
-import { VBox } from '../components/1-basics/box'
+import { GrowDirective, VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
@@ -16,7 +16,6 @@ import { Command, ShortcutService } from './shortcut.service'
  */
 @Component({
   standalone: true,
-  imports: [VBox, SearchList, ListItem, StyleDirective],
   selector: 'shortcuts',
   host: {
     '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' }",
@@ -40,6 +39,7 @@ import { Command, ShortcutService } from './shortcut.service'
       },
     },
   ],
+  imports: [GrowDirective, SearchList, ListItem, StyleDirective, VBox],
 })
 export class Shortcuts {
   @Input() shortcutService: ShortcutService = null
