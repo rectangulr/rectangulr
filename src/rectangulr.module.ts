@@ -23,7 +23,7 @@ import { ScreenService } from './angular-terminal/screen-service'
 import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { FocusDebugDirective, FocusDirective } from './commands/focus.directive'
 import { Shortcuts } from './commands/shortcuts.component'
-import { HBox, VBox } from './components/1-basics/box'
+import { HBox, HGrowDirective, VBox, VGrowDirective } from './components/1-basics/box'
 import { ClassesDirective, NewClassesDirective } from './components/1-basics/classes'
 import { StyleDirective, StylesDirective } from './components/1-basics/style'
 import { TextInput } from './components/1-basics/text-input'
@@ -56,6 +56,8 @@ const RECTANGULR_MODULE_PROVIDERS_MARKER = new InjectionToken(
 const TEMPLATE_COMPONENTS = [
   HBox,
   VBox,
+  HGrowDirective,
+  VGrowDirective,
   List,
   ListItem,
   SearchList,
@@ -90,7 +92,7 @@ export const RECTANGULR_MODULE_PROVIDERS = [
   { provide: ErrorHandler, useClass: RectangulrErrorHandler },
   { provide: RendererFactory2, useClass: RectangulrRendererFactory },
   NG_DEV_MODE ? { provide: RECTANGULR_MODULE_PROVIDERS_MARKER, useValue: true } : [],
-  { provide: View, useValue: { name: 'logs', component: Logs, tags: ['hidden'] }, multi: true },
+  { provide: View, useValue: { name: 'logs', component: Logs }, multi: true },
   { provide: 'global', useValue: globalThis },
   { provide: ScreenService, useClass: ScreenService },
   { provide: INPUT_OUTPUT, useValue: StdinStdout },

@@ -18,7 +18,7 @@ import { blackOnWhite } from './styles'
       <hbox grow *ngFor="let keyValue of keyValues; trackBy: trackByFn">
         <h
           [style]="{ flexShrink: 0, width: longestKey + 1, vgrow: true }"
-          [classes]="[blackOnWhite]"
+          [classes]="[s.blackOnWhite]"
           >{{ keyValue.key }}</h
         >
         <h [style]="{ wrap: 'wrap' }">{{ keyValue.value }}</h>
@@ -53,7 +53,9 @@ export class ObjectDisplay {
     })
   }
 
-  blackOnWhite = blackOnWhite
+  s = {
+    blackOnWhite: blackOnWhite,
+  }
 
   destroy$ = new Subject()
   ngOnDestroy() {

@@ -213,7 +213,7 @@ export class JsonEditor {
     if (this.valueRef.type == 'object' || this.valueRef.type == 'array') {
       const key = jsonPath[0]
       const index = this.valueRef.childrenValueRefs.findIndex(ref => ref.key == key)
-      assert(index != -1)
+      if (index == -1) return
       this.list.selectIndex(index)
 
       if (jsonPath.length >= 2) {

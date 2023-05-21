@@ -465,8 +465,9 @@ addToGlobalRg({
 export function rgDebugKeybinds() {
   const ng = globalThis.rg.component() as NiceView
   const rootKeybindService = ng.more.injector.get(ShortcutService)
+  const focusedKeybindService = getFocusedNode(rootKeybindService)
 
-  return simplifyShortcutService(rootKeybindService)
+  return simplifyShortcutService(focusedKeybindService)
 }
 
 function simplifyShortcutService(shortcutService: ShortcutService) {
@@ -475,8 +476,9 @@ function simplifyShortcutService(shortcutService: ShortcutService) {
     res.focusedChild = simplifyShortcutService(shortcutService.focusedChild)
   }
 
+  res.ref = shortcutService
   res.toString = () => {
-    return stringifyNode(shortcutService)
+    return stringifyPathToNode(shortcutService)
   }
   return res
 }

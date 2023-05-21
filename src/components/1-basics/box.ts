@@ -54,3 +54,33 @@ export class GrowDirective {
     this.elementRef.nativeElement.style.assign({ vgrow: true, hgrow: true })
   }
 }
+
+/**
+ * <vbox hgrow></vbox>
+ */
+@Directive({
+  standalone: true,
+  selector: '[hgrow]',
+})
+export class HGrowDirective {
+  constructor(public elementRef: ElementRef<Element>) {}
+
+  ngOnInit() {
+    this.elementRef.nativeElement.style.assign({ hgrow: true })
+  }
+}
+
+/**
+ * <vbox vgrow></vbox>
+ */
+@Directive({
+  standalone: true,
+  selector: '[vgrow]',
+})
+export class VGrowDirective {
+  constructor(public elementRef: ElementRef<Element>) {}
+
+  ngOnInit() {
+    this.elementRef.nativeElement.style.assign({ vgrow: true })
+  }
+}

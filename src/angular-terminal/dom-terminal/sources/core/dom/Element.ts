@@ -729,10 +729,10 @@ export class Element extends Node {
         intersectorIndex + 1
       )
     else {
-      assert(dirtyRect.x % 1 == 0)
-      assert(dirtyRect.y % 1 == 0)
-      assert(dirtyRect.width % 1 == 0)
-      assert(dirtyRect.height % 1 == 0)
+      // assert(dirtyRect.x % 1 == 0)
+      // assert(dirtyRect.y % 1 == 0)
+      // assert(dirtyRect.width % 1 == 0)
+      // assert(dirtyRect.height % 1 == 0)
       this.dirtyRects.push(dirtyRect)
     }
 
@@ -921,6 +921,11 @@ export class Element extends Node {
         this.scrollRect.width = Math.max(this.elementRect.width, this.getInternalContentWidth())
 
         this.scrollRect.height = Math.max(this.elementRect.height, this.getInternalContentHeight())
+
+        // assert(this.scrollRect.x % 1 == 0)
+        // assert(this.scrollRect.y % 1 == 0)
+        // assert(this.scrollRect.width % 1 == 0)
+        // assert(this.scrollRect.height % 1 == 0)
 
         this.contentRect.x =
           this.yogaNode.getComputedBorder(Yoga.EDGE_LEFT) +

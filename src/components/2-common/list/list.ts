@@ -68,10 +68,10 @@ import { ListItem } from './list-item'
             selected: item == selected.value
           }"></ng-container>
 
-        <ng-container
+        <!-- <ng-container
           *ngIf="!template && !template2 && _displayComponent"
           [ngComponentOutlet]="_displayComponent"
-          [ndcDynamicInputs]="{ data: item }"></ng-container>
+          [ndcDynamicInputs]="{ data: item }"></ng-container> -->
       </vbox>
     </vbox>
 
@@ -173,8 +173,7 @@ export class List<T> {
 
   ngOnInit() {
     // The way the item is displayed can be customized via an Input, and Injected value, or defaults to a basic json stringify
-    this._displayComponent =
-      this.displayComponent ?? this.itemComponentInjected ?? BasicObjectDisplay
+    this._displayComponent = this.itemComponentInjected
 
     const selectNewIndex = () => {
       const items = this.$items()

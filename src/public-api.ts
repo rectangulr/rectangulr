@@ -14,7 +14,7 @@ export { DetachedCommandServiceDirective } from './commands/commands-detach'
 export { Shortcuts as ShortcutsDisplay } from './commands/shortcuts.component'
 export { FocusDirective, FocusDebugDirective } from './commands/focus.directive'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
-export { HBox, VBox } from './components/1-basics/box'
+export { HBox, VBox, HGrowDirective, VGrowDirective } from './components/1-basics/box'
 export {
   NewClassesDirective as ClassesDirective,
   ClassesDirective as NativeClassesDirective,
