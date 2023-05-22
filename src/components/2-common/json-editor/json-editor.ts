@@ -1,11 +1,19 @@
 import { NgIf } from '@angular/common'
-import { Component, Input, QueryList, ViewChild, ViewChildren } from '@angular/core'
+import {
+  Component,
+  Injector,
+  Input,
+  QueryList,
+  Signal,
+  ViewChild,
+  ViewChildren,
+  signal,
+} from '@angular/core'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../../angular-terminal/logger'
-import { Signal, computed, effect, signal } from '../../../angular-terminal/signals'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
@@ -96,7 +104,8 @@ export class JsonEditor {
   constructor(
     public shortcutService: ShortcutService,
     public logger: Logger,
-    public externalTextEditor: ExternalTextEditor
+    public externalTextEditor: ExternalTextEditor,
+    public injector: Injector
   ) {
     onChange(this, 'valueRef', valueRef => {
       this.onValueRefChange()

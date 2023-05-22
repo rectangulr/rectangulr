@@ -1,7 +1,6 @@
-import { Directive, Inject, Input, inject } from '@angular/core'
+import { Directive, Inject, Input, inject, signal } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
-import { signal } from '../../angular-terminal/signals'
 import { assert } from '../../utils/utils'
 
 abstract class ValueProxy {}

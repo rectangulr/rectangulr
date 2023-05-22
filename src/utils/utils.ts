@@ -1,8 +1,7 @@
-import { ProviderToken } from '@angular/core'
+import { Injector, ProviderToken, effect, isSignal } from '@angular/core'
 import _ from 'lodash'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
-import { effect, isSignal } from '../angular-terminal/signals'
 import { onChange, subscribe } from './reactivity'
 import { Logger } from '../angular-terminal/logger'
 
@@ -122,7 +121,11 @@ export function waitFor(observable: Observable<any>) {
  * inputToSignal(this, 'text', '$text')
  * ```
  */
-export function inputToSignal<T, K extends keyof T>(_component: T, key: K, signalKey: K) {
+export function inputToSignal<T extends { injector: Injector }, K extends keyof T>(
+  _component: T,
+  key: K,
+  signalKey: K
+) {
   const component = _component as any
 
   let subscription
@@ -136,9 +139,12 @@ export function inputToSignal<T, K extends keyof T>(_component: T, key: K, signa
           component[signalKey].set(value)
         })
       } else if (isSignal(input)) {
-        effect(() => {
-          component[signalKey].set(input())
-        })
+        effect(
+          () => {
+            component[signalKey].set(input())
+          },
+          { injector: component.injector }
+        )
       } else {
         component[signalKey].set(input)
       }

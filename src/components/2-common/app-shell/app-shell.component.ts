@@ -23,7 +23,7 @@ import { View, ViewService } from './view.service'
       *ngFor="let view of viewService.views"
       [focusPropagateUp]="false"
       [focusIf]="view == currentTab"
-      [style]="{ display: view == currentTab ? 'flex' : 'none', hgrow: true }">
+      [style]="{ display: view == currentTab ? 'flex' : 'none', width: '100%', height: '100%' }">
       <ng-container [ngComponentOutlet]="view.component"></ng-container>
     </vbox>
 

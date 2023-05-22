@@ -1,10 +1,9 @@
-import { Inject, Injectable, InjectionToken } from '@angular/core'
+import { Inject, Injectable, InjectionToken, signal } from '@angular/core'
 import * as fs from 'fs'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { onChange } from '../utils/reactivity'
 import { InjectFunction, stringifyReplacer } from '../utils/utils'
-import { signal } from './signals'
 
 export const LOG_FILE = new InjectionToken<string>('LOG_FILE', { factory: () => 'log.json' })
 

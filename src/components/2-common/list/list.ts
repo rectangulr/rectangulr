@@ -6,13 +6,18 @@ import {
   ElementRef,
   EventEmitter,
   Inject,
+  Injector,
   Input,
   Optional,
   Output,
   QueryList,
+  Signal,
   SkipSelf,
   TemplateRef,
   ViewChildren,
+  computed,
+  effect,
+  signal,
 } from '@angular/core'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
@@ -20,7 +25,6 @@ import { DynamicModule } from 'ng-dynamic-component'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
-import { Signal, computed, effect, signal } from '../../../angular-terminal/signals'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
@@ -141,7 +145,8 @@ export class List<T> {
   constructor(
     @SkipSelf() public shortcutService: ShortcutService,
     @Inject('itemComponent') @Optional() public itemComponentInjected: any,
-    public logger: Logger
+    public logger: Logger,
+    public injector: Injector
   ) {
     inputToSignal(this, 'items', '$items')
     // inputToSignal(this, 'focusPath', '$focusPath')
@@ -202,7 +207,7 @@ export class List<T> {
       }
     }
     onInitSelect()
-    effect(() => selectNewIndex())
+    effect(() => selectNewIndex(), { injector: this.injector, allowSignalWrites: true })
   }
 
   selectIndex(value) {

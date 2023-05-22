@@ -2,10 +2,15 @@ import {
   Component,
   ContentChild,
   ElementRef,
+  Injector,
   Input,
   Output,
+  Signal,
   TemplateRef,
   ViewChild,
+  computed,
+  effect,
+  signal,
 } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
@@ -13,7 +18,6 @@ import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
-import { Signal, computed, effect, signal } from '../../../angular-terminal/signals'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, subscribe } from '../../../utils/reactivity'
@@ -136,9 +140,12 @@ export class Table<T> {
   $list = new BehaviorSubject<List<T>>(null)
   controlValueAccessor: ControlValueAccessor = null
 
-  constructor(public shortcutService: ShortcutService, public elementRef: ElementRef<Element>) {
+  constructor(
+    public shortcutService: ShortcutService,
+    public elementRef: ElementRef<Element>,
+    public injector: Injector
+  ) {
     makeObservable(this, 'list', '$list')
-
     inputToSignal(this, 'items', '$items')
 
     //  Emit 'visibleItems'

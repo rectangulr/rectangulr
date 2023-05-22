@@ -205,9 +205,11 @@ export class NiceContainer {
     if (this.more.hasTransplantedViews) {
       this.childrenTransplant = lContainer[MOVED_VIEWS]?.map(nicer, { cacheNames, cacheLViews })
     } else {
-      this.children = views.map(childView => {
-        return nicer(childView, { cacheNames, cacheLViews })
-      })
+      this.children = views
+        .map(childView => {
+          return childView ? nicer(childView, { cacheNames, cacheLViews }) : null
+        })
+        .filter(t => !!t)
     }
     assert(this.more.hasTransplantedViews || views)
   }

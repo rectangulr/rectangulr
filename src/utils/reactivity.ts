@@ -2,7 +2,7 @@ import { BehaviorSubject, isObservable, Observable, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { Destroyable } from './mixins'
 import { addToGlobalRg } from './utils'
-import { computed, isSignal, SettableSignal, Signal, signal } from '../angular-terminal/signals'
+import { computed, isSignal, signal, WritableSignal } from '@angular/core'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.
@@ -216,7 +216,7 @@ export function makeProperty<T, K extends keyof T>(
 }
 
 export function derived<T>(computation: () => T, updateSource: (value: T) => void) {
-  const signal = computed(computation) as unknown as SettableSignal<T>
+  const signal = computed(computation) as unknown as WritableSignal<T>
   signal.set = value => {
     updateSource(value)
   }
