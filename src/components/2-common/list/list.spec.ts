@@ -1,6 +1,5 @@
-import { Component, QueryList, ViewChild, ViewChildren } from '@angular/core'
-import { fakeAsync, tick } from '@angular/core/testing'
-import { signal } from '../../../angular-terminal/signals'
+import { Component, QueryList, ViewChild, ViewChildren, signal } from '@angular/core'
+import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
 import { HBox } from '../../1-basics/box'
@@ -122,22 +121,23 @@ describe('List - ', () => {
   }))
 })
 
-@Component({
-  standalone: true,
-  imports: [List],
-  template: `<list [items]="$any(items)"></list> `,
-})
-export class Test4 {
-  items = signal([]) as any
-  @ViewChild(List) list: List<any>
-}
-
 describe('List - ', () => {
+  @Component({
+    standalone: true,
+    selector: 'test-list-4',
+    imports: [List],
+    template: `<list [items]="items"></list> `,
+  })
+  class Test4 {
+    items = signal([]) as any
+    @ViewChild(List) list: List<any>
+  }
+
   it(`should work with signals`, fakeAsync(async () => {
     const { fixture, component, shortcuts } = setupTest(Test4)
-    tick()
     expect(component.list.selected.value).toEqual(null)
     component.items.set([1, 2, 3])
+    fixture.detectChanges()
     tick()
     expect(component.list.selected.value).toEqual(1)
   }))
@@ -149,6 +149,7 @@ describe('List - ', () => {
     tick()
     expect(component.list.selected.value).toEqual(null)
     component.items.next([1, 2, 3])
+    fixture.detectChanges()
     tick()
     expect(component.list.selected.value).toEqual(1)
   }))

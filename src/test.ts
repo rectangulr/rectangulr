@@ -2,6 +2,7 @@
 import Jasmine from 'jasmine'
 const jasmine = new Jasmine()
 
+require('zone.js/dist/zone.js') // to have Promise[__symbol('uncaughtPromiseError')]
 require('zone.js/dist/zone-node.js')
 require('zone.js/dist/zone-testing-node-bundle.js')
 

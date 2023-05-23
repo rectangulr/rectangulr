@@ -1,4 +1,4 @@
-import { Injector, ProviderToken, effect, isSignal } from '@angular/core'
+import { Injector, ProviderToken, effect, inject, isSignal } from '@angular/core'
 import _ from 'lodash'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
@@ -121,11 +121,8 @@ export function waitFor(observable: Observable<any>) {
  * inputToSignal(this, 'text', '$text')
  * ```
  */
-export function inputToSignal<T extends { injector: Injector }, K extends keyof T>(
-  _component: T,
-  key: K,
-  signalKey: K
-) {
+export function inputToSignal<T, K extends keyof T>(_component: T, key: K, signalKey: K) {
+  const injector = inject(Injector)
   const component = _component as any
 
   let subscription
@@ -143,7 +140,10 @@ export function inputToSignal<T extends { injector: Injector }, K extends keyof 
           () => {
             component[signalKey].set(input())
           },
-          { injector: component.injector }
+          {
+            injector: injector,
+            allowSignalWrites: true,
+          }
         )
       } else {
         component[signalKey].set(input)

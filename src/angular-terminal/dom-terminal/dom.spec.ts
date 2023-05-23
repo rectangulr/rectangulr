@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core'
-import { HBox, GrowDirective } from '../../components/1-basics/box'
+import { HBox, GrowDirective, VBox } from '../../components/1-basics/box'
 import { setupTest } from '../../utils/tests'
 import { Element } from './sources'
 import { StyleDirective } from '../../public-api'
@@ -14,7 +14,7 @@ describe('DOM - ', () => {
   it('child should be bigger than parent', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, GrowDirective],
+      imports: [HBox, VBox, GrowDirective],
       template: `
         <vbox #parent [style]="{ width: 5 }">
           <vbox #child [style]="{ flexShrink: 0 }">aaaaaaaaaa</vbox>
@@ -39,7 +39,7 @@ describe('DOM - ', () => {
   it('text should stretch the parent', async () => {
     @Component({
       standalone: true,
-      imports: [GrowDirective],
+      imports: [GrowDirective, VBox],
       template: ` <vbox #parent>aaaaaaaaaa</vbox> `,
     })
     class Test {
@@ -56,7 +56,7 @@ describe('DOM - ', () => {
   it('vbox', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, GrowDirective, StyleDirective],
+      imports: [HBox, VBox, GrowDirective, StyleDirective],
       template: `
         <vbox [style]="{ width: 20 }">
           <vbox #child1>Test</vbox>
@@ -83,7 +83,7 @@ describe('DOM - ', () => {
   it('vbox hgrow', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, GrowDirective, StyleDirective],
+      imports: [HBox, VBox, GrowDirective, StyleDirective],
       template: `
         <vbox #parent [style]="{ width: 20 }">
           <vbox #child1 [style]="{ hgrow: true }">Test</vbox>
@@ -117,7 +117,7 @@ describe('DOM - ', () => {
   it('hbox vgrow', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, HBox, StyleDirective],
+      imports: [HBox, VBox, StyleDirective],
       template: `
         <hbox #parent [style]="{ height: 20 }">
           <vbox #child1 [style]="{ vgrow: true }">Test</vbox>
@@ -147,5 +147,30 @@ describe('DOM - ', () => {
     expect(child2.yogaNode.getComputedLayout().left).toEqual(4)
     expect(child2.yogaNode.getComputedLayout().height).toEqual(20)
     expect(child1.yogaNode.getAlignSelf()).toEqual(ALIGN_STRETCH)
+  })
+
+  it('hbox grow', async () => {
+    @Component({
+      standalone: true,
+      imports: [HBox, VBox, StyleDirective, GrowDirective],
+      template: `
+        <hbox #parent [style]="{ height: 20, width: 20 }">
+          <hbox grow #child1></hbox>
+        </hbox>
+      `,
+    })
+    class Test {
+      @ViewChild('parent') parent: ElementRef<Element>
+      @ViewChild('child1') child1: ElementRef<Element>
+    }
+    const { fixture, component, shortcuts } = setupTest(Test)
+
+    // const parent = component.parent.nativeElement
+    // expect(parent.yogaNode.getComputedLayout().width).toEqual(20)
+    // expect(parent.yogaNode.getComputedLayout().height).toEqual(20)
+
+    const child1 = component.child1.nativeElement
+    expect(child1.yogaNode.getComputedLayout().width).toEqual(20)
+    expect(child1.yogaNode.getComputedLayout().height).toEqual(20)
   })
 })

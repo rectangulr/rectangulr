@@ -77,6 +77,7 @@ describe('JsonEditor - ', () => {
   it(`should focus`, fakeAsync(async () => {
     @Component({
       standalone: true,
+      selector: 'test-json-editor-4',
       imports: [HBox, FocusDirective, NgIf, JsonEditor],
       template: `
         <json-editor [data]="{ key1: 'value1', key2: 'value2', key3: 'value3' }"></json-editor>

@@ -284,6 +284,7 @@ describe('ShortcutService - ', () => {
 
 @Component({
   standalone: true,
+  selector: 'shortcut-test-4',
   imports: [HBox, FocusDirective, NgIf, TextInput],
   template: ` <text-input [focusIf]="condition"></text-input> `,
 })
