@@ -12,6 +12,7 @@ import {
   effect,
   signal,
 } from '@angular/core'
+import { toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
 import _ from 'lodash'
@@ -120,13 +121,15 @@ export class Table<T> {
   @Input() includeKeys: string[] = []
   @Input() excludeKeys: string[] = []
   @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any>
-  @Output('selectedItem') $$selectedItem = new BehaviorSubject<T>(null)
-  @Output('visibleItems') $$visibleItems = new BehaviorSubject<T[]>(null)
+  // @Output('selectedItem') $$selectedItem = new BehaviorSubject<T>(null)
 
   $items = signal([])
   $visibleItems = signal([])
   $selectedColumnIndex = signal<number | null>(0)
   $selectedItem = signal(null)
+
+  @Output('selectedItem') $$selectedItem = toObservable(this.$selectedItem)
+  @Output('visibleItems') $$visibleItems = toObservable(this.$visibleItems)
 
   $columns = computed(() => {
     return this.computeColumnWidths(this.$items())
@@ -147,16 +150,6 @@ export class Table<T> {
   ) {
     makeObservable(this, 'list', '$list')
     inputToSignal(this, 'items', '$items')
-
-    //  Emit 'visibleItems'
-    effect(() => {
-      this.$$visibleItems.next(this.$visibleItems())
-    })
-
-    //  Emit 'selectedItem'
-    effect(() => {
-      this.$$selectedItem.next(this.$selectedItem())
-    })
 
     // Scroll to selected column
     effect(() => {

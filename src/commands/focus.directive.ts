@@ -7,6 +7,7 @@ import { Subject } from 'rxjs'
   standalone: true,
   selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts], [focusFull], [focusOnInit]',
   providers: [ShortcutService],
+  exportAs: 'focus',
 })
 export class FocusDirective {
   @Input() focusPropagateUp = true

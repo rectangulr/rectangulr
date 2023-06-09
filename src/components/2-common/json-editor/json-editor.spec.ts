@@ -90,8 +90,12 @@ describe('JsonEditor - ', () => {
     const { fixture, component, shortcuts } = setupTest(Test4)
     component.jsonEditor.focusJsonPath(['key2'])
     tick()
-    const shortcutService = getFocusedNode(component.jsonEditor.shortcutService)
-    const focusJsonEditor = Object.entries(shortcutService.commands)[0][1][0].context as TextInput
-    expect(focusJsonEditor?.text).toEqual('key2')
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'tab' })
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: '3' })
+    expect(component.jsonEditor.getValue()).toEqual({
+      key1: 'value1',
+      key2: 'value23',
+      key3: 'value3',
+    })
   }))
 })

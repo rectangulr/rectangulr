@@ -1,12 +1,12 @@
-import { EventEmitter, Injectable, NgZone, Optional, SkipSelf } from '@angular/core'
+import { Injectable, NgZone, Optional, SkipSelf, signal } from '@angular/core'
 import _ from 'lodash'
-import { BehaviorSubject, Subject } from 'rxjs'
+import { Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
 import { Element } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
 import { Destroyable } from '../utils/mixins'
-import { makeObservable, onChange } from '../utils/reactivity'
+import { onChange } from '../utils/reactivity'
 import { addToGlobalRg, assert, last, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
@@ -38,8 +38,7 @@ export class ShortcutService {
    * This allows components to declare the same `id` without conflict, the latest command is used.
    * When the second component is destroyed the first command can be restored.
    */
-  commands: { [id: string]: Command[] } = {}
-  $commands = new BehaviorSubject(null)
+  $commands = signal<{ [id: string]: Command[] }>({})
 
   /**
    * A shortcut links a key (ex: ctrl+r) with a command id (ex: reload)
@@ -56,10 +55,8 @@ export class ShortcutService {
   askedForFocusThisTick: { child: ShortcutService; source: ShortcutService; reason: string }[] = []
   caretElement: Element = null
 
-  isFocused = false
-  $isFocused = new EventEmitter<boolean>()
-  isInFocusPath = false
-  $isInFocusPath = new EventEmitter<boolean>()
+  $isFocused = signal(false)
+  $isInFocusPath = signal(false)
 
   before: ShortcutService = null
 
@@ -74,8 +71,8 @@ export class ShortcutService {
   ) {
     if (isRoot(this)) {
       this.rootNode = this
-      this.isFocused = true
-      this.isInFocusPath = true
+      this.$isFocused.set(false)
+      this.$isInFocusPath.set(true)
       this.screen?.termScreen.addEventListener('keypress', key => this.incomingKey(key))
     } else {
       this.rootNode = this.parent.rootNode
@@ -84,11 +81,8 @@ export class ShortcutService {
 
     updateTree(this.rootNode)
 
-    makeObservable(this, 'isFocused', '$isFocused')
-    makeObservable(this, 'isInFocusPath', '$isInFocusPath')
-    makeObservable(this, 'commands', '$commands')
     onChange(this, 'focusedChild', value => {
-      updateTree(this.rootNode)
+      setTimeout(() => updateTree(this.rootNode))
     })
 
     onChange(this, 'caretElement', value => {
@@ -146,18 +140,17 @@ export class ShortcutService {
     // Keybind
     const key = keyToString(keypress)
     const ids = this.shortcuts[key] || this.shortcuts['else']
+    let unhandled = keypress
     if (ids) {
-      const lastId = _.last(ids) as string
-      if (lastId) {
-        const unhandled = this.callCommand({ id: lastId, keys: keypress })
+      for (const id of ids) {
+        unhandled = this.callCommand({ id: id, keys: keypress })
         if (!unhandled) {
-          // this.logger.log(`handle key: ${stringifyPathToNode(this)} - ${key}`)
+          break
         }
-        return unhandled
       }
     }
 
-    return keypress
+    return unhandled
   }
 
   /**
@@ -175,12 +168,15 @@ export class ShortcutService {
   registerCommand(_command: Partial<Command>): Disposable {
     const command = sanitizeCommand(_command)
 
-    this.commands[command.id] ??= []
-    this.commands[command.id].push(command)
+    this.$commands.mutate(commands => {
+      commands[command.id] ??= []
+      commands[command.id].push(command)
+    })
 
     for (const key of command.keys) {
       this.shortcuts[key] ??= []
       this.shortcuts[key].push(command.id)
+      // assertDebug(this.shortcuts[key].length <= 1)
     }
 
     return new Disposable(() => {
@@ -189,7 +185,7 @@ export class ShortcutService {
   }
 
   private removeCommand(command: Command) {
-    removeLastMatch(this.commands[command.id], command)
+    this.$commands.mutate(commands => removeLastMatch(commands[command.id], command))
     for (const keys of command.keys) {
       removeLastMatch(this.shortcuts[keys], command.id)
     }
@@ -203,7 +199,7 @@ export class ShortcutService {
   }
 
   findCommand(id: string) {
-    const command = retrieveLast(this.commands, id)
+    const command = retrieveLast(this.$commands(), id)
     if (command) {
       return command
     } else {
@@ -408,21 +404,24 @@ export function registerShortcuts(
 //   })
 // }
 
-function forEachChild(shortcutService: ShortcutService, func) {
+function forEachChild(shortcutService: ShortcutService, func: (child: ShortcutService) => void) {
+  func(shortcutService)
   shortcutService.children.forEach(child => {
-    func(child)
     forEachChild(child, func)
   })
 }
 
-function forEachChildInFocusPath(shortcutService: ShortcutService, func) {
+function forEachChildInFocusPath(
+  shortcutService: ShortcutService,
+  func: (child: ShortcutService) => void
+) {
   func(shortcutService)
   if (shortcutService.focusedChild) {
     forEachChildInFocusPath(shortcutService.focusedChild, func)
   }
 }
 
-function forFocusedChild(shortcutService: ShortcutService, func) {
+function forFocusedChild(shortcutService: ShortcutService, func: (child: ShortcutService) => void) {
   if (shortcutService.focusedChild) {
     forFocusedChild(shortcutService.focusedChild, func)
   } else {
@@ -442,14 +441,16 @@ function updateTree(rootNode: ShortcutService) {
   if (!isRoot(rootNode)) throw new Error('should only be called on the keybind root')
 
   forEachChild(rootNode, child => {
-    child.isFocused = false
+    child.$isFocused.set(false)
+    child.$isInFocusPath.set(false)
   })
 
-  forEachChildInFocusPath(rootNode, (child: ShortcutService) => {
-    child.isFocused = true
+  forEachChildInFocusPath(rootNode, child => {
+    child.$isInFocusPath.set(true)
   })
 
   forFocusedChild(rootNode, child => {
+    child.$isFocused.set(true)
     if (rootNode.screen) {
       rootNode.screen.termScreen.activeElement = child.caretElement
     }
@@ -513,7 +514,7 @@ function stringifyComponent(component: any) {
 }
 
 function stringifyNode(shortcutService: ShortcutService) {
-  let componentNames = Object.values(shortcutService.commands)
+  let componentNames = Object.values(shortcutService.$commands())
     .map(commands => _.last(commands))
     .filter(c => !!c && c.context)
     .map(command => stringifyComponent(command.context))

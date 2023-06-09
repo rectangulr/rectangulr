@@ -1,49 +1,54 @@
 import { assert } from '../utils/utils'
 
+// Copied from: https://github.com/angular/angular/blob/main/packages/core/src/render3/interfaces/view.ts
+//              https://github.com/angular/angular/blob/main/packages/core/src/render3/interfaces/container.ts
+
 export function rootLView() {
   const ng = globalThis['ng']
   const dom = ng.getHostElement(globalThis['DOM'])
   return dom.__ngContext__.lView
 }
 
-// LVIEW
-const HOST = 0
-const TVIEW = 1
-const FLAGS = 2
-const PARENT = 3
-const NEXT = 4
-const TRANSPLANTED_VIEWS_TO_REFRESH = 5
-const T_HOST = 6
+export const HOST = 0
+export const TVIEW = 1
+export const FLAGS = 2
+export const PARENT = 3
+export const NEXT = 4
+export const DESCENDANT_VIEWS_TO_REFRESH = 5
+export const T_HOST = 6
+export const CLEANUP = 7
+export const CONTEXT = 8
+export const INJECTOR = 9
+export const ENVIRONMENT = 10
+export const RENDERER = 11
+export const CHILD_HEAD = 12
+export const CHILD_TAIL = 13
+// FIXME(misko): Investigate if the three declarations aren't all same thing.
+export const DECLARATION_VIEW = 14
+export const DECLARATION_COMPONENT_VIEW = 15
+export const DECLARATION_LCONTAINER = 16
+export const PREORDER_HOOK_FLAGS = 17
+export const QUERIES = 18
+export const ID = 19
+export const EMBEDDED_VIEW_INJECTOR = 20
+export const ON_DESTROY_HOOKS = 21
+export const HYDRATION = 22
+export const REACTIVE_TEMPLATE_CONSUMER = 23
+export const REACTIVE_HOST_BINDING_CONSUMER = 24
+export const HEADER_OFFSET = 25
 
-// LVIEW ONLY
-const CLEANUP = 7
-const CONTEXT = 8
-const INJECTOR = 9
-const RENDERER_FACTORY = 10
-const RENDERER = 11
-const SANITIZER = 12
-const CHILD_HEAD = 13
-const CHILD_TAIL = 14
-const DECLARATION_VIEW = 15
-const DECLARATION_COMPONENT_VIEW = 16
-const DECLARATION_LCONTAINER = 17
-const PREORDER_HOOK_FLAGS = 18
-const QUERIES = 19
-const ID = 20
-const EMBEDDED_VIEW_INJECTOR = 21
-export const HEADER_OFFSET = 22
-
-const TVIEW_TYPE_ROOT = 0
-const TVIEW_TYPE_COMPONENT = 1
-const TVIEW_TYPE_EMBEDDED = 2
+// const TVIEW_TYPE_ROOT = 0
+// const TVIEW_TYPE_COMPONENT = 1
+// const TVIEW_TYPE_EMBEDDED = 2
 
 // LCONTAINER
-const TYPE = 1
-const HAS_TRANSPLANTED_VIEWS = 2
-const NATIVE = 7
-const VIEW_REFS = 8
-const MOVED_VIEWS = 9
-const CONTAINER_HEADER_OFFSET = 10
+export const TYPE = 1
+export const HAS_TRANSPLANTED_VIEWS = 2
+export const NATIVE = 7
+export const VIEW_REFS = 8
+export const MOVED_VIEWS = 9
+export const DEHYDRATED_VIEWS = 10
+export const CONTAINER_HEADER_OFFSET = 11
 
 function isLView(value) {
   return Array.isArray(value) && typeof value[TYPE] === 'object'

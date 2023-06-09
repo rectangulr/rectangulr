@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Inject, Output, inject } from '@angular/core'
+import { Directive, EventEmitter, Inject, Optional, Output, inject } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
 import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
@@ -13,6 +13,21 @@ export class OnEnterDirective {
 
   currentValue = undefined
 
+  constructor(
+    @Optional() @Inject(NG_VALUE_ACCESSOR) public valueAccessors: ControlValueAccessor[],
+    public shortcutService: ShortcutService
+  ) {
+    if (this.valueAccessors) {
+      this.valueAccessors.forEach(accessor => {
+        accessor.registerOnChange(value => {
+          this.currentValue = value
+        })
+      })
+    }
+
+    registerShortcuts(this, this.shortcuts)
+  }
+
   shortcuts: Partial<Command>[] = [
     {
       keys: 'enter',
@@ -23,20 +38,6 @@ export class OnEnterDirective {
       },
     },
   ]
-
-  constructor(
-    @Inject(NG_VALUE_ACCESSOR) public valueAccessors: ControlValueAccessor[],
-    public shortcutService: ShortcutService
-  ) {
-    assert(this.valueAccessors)
-    this.valueAccessors.forEach(accessor => {
-      accessor.registerOnChange(value => {
-        this.currentValue = value
-      })
-    })
-
-    registerShortcuts(this, this.shortcuts)
-  }
 
   ngOnInit() {
     this.shortcutService.requestFocus({ reason: 'OnEnterDirective onInit' })

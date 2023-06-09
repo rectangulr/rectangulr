@@ -16,6 +16,17 @@ export function assert(condition?, message?) {
   }
 }
 
+/**
+ * @example
+ * assert(false, "throw this error message")
+ * assert(true, "nothing happens")
+ */
+export function assertDebug(condition?, message?) {
+  if (!condition) {
+    debugger
+  }
+}
+
 export const filterNulls = filter((i: any) => i != null)
 
 export function longest(array) {

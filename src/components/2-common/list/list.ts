@@ -35,6 +35,7 @@ import { ClassesDirective, NewClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
+import { toObservable } from '@angular/core/rxjs-interop'
 
 /**
  * Displays a list of items and highlights the current item.
@@ -120,7 +121,7 @@ export class List<T> {
 
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
   @Output('selectedItem') $selectedItem = new EventEmitter<T>()
-  @Output('visibleItems') $$visibleItems = new BehaviorSubject<T[]>(null)
+  @Output('visibleItems') $$visibleItems = null
 
   $items = signal([])
   // $focusPath = signal(null)
@@ -161,9 +162,7 @@ export class List<T> {
       }
     })
 
-    effect(() => {
-      this.$$visibleItems.next(this.$visibleItems())
-    })
+    this.$$visibleItems = toObservable(this.$visibleItems)
 
     // effect(() => {
     //   const indexToFocus = this.$focusPath()[0]
@@ -210,11 +209,16 @@ export class List<T> {
     effect(() => selectNewIndex(), { injector: this.injector, allowSignalWrites: true })
   }
 
-  selectIndex(value) {
+  /**
+   * Tries to select the index `value`
+   * @param value The index to select
+   * @returns Returns false if the index got clamped, or if there's no items in the list
+   */
+  selectIndex(value): boolean {
     if (!this.$items() || this.$items().length == 0) {
       this.selected.index = null
       this.selected.value = null
-      return
+      return false
     }
 
     this.selected.index = _.clamp(value, 0, this.$items().length - 1)
@@ -229,6 +233,8 @@ export class List<T> {
     setTimeout(() => {
       this.afterViewUpdate()
     })
+
+    return this.selected.index == value
   }
 
   afterViewUpdate() {
@@ -261,26 +267,30 @@ export class List<T> {
   shortcuts: Partial<Command>[] = [
     {
       keys: 'down',
-      func: () => {
-        this.selectIndex(this.selected.index + 1)
+      func: key => {
+        const success = this.selectIndex(this.selected.index + 1)
+        if (!success) return key
       },
     },
     {
       keys: 'up',
-      func: () => {
-        this.selectIndex(this.selected.index - 1)
+      func: key => {
+        const success = this.selectIndex(this.selected.index - 1)
+        if (!success) return key
       },
     },
     {
       keys: 'pgup',
-      func: () => {
-        this.selectIndex(this.selected.index - this.windowSize)
+      func: key => {
+        const success = this.selectIndex(this.selected.index - this.windowSize)
+        if (!success) return key
       },
     },
     {
       keys: 'pgdown',
-      func: () => {
-        this.selectIndex(this.selected.index + this.windowSize)
+      func: key => {
+        const success = this.selectIndex(this.selected.index + this.windowSize)
+        if (!success) return key
       },
     },
   ]

@@ -71,7 +71,7 @@ export class Shortcuts {
 
   private listCommands(): Command[] {
     function recursiveListCommands(shortcutService: ShortcutService, result: Array<Command>) {
-      const commands = Object.values(shortcutService.commands)
+      const commands = Object.values(shortcutService.$commands())
         .map(commands => _.last(commands))
         .filter(c => c)
       result.push(...commands)
