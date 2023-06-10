@@ -1,6 +1,16 @@
 import { NgIf } from '@angular/common'
-import { Component, NgZone, QueryList, ViewChild, ViewChildren } from '@angular/core'
-import { fakeAsync, TestBed, tick } from '@angular/core/testing'
+import {
+  Component,
+  Input,
+  NgZone,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+  WritableSignal,
+  signal,
+} from '@angular/core'
+import { TestBed, fakeAsync, tick } from '@angular/core/testing'
+import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
 import { HBox } from '../components/1-basics/box'
 import { TextInput } from '../components/1-basics/text-input'
@@ -8,7 +18,8 @@ import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
 import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
 import { FocusDirective } from './focus.directive'
-import { getFocusedNode, ShortcutService } from './shortcut.service'
+import { ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
+import { async } from '../utils/utils'
 
 describe('ShortcutService Class', () => {
   let shortcuts: ShortcutService
@@ -79,19 +90,6 @@ export class Test1 {
 }
 
 describe('ShortcutService ngIf - ', () => {
-  // let fixture: ComponentFixture<TestNgIf>
-  // let component: TestNgIf
-  // let shortcuts: ShortcutService
-
-  // beforeEach(() => {
-  //   TestBed.resetTestingModule()
-  //   TestBed.configureTestingModule({})
-  //   fixture = TestBed.createComponent(TestNgIf)
-  //   component = fixture.componentInstance
-  //   shortcuts = component.shortcutService
-  //   fixture.detectChanges()
-  // })
-
   it('should setup ok', async () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     expect(component.first).toBeTruthy()
@@ -197,17 +195,6 @@ export class Test2 {
 }
 
 describe('ShortcutService FocusIf - ', () => {
-  // let fixture: ComponentFixture<TestFocusIf>
-  // let component: TestFocusIf
-  // let shortcuts: ShortcutService
-
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(TestFocusIf)
-  //   component = fixture.componentInstance
-  //   shortcuts = component.shortcutService
-  //   fixture.detectChanges()
-  // })
-
   it(`should focus the second box when focusIf=='second'`, fakeAsync(async () => {
     const { fixture, component, shortcuts } = setupTest(Test2)
 
@@ -257,17 +244,6 @@ export class Test3 {
 }
 
 describe('ShortcutService - ', () => {
-  // let fixture: ComponentFixture<Test>
-  // let component: Test
-  // let shortcuts: ShortcutService
-
-  // beforeEach(() => {
-  //   fixture = TestBed.createComponent(Test)
-  //   component = fixture.componentInstance
-  //   shortcuts = component.shortcutService
-  //   fixture.detectChanges()
-  // })
-
   it(`should call latest registered shortcut`, fakeAsync(async () => {
     const { fixture, component, shortcuts } = setupTest(Test3)
 
@@ -295,21 +271,6 @@ export class Test4 {
 }
 
 describe('ShortcutService - ', () => {
-  // let fixture: ComponentFixture<Test4>
-  // let component: Test4
-  // let shortcuts: ShortcutService
-
-  // beforeEach(async () => {
-  //   TestBed.resetTestingModule()
-  //   TestBed.configureTestingModule({
-  //     providers: [ShortcutService],
-  //   })
-  //   fixture = TestBed.createComponent(Test4)
-  //   component = fixture.componentInstance
-  //   shortcuts = component.shortcutService
-  //   fixture.detectChanges()
-  // })
-
   it(`should focus the text-input and accept inputs`, fakeAsync(async () => {
     const { fixture, component, shortcuts } = setupTest(Test4)
 
@@ -381,5 +342,84 @@ describe('ShortcutService - ', () => {
     expect(component.input.get(0).text).withContext('input0').toEqual('c')
     expect(component.input.get(1).text).withContext('input1').toEqual('a')
     expect(component.input.get(2).text).withContext('input2').toEqual('b')
+  }))
+})
+
+@Component({
+  selector: 'Test6Comp',
+  standalone: true,
+  imports: [HBox, NgIf, TextInput, List, ListItem, FocusDirective],
+  template: `something`,
+})
+export class Test6Comp {
+  @Input() value: WritableSignal<number> = null
+  condition = true
+  spy2: { handler: () => void }
+
+  constructor(public shortcutService: ShortcutService) {
+    this.spy2 = { handler: () => {} }
+    spyOn(this.spy2, 'handler')
+    registerShortcuts(this, [
+      {
+        keys: 'a',
+        func: this.spy2.handler,
+      },
+    ])
+  }
+
+  destroy$ = new Subject()
+  ngOnDestroy() {
+    this.destroy$.next(null)
+    this.destroy$.complete()
+  }
+}
+
+@Component({
+  standalone: true,
+  imports: [HBox, NgIf, TextInput, List, ListItem, FocusDirective, Test6Comp],
+  template: ` <Test6Comp *ngIf="visible" />`,
+})
+export class Test6 {
+  visible = false
+  @ViewChild(Test6Comp) child: Test6Comp
+  spy1: { handler: () => void }
+
+  constructor(public shortcutService: ShortcutService) {
+    this.spy1 = { handler: () => {} }
+    spyOn(this.spy1, 'handler')
+    registerShortcuts(this, [
+      {
+        keys: 'a',
+        id: 'test',
+        func: this.spy1.handler,
+      },
+    ])
+  }
+
+  destroy$ = new Subject()
+  ngOnDestroy() {
+    this.destroy$.next(null)
+    this.destroy$.complete()
+  }
+}
+
+describe('ShortcutService -', () => {
+  it('registers/removes a shortcut', fakeAsync(() => {
+    const { fixture, component, shortcuts } = setupTest(Test6)
+
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    expect(component.spy1.handler).toHaveBeenCalledTimes(1)
+
+    component.visible = true
+    fixture.detectChanges()
+
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    expect(component.child.spy2.handler).toHaveBeenCalledTimes(1)
+
+    component.visible = false
+    fixture.detectChanges()
+
+    sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
+    expect(component.spy1.handler).toHaveBeenCalledTimes(2)
   }))
 })

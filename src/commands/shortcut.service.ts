@@ -142,7 +142,8 @@ export class ShortcutService {
     const ids = this.shortcuts[key] || this.shortcuts['else']
     let unhandled = keypress
     if (ids) {
-      for (const id of ids) {
+      for (let i = ids.length - 1; i >= 0; i--) {
+        const id = ids[i]
         unhandled = this.callCommand({ id: id, keys: keypress })
         if (!unhandled) {
           break
@@ -185,7 +186,9 @@ export class ShortcutService {
   }
 
   private removeCommand(command: Command) {
-    this.$commands.mutate(commands => removeLastMatch(commands[command.id], command))
+    this.$commands.mutate(commands => {
+      return removeLastMatch(commands[command.id], command)
+    })
     for (const keys of command.keys) {
       removeLastMatch(this.shortcuts[keys], command.id)
     }
