@@ -92,7 +92,6 @@ export const RECTANGULR_MODULE_PROVIDERS = [
   { provide: ErrorHandler, useClass: RectangulrErrorHandler },
   { provide: RendererFactory2, useClass: RectangulrRendererFactory },
   NG_DEV_MODE ? { provide: RECTANGULR_MODULE_PROVIDERS_MARKER, useValue: true } : [],
-  { provide: View, useValue: { name: 'logs', component: Logs }, multi: true },
   { provide: 'global', useValue: globalThis },
   { provide: ScreenService, useClass: ScreenService },
   { provide: INPUT_OUTPUT, useValue: StdinStdout },
