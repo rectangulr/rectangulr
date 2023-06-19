@@ -42,41 +42,45 @@ export class Row<T> {
 
   ngOnInit() {
     assert(this.data)
-    assert(typeof this.data == 'object')
+    // assert(typeof this.data == 'object')
     assert(this.table.$columns())
 
     this.text = computed(() => {
-      const columns = this.table.$columns()
-      const selectedColumn = this.table.$selectedColumn()
-      const selectedItem = this.table.$selectedItem()
+      if (typeof this.data == 'object') {
+        const columns = this.table.$columns()
+        const selectedColumn = this.table.$selectedColumn()
+        const selectedItem = this.table.$selectedItem()
 
-      let line = ''
+        let line = ''
 
-      columns
-        .map(column => {
-          let value = this.data[column.id]
+        columns
+          .map(column => {
+            let value = this.data[column.id]
 
-          if (typeof value == 'string') {
-            value = String(value)
-          } else if (value === undefined) {
-            value = 'undefined'
-          } else if (value === null) {
-            value = ''
-          } else {
-            value = json5.stringify(value)
-          }
+            if (typeof value == 'string') {
+              value = String(value)
+            } else if (value === undefined) {
+              value = 'undefined'
+            } else if (value === null) {
+              value = ''
+            } else {
+              value = json5.stringify(value)
+            }
 
-          return { ...column, string: value.slice(0, column.width).padEnd(column.width) }
-        })
-        .forEach(column => {
-          if (selectedColumn && column.id == selectedColumn.id && this.data == selectedItem) {
-            line += '>' + column.string + '<|'
-          } else {
-            line += ' ' + column.string + ' |'
-          }
-        })
+            return { ...column, string: value.slice(0, column.width).padEnd(column.width) }
+          })
+          .forEach(column => {
+            if (selectedColumn && column.id == selectedColumn.id && this.data == selectedItem) {
+              line += '>' + column.string + '<|'
+            } else {
+              line += ' ' + column.string + ' |'
+            }
+          })
 
-      return line
+        return line
+      } else {
+        return String(this.data)
+      }
     })
   }
 }

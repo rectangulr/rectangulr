@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import fs from 'fs'
 import _ from 'lodash'
+import json5 from 'json5'
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,7 @@ export class StorageService {
   constructor() {
     try {
       const jsonData = fs.readFileSync(this.filePath, { encoding: 'utf-8' })
-      this.data = JSON.parse(jsonData)
+      this.data = json5.parse(jsonData)
     } catch (error) {}
   }
 
@@ -22,6 +23,6 @@ export class StorageService {
 
   write(key, data) {
     _.set(this.data, key, data)
-    fs.writeFileSync(this.filePath, JSON.stringify(this.data))
+    fs.writeFileSync(this.filePath, json5.stringify(this.data))
   }
 }
