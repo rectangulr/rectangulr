@@ -5,7 +5,7 @@ import { Subject } from 'rxjs'
 
 @Directive({
   standalone: true,
-  selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts], [focusFull], [focusOnInit]',
+  selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts], [focusFull], [focusOnInit], [focusName]',
   providers: [ShortcutService],
   exportAs: 'focus',
 })
@@ -15,10 +15,12 @@ export class FocusDirective {
   @Input() focusShortcuts = []
   @Input() focusFull = false
   @Input() focusOnInit = true
+  @Input() focusName = null
 
-  constructor(@Self() public shortcutService: ShortcutService) {}
+  constructor(@Self() public shortcutService: ShortcutService) { }
 
   ngOnInit() {
+    this.shortcutService.name = this.focusName
     this.shortcutService.focusIf = this.focusIf
     onChange(this, 'focusIf', focusIf => {
       this.shortcutService.focusIf = focusIf
@@ -42,7 +44,7 @@ export class FocusDirective {
   focusFullShortcuts = [
     {
       keys: 'else',
-      func: () => {},
+      func: () => { },
     },
   ]
 

@@ -8,8 +8,9 @@
     "node_modules/**"
   ],
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": ".",
     "outDir": "./dist",
+    "sourceRoot": ".",
     "sourceMap": true,
     "declaration": true,
     "downlevelIteration": true,
@@ -19,11 +20,6 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "paths": {
-      "rectangulr": [
-        "./dist-angular"
-      ]
-    },
     "types": [
       "node",
       "jasmine",

@@ -9,7 +9,7 @@ import { ShortcutService } from './shortcut.service'
     {
       provide: ShortcutService,
       useFactory: () => {
-        return new ShortcutService(null, inject(Logger), null, inject(NgZone))
+        return new ShortcutService(null, inject(Logger), null)
       },
     },
   ],

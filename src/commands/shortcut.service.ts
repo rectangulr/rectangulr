@@ -1,4 +1,4 @@
-import { Injectable, NgZone, Optional, SkipSelf, signal } from '@angular/core'
+import { Injectable, Optional, SkipSelf, signal } from '@angular/core'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
@@ -32,6 +32,7 @@ let globalId = 0
 })
 export class ShortcutService {
   _id = ++globalId
+  name: string = null
 
   /**
    * Commands are stored by `id`. An `id` can have multiple commands.
@@ -67,7 +68,7 @@ export class ShortcutService {
     @Optional() public screen: ScreenService,
     public logger: Logger,
     @SkipSelf() @Optional() public parent: ShortcutService,
-    public ngZone: NgZone
+    // public ngZone: NgZone
   ) {
     if (isRoot(this)) {
       this.rootNode = this
@@ -172,12 +173,13 @@ export class ShortcutService {
     this.$commands.mutate(commands => {
       commands[command.id] ??= []
       commands[command.id].push(command)
+      // if (command.id == 'down' && commands[command.id].length > 1) debugger
+      // assertDebug(commands[command.id].length <= 1)
     })
 
     for (const key of command.keys) {
       this.shortcuts[key] ??= []
       this.shortcuts[key].push(command.id)
-      // assertDebug(this.shortcuts[key].length <= 1)
     }
 
     return new Disposable(() => {
@@ -475,16 +477,37 @@ export function rgDebugKeybinds() {
 }
 
 function simplifyShortcutService(shortcutService: ShortcutService) {
-  let res = _.pick(shortcutService, ['commands', 'keybinds', 'children', '_id']) as any
-  if (shortcutService.focusedChild) {
-    res.focusedChild = simplifyShortcutService(shortcutService.focusedChild)
+  return new SimplifiedShortcutService(shortcutService)
+}
+
+class SimplifiedShortcutService {
+  ref: ShortcutService
+  children: ShortcutService[]
+  focusedChild: ShortcutService
+  commands: { [id: string]: Command[] }
+  _id: number
+  shortcuts: { [keys: string]: string[] }
+
+  constructor(shortcutService: ShortcutService) {
+    this.ref = shortcutService
+    this._id = shortcutService._id
+    this.children = shortcutService.children
+    this.shortcuts = shortcutService.shortcuts
+    this.focusedChild = shortcutService.focusedChild
+    this.commands = shortcutService.$commands()
   }
 
-  res.ref = shortcutService
-  res.toString = () => {
-    return stringifyPathToNode(shortcutService)
+  get parent() {
+    if (this.parent) {
+      return simplifyShortcutService(this.parent)
+    } else {
+      return null
+    }
   }
-  return res
+
+  toString() {
+    return stringifyPathToNode(this.ref)
+  }
 }
 
 export function padding(shortcutService: ShortcutService) {
@@ -523,8 +546,9 @@ function stringifyNode(shortcutService: ShortcutService) {
     .map(command => stringifyComponent(command.context))
   componentNames = [...new Set(componentNames)]
   const componentNamesString = componentNames.join()
+  const name = shortcutService.name ? `[${shortcutService.name}]` : ''
 
-  return `${shortcutService._id} (${componentNamesString})`
+  return `${shortcutService._id} ${name} (${componentNamesString})`
 }
 
 function stringifyPathToNode(node: ShortcutService) {

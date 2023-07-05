@@ -35,7 +35,7 @@ import { Command, ShortcutService } from './shortcut.service'
       // The shortcuts of this component must be stored separately
       provide: ShortcutService,
       useFactory: () => {
-        return new ShortcutService(null, inject(Logger), null, inject(NgZone))
+        return new ShortcutService(null, inject(Logger), null)
       },
     },
   ],
@@ -121,7 +121,7 @@ export class Shortcuts {
     },
     {
       keys: 'else',
-      func: () => {},
+      func: () => { },
     },
   ]
 

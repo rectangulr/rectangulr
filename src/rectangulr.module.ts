@@ -23,7 +23,7 @@ import { ScreenService } from './angular-terminal/screen-service'
 import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { FocusDebugDirective, FocusDirective } from './commands/focus.directive'
 import { Shortcuts } from './commands/shortcuts.component'
-import { HBox, HGrowDirective, VBox, VGrowDirective } from './components/1-basics/box'
+import { GrowDirective, HBox, HGrowDirective, VBox, VGrowDirective } from './components/1-basics/box'
 import { ClassesDirective, NewClassesDirective } from './components/1-basics/classes'
 import { StyleDirective, StylesDirective } from './components/1-basics/style'
 import { TextInput } from './components/1-basics/text-input'
@@ -45,6 +45,8 @@ import { Row, Table } from './components/2-common/table/table.component'
 import { ValueDirective } from './components/2-common/value.directive'
 import { ComponentOutletInputs } from './utils/componentOutletInput'
 import { InjectFunction, addToGlobalRg } from './utils/utils'
+import { Tree } from './components/2-common/tree/tree'
+import { TreeNode } from './components/2-common/tree/tree-node'
 
 // @ts-ignore
 const NG_DEV_MODE = typeof ngDevMode === 'undefined' || !!ngDevMode
@@ -58,8 +60,11 @@ const TEMPLATE_COMPONENTS = [
   VBox,
   HGrowDirective,
   VGrowDirective,
+  GrowDirective,
   List,
   ListItem,
+  Tree,
+  TreeNode,
   SearchList,
   OnEnterDirective,
   TextInput,
@@ -138,7 +143,7 @@ export class RectangulrModule {
     if (NG_DEV_MODE && providersAlreadyPresent) {
       throw new Error(
         `Providers from the \`RectangulrModule\` have already been loaded. If you need access ` +
-          `to common directives such as NgIf and NgFor, import the \`CommonModule\` instead.`
+        `to common directives such as NgIf and NgFor, import the \`CommonModule\` instead.`
       )
     }
   }

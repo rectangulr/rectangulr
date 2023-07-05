@@ -16,7 +16,7 @@
     "build-test-watch": "ng test --watch"
   },
   "peerDependencies": {
-    "@types/node": "^12.11.1",
+    "@types/node": "^14.0.0",
     "chai": "^4.3.7",
     "cli-truncate": "^3.1.0",
     "core-decorators": "^0.13.0",
@@ -40,7 +40,7 @@
     "@babel/cli": "^7.19.3",
     "@types/jasmine": "^4.3.1",
     "@types/lodash": "^4.14.189",
-    "@types/node": "^12.11.1",
+    "@types/node": "^14.0.0",
     "@types/webpack-env": "^1.18.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",

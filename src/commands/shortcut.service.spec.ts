@@ -1,25 +1,28 @@
 import { NgIf } from '@angular/common'
 import {
   Component,
+  EventEmitter,
   Input,
-  NgZone,
+  Output,
   QueryList,
   ViewChild,
   ViewChildren,
   WritableSignal,
-  signal,
+  signal
 } from '@angular/core'
 import { TestBed, fakeAsync, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
+import { makeRuleset } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
-import { HBox } from '../components/1-basics/box'
+import { HBox, VBox } from '../components/1-basics/box'
+import { ClassesDirective } from '../components/1-basics/classes'
 import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
+import { StyleDirective } from '../public-api'
 import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
 import { FocusDirective } from './focus.directive'
-import { ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
-import { async } from '../utils/utils'
+import { Command, ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
 
 describe('ShortcutService Class', () => {
   let shortcuts: ShortcutService
@@ -27,11 +30,11 @@ describe('ShortcutService Class', () => {
   beforeEach(() => {
     TestBed.resetTestingModule()
     TestBed.configureTestingModule({})
-    shortcuts = new ShortcutService(null, TestBed.inject(Logger), null, TestBed.inject(NgZone))
+    shortcuts = new ShortcutService(null, TestBed.inject(Logger), null)
   })
 
   it('should register a shortcut', fakeAsync(() => {
-    const spy = { handler: () => {} }
+    const spy = { handler: () => { } }
     spyOn(spy, 'handler')
     shortcuts.registerCommand({
       keys: 'ctrl+r',
@@ -42,7 +45,7 @@ describe('ShortcutService Class', () => {
   }))
 
   it('should register/remove a shortcut', fakeAsync(() => {
-    const spy = { handler: () => {} }
+    const spy = { handler: () => { } }
     spyOn(spy, 'handler')
     const disposable = shortcuts.registerCommand({
       keys: 'ctrl+r',
@@ -74,15 +77,15 @@ describe('ShortcutService Class', () => {
   providers: [ShortcutService],
 })
 export class Test1 {
-  constructor(public shortcutService: ShortcutService) {}
+  constructor(public shortcutService: ShortcutService) { }
   showFirst = true
   showSecond = true
 
   @ViewChild('first', { read: ShortcutService }) first: ShortcutService
   @ViewChild('second', { read: ShortcutService }) second: ShortcutService
 
-  firstFunc() {}
-  secondFunc() {}
+  firstFunc() { }
+  secondFunc() { }
 
   callsMethod = methodName => {
     return () => this[methodName]()
@@ -184,10 +187,10 @@ describe('ShortcutService ngIf - ', () => {
 export class Test2 {
   focused: 'first' | 'second' = 'first'
 
-  constructor(public shortcutService: ShortcutService) {}
+  constructor(public shortcutService: ShortcutService) { }
 
-  firstFunc() {}
-  secondFunc() {}
+  firstFunc() { }
+  secondFunc() { }
 
   callsMethod = methodName => {
     return () => this[methodName]()
@@ -237,10 +240,10 @@ export class Test3 {
     { keys: 'ctrl+r', func: this.callsMethod('secondFunc') },
   ]
 
-  constructor(public shortcutService: ShortcutService) {}
+  constructor(public shortcutService: ShortcutService) { }
 
-  firstFunc() {}
-  secondFunc() {}
+  firstFunc() { }
+  secondFunc() { }
 }
 
 describe('ShortcutService - ', () => {
@@ -266,7 +269,7 @@ describe('ShortcutService - ', () => {
 })
 export class Test4 {
   condition = true
-  constructor(public shortcutService: ShortcutService) {}
+  constructor(public shortcutService: ShortcutService) { }
   @ViewChild(TextInput) input: TextInput
 }
 
@@ -305,8 +308,8 @@ describe('ShortcutService - ', () => {
 export class Test5 {
   condition = true
   items = [1, 2, 3]
-  noop = () => {}
-  constructor(public shortcutService: ShortcutService) {}
+  noop = () => { }
+  constructor(public shortcutService: ShortcutService) { }
   @ViewChildren(TextInput) input: QueryList<TextInput>
 }
 
@@ -357,7 +360,7 @@ export class Test6Comp {
   spy2: { handler: () => void }
 
   constructor(public shortcutService: ShortcutService) {
-    this.spy2 = { handler: () => {} }
+    this.spy2 = { handler: () => { } }
     spyOn(this.spy2, 'handler')
     registerShortcuts(this, [
       {
@@ -385,7 +388,7 @@ export class Test6 {
   spy1: { handler: () => void }
 
   constructor(public shortcutService: ShortcutService) {
-    this.spy1 = { handler: () => {} }
+    this.spy1 = { handler: () => { } }
     spyOn(this.spy1, 'handler')
     registerShortcuts(this, [
       {
@@ -421,5 +424,161 @@ describe('ShortcutService -', () => {
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.spy1.handler).toHaveBeenCalledTimes(2)
+  }))
+})
+
+@Component({
+  standalone: true,
+  imports: [HBox, VBox, FocusDirective, NgIf],
+  template: `<h #parent focus>
+    <h #child focus></h>
+  </h>
+  `,
+  providers: [ShortcutService]
+})
+export class Test7 {
+  @ViewChild('parent', { read: ShortcutService }) parentShortcutService: ShortcutService
+  @ViewChild('child', { read: ShortcutService }) childShortcutService: ShortcutService
+  constructor(public shortcutService: ShortcutService) { }
+}
+
+
+describe('FocusDirective -', () => {
+  it('provides a ShortcutService', fakeAsync(() => {
+    const { fixture, component, shortcuts } = setupTest(Test7)
+    tick()
+    expect(component.parentShortcutService._id).not.toEqual(component.childShortcutService._id)
+    expect(component.shortcutService._id).not.toEqual(component.childShortcutService._id)
+    expect(component.shortcutService._id).not.toEqual(component.parentShortcutService._id)
+  }))
+})
+
+@Component({
+  selector: 'component-data-display',
+  standalone: true,
+  imports: [HBox, List, NgIf, ListItem, FocusDirective, ClassesDirective, StyleDirective],
+  template: `
+    <h [classes]="[[shortcutService.$isFocused(), s.selected]]"> {{ data.name }}</h>
+    <list
+      #list
+      [items]="data?.children"
+      [focusName]="'list-' + data.name"
+      [focusIf]="focused == 'children'"
+      (selectedItem)="onSelectedItem($event)"
+      [styleItem]="false"
+      [style]="{ marginLeft: 1 }">
+      <component-data-display
+        *item="let item; type: data.children"
+        [data]="item"
+        focus
+        [focusName]="'component-' + item.name"
+        (selectedItem)="onSelectedItem($event)"/>
+    </list>
+  `,
+})
+class ComponentDataView {
+  @Input() data = { name: 'name', children: [{ name: 'child1', children: [] }] }
+  focused: 'self' | 'children' = 'self'
+  canExpand = false
+  expanded = false
+
+  $selectedItem = signal(null)
+
+  onSelectedItem(item) {
+    this.$selectedItem.set(item)
+    this.$$selectedItem.emit(item)
+  }
+
+  @Output('selectedItem') $$selectedItem = new EventEmitter()
+
+  @ViewChild('list') list: List<any>
+  @ViewChild('list', { read: ShortcutService }) listShortcutService: ShortcutService
+
+  constructor(public shortcutService: ShortcutService) {
+    registerShortcuts(this, this.shortcuts)
+  }
+
+  ngOnInit() {
+    this.canExpand = !!this.data?.children
+  }
+
+  shortcuts: Partial<Command>[] = [
+    {
+      keys: 'left',
+      func: key => {
+        if (this.focused == 'children') {
+          this.focused = 'self'
+        } else {
+          if (this.expanded) {
+            this.expanded = false
+          } else {
+            return key
+          }
+        }
+      },
+    },
+    {
+      keys: 'right',
+      func: key => {
+        if (!this.canExpand) return key
+
+        if (this.focused == 'self') {
+          if (!this.expanded) {
+            this.expanded = true
+          } else {
+            this.focused = 'children'
+          }
+        } else if (this.focused == 'children') {
+          return key
+        }
+      },
+    },
+    {
+      keys: 'up',
+      id: 'debugger.componentData.up',
+      func: key => {
+        if (this.focused == 'children') {
+          this.focused = 'self'
+        } else if (this.focused == 'self') {
+          return key
+        }
+      },
+    },
+    {
+      keys: 'down',
+      id: 'debugger.componentData.down',
+      func: key => {
+        if (this.focused == 'self') {
+          if (this.expanded) {
+            this.focused = 'children'
+          } else {
+            return key
+          }
+        } else if (this.focused == 'children') {
+          return key
+        }
+      },
+    },
+  ]
+
+
+  s = {
+    selected: makeRuleset({ backgroundColor: 'gray' }),
+  }
+
+  destroy$ = new Subject()
+  ngOnDestroy() {
+    this.destroy$.next(null)
+    this.destroy$.complete()
+  }
+}
+
+describe('ComponentDataView -', () => {
+  it('test', fakeAsync(() => {
+    const { fixture, component, shortcuts } = setupTest(ComponentDataView)
+    tick()
+    expect(component.listShortcutService._id).toEqual(component.list.shortcutService._id)
+
+    expect(component.shortcutService._id).not.toEqual(component.listShortcutService._id)
   }))
 })

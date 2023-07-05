@@ -41,6 +41,8 @@ export { JsonEditor, JsonPath } from './components/2-common/json-editor/json-edi
 export { Json5Pipe } from './components/2-common/json5.pipe'
 export { List } from './components/2-common/list/list'
 export { ListItem } from './components/2-common/list/list-item'
+export { Tree } from './components/2-common/tree/tree'
+export { TreeNode } from './components/2-common/tree/tree-node'
 export { BasicObjectDisplay } from './components/2-common/list/basic-object-display'
 
 // Common

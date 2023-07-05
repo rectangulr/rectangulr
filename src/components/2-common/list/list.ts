@@ -12,17 +12,17 @@ import {
   Output,
   QueryList,
   Signal,
-  SkipSelf,
   TemplateRef,
   ViewChildren,
   computed,
   effect,
-  signal,
+  signal
 } from '@angular/core'
+import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { DynamicModule } from 'ng-dynamic-component'
-import { BehaviorSubject, Observable, Subject } from 'rxjs'
+import { Observable, Subject } from 'rxjs'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
@@ -35,7 +35,6 @@ import { ClassesDirective, NewClassesDirective } from '../../1-basics/classes'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
-import { toObservable } from '@angular/core/rxjs-interop'
 
 /**
  * Displays a list of items and highlights the current item.
@@ -109,11 +108,11 @@ import { toObservable } from '@angular/core/rxjs-interop'
   ],
 })
 export class List<T> {
-  @Input() items: T[] | Observable<T[]> | Signal<T[]>
+  @Input() items: T[] | Observable<T[]> | Signal<T[]> = undefined
   @Input() trackByFn = (index, item) => item
   @Input() showIndex = false
-  @Input() displayComponent: any
-  @Input() template: TemplateRef<any>
+  @Input() displayComponent: any = undefined
+  @Input() template: TemplateRef<any> = undefined
   @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
   @Input() onInitSelect: 'first' | 'last' = 'first'
   @Input() styleItem = true
@@ -127,7 +126,6 @@ export class List<T> {
   // $focusPath = signal(null)
 
   $selectedIndex = signal(undefined)
-  $selectedValue = computed(() => {})
 
   selected = {
     index: undefined,
@@ -144,7 +142,7 @@ export class List<T> {
   @ContentChildren(FocusDirective) focusRefs: QueryList<FocusDirective>
 
   constructor(
-    @SkipSelf() public shortcutService: ShortcutService,
+    public shortcutService: ShortcutService,
     @Inject('itemComponent') @Optional() public itemComponentInjected: any,
     public logger: Logger,
     public injector: Injector
