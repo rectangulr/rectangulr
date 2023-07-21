@@ -38,7 +38,7 @@ export class Row<T> {
   @Input() data: T
   text: Signal<string>
 
-  constructor(public table: Table<T>) {}
+  constructor(public table: Table<T>) { }
 
   ngOnInit() {
     assert(this.data)
@@ -57,7 +57,7 @@ export class Row<T> {
           .map(column => {
             let value = this.data[column.id]
 
-            if (typeof value == 'string') {
+            if (typeof value == 'string' || typeof value == 'bigint') {
               value = String(value)
             } else if (value === undefined) {
               value = 'undefined'
@@ -66,6 +66,7 @@ export class Row<T> {
             } else {
               value = json5.stringify(value)
             }
+            assert(typeof value == 'string')
 
             return { ...column, string: value.slice(0, column.width).padEnd(column.width) }
           })

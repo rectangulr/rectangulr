@@ -100,7 +100,7 @@ export class Shortcuts {
         try {
           focused.callCommand({ id: command.id })
         } catch (e) {
-          logError(this.logger, `callCommand failed: '${command.id}'`)
+          logError(this.logger, `callCommand failed: '${command.id}'\n${e}`)
         }
         this.onClose.emit(null)
         this.shortcutService.before = null

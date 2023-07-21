@@ -31,7 +31,7 @@ export class ObjectDisplay<T> {
   @Input() object: T | Observable<T> | Signal<T>
   $object = signal({})
   $keyValues = computed(() => {
-    const object = this.$object()
+    const object = this.$object() || {}
     return Object.entries(object).map(([key, value]) => {
       if (typeof value == 'string') {
         return { key, value }
