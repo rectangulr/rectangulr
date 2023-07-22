@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import * as Yoga from 'yoga-layout-prebuilt'
+import * as Yoga from 'typeflex'
 import { Element } from '../dom/Element'
 
 export function dirtyLayout(node: Element) {

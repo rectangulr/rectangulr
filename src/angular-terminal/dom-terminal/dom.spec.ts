@@ -3,12 +3,7 @@ import { HBox, GrowDirective, VBox } from '../../components/1-basics/box'
 import { setupTest } from '../../utils/tests'
 import { Element } from './sources'
 import { StyleDirective } from '../../public-api'
-import {
-  ALIGN_FLEX_START,
-  ALIGN_STRETCH,
-  FLEX_DIRECTION_COLUMN,
-  FLEX_DIRECTION_ROW,
-} from 'yoga-layout-prebuilt'
+import * as Yoga from 'typeflex'
 
 describe('DOM - ', () => {
   it('child should be bigger than parent', async () => {
@@ -103,9 +98,9 @@ describe('DOM - ', () => {
     const child2 = component.child2.nativeElement
 
     expect(parent.yogaNode.getComputedLayout().width).toEqual(20)
-    expect(parent.yogaNode.getAlignItems()).toEqual(ALIGN_FLEX_START)
-    expect(parent.yogaNode.getAlignContent()).toEqual(ALIGN_FLEX_START)
-    expect(parent.yogaNode.getFlexDirection()).toEqual(FLEX_DIRECTION_COLUMN)
+    expect(parent.yogaNode.getAlignItems()).toEqual(Yoga.ALIGN_FLEX_START)
+    expect(parent.yogaNode.getAlignContent()).toEqual(Yoga.ALIGN_FLEX_START)
+    expect(parent.yogaNode.getFlexDirection()).toEqual(Yoga.FLEX_DIRECTION_COLUMN)
 
     expect(child1.yogaNode.getComputedLayout().top).toEqual(0)
     expect(child2.yogaNode.getComputedLayout().top).toEqual(1)
@@ -134,19 +129,19 @@ describe('DOM - ', () => {
 
     const parent = component.parent.nativeElement
     expect(parent.yogaNode.getComputedLayout().height).toEqual(20)
-    expect(parent.yogaNode.getAlignItems()).toEqual(ALIGN_FLEX_START)
-    expect(parent.yogaNode.getAlignContent()).toEqual(ALIGN_FLEX_START)
-    expect(parent.yogaNode.getFlexDirection()).toEqual(FLEX_DIRECTION_ROW)
+    expect(parent.yogaNode.getAlignItems()).toEqual(Yoga.ALIGN_FLEX_START)
+    expect(parent.yogaNode.getAlignContent()).toEqual(Yoga.ALIGN_FLEX_START)
+    expect(parent.yogaNode.getFlexDirection()).toEqual(Yoga.FLEX_DIRECTION_ROW)
 
     const child1 = component.child1.nativeElement
     expect(child1.yogaNode.getComputedLayout().left).toEqual(0)
     expect(child1.yogaNode.getComputedLayout().height).toEqual(20)
-    expect(child1.yogaNode.getAlignSelf()).toEqual(ALIGN_STRETCH)
+    expect(child1.yogaNode.getAlignSelf()).toEqual(Yoga.ALIGN_STRETCH)
 
     const child2 = component.child2.nativeElement
     expect(child2.yogaNode.getComputedLayout().left).toEqual(4)
     expect(child2.yogaNode.getComputedLayout().height).toEqual(20)
-    expect(child1.yogaNode.getAlignSelf()).toEqual(ALIGN_STRETCH)
+    expect(child1.yogaNode.getAlignSelf()).toEqual(Yoga.ALIGN_STRETCH)
   })
 
   it('hbox grow', async () => {

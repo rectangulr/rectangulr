@@ -4,7 +4,7 @@
   "allowedNonPeerDependencies": [
     "@manaflair/term-strings",
     "ng-dynamic-component",
-    "yoga-layout-prebuilt"
+    "allowedNonPeerDependencies"
   ],
   "lib": {
     "entryFile": "src/public-api.ts"

@@ -1,6 +1,6 @@
 import { override } from 'core-decorators'
 import _ from 'lodash'
-import * as Yoga from 'yoga-layout-prebuilt'
+import * as Yoga from 'typeflex'
 import { IStyle } from '../../../../../components/1-basics/style'
 import { TermElement } from '../../term'
 import { Event } from '../misc/Event'
@@ -128,7 +128,7 @@ export class Element extends Node {
     throw new Error('Method not implemented.')
   }
 
-  addEventListener(name, callback, { capture = false, once = false } = {}) {}
+  addEventListener(name, callback, { capture = false, once = false } = {}) { }
 
   toString({ depth = 0 } = {}) {
     // let tag = '${this.nodeName}#${this.id}${Array.from(this.classList).map(className => '.${className}').join('')}'
@@ -416,11 +416,11 @@ export class Element extends Node {
     let getNextIndex =
       offset > 0
         ? currentIndex => {
-            return currentIndex === this.focusList.length - 1 ? 0 : currentIndex + 1
-          }
+          return currentIndex === this.focusList.length - 1 ? 0 : currentIndex + 1
+        }
         : currentIndex => {
-            return currentIndex === 0 ? this.focusList.length - 1 : currentIndex - 1
-          }
+          return currentIndex === 0 ? this.focusList.length - 1 : currentIndex - 1
+        }
 
     if (!this.activeElement) {
       if (offset > 0) {
@@ -500,24 +500,24 @@ export class Element extends Node {
       if (effectiveAlignX === 'auto')
         effectiveAlignX =
           Math.abs(this.elementRect.x - this.parentNode.scrollLeft) <
-          Math.abs(
-            this.elementRect.x +
+            Math.abs(
+              this.elementRect.x +
               this.elementRect.width -
               1 -
               (this.parentNode.scrollLeft + this.parentNode.elementRect.width - 1)
-          )
+            )
             ? 'start'
             : 'end'
 
       if (effectiveAlignY === 'auto')
         effectiveAlignY =
           Math.abs(this.elementRect.y - this.parentNode.scrollTop) <
-          Math.abs(
-            this.elementRect.y +
+            Math.abs(
+              this.elementRect.y +
               this.elementRect.height -
               1 -
               (this.parentNode.scrollTop + this.parentNode.elementRect.height - 1)
-          )
+            )
             ? 'start'
             : 'end'
 
@@ -559,7 +559,7 @@ export class Element extends Node {
       if (effectiveAlignX === 'auto') {
         effectiveAlignX =
           Math.abs(position.x - this.scrollLeft) <
-          Math.abs(position.x - (this.scrollLeft + this.elementRect.width - 1))
+            Math.abs(position.x - (this.scrollLeft + this.elementRect.width - 1))
             ? 'start'
             : 'end'
       }
@@ -591,7 +591,7 @@ export class Element extends Node {
       if (effectiveAlignY === 'auto') {
         effectiveAlignY =
           Math.abs(position.y - this.scrollTop) <
-          Math.abs(position.y - (this.scrollTop + this.elementRect.height - 1))
+            Math.abs(position.y - (this.scrollTop + this.elementRect.height - 1))
             ? 'start'
             : 'end'
       }

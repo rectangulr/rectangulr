@@ -12,7 +12,7 @@
   },
   "src/*.ts": {
     "alternate": [
-      "../tablr/node_modules/rectangulr/src/{}.ts"
+      "../tabulr/node_modules/rectangulr/src/{}.ts"
     ]
   }
 }
