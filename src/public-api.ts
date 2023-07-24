@@ -7,7 +7,7 @@ export { Element, Event, makeRuleset, TermScreen } from './angular-terminal/dom-
 export { Logger } from './angular-terminal/logger'
 
 // Platform
-export { platformRectangulr } from './angular-terminal/platform'
+export { platformRectangulr, bootstrapApplication } from './angular-terminal/platform'
 export { platformRectangulrDynamicTesting } from './angular-terminal/testing/platform-testing'
 export { RectangulrDynamicTestingModule } from './angular-terminal/testing/testing.module'
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
@@ -22,8 +22,8 @@ export {
   GrowDirective,
 } from './components/1-basics/box'
 export {
-  NewClassesDirective as ClassesDirective,
-  ClassesDirective as NativeClassesDirective,
+  NewClassesDirective,
+  ClassesDirective,
 } from './components/1-basics/classes'
 export { StyleDirective, StylesDirective } from './components/1-basics/style'
 export { TextInput } from './components/1-basics/text-input'

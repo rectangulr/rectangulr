@@ -12,6 +12,7 @@ import { ClassesDirective } from '../../1-basics/classes'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
 import { View, ViewService } from './view.service'
+import { StyleDirective } from '../../1-basics/style'
 
 @Component({
   standalone: true,
@@ -31,14 +32,14 @@ import { View, ViewService } from './view.service'
     <hbox [style]="{ vgrow: true }"></hbox>
 
     <!-- Bottom bar. List of tabs. -->
-    <hbox [style]="{ flexDirection: 'row', flexShrink: 0, backgroundColor: 'grey' }">
+    <hbox [style]="{ hgrow: true, backgroundColor: 'grey' }">
       <hbox
         *ngFor="let view of viewService.tabs"
         [classes]="[[view == currentTab, s.blackOnWhite]]"
         [style]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</hbox
       >
-      <hbox [style]="{ vgrow: true }"></hbox>
+      <hbox [style]="{ hgrow: true }"></hbox>
       <hbox [style]="{ flexShrink: 0 }">Help: alt+p</hbox>
     </hbox>
 
@@ -62,6 +63,7 @@ import { View, ViewService } from './view.service'
     Notifications,
     Shortcuts,
     GrowDirective,
+    StyleDirective
   ],
 })
 export class AppShell {

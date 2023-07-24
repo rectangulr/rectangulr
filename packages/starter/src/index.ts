@@ -1,7 +1,10 @@
-// import 'source-map-support/register'
-import { AppModule } from './app.module'
-import { platformRectangulr } from 'rectangulr'
+import { Component } from '@angular/core'
+import { bootstrapApplication } from 'rectangulr'
 
-platformRectangulr()
-  .bootstrapModule(AppModule)
-  .catch(err => console.error(err))
+@Component({
+	selector: 'main',
+	template: `ice`,
+})
+class Main { }
+
+bootstrapApplication(Main)
