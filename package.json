@@ -1,6 +1,6 @@
 {
   "name": "rectangulr",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "dependencies": {
     "@manaflair/term-strings": "^0.9.2",
@@ -10,10 +10,24 @@
   },
   "scripts": {
     "build": "ng build",
-    "build-watch": "ng build --watch",
-    "test": "node dist-test/main.cjs",
-    "build-test": "ng test",
-    "build-test-watch": "ng test --watch"
+    "watch": "ng build --watch",
+    "test": "wireit",
+    "test:build": "ng test",
+    "test:watch": "wireit"
+  },
+  "wireit": {
+    "test": {
+      "command": "node dist-test/main.cjs",
+      "dependencies": [
+        "test:build"
+      ]
+    },
+    "test:watch": {
+      "command": "ng test --watch",
+      "dependencies": [
+        "test:build"
+      ]
+    }
   },
   "peerDependencies": {
     "@types/node": "^14.0.0",

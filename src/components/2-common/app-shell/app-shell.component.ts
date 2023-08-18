@@ -7,7 +7,7 @@ import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { Shortcuts } from '../../../commands/shortcuts.component'
 import { makeProperty } from '../../../utils/reactivity'
-import { HBox, GrowDirective } from '../../1-basics/box'
+import { HBox, GrowDirective, VBox } from '../../1-basics/box'
 import { ClassesDirective } from '../../1-basics/classes'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
@@ -25,11 +25,11 @@ import { StyleDirective } from '../../1-basics/style'
       [focusPropagateUp]="false"
       [focusIf]="view == currentTab"
       [style]="{ display: view == currentTab ? 'flex' : 'none', width: '100%', height: '100%' }">
-      <ng-container [ngComponentOutlet]="view.component"></ng-container>
+      <ng-container [ngComponentOutlet]="view.component"/>
     </vbox>
 
     <!-- Push the bottom-bar to the bottom. -->
-    <hbox [style]="{ vgrow: true }"></hbox>
+    <hbox [style]="{ vgrow: true }"/>
 
     <!-- Bottom bar. List of tabs. -->
     <hbox [style]="{ hgrow: true, backgroundColor: 'grey' }">
@@ -39,22 +39,19 @@ import { StyleDirective } from '../../1-basics/style'
         [style]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</hbox
       >
-      <hbox [style]="{ hgrow: true }"></hbox>
+      <hbox [style]="{ hgrow: true }"/>
       <hbox [style]="{ flexShrink: 0 }">Help: alt+p</hbox>
     </hbox>
 
     <!-- Popup to discover shortcuts -->
-    <shortcuts
-      *ngIf="showCommands"
-      [shortcutService]="shortcutService"
-      (onClose)="showCommands = false">
-    </shortcuts>
+    <shortcuts *ngIf="showCommands" [shortcutService]="shortcutService" (onClose)="showCommands = false"/>
 
     <!-- Popup to show notifications -->
-    <notifications></notifications>
+    <notifications/>
   `,
   imports: [
     HBox,
+    VBox,
     NgIf,
     NgFor,
     ClassesDirective,
