@@ -8,10 +8,13 @@ export { Logger } from './angular-terminal/logger'
 
 // Platform
 export { platformRectangulr, bootstrapApplication } from './angular-terminal/platform'
+
+// Testing
 export { platformRectangulrDynamicTesting } from './angular-terminal/testing/platform-testing'
 export { RectangulrDynamicTestingModule } from './angular-terminal/testing/testing.module'
+
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
-export { Shortcuts as ShortcutsDisplay } from './commands/shortcuts.component'
+export { Shortcuts } from './commands/shortcuts.component'
 export { FocusDirective, FocusDebugDirective } from './commands/focus.directive'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
 export {
@@ -55,7 +58,6 @@ export { Table, Row } from './components/2-common/table/table.component'
 export { RectangulrModule } from './rectangulr.module'
 export { ComponentOutletInputs } from './utils/componentOutletInput'
 export { KeyValue } from './utils/interfaces'
-// export * from './angular-terminal/signals/index'
 export { StorageService } from './components/2-common/storage.service'
 
 // Utils

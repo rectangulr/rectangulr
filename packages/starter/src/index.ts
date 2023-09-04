@@ -3,7 +3,7 @@ import { bootstrapApplication } from 'rectangulr'
 
 @Component({
 	selector: 'main',
-	template: `ice`,
+	template: `main`,
 })
 class Main { }
 

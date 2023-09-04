@@ -29,15 +29,15 @@ export const StdinStdout: InputOutput = {
 
 export const VoidInputOuput: InputOutput = {
   input: {
-    read: () => {},
-    on: (event, func) => {},
-    subscribe: func => {},
+    read: () => { },
+    on: (event, func) => { },
+    subscribe: func => { },
   },
   output: {
     write: text => true,
     columns: 150,
     rows: 40,
-    on: (event, func) => {},
+    on: (event, func) => { },
   },
 }
 

@@ -4,8 +4,8 @@ import { RECTANGULR_MODULE_PROVIDERS } from '../../rectangulr.module'
 import { INPUT_OUTPUT, VoidInputOuput } from '../input-output'
 
 class EmptyTestComponentRenderer implements TestComponentRenderer {
-  insertRootElement(rootElementId: string): void {}
-  removeAllRootElements?(): void {}
+  insertRootElement(rootElementId: string): void { }
+  removeAllRootElements?(): void { }
 }
 
 @NgModule({
@@ -17,4 +17,4 @@ class EmptyTestComponentRenderer implements TestComponentRenderer {
     { provide: INPUT_OUTPUT, useValue: VoidInputOuput },
   ],
 })
-export class RectangulrDynamicTestingModule {}
+export class RectangulrDynamicTestingModule { }
