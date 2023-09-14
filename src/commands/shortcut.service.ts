@@ -140,14 +140,27 @@ export class ShortcutService {
   private handleKeypress(keypress): Key {
     // Keybind
     const key = keyToString(keypress)
-    const ids = this.shortcuts[key] || this.shortcuts['else']
+    const commandIds = this.shortcuts[key]
     let unhandled = keypress
-    if (ids) {
-      for (let i = ids.length - 1; i >= 0; i--) {
-        const id = ids[i]
+    if (commandIds) {
+      for (let i = commandIds.length - 1; i >= 0; i--) {
+        const id = commandIds[i]
         unhandled = this.callCommand({ id: id, keys: keypress })
         if (!unhandled) {
           break
+        }
+      }
+    }
+
+    if (unhandled) {
+      const elseIds = this.shortcuts['else']
+      if (elseIds) {
+        for (let i = elseIds.length - 1; i >= 0; i--) {
+          const id = elseIds[i]
+          unhandled = this.callCommand({ id: id, keys: keypress })
+          if (!unhandled) {
+            break
+          }
         }
       }
     }

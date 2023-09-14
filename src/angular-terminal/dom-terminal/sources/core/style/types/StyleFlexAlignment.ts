@@ -1,4 +1,4 @@
-import * as Yoga from 'typeflex'
+import Yoga from 'typeflex'
 
 export class StyleFlexAlignment {
   static auto: StyleFlexAlignment = null

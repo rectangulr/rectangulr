@@ -1,11 +1,7 @@
 {
   "$schema": "./node_modules/ng-packagr/ng-package.schema.json",
   "dest": "dist",
-  "allowedNonPeerDependencies": [
-    "@manaflair/term-strings",
-    "ng-dynamic-component",
-    "typeflex"
-  ],
+  "allowedNonPeerDependencies": [],
   "lib": {
     "entryFile": "src/public-api.ts"
   }

@@ -9,8 +9,8 @@
     "typeflex": "^0.1.0"
   },
   "scripts": {
-    "build": "ng build",
-    "watch": "ng build --watch",
+    "build": "ng build --configuration production",
+    "dev": "ng build --watch",
     "test": "wireit",
     "test:build": "ng test",
     "test:watch": "wireit"
@@ -41,7 +41,7 @@
     "widest-line": "^4.0.1"
   },
   "devDependencies": {
-    "@angular-builders/custom-webpack": "16.0.0-beta.0",
+    "@angular-builders/custom-webpack": "^16.0.1",
     "@angular-devkit/build-angular": "^16.0.2",
     "@angular/cli": "^16.0.2",
     "@angular/common": "^16.0.2",

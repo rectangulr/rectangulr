@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import * as Yoga from 'typeflex'
+import Yoga from 'typeflex'
 import { character, color, length, list, number, optional, repeat } from './styleParsers'
 import {
   dirtyClipping,

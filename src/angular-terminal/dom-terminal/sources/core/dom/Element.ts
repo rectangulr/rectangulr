@@ -1,6 +1,6 @@
 import { override } from 'core-decorators'
 import _ from 'lodash'
-import * as Yoga from 'typeflex'
+import Yoga from 'typeflex'
 import { IStyle } from '../../../../../components/1-basics/style'
 import { TermElement } from '../../term'
 import { Event } from '../misc/Event'

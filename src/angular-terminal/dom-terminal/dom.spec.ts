@@ -3,7 +3,7 @@ import { HBox, GrowDirective, VBox } from '../../components/1-basics/box'
 import { setupTest } from '../../utils/tests'
 import { Element } from './sources'
 import { StyleDirective } from '../../public-api'
-import * as Yoga from 'typeflex'
+import Yoga from 'typeflex'
 
 describe('DOM - ', () => {
   it('child should be bigger than parent', async () => {

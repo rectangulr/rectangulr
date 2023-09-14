@@ -1,5 +1,5 @@
 import { cursor, feature, screen, style } from '@manaflair/term-strings'
-import { Key, Mouse, parseTerminalInputs } from '@manaflair/term-strings/parse'
+import { Key, Mouse, parseTerminalInputs } from '@manaflair/term-strings/parse.js'
 import { autobind } from 'core-decorators'
 import _ from 'lodash'
 import { ReadStream, WriteStream } from 'tty'

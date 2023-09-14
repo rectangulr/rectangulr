@@ -1,4 +1,4 @@
-import * as Yoga from 'typeflex'
+import Yoga from 'typeflex'
 
 describe('Yoga Layout - ', () => {
   it('child setMeasureFunc', async () => {

@@ -1,3 +1,8 @@
 {
-	"type": "commonjs"
+	"type": "commonjs",
+	"exports": {
+		"api": {
+			"types": "./tabulr.d.ts"
+		}
+	}
 }
