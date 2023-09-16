@@ -36,9 +36,9 @@ export class TerminalRenderer implements Renderer2 {
   readonly data: { [p: string]: any }
   destroyNode = null
 
-  constructor(private screen: ScreenService) {}
+  constructor(private screen: ScreenService) { }
 
-  destroy(): void {}
+  destroy(): void { }
 
   selectRootElement(): TermScreen {
     return this.screen.selectRootElement()
@@ -91,7 +91,7 @@ export class TerminalRenderer implements Renderer2 {
   ): () => void {
     // target.addEventListener(eventName, callback)
     // return () => { target.removeListener(eventName, callback) }
-    return () => {}
+    return () => { }
   }
 
   parentNode(node: TermElement): any {
