@@ -9,8 +9,8 @@
     "typeflex": "^0.1.0"
   },
   "scripts": {
-    "build": "ng build  --delete-output-path false --configuration production",
-    "dev": "ng build  --delete-output-path false --watch",
+    "build": "ng build --configuration production",
+    "dev": "ng build --watch",
     "test": "wireit",
     "test:build": "ng test",
     "test:watch": "wireit"
