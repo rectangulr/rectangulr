@@ -71,4 +71,4 @@ export {
   makeSignal,
   derived,
 } from './utils/reactivity'
-export { DataFormat } from './utils/data-format'
+export { DataFormat, CheckReturn } from './utils/data-format'

@@ -112,7 +112,7 @@ export class AppShell {
       id: 'showLogs',
       keywords: 'errors',
       func: () => {
-        this.viewService.switchTo('logs')
+        this.viewService.switchTo('Logs')
       },
     },
   ]

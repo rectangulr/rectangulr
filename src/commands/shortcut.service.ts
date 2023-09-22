@@ -511,8 +511,8 @@ class SimplifiedShortcutService {
   }
 
   get parent() {
-    if (this.parent) {
-      return simplifyShortcutService(this.parent)
+    if (this.ref.parent) {
+      return simplifyShortcutService(this.ref.parent)
     } else {
       return null
     }

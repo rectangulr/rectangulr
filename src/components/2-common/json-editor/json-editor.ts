@@ -86,7 +86,7 @@ export type JsonPath = Array<string | number>
   ],
 })
 export class JsonEditor {
-  @Input() data = null
+  @Input() data = undefined
   @Input() valueRef: ValueRef = { key: null, value: null, type: 'null', childrenValueRefs: [] }
   @Input() dataFormat: DataFormat | undefined = null
   @Input() path: string[] = []
@@ -107,21 +107,19 @@ export class JsonEditor {
     public externalTextEditor: ExternalTextEditor,
     public injector: Injector
   ) {
-    onChange(this, 'valueRef', valueRef => {
-      this.onValueRefChange()
-    })
+    onChange(this, 'valueRef', valueRef => { this.onValueRefChange() })
+    onChange(this, 'dataFormat', dataFormat => { this.setup() })
+    onChange(this, 'data', data => { this.setup() })
     inputToSignal(this, 'focusPath', '$focusPath')
   }
 
-  async ngOnInit() {
-    // assert(!(this.value && this.valueRef), 'Use [value] or [valueRef]. Not both.')
-
+  async setup() {
     let value = undefined
     if (this.isRoot) {
-      if (this.data !== undefined) {
-        value = this.data
-      } else if (this.dataFormat) {
+      if (this.dataFormat) {
         value = await this.dataFormat.completions()
+      } else if (this.data !== undefined) {
+        value = this.data
       } else {
         assert(false)
       }
@@ -131,6 +129,12 @@ export class JsonEditor {
         type: typeFromValue(value),
       }
     }
+  }
+
+  async ngOnInit() {
+    // assert(!(this.value && this.valueRef), 'Use [value] or [valueRef]. Not both.')
+
+    this.setup()
 
     // effect(() => {
     //   const focusPath = this.$focusPath()

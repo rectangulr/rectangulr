@@ -4,7 +4,7 @@ import { Subject } from 'rxjs'
 import { ShortcutService } from '../../commands/shortcut.service'
 import { assert } from '../../utils/utils'
 
-abstract class ValueProxy {}
+abstract class ValueProxy { }
 
 @Directive({
   standalone: true,
