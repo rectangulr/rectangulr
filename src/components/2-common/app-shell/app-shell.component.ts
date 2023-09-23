@@ -21,21 +21,21 @@ import { StyleDirective } from '../../1-basics/style'
   template: `
     <!-- Display the currentTab. The others are styled 'display: none'. -->
     <vbox
-      *ngFor="let view of viewService.views"
+      *ngFor="let view of viewService.views()"
       [focusPropagateUp]="false"
-      [focusIf]="view == currentTab"
-      [style]="{ display: view == currentTab ? 'flex' : 'none', width: '100%', height: '100%' }">
+      [focusIf]="view == this.viewService.currentTab()"
+      [style]="{ display: view == this.viewService.currentTab() ? 'flex' : 'none', width: '100%', height: '100%' }">
       <ng-container [ngComponentOutlet]="view.component"/>
     </vbox>
 
     <!-- Push the bottom-bar to the bottom. -->
     <hbox [style]="{ vgrow: true }"/>
 
-    <!-- Bottom bar. List of tabs. -->
+    <!-- Bottom bar. List of visible views. -->
     <hbox [style]="{ hgrow: true, backgroundColor: 'grey' }">
       <hbox
-        *ngFor="let view of viewService.tabs"
-        [classes]="[[view == currentTab, s.blackOnWhite]]"
+        *ngFor="let view of viewService.visibleViews()"
+        [classes]="[[view == this.viewService.currentTab(), s.blackOnWhite]]"
         [style]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</hbox
       >
@@ -49,30 +49,16 @@ import { StyleDirective } from '../../1-basics/style'
     <!-- Popup to show notifications -->
     <notifications/>
   `,
-  imports: [
-    HBox,
-    VBox,
-    NgIf,
-    NgFor,
-    ClassesDirective,
-    FocusDirective,
-    NgComponentOutlet,
-    Notifications,
-    Shortcuts,
-    GrowDirective,
-    StyleDirective
-  ],
+  imports: [HBox, VBox, NgIf, NgFor, ClassesDirective, FocusDirective, NgComponentOutlet, Notifications, Shortcuts, GrowDirective, StyleDirective],
 })
 export class AppShell {
-  currentTab: View = null
-  showCommands: boolean = false
+  showCommands = false
 
   constructor(
     @Inject(ViewService) public viewService: ViewService,
     public shortcutService: ShortcutService,
     public logger: Logger
   ) {
-    makeProperty(this, this.viewService.$currentTab, 'currentTab')
     registerShortcuts(this, this.commands)
   }
 
@@ -113,6 +99,14 @@ export class AppShell {
       keywords: 'errors',
       func: () => {
         this.viewService.switchTo('Logs')
+      },
+    },
+    {
+      keys: 'alt+shift+d',
+      id: 'showDebugger',
+      keywords: 'inspector',
+      func: () => {
+        this.viewService.switchTo('Debugger')
       },
     },
   ]

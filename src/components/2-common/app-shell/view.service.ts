@@ -1,7 +1,5 @@
-import { Inject, Injectable } from '@angular/core'
-import { BehaviorSubject } from 'rxjs'
-import { makeObservable } from '../../../utils/reactivity'
-import { Anything } from '../../../utils/utils'
+import { Inject, Injectable, Signal, WritableSignal, computed, signal } from '@angular/core'
+import { Anything, assert } from '../../../utils/utils'
 
 /**
  * A service for switching to another view.
@@ -13,43 +11,46 @@ export class ViewService {
   /**
    * All the views that the service can find from providers.
    */
-  views: View[]
+  views: WritableSignal<View[]>
 
   /**
    * Only the views that should be shown as tabs.
    */
-  tabs: View[]
+  visibleViews: Signal<View[]>
 
   /**
    * The current tab that is selected at the botttom.
    */
-  currentTab: View = null
+  currentTab: WritableSignal<View>
 
-  /**
-   * The current tab as an observable.
-   */
-  $currentTab = new BehaviorSubject<View>(null)
-
-  constructor(@Inject(View) views: View[]) {
-    makeObservable(this, 'currentTab', '$currentTab')
-    this.views = views.map(view => ({ tags: [], ...view }))
-    this.tabs = this.views.filter(v => !v.tags.includes('hidden'))
-    this.currentTab = this.tabs.find(v => v)
+  constructor(@Inject(View) public injectedViews: View[]) {
+    this.views = signal(injectedViews.map(view => ({ tags: [], ...view })))
+    this.currentTab = signal(this.views().find(v => !v.tags.includes('hidden')))
+    this.visibleViews = computed(() => {
+      const visibleViews = this.views().filter(v => !v.tags.includes('hidden'))
+      if (!visibleViews.includes(this.currentTab())) {
+        if (!this.currentTab()) debugger
+        visibleViews.push(this.currentTab())
+      }
+      return visibleViews
+    })
   }
 
   switchTo(viewName: string) {
-    const view = this.views.find(v => v.name == viewName)
+    const view = this.views().find(v => v.name == viewName)
     if (!view) throw new Error(`couldnt find view: ${viewName}`)
-    this.currentTab = view
+    assert(view)
+    this.currentTab.set(view)
   }
 
   nextView() {
-    const currentIndex = this.tabs.indexOf(this.currentTab)
+    const currentIndex = this.visibleViews().indexOf(this.currentTab())
     let newIndex = currentIndex + 1
-    if (newIndex > this.tabs.length - 1) {
+    if (newIndex > this.visibleViews().length - 1) {
       newIndex = 0
     }
-    this.currentTab = this.tabs[newIndex]
+    assert(this.visibleViews()[newIndex])
+    this.currentTab.set(this.visibleViews()[newIndex])
   }
 }
 

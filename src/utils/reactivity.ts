@@ -2,7 +2,7 @@ import { BehaviorSubject, isObservable, Observable, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { Destroyable } from './mixins'
 import { addToGlobalRg } from './utils'
-import { computed, isSignal, signal, WritableSignal } from '@angular/core'
+import { computed, isSignal, Signal, signal, WritableSignal } from '@angular/core'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.
@@ -232,8 +232,45 @@ export function derived<T>(computation: () => T, updateSource: (value: T) => voi
   return signal
 }
 
+/**
+ * @example
+ * class MyComponent {
+ * 		text = ''
+ * 		constructor() {
+ * 			makeIntoSignal(this, 'text')
+ * 		}
+ * }
+ */
+export function makeIntoSignal<C, K extends keyof C>(object: C, ...keys: K[]) {
+  if (keys.length > 1) {
+    for (const k of keys) {
+      makeIntoSignal(object, k)
+    }
+    return
+  }
+
+  const key = keys[0]
+  const value = object[key]
+
+  let storedSignal
+  if (typeof value == 'function') {
+    storedSignal = computed(value as any)
+  } else {
+    storedSignal = signal(value)
+  }
+
+  Object.defineProperty(object, key, {
+    get: () => {
+      return storedSignal()
+    },
+    set: newValue => {
+      storedSignal.set(newValue)
+    },
+  })
+}
+
 export function forceRefresh() {
-  globalThis['angularZone'].run(() => {})
+  globalThis['angularZone'].run(() => { })
 }
 
 addToGlobalRg({

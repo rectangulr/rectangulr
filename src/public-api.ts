@@ -70,5 +70,6 @@ export {
   subscribe,
   makeSignal,
   derived,
+  makeIntoSignal,
 } from './utils/reactivity'
 export { DataFormat, CheckReturn } from './utils/data-format'
