@@ -270,7 +270,9 @@ export function makeIntoSignal<C, K extends keyof C>(object: C, ...keys: K[]) {
 }
 
 export function forceRefresh() {
-  globalThis['angularZone'].run(() => { })
+  if (globalThis['angularZone']) {
+    globalThis['angularZone'].run(() => { })
+  }
 }
 
 addToGlobalRg({

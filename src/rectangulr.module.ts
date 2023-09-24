@@ -108,11 +108,12 @@ export const RECTANGULR_MODULE_PROVIDERS = [
 
       return function () {
         // @ts-ignore
-        globalThis['angularZone'] = Zone.current // used by ./lib/reactivity.ts -> forceRefresh()
-        // @ts-ignore
-        globalThis['rootZone'] = Zone.current.parent
-        // @ts-ignore
-        globalThis['Node'] = Node
+        if (globalThis['Zone']) {
+          // @ts-ignore
+          globalThis['angularZone'] = Zone.current // used by ./lib/reactivity.ts -> forceRefresh()
+          // @ts-ignore
+          globalThis['rootZone'] = Zone.current.parent
+        }
 
         addToGlobalRg({
           lView: global_rgLView,
