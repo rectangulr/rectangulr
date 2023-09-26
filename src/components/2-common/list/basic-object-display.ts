@@ -7,7 +7,7 @@ import { List } from './list'
 @Component({
   standalone: true,
   selector: 'basic-object-display',
-  template: `<hbox [style]="{ height: 1 }">{{ text }}</hbox>`,
+  template: `<h [style]="{ height: 1 }">{{ text }}</h>`,
   imports: [HBox, GrowDirective],
 })
 export class BasicObjectDisplay {
@@ -16,7 +16,7 @@ export class BasicObjectDisplay {
   @Input() excludeKeys: string[] = []
   text = 'error'
 
-  constructor(public list: List<any>) {}
+  constructor(public list: List<any>) { }
 
   ngOnInit() {
     const type = typeof this.data

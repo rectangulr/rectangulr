@@ -11,9 +11,9 @@ describe('DOM - ', () => {
       standalone: true,
       imports: [HBox, VBox, GrowDirective],
       template: `
-        <vbox #parent [style]="{ width: 5 }">
-          <vbox #child [style]="{ flexShrink: 0 }">aaaaaaaaaa</vbox>
-        </vbox>
+        <v #parent [style]="{ width: 5 }">
+          <v #child [style]="{ flexShrink: 0 }">aaaaaaaaaa</v>
+        </v>
       `,
     })
     class Test {
@@ -35,7 +35,7 @@ describe('DOM - ', () => {
     @Component({
       standalone: true,
       imports: [GrowDirective, VBox],
-      template: ` <vbox #parent>aaaaaaaaaa</vbox> `,
+      template: ` <v #parent>aaaaaaaaaa</v> `,
     })
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
@@ -48,15 +48,15 @@ describe('DOM - ', () => {
     expect(parent.yogaNode.getComputedWidth()).toEqual(10)
   })
 
-  it('vbox', async () => {
+  it('<v>', async () => {
     @Component({
       standalone: true,
       imports: [HBox, VBox, GrowDirective, StyleDirective],
       template: `
-        <vbox [style]="{ width: 20 }">
-          <vbox #child1>Test</vbox>
-          <vbox #child2>Test2</vbox>
-        </vbox>
+        <v [style]="{ width: 20 }">
+          <v #child1>Test</v>
+          <v #child2>Test2</v>
+        </v>
       `,
     })
     class Test {
@@ -75,15 +75,15 @@ describe('DOM - ', () => {
     expect(child2.yogaNode.getComputedLayout().width).toEqual(5)
   })
 
-  it('vbox hgrow', async () => {
+  it('v hgrow', async () => {
     @Component({
       standalone: true,
       imports: [HBox, VBox, GrowDirective, StyleDirective],
       template: `
-        <vbox #parent [style]="{ width: 20 }">
-          <vbox #child1 [style]="{ hgrow: true }">Test</vbox>
-          <vbox #child2 [style]="{ hgrow: true }">Test2</vbox>
-        </vbox>
+        <v #parent [style]="{ width: 20 }">
+          <v #child1 [style]="{ hgrow: true }">Test</v>
+          <v #child2 [style]="{ hgrow: true }">Test2</v>
+        </v>
       `,
     })
     class Test {
@@ -114,10 +114,10 @@ describe('DOM - ', () => {
       standalone: true,
       imports: [HBox, VBox, StyleDirective],
       template: `
-        <hbox #parent [style]="{ height: 20 }">
-          <vbox #child1 [style]="{ vgrow: true }">Test</vbox>
-          <vbox #child2 [style]="{ vgrow: true }">Test2</vbox>
-        </hbox>
+        <h #parent [style]="{ height: 20 }">
+          <v #child1 [style]="{ vgrow: true }">Test</v>
+          <v #child2 [style]="{ vgrow: true }">Test2</v>
+        </h>
       `,
     })
     class Test {
@@ -149,9 +149,9 @@ describe('DOM - ', () => {
       standalone: true,
       imports: [HBox, VBox, StyleDirective, GrowDirective],
       template: `
-        <hbox #parent [style]="{ height: 20, width: 20 }">
-          <hbox grow #child1></hbox>
-        </hbox>
+        <h #parent [style]="{ height: 20, width: 20 }">
+          <h grow #child1></h>
+        </h>
       `,
     })
     class Test {

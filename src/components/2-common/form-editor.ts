@@ -20,17 +20,17 @@ import { FocusDirective } from '../../public-api'
   imports: [HBox, TextInput, ReactiveFormsModule, ClassesDirective],
   selector: 'keyvalue-editor',
   template: `
-    <vbox [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
-      <vbox [style]="{ width: keyWidth + 1 }" [classes]="[blackOnWhite]">{{ keyValue.key }}</vbox>
+    <v [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
+      <v [style]="{ width: keyWidth + 1 }" [classes]="[blackOnWhite]">{{ keyValue.key }}</v>
       <text-input [formControlName]="keyValue.key" [text]="keyValue.value"></text-input>
-    </vbox>
+    </v>
   `,
 })
 export class KeyValueEditor {
   @Input() keyValue: { key: string; value: any } = null
   @Input() keyWidth = 0
 
-  constructor(public shortcutService: ShortcutService, public formGroup: FormGroup) {}
+  constructor(public shortcutService: ShortcutService, public formGroup: FormGroup) { }
 
   ngOnInit() {
     if (!this.keyWidth) {

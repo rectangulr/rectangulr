@@ -15,14 +15,14 @@ import { ListItem } from './list/list-item'
   selector: 'object-display',
   template: `
     <list [items]="$keyValues">
-      <hbox *item="let keyValue; type: $keyValues()">
+      <h *item="let keyValue; type: $keyValues()">
       <h
           [style]="{ flexShrink: 0, width: $longestKey() + 1, vgrow: true }"
           [classes]="[s.blackOnWhite]"
           >{{ keyValue.key }}</h
         >
         <h [style]="{ wrap: 'wrap' }">{{ keyValue.value }}</h>
-      </hbox>
+      </h>
     </list>
   `,
   imports: [GrowDirective, HBox, ClassesDirective, NgFor, VBox, List, ListItem]

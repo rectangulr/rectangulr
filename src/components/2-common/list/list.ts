@@ -44,9 +44,9 @@ import { ListItem } from './list-item'
   standalone: true,
   selector: 'list',
   template: `
-    <hbox *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items()?.length || 0 }}</hbox>
-    <vbox [style]="{ flexShrink: 0, scroll: 'y' }">
-      <vbox
+    <h *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items()?.length || 0 }}</h>
+    <v [style]="{ flexShrink: 0, scroll: 'y' }">
+      <v
         #elementRef
         *ngFor="
           let item of $visibleItems();
@@ -76,8 +76,8 @@ import { ListItem } from './list-item'
           *ngIf="!template && !template2 && _displayComponent"
           [ngComponentOutlet]="_displayComponent"
           [ndcDynamicInputs]="{ data: item }"></ng-container> -->
-      </vbox>
-    </vbox>
+      </v>
+    </v>
 
     <ng-template #defaultTemplate let-item let-selected>
       <basic-object-display

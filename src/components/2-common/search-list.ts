@@ -26,7 +26,7 @@ import { borderTop } from './styles'
   standalone: true,
   selector: 'search-list',
   template: `
-    <vbox [style]="{ flexDirection: 'column' }">
+    <v [style]="{ flexDirection: 'column' }">
       <text-input
         *ngIf="searchInputVisible"
         [text]="searchText"
@@ -41,7 +41,7 @@ import { borderTop } from './styles'
         [trackByFn]="trackByFn"
         [template]="template || template2">
       </list>
-    </vbox>
+    </v>
   `,
   providers: [
     {

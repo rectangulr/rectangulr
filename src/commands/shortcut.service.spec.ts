@@ -65,14 +65,14 @@ describe('ShortcutService Class', () => {
   standalone: true,
   imports: [HBox, FocusDirective, NgIf],
   template: `
-    <vbox
+    <v
       #first
       *ngIf="showFirst"
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></vbox>
-    <vbox
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></v>
+    <v
       #second
       *ngIf="showSecond"
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></vbox>
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></v>
   `,
   providers: [ShortcutService],
 })
@@ -175,12 +175,12 @@ describe('ShortcutService ngIf - ', () => {
   standalone: true,
   imports: [HBox, FocusDirective, NgIf],
   template: `
-    <vbox
+    <v
       [focusIf]="focused == 'first'"
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></vbox>
-    <vbox
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></v>
+    <v
       [focusIf]="focused == 'second'"
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></vbox>
+      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></v>
   `,
   providers: [ShortcutService],
 })
@@ -227,7 +227,7 @@ describe('ShortcutService FocusIf - ', () => {
 @Component({
   standalone: true,
   imports: [HBox, FocusDirective, NgIf],
-  template: ` <vbox [focusShortcuts]="shortcuts"></vbox> `,
+  template: ` <v [focusShortcuts]="shortcuts"></v> `,
   providers: [ShortcutService],
 })
 export class Test3 {
@@ -299,9 +299,9 @@ describe('ShortcutService - ', () => {
   imports: [HBox, NgIf, TextInput, List, ListItem, FocusDirective],
   template: `
     <list [items]="items">
-      <vbox *item focus>
+      <v *item focus>
         <text-input [text]=""></text-input>
-      </vbox>
+      </v>
     </list>
   `,
 })

@@ -41,9 +41,9 @@ export type JsonPath = Array<string | number>
   selector: 'json-editor',
   host: { '[style]': "{flexDirection: 'row'}" },
   template: `
-    <hbox *ngIf="visibleKey()" [focusIf]="focused == 'key'" [style]="{ flexShrink: 0 }">
+    <h *ngIf="visibleKey()" [focusIf]="focused == 'key'" [style]="{ flexShrink: 0 }">
       <text-input [(text)]="valueRef.key"></text-input>:
-    </hbox>
+    </h>
 
     <ng-container [focusIf]="focused == 'value'">
       <text-input

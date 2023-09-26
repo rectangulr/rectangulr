@@ -96,7 +96,7 @@ interface Column {
   selector: 'table',
   host: { '[style]': `{scroll: 'x'}` },
   template: `
-    <hbox [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ $headers() }}</hbox>
+    <h [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ $headers() }}</h>
     <list
       #list
       [items]="items"

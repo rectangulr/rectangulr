@@ -55,7 +55,7 @@ describe('List - ', () => {
   standalone: true,
   imports: [List, HBox, ListItem],
   template: `<list [items]="items">
-    <hbox *item="let value">item: {{ value }}</hbox>
+    <h *item="let value">item: {{ value }}</h>
   </list> `,
 })
 export class Test2 {

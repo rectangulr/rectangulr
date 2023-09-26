@@ -14,13 +14,13 @@ import { Notification, NotificationsService } from './notifications.service'
       "{position: 'absolute', bottom: 1, right: 0, width: '50%', backgroundColor: 'darkgray', color: 'white', borderColor: 'white' }",
   },
   template: `
-    <vbox
+    <v
       *ngIf="notification"
       [style]="{ display: notification ? 'flex' : 'none', border: 'rounded', hgrow: true }">
       <h *ngIf="notification.name">{{ notification.name }}</h>
       <object-display *ngIf="!notification.name" [object]="notification"></object-display>
       <!-- <h [style]="{ hgrow: true, justifyContent: 'flexEnd' }"><h>Go To Logs: alt+l</h></h> -->
-    </vbox>
+    </v>
   `,
   imports: [GrowDirective, HBox, NgIf, ObjectDisplay, VBox],
 })

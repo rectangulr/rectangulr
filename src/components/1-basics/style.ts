@@ -68,7 +68,7 @@ export interface IStyle {
  * Does nothing. Just there for autocompletion and type checking.
  * This behavior is handled by the renderer.
  * @example
- * <hbox [style]="{color: 'red'}">Some red text</hbox>
+ * <h [style]="{color: 'red'}">Some red text</h>
  */
 @Directive({
   standalone: true,
@@ -82,7 +82,7 @@ export class StyleDirective {
  * Does nothing. Just there for autocompletion and type checking.
  * This behavior is handled by the renderer.
  * @example
- * <hbox [styles]="{color: 'red'}">Some red text</hbox>
+ * <h [styles]="{color: 'red'}">Some red text</h>
  */
 @Directive({
   standalone: true,

@@ -25,9 +25,9 @@ import { Command, ShortcutService } from './shortcut.service'
       #searchList
       [items]="listOfCommands"
       [style]="{ border: 'rounded', backgroundColor: 'darkgray', hgrow: true }">
-      <vbox *item="let command; type: listOfCommands"
+      <v *item="let command; type: listOfCommands"
         >{{ command.name }} ({{ command.keys }})
-      </vbox>
+      </v>
     </search-list>
   `,
   providers: [
