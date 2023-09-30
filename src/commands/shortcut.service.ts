@@ -75,6 +75,11 @@ export class ShortcutService {
       this.$isFocused.set(false)
       this.$isInFocusPath.set(true)
       this.screen?.termScreen.addEventListener('keypress', key => this.incomingKey(key))
+      // this.screen?.termScreen.addEventListener('data', data => {
+      //   for (const key of data.buffer) {
+      //     this.incomingKey(key)
+      //   }
+      // })
     } else {
       this.rootNode = this.parent.rootNode
       this.parent.childCreated(this)

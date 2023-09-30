@@ -509,7 +509,6 @@ export class TermScreen extends TermElement {
         emitData()
       }
     }
-    async(forceRefresh)
   }
 
   handleStdoutResize = () => {
