@@ -1,4 +1,4 @@
-import { Component, SkipSelf } from '@angular/core'
+import { Component, SkipSelf, inject } from '@angular/core'
 import { Logger } from '../../../angular-terminal/logger'
 import { HBox } from '../../1-basics/box'
 import { NewClassesDirective } from '../../1-basics/classes'
@@ -6,7 +6,7 @@ import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 
 class NullLogger {
-  log(thing) {}
+  log(thing) { }
 }
 
 @Component({
@@ -23,7 +23,7 @@ class NullLogger {
 export class Logs {
   logs = this.logger.$logs()
 
-  constructor(@SkipSelf() public logger: Logger) {}
+  constructor(@SkipSelf() public logger: Logger) { }
 
   blackOnWhite = { backgroundColor: 'white', color: 'black' }
 }

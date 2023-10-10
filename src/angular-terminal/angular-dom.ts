@@ -89,9 +89,8 @@ export class TerminalRenderer implements Renderer2 {
     eventName: string,
     callback: (event: any) => boolean | void
   ): () => void {
-    // target.addEventListener(eventName, callback)
-    // return () => { target.removeListener(eventName, callback) }
-    return () => { }
+    target.addEventListener(eventName, callback)
+    return () => { target.removeEventListener(eventName, callback) }
   }
 
   parentNode(node: TermElement): any {

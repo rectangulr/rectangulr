@@ -35,6 +35,7 @@ import { ViewService } from './view.service'
       <h
         *ngFor="let view of viewService.visibleViews()"
         [classes]="[[view == this.viewService.currentTab(), s.blackOnWhite]]"
+        (mousedown)="viewService.switchTo(view.name)"
         [style]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</h
       >

@@ -1,8 +1,7 @@
-import { Directive, EventEmitter, Inject, Optional, Output, inject } from '@angular/core'
+import { Directive, EventEmitter, Inject, Optional, Output } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
 import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
-import { assert } from '../../utils/utils'
 
 @Directive({
   standalone: true,

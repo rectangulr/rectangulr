@@ -237,7 +237,6 @@ export class ShortcutService {
   /**
    * If multiple components request focus at the same time, the first one to request wins.
    * Usually called inside `ngOnInit`.
-   * If the component should get focused not matter what, use `focus` instead.
    */
   requestFocus(args?: {
     child?: ShortcutService

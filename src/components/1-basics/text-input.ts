@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, forwardRef, Input, Output } from '@angular/core'
+import { Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, Output } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
@@ -9,13 +9,16 @@ import { onChange } from '../../utils/reactivity'
 import { assert } from '../../utils/utils'
 import { HBox, GrowDirective } from './box'
 import { StyleDirective } from './style'
+import { debug } from 'console'
 
 let globalId = 0
 
 @Component({
   standalone: true,
   selector: 'text-input',
-  host: { '[style]': "{ flexDirection: 'row', scroll: 'x' }" },
+  host: {
+    '[style]': "{ flexDirection: 'row', scroll: 'x' }",
+  },
   template: `
     <h>{{ text }}</h>
     <h [style]="{ width: 1, height: 1 }"></h>
@@ -44,7 +47,7 @@ export class TextInput implements ControlValueAccessor {
     public shortcutService: ShortcutService,
     public elementRef: ElementRef<Element>,
     public logger: Logger
-  ) {}
+  ) { }
 
   ngOnInit() {
     assert(typeof this.text == 'string')
@@ -68,6 +71,11 @@ export class TextInput implements ControlValueAccessor {
     if (this.focusOnInit) {
       this.shortcutService.requestFocus({ reason: 'TextInput onInit' })
     }
+  }
+
+  @HostListener('mousedown', ['$event'])
+  onClick() {
+    this.shortcutService.requestFocus({ reason: 'click' })
   }
 
   ngAfterViewInit() {
@@ -116,8 +124,8 @@ export class TextInput implements ControlValueAccessor {
 
   ControlValueAccessorData = {
     disabled: false,
-    onChange: (value: string) => {},
-    onTouched: () => {},
+    onChange: (value: string) => { },
+    onTouched: () => { },
   }
 
   //#endregion ControlValueAccessor

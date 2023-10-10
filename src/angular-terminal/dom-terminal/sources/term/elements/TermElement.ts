@@ -158,16 +158,6 @@ export class TermElement extends Element {
     }
   }
 
-  addEventListener(arg0: string, arg1: (e: any) => void, arg2?: { capture: true }) {
-    throw new Error('Method not implemented.')
-  }
-  removeListener(arg0: string, callback: (event: any) => boolean | void) {
-    throw new Error('Method not implemented.')
-  }
-  dispatchEvent(arg0: Event & { mouse: any }) {
-    throw new Error('Method not implemented.')
-  }
-
   click(mouse) {
     this.dispatchEvent(Object.assign(new Event(`click`), { mouse }))
   }
@@ -313,7 +303,7 @@ export class TermElement extends Element {
       if (x < this.contentRect.x) {
         let size = Math.min(l, this.contentRect.x - x)
         prepend = this.renderBackground(size)
-        ;(x = 0), (l -= size)
+          ; (x = 0), (l -= size)
       } else {
         x -= this.contentRect.x
       }

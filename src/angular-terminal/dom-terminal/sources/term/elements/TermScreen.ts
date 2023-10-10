@@ -3,10 +3,8 @@ import { Key, Mouse, parseTerminalInputs } from '@manaflair/term-strings/parse.j
 import { autobind } from 'core-decorators'
 import _ from 'lodash'
 import { ReadStream, WriteStream } from 'tty'
-import { forceRefresh } from '../../../../../utils/reactivity'
-import { async } from '../../../../../utils/utils'
 import { Logger } from '../../../../logger'
-import { Event, makeRuleset, Point, Rect, StyleManager } from '../../core'
+import { Event, Point, Rect, StyleManager, makeRuleset } from '../../core'
 import { Element } from '../../core/dom/Element'
 import { isInsideOf } from '../../core/dom/Node'
 import { TermElement } from './TermElement'
@@ -44,7 +42,7 @@ export class TermScreen extends TermElement {
     )
 
     // We prevent this element from being set as child of another node
-    Reflect.defineProperty(this, `parentNode`, {
+    Reflect.defineProperty(this, 'parentNode', {
       value: null,
       writable: false,
     })
@@ -74,12 +72,12 @@ export class TermScreen extends TermElement {
     this.addEventListener(`mousemove`, e => this.dispatchMouseEnterEvents(e), { capture: true })
 
     // Bind the listeners that enable navigating between focused elements
-    this.addShortcutListener(`S-tab`, e => e.setDefault(() => this.focusPreviousElement()), {
-      capture: true,
-    })
-    this.addShortcutListener(`tab`, e => e.setDefault(() => this.focusNextElement()), {
-      capture: true,
-    })
+    // this.addShortcutListener(`S-tab`, e => e.setDefault(() => this.focusPreviousElement()), {
+    //   capture: true,
+    // })
+    // this.addShortcutListener(`tab`, e => e.setDefault(() => this.focusNextElement()), {
+    //   capture: true,
+    // })
 
     // Bind the listener that exit the application on C-c
     this.addShortcutListener(`C-c`, e => this.terminate(), { capture: true })
@@ -478,35 +476,28 @@ export class TermScreen extends TermElement {
         }
       }
     } else if (input instanceof Buffer) {
-      let asString = input.toString()
 
-      let emitData = () => {
-        let event = new Event(`data`, { cancelable: true })
-        event.buffer = input
+      // let emitData = () => {
+      //   let event = new Event(`data`, { cancelable: true })
+      //   event.buffer = input
 
-        if (this.activeElement) {
-          this.activeElement.dispatchEvent(event)
-        } else {
-          this.dispatchEvent(event)
-        }
-      }
+      //   if (this.activeElement) {
+      //     this.activeElement.dispatchEvent(event)
+      //   } else {
+      //     this.dispatchEvent(event)
+      //   }
+      // }
 
-      if (asString.length === 1) {
+      for (const key of input.toString()) {
         let event = new Event(`keypress`, { cancelable: true, bubbles: true })
-        event.key = new Key(asString)
+        event.key = new Key(key)
         // log(`handleInput: ${keyToString(event.key)}`)
 
-        event.setDefault(() => {
-          emitData()
-        })
+        // event.setDefault(() => {
+        //   emitData()
+        // })
 
-        if (this.activeElement) {
-          this.activeElement.dispatchEvent(event)
-        } else {
-          this.dispatchEvent(event)
-        }
-      } else {
-        emitData()
+        this.dispatchEvent(event)
       }
     }
   }

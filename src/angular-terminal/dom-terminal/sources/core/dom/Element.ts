@@ -8,13 +8,12 @@ import { EventSource } from '../misc/EventSource'
 import { Point } from '../misc/Point'
 import { Rect } from '../misc/Rect'
 import { ClassList } from '../style/ClassList'
-import { globalRuleset } from '../style/globalRuleset'
 import { StyleManager } from '../style/StyleManager'
+import { globalRuleset } from '../style/globalRuleset'
 import { runPropertyTriggers } from '../style/tools/runPropertyTriggers'
-import { flags } from './flags'
 import { Node } from './Node'
+import { flags } from './flags'
 import { isChildOf } from './traverse'
-import { assert } from '../../../../../utils/utils'
 
 let yogaConfig = Yoga.Config.create()
 yogaConfig.setPointScaleFactor(2)
@@ -119,16 +118,6 @@ export class Element extends Node {
     this.classList.assign(classList)
     this.style.assign(style)
   }
-
-  declareEvent(name) {
-    throw new Error('Method not implemented.')
-  }
-
-  dispatchEvent(arg0: Event, arg1?: any) {
-    throw new Error('Method not implemented.')
-  }
-
-  addEventListener(name, callback, { capture = false, once = false } = {}) { }
 
   toString({ depth = 0 } = {}) {
     // let tag = '${this.nodeName}#${this.id}${Array.from(this.classList).map(className => '.${className}').join('')}'
@@ -1094,4 +1083,12 @@ export class Element extends Node {
       })
     )
   }
+}
+
+// These methods get added by EventSource.setup(this)
+export interface Element {
+  addEventListener(arg0: string, arg1: (e: any) => void, arg2?: { capture: true })
+  removeEventListener(arg0: string, callback: (event: any) => boolean | void)
+  dispatchEvent(arg0: Event & { mouse: any }, options?)
+  declareEvent(eventName: string)
 }

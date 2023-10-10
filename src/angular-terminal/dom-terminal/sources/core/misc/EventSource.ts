@@ -69,8 +69,8 @@ export class EventSource {
         `Failed to execute 'addEventListener': Parameter 2 is not of type 'function'.`
       )
 
-    if (!this.listeners.has(name))
-      throw new Error(`Failed to execute 'addEventListener': '${name}' is not a valid event name.`)
+    if (!this.listeners.has(name)) return
+    //   throw new Error(`Failed to execute 'addEventListener': '${name}' is not a valid event name.`)
 
     let callbacks = capture ? this.listeners.get(name).capture : this.listeners.get(name).bubble
 
@@ -97,10 +97,10 @@ export class EventSource {
         `Failed to execute 'removeEventListener': Parameter 2 is not of type 'function'.`
       )
 
-    if (!this.listeners.has(name))
-      throw new Error(
-        `Failed to execute 'removeEventListener': '${name}' is not a valid event name.`
-      )
+    if (!this.listeners.has(name)) return
+    // throw new Error(
+    //   `Failed to execute 'removeEventListener': '${name}' is not a valid event name.`
+    // )
 
     let callbacks = capture ? this.listeners.get(name).capture : this.listeners.get(name).bubble
 
