@@ -1,13 +1,7 @@
-import {
-  Injectable,
-  Renderer2,
-  RendererFactory2,
-  RendererStyleFlags2,
-  RendererType2,
-} from '@angular/core'
+import { Injectable, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, inject, } from '@angular/core'
 import * as json5 from 'json5'
 import _ from 'lodash'
-import { addToGlobalRg, mergeDeep } from '../utils/utils'
+import { addToGlobalRg, assert, mergeDeep } from '../utils/utils'
 import { Element, TermElement, TermScreen, TermText2 } from './dom-terminal'
 import { ScreenService } from './screen-service'
 
@@ -16,7 +10,7 @@ export class RectangulrRendererFactory implements RendererFactory2 {
   protected renderer: Renderer2
 
   constructor(private screen: ScreenService) {
-    this.renderer = new TerminalRenderer(screen)
+    this.renderer = inject(TerminalRenderer)
   }
 
   end() {
@@ -30,13 +24,59 @@ export class RectangulrRendererFactory implements RendererFactory2 {
   }
 }
 
-const basicElements = new Map<string, any>().set('box', TermElement).set('text', TermText2)
+/**
+ *
+ */
+@Injectable({
+  providedIn: 'root'
+})
+export class ElementPool {
+  elementClasses = [TermElement, TermText2]
+  elementClassesByName = new Map<string, typeof TermElement>()
+  elementPools = new Map<typeof TermElement, TermElement[]>()
 
+  constructor() {
+    this.elementClassesByName = new Map()
+    this.elementPools = new Map()
+    this.elementClasses.forEach(el => {
+      const name = el.elementName
+      this.elementClassesByName.set(name, el)
+      this.elementPools.set(el, [])
+    })
+  }
+
+  /**
+   * Creates an HTML element.
+   * Or returns an old one from the pool.
+   */
+  create(name: string) {
+    let elementContructor = this.elementClassesByName.get(name) || TermElement
+
+    const elPool = this.elementPools.get(elementContructor)
+    if (elPool.length > 0) {
+      const el = elPool.pop()
+      return el
+    } else {
+      const el = new elementContructor()
+      return el
+    }
+  }
+
+  dispose(el: TermElement) {
+    el.reset()
+    const elPool = this.elementPools.get(el.constructor as any)
+    elPool.push(el)
+    assert(el.parentNode == null)
+    assert(el.childNodes.length == 0)
+  }
+}
+
+@Injectable({ providedIn: 'root' })
 export class TerminalRenderer implements Renderer2 {
   readonly data: { [p: string]: any }
   destroyNode = null
 
-  constructor(private screen: ScreenService) { }
+  constructor(public screen: ScreenService, public elementManager: ElementPool) { }
 
   destroy(): void { }
 
@@ -45,13 +85,7 @@ export class TerminalRenderer implements Renderer2 {
   }
 
   createElement(name: string, namespace?: string | null): Element {
-    let elementContructor = basicElements.get(name)
-
-    if (!elementContructor) {
-      elementContructor = basicElements.get('box')
-    }
-
-    const element = new elementContructor()
+    const element = this.elementManager.create(name)
     element.name = name
     return element
   }
@@ -82,6 +116,7 @@ export class TerminalRenderer implements Renderer2 {
   removeChild(parent: TermElement, oldChild: any): void {
     // log(`removeChild: ${serializeDOMNode(parent)} -> ${JSON.stringify(simplifyViewTree(oldChild), null, 2)}`);
     parent.removeChild(oldChild)
+    this.elementManager.dispose(oldChild)
   }
 
   listen(

@@ -3,11 +3,13 @@ import { Element, Event } from '../../core'
 import { KeySequence } from '../misc/KeySequence'
 
 export class TermElement extends Element {
+  static elementName = 'element'
+
   isActive: boolean
   debugPaintRects: boolean
 
-  constructor(props?) {
-    super(props)
+  constructor() {
+    super()
 
     // // Init style
     // this.styleManager.computed = new Map(Object.entries({
@@ -29,8 +31,6 @@ export class TermElement extends Element {
     this.declareEvent(`change`)
     this.declareEvent(`submit`)
     this.declareEvent(`data`)
-
-    this.isActive = false
 
     this.addEventListener(
       `mousewheel`,
@@ -112,6 +112,13 @@ export class TermElement extends Element {
       },
       { capture: true }
     )
+
+    this.reset()
+  }
+
+  reset() {
+    super.reset()
+    this.isActive = false
   }
 
   appendChild(node) {

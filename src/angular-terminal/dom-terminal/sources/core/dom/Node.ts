@@ -35,6 +35,18 @@ export class Node {
     this.childNodes = []
   }
 
+  reset() {
+    this.id = currentNodeId++
+
+    this.rootNode = this
+    this.parentNode = null
+
+    this.previousSibling = null
+    this.nextSibling = null
+
+    this.childNodes = []
+  }
+
   get firstChild() {
     if (_.isEmpty(this.childNodes)) return null
 
@@ -178,7 +190,7 @@ export class Node {
     })
   }
 
-  setPropertyTrigger(name, initial, { validate = val => true, trigger = val => {} }) {
+  setPropertyTrigger(name, initial, { validate = val => true, trigger = val => { } }) {
     let value
 
     Reflect.defineProperty(this, name, {

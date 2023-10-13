@@ -61,12 +61,14 @@ export class Element extends Node {
   /** Position & size of the visible box that contains both the element itself and each of its children */
   elementBoundingRect: Rect = null
   caret: Point
+  decored: boolean
+
   classList: ClassList
   style: any
   styles: IStyle
   newStyles: IStyle
 
-  constructor({ classList = [], style = {}, caret = null, decored = true } = {}) {
+  constructor() {
     super()
 
     EventSource.setup(this, { getParentInstance: () => this.parentNode })
@@ -85,21 +87,19 @@ export class Element extends Node {
     // }
 
     this.declareEvent('layout') // After the element has been layouted, but before it is rendered. Modifying the layout during this event will result in a new layout pass, but no extra rendering.
-
     this.declareEvent('focus') // After the element acquired the focus.
     this.declareEvent('blur') // After the element lost the focus.
-
     this.declareEvent('scroll') // After the element scroll position has changed.
     this.declareEvent('caret') // After the element caret position has changed.
 
-    this.setPropertyTrigger('caret', caret, {
+    this.setPropertyTrigger('caret', null, {
       validate: value => value === null || value instanceof Point,
       trigger: value => {
         this.rootNode.requestUpdates()
       },
     })
 
-    this.setPropertyTrigger('decored', decored, {
+    this.setPropertyTrigger('decored', true, {
       validate: value => _.isBoolean(value),
       trigger: value => {
         this.styleManager.setStateStatus('decored', value)
@@ -115,8 +115,33 @@ export class Element extends Node {
     this.styleManager.addRuleset(globalRuleset, StyleManager.RULESET_NATIVE)
     this.styleManager.setRulesets(new Set(), StyleManager.RULESET_USER)
 
-    this.classList.assign(classList)
-    this.style.assign(style)
+    this.classList.assign([])
+    this.style.assign([])
+  }
+
+  reset() {
+    super.reset()
+    this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
+    this.yogaNode.setMeasureFunc(getPreferredSize.bind(null, this))
+    this.dirtyRects = []
+    this.nodeList = []
+    this.focusList = []
+    this.renderList = []
+    this.activeElement = null
+    resetRect(this.elementRect)
+    resetRect(this.contentRect)
+    resetRect(this.scrollRect)
+    resetRect(this.elementWorldRect)
+    resetRect(this.contentWorldRect)
+    this.elementClipRect = this.elementWorldRect
+    this.contentClipRect = this.contentWorldRect
+    this.elementBoundingRect = null
+    this.caret = null
+    this.decored = true
+    this.styleManager.setStateStatus('firstChild', true)
+    this.styleManager.setStateStatus('lastChild', true)
+    this.classList.assign([])
+    this.style.assign([])
   }
 
   toString({ depth = 0 } = {}) {
@@ -1091,4 +1116,11 @@ export interface Element {
   removeEventListener(arg0: string, callback: (event: any) => boolean | void)
   dispatchEvent(arg0: Event & { mouse: any }, options?)
   declareEvent(eventName: string)
+}
+
+function resetRect(rect: Rect) {
+  rect.x = 0
+  rect.y = 0
+  rect.height = 0
+  rect.width = 0
 }

@@ -7,6 +7,8 @@ import widestLine from 'widest-line'
 import { StyleManager, makeRuleset } from '../../core'
 
 export class TermText2 extends TermElement {
+  static elementName = 'text'
+  name = 'text'
   textContent: string
   lines = []
 

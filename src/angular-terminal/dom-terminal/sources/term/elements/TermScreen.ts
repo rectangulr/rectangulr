@@ -25,8 +25,8 @@ export class TermScreen extends TermElement {
   caret: Point
   logger: Logger
 
-  constructor({ debugPaintRects = false, logger = null, ...attributes } = {}) {
-    super(attributes)
+  constructor({ debugPaintRects = false, logger = null } = {}) {
+    super()
 
     this.logger = logger
 

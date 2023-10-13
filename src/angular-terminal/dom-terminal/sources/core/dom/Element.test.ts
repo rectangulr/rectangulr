@@ -171,16 +171,20 @@ describe(`Element`, () => {
 
     describe(`#generateRenderList`, () => {
         it(`should correctly resolve a set of mixed elements (small test)`, () => {
-            let elementA = new Element({ name: `A` })
+            let elementA = new Element()
+            elementA.name = `A`
 
-            let elementB = new Element({ name: `B` })
+            let elementB = new Element()
+            elementB.name = `B`
             elementA.appendChild(elementB)
             elementB.style.zIndex = 2
 
-            let elementC = new Element({ name: `C` })
+            let elementC = new Element()
+            elementC.name = `C`
             elementB.appendChild(elementC)
 
-            let elementD = new Element({ name: `D` })
+            let elementD = new Element()
+            elementD.name = `D`
             elementA.appendChild(elementD)
             elementD.style.zIndex = 1
 
@@ -195,30 +199,38 @@ describe(`Element`, () => {
         })
 
         it(`should correctly resolve a set of mixed elements (complex case)`, () => {
-            let elementA = new Element({ name: `A` })
+            let elementA = new Element()
+            elementA.name = `A`
 
-            let elementB = new Element({ name: `B` })
+            let elementB = new Element()
+            elementB.name = `B`
             elementA.appendChild(elementB)
 
-            let elementC = new Element({ name: `C` })
+            let elementC = new Element()
+            elementC.name = `C`
             elementB.appendChild(elementC)
             elementC.style.zIndex = 1
 
-            let elementD = new Element({ name: `D` })
+            let elementD = new Element()
+            elementD.name = `D`
             elementB.appendChild(elementD)
 
-            let elementE = new Element({ name: `E` })
+            let elementE = new Element()
+            elementE.name = `E`
             elementD.appendChild(elementE)
             elementE.style.zIndex = 3
 
-            let elementF = new Element({ name: `F` })
+            let elementF = new Element()
+            elementF.name = `F`
             elementB.appendChild(elementF)
             elementF.style.zIndex = 2
 
-            let elementG = new Element({ name: `G` })
+            let elementG = new Element()
+            elementG.name = `G`
             elementF.appendChild(elementG)
 
-            let elementH = new Element({ name: `H` })
+            let elementH = new Element()
+            elementH.name = `H`
             elementA.appendChild(elementH)
             elementH.style.zIndex = 2
 
