@@ -4,7 +4,8 @@
   "allowedNonPeerDependencies": [
     "@manaflair/term-strings",
     "ng-dynamic-component",
-    "typeflex"
+    "typeflex",
+    "@s-libs/micro-dash"
   ],
   "lib": {
     "entryFile": "src/public-api.ts"

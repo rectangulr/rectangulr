@@ -18,100 +18,100 @@ export class TermElement extends Element {
     //     overflow: `hidden`
     // }))
 
-    this.declareEvent(`keypress`)
-    this.declareEvent(`mousewheel`)
-    this.declareEvent(`mousedown`)
-    this.declareEvent(`mouseup`)
-    this.declareEvent(`mousemove`)
-    this.declareEvent(`mouseover`)
-    this.declareEvent(`mouseout`)
-    this.declareEvent(`mouseenter`)
-    this.declareEvent(`mouseleave`)
-    this.declareEvent(`click`)
-    this.declareEvent(`change`)
-    this.declareEvent(`submit`)
-    this.declareEvent(`data`)
+    // this.declareEvent(`keypress`)
+    // this.declareEvent(`mousewheel`)
+    // this.declareEvent(`mousedown`)
+    // this.declareEvent(`mouseup`)
+    // this.declareEvent(`mousemove`)
+    // this.declareEvent(`mouseover`)
+    // this.declareEvent(`mouseout`)
+    // this.declareEvent(`mouseenter`)
+    // this.declareEvent(`mouseleave`)
+    // this.declareEvent(`click`)
+    // this.declareEvent(`change`)
+    // this.declareEvent(`submit`)
+    // this.declareEvent(`data`)
 
-    this.addEventListener(
-      `mousewheel`,
-      e => {
-        if (this.scrollHeight === this.offsetHeight) return
+    // this.addEventListener(
+    //   `mousewheel`,
+    //   e => {
+    //     if (this.scrollHeight === this.offsetHeight) return
 
-        e.setDefault(() => {
-          this.scrollTop += e.mouse.d * 2
-        })
-      },
-      { capture: true }
-    )
+    //     e.setDefault(() => {
+    //       this.scrollTop += e.mouse.d * 2
+    //     })
+    //   },
+    //   { capture: true }
+    // )
 
-    this.addEventListener(`mouseenter`, e => {
-      this.styleManager.setStateStatus(`hover`, true)
+    // this.addEventListener(`mouseenter`, e => {
+    //   this.styleManager.setStateStatus(`hover`, true)
 
-      if (this.isActive) {
-        this.styleManager.setStateStatus(`active`, true)
-      }
-    })
+    //   if (this.isActive) {
+    //     this.styleManager.setStateStatus(`active`, true)
+    //   }
+    // })
 
-    this.addEventListener(`mouseleave`, e => {
-      this.styleManager.setStateStatus(`hover`, false)
+    // this.addEventListener(`mouseleave`, e => {
+    //   this.styleManager.setStateStatus(`hover`, false)
 
-      if (this.isActive) {
-        this.styleManager.setStateStatus(`active`, false)
-      }
-    })
+    //   if (this.isActive) {
+    //     this.styleManager.setStateStatus(`active`, false)
+    //   }
+    // })
 
-    this.addEventListener(
-      `mousedown`,
-      e => {
-        if (e.mouse.name !== `left`) return
+    // this.addEventListener(
+    //   `mousedown`,
+    //   e => {
+    //     if (e.mouse.name !== `left`) return
 
-        this.styleManager.setStateStatus(`active`, true)
-        this.isActive = true
+    //     this.styleManager.setStateStatus(`active`, true)
+    //     this.isActive = true
 
-        if (!this.style.$.focusEvents) return
+    //     if (!this.style.$.focusEvents) return
 
-        e.setDefault(() => {
-          this.focus()
-        })
-      },
-      { capture: true }
-    )
+    //     e.setDefault(() => {
+    //       this.focus()
+    //     })
+    //   },
+    //   { capture: true }
+    // )
 
-    this.addEventListener(
-      `mouseup`,
-      e => {
-        if (e.mouse.name !== `left`) return
+    // this.addEventListener(
+    //   `mouseup`,
+    //   e => {
+    //     if (e.mouse.name !== `left`) return
 
-        if (this.rootNode.isActive) {
-          let element = this.rootNode
+    //     if (this.rootNode.isActive) {
+    //       let element = this.rootNode
 
-          disableLoop: while (element) {
-            element.styleManager.setStateStatus(`active`, false)
-            element.isActive = false
+    //       disableLoop: while (element) {
+    //         element.styleManager.setStateStatus(`active`, false)
+    //         element.isActive = false
 
-            for (let child of element.childNodes) {
-              if (!child.isActive) continue
+    //         for (let child of element.childNodes) {
+    //           if (!child.isActive) continue
 
-              element = child
-              continue disableLoop
-            }
+    //           element = child
+    //           continue disableLoop
+    //         }
 
-            break
-          }
-        }
+    //         break
+    //       }
+    //     }
 
-        e.setDefault(() => {
-          let event = new Event(`click`, { bubbles: true })
-          event.mouse = e.mouse
+    //     e.setDefault(() => {
+    //       let event = new Event(`click`, { bubbles: true })
+    //       event.mouse = e.mouse
 
-          event.worldCoordinates = e.worldCoordinates
-          event.contentCoordinates = e.contentCoordinates
+    //       event.worldCoordinates = e.worldCoordinates
+    //       event.contentCoordinates = e.contentCoordinates
 
-          this.dispatchEvent(event)
-        })
-      },
-      { capture: true }
-    )
+    //       this.dispatchEvent(event)
+    //     })
+    //   },
+    //   { capture: true }
+    // )
 
     this.reset()
   }
@@ -159,15 +159,14 @@ export class TermElement extends Element {
           if (sequence.add(e.key)) {
             callback.call(this, e)
           }
-        },
-        { capture }
+        }
       )
     }
   }
 
-  click(mouse) {
-    this.dispatchEvent(Object.assign(new Event(`click`), { mouse }))
-  }
+  // click(mouse) {
+  //   this.dispatchEvent(Object.assign(new Event(`click`), { mouse }))
+  // }
 
   renderElement(x, y, l) {
     let processBorders = (x, y, l) => {

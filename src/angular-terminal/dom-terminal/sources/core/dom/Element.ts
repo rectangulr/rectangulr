@@ -1,10 +1,8 @@
-import { override } from 'core-decorators'
-import _ from 'lodash'
+import * as _ from "@s-libs/micro-dash"
 import Yoga from 'typeflex'
 import { IStyle } from '../../../../../components/1-basics/style'
 import { TermElement } from '../../term'
 import { Event } from '../misc/Event'
-import { EventSource } from '../misc/EventSource'
 import { Point } from '../misc/Point'
 import { Rect } from '../misc/Rect'
 import { ClassList } from '../style/ClassList'
@@ -35,7 +33,7 @@ function mergeNewStyles(node) {
 }
 
 export class Element extends Node {
-  name: string = 'element'
+  name = 'element'
   yogaNode: Yoga.YogaNode
   flags = flags.ELEMENT_HAS_DIRTY_NODE_LIST | flags.ELEMENT_HAS_DIRTY_LAYOUT
   styleManager: StyleManager
@@ -63,15 +61,18 @@ export class Element extends Node {
   caret: Point
   decored: boolean
 
+  listeners: { [name: string]: Function[] } = {}
+
   classList: ClassList
   style: any
   styles: IStyle
   newStyles: IStyle
 
   constructor() {
+
     super()
 
-    EventSource.setup(this, { getParentInstance: () => this.parentNode })
+    // EventSource.setup(this, { getParentInstance: () => this.parentNode })
 
     this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
     this.yogaNode.setMeasureFunc(getPreferredSize.bind(null, this))
@@ -86,11 +87,11 @@ export class Element extends Node {
     //     overflow: `hidden`
     // }
 
-    this.declareEvent('layout') // After the element has been layouted, but before it is rendered. Modifying the layout during this event will result in a new layout pass, but no extra rendering.
-    this.declareEvent('focus') // After the element acquired the focus.
-    this.declareEvent('blur') // After the element lost the focus.
-    this.declareEvent('scroll') // After the element scroll position has changed.
-    this.declareEvent('caret') // After the element caret position has changed.
+    // this.declareEvent('layout') // After the element has been layouted, but before it is rendered. Modifying the layout during this event will result in a new layout pass, but no extra rendering.
+    // this.declareEvent('focus') // After the element acquired the focus.
+    // this.declareEvent('blur') // After the element lost the focus.
+    // this.declareEvent('scroll') // After the element scroll position has changed.
+    // this.declareEvent('caret') // After the element caret position has changed.
 
     this.setPropertyTrigger('caret', null, {
       validate: value => value === null || value instanceof Point,
@@ -144,6 +145,35 @@ export class Element extends Node {
     this.style.assign([])
   }
 
+  addEventListener(name: string, func: (e: Event) => void, options?: { bubbles: true }) {
+    if (!this.listeners[name]) {
+      this.listeners[name] = []
+    } else {
+      this.listeners[name].push(func)
+    }
+
+    return () => {
+      this.removeEventListener(name, func)
+    }
+  }
+
+  removeEventListener(name: string, func: (e: Event) => void) {
+    _.remove(this.listeners[name], f => f == func)
+  }
+
+  dispatchEvent(event: Event, options?) {
+    const listeners = this.listeners[event.name]
+    if (listeners) {
+      for (const listener of listeners) {
+        listener(event)
+      }
+    }
+
+    if (this.parentNode) {
+      this.parentNode.dispatchEvent(event)
+    }
+  }
+
   toString({ depth = 0 } = {}) {
     // let tag = '${this.nodeName}#${this.id}${Array.from(this.classList).map(className => '.${className}').join('')}'
     let tag = `${this.nodeName}#${this.id}`
@@ -162,21 +192,21 @@ export class Element extends Node {
     }
   }
 
-  @override appendChild(node) {
+  appendChild(node) {
     if (!(node instanceof Element))
       throw new Error(`Failed to execute 'appendChild': Parameter 1 is not of type 'Element'.`)
 
     super.appendChild(node)
   }
 
-  @override insertBefore(node, referenceNode) {
+  insertBefore(node, referenceNode) {
     if (!(node instanceof Element))
       throw new Error(`Failed to execute 'insertBefore': Parameter 1 is not of type 'Element'.`)
 
     super.insertBefore(node, referenceNode)
   }
 
-  @override linkBefore(node, referenceNode) {
+  linkBefore(node, referenceNode) {
     node.flushDirtyRects()
 
     super.linkBefore(node, referenceNode)
@@ -207,7 +237,7 @@ export class Element extends Node {
     node.styleManager.refresh(node.styleManager.inherited)
   }
 
-  @override removeChild(node) {
+  removeChild(node) {
     if (!(node instanceof Element))
       throw new Error(`Failed to execute 'removeChild': Parameter 1 is not of type 'Element'.`)
 
@@ -413,7 +443,7 @@ export class Element extends Node {
     parentNode.rootNode.activeElement = null
     this.styleManager.setStateStatus('focus', false)
 
-    this.dispatchEvent(new Event('blur'), { parentSource: parentNode.getEventSource() })
+    this.dispatchEvent(new Event('blur'))
 
     parentNode.rootNode.requestUpdates()
   }
@@ -872,7 +902,7 @@ export class Element extends Node {
       while (childNodes.length > 0) {
         let child = childNodes.shift()
 
-        if (!_.isNull(child.style.$.zIndex)) {
+        if (child.style.$.zIndex != null) {
           subContexts.push(child)
         } else if (child.style.$.position.isAbsolutelyPositioned) {
           subContexts.push(child)
@@ -1075,18 +1105,7 @@ export class Element extends Node {
   }
 
   getElementRects() {
-    return _.pick(this, [
-      'elementRect',
-      'contentRect',
-
-      'elementWorldRect',
-      'contentWorldRect',
-
-      'elementClipRect',
-      'contentClipRect',
-
-      'scrollRect',
-    ])
+    return _.pick(this,)
   }
 
   getPreferredSize(maxWidth, widthMode, maxHeight, heightMode) {
@@ -1111,12 +1130,12 @@ export class Element extends Node {
 }
 
 // These methods get added by EventSource.setup(this)
-export interface Element {
-  addEventListener(arg0: string, arg1: (e: any) => void, arg2?: { capture: true })
-  removeEventListener(arg0: string, callback: (event: any) => boolean | void)
-  dispatchEvent(arg0: Event & { mouse: any }, options?)
-  declareEvent(eventName: string)
-}
+// export interface Element {
+//   addEventListener(arg0: string, arg1: (e: any) => void, arg2?: { capture: true })
+//   removeEventListener(arg0: string, callback: (event: any) => boolean | void)
+//   dispatchEvent(arg0: Event & { mouse: any }, options?)
+//   declareEvent(eventName: string)
+// }
 
 function resetRect(rect: Rect) {
   rect.x = 0

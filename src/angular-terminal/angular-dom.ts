@@ -205,11 +205,11 @@ function stringifyDomNode(node, options?: StringifyOptions) {
     res.infos = mergeDeep(
       res.infos,
       _.mapValues(
-        _.pick(node.style.$, ['flexGrow', 'flexShrink', 'height', 'width']),
+        _.pick(node.style.$, 'flexGrow', 'flexShrink', 'height', 'width'),
         i => i.serialize?.() ?? i
       )
     )
-    res.infos = mergeDeep(res.infos, _.pick(node, ['elementRect', 'scrollRect']))
+    res.infos = mergeDeep(res.infos, _.pick(node, 'elementRect', 'scrollRect'))
     res.ref = node
     res.name = node.name
 

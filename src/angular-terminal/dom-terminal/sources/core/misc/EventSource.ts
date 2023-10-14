@@ -118,12 +118,10 @@ export class EventSource {
 
     let eventSources = [this]
 
-    for (
-      let eventSource = parentSource;
-      eventSource;
-      eventSource = eventSource.getParentEventSource()
-    )
+    for (let eventSource = parentSource; eventSource; eventSource = eventSource.getParentEventSource()
+    ) {
       eventSources.unshift(eventSource)
+    }
 
     event.target = this.instance
 
@@ -136,7 +134,7 @@ export class EventSource {
       let allListeners = eventSource.listeners.get(`*`)
 
       for (let [callback, { once }] of [...listeners.capture, ...allListeners.capture]) {
-        if (event.immediatlyCanceled) break
+        if (event.immediatelyCanceled) break
 
         event.currentTarget = eventSource.instance
         callback.call(event.currentTarget, event)
@@ -152,7 +150,7 @@ export class EventSource {
       let allListeners = eventSource.listeners.get(`*`)
 
       for (let [callback, { once }] of [...listeners.bubble, ...allListeners.bubble]) {
-        if (event.immediatlyCanceled) break
+        if (event.immediatelyCanceled) break
 
         event.currentTarget = eventSource.instance
         callback.call(event.currentTarget, event)

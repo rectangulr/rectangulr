@@ -1,13 +1,14 @@
 import _ from 'lodash'
 
 export class Event {
-  mouse: any
-  worldCoordinates: any
-  contentCoordinates: any
   name: any
   bubbles: boolean
   cancelable: boolean
-  immediatlyCanceled: boolean
+
+  mouse: any
+  worldCoordinates: any
+  contentCoordinates: any
+  immediatelyCanceled: boolean
   propagationStopped: boolean
   defaultPrevented: boolean
   default: any
@@ -25,7 +26,7 @@ export class Event {
     this.bubbles = bubbles
     this.cancelable = cancelable
 
-    this.immediatlyCanceled = false
+    this.immediatelyCanceled = false
     this.propagationStopped = false
 
     this.defaultPrevented = false
@@ -40,7 +41,7 @@ export class Event {
   }
 
   reset() {
-    this.immediatlyCanceled = false
+    this.immediatelyCanceled = false
     this.bubblingCanceled = false
 
     this.defaultPrevented = false
@@ -53,7 +54,7 @@ export class Event {
   }
 
   stopImmediatePropagation() {
-    this.immediatlyCanceled = true
+    this.immediatelyCanceled = true
     this.propagationStopped = true
   }
 

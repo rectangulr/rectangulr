@@ -1,39 +1,17 @@
 import _ from 'lodash'
-import { Element } from './Element'
 
 let currentNodeId = 0
 let attributeNameRegex = /^[a-z_][a-z_-]*$/
 
-function wouldContainItself(node, parentNode) {
-  if (node === parentNode) return true
-
-  return node.childNodes.some(child => {
-    return wouldContainItself(child, parentNode)
-  })
-}
-
 export class Node {
-  id: number
-  nodeName: string
-  rootNode: this
-  parentNode: any
-  previousSibling: any
-  nextSibling: any
-  childNodes: any[]
 
-  constructor() {
-    this.id = currentNodeId++
-
-    this.nodeName = this.constructor.name
-
-    this.rootNode = this
-    this.parentNode = null
-
-    this.previousSibling = null
-    this.nextSibling = null
-
-    this.childNodes = []
-  }
+  id = currentNodeId++
+  nodeName = this.constructor.name
+  rootNode = this
+  parentNode = null
+  previousSibling = null
+  nextSibling = null
+  childNodes = []
 
   reset() {
     this.id = currentNodeId++
@@ -227,6 +205,15 @@ export class Node {
   inspect() {
     return this.toString()
   }
+}
+
+
+function wouldContainItself(node, parentNode) {
+  if (node === parentNode) return true
+
+  return node.childNodes.some(child => {
+    return wouldContainItself(child, parentNode)
+  })
 }
 
 export function isInsideOf(parent: Node, child: Node) {

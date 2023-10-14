@@ -1,6 +1,5 @@
 import { cursor, feature, screen, style } from '@manaflair/term-strings'
 import { Key, Mouse, parseTerminalInputs } from '@manaflair/term-strings/parse.js'
-import { autobind } from 'core-decorators'
 import _ from 'lodash'
 import { ReadStream, WriteStream } from 'tty'
 import { Logger } from '../../../../logger'
@@ -9,9 +8,6 @@ import { Element } from '../../core/dom/Element'
 import { isInsideOf } from '../../core/dom/Node'
 import { TermElement } from './TermElement'
 
-// We will iterate through those colors when rendering if the debugPaintRects option is set
-const DEBUG_COLORS = [`red`, `green`, `blue`, `magenta`, `yellow`]
-let currentDebugColorIndex = 0
 
 export class TermScreen extends TermElement {
   ready: boolean
@@ -41,12 +37,6 @@ export class TermScreen extends TermElement {
       StyleManager.RULESET_NATIVE
     )
 
-    // We prevent this element from being set as child of another node
-    Reflect.defineProperty(this, 'parentNode', {
-      value: null,
-      writable: false,
-    })
-
     // We keep track of whether the screen is fully setup or not (has stdin/stdout)
     this.ready = false
 
@@ -68,8 +58,8 @@ export class TermScreen extends TermElement {
     this.mouseEnterElements = []
 
     // Bind the listeners that will convert the "mousemove" events into "mouseover" / "mouseout" / "mouseenter" / "mouseleave"
-    this.addEventListener(`mousemove`, e => this.dispatchMouseOverEvents(e), { capture: true })
-    this.addEventListener(`mousemove`, e => this.dispatchMouseEnterEvents(e), { capture: true })
+    this.addEventListener(`mousemove`, e => this.dispatchMouseOverEvents(e))
+    this.addEventListener(`mousemove`, e => this.dispatchMouseEnterEvents(e))
 
     // Bind the listeners that enable navigating between focused elements
     // this.addShortcutListener(`S-tab`, e => e.setDefault(() => this.focusPreviousElement()), {
@@ -133,7 +123,7 @@ export class TermScreen extends TermElement {
 
     // Listen for input events
     this.subscription = parseTerminalInputs(this.stdin, { throttleMouseMoveEvents }).subscribe({
-      next: this.handleInput,
+      next: (input) => this.handleInput(input),
     })
 
     // Automatically resize the screen when its output changes
@@ -192,8 +182,8 @@ export class TermScreen extends TermElement {
     this.subscription = null
 
     // Remove the exit hooks, since the screen is already closed
-    process.removeListener(`uncaughtException`, this.handleException)
-    process.removeListener(`exit`, this.handleExit)
+    process.removeListener(`uncaughtException`, (e) => this.handleException(e))
+    process.removeListener(`exit`, () => this.handleExit())
 
     this.trackOutputSize = false
 
@@ -406,18 +396,18 @@ export class TermScreen extends TermElement {
     this.stdout.write(buffer)
   }
 
-  @autobind handleException(exception) {
+  handleException(exception) {
     this.releaseScreen()
 
     process.stderr.write(exception.stack)
     process.exit(1)
   }
 
-  @autobind handleExit() {
+  handleExit() {
     this.releaseScreen()
   }
 
-  @autobind handleInput(input) {
+  handleInput(input) {
     if (input instanceof Key) {
       let event = new Event(`keypress`, { cancelable: true, bubbles: true })
       event.key = input
@@ -514,3 +504,7 @@ export class TermScreen extends TermElement {
     })
   }
 }
+
+// We will iterate through those colors when rendering if the debugPaintRects option is set
+const DEBUG_COLORS = [`red`, `green`, `blue`, `magenta`, `yellow`]
+let currentDebugColorIndex = 0
