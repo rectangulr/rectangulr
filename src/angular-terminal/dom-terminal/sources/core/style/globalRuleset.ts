@@ -7,7 +7,7 @@ let globalRuleset = new Ruleset()
 let globalStyle = EasyStyle(globalRuleset)
 
 for (let key of Reflect.ownKeys(styleProperties)) {
-  if (!_.has(styleProperties[String(key)], `initial`)) continue
+  if (!('initial' in styleProperties[String(key)])) continue
 
   globalStyle[key] = styleProperties[String(key)].initial
 }

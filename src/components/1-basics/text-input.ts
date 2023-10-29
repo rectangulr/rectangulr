@@ -21,7 +21,7 @@ let globalId = 0
   },
   template: `
     <h>{{ text }}</h>
-    <h [style]="{ width: 1, height: 1 }"></h>
+    <h [s]="{ width: 1, height: 1 }"></h>
   `,
   providers: [
     {

@@ -1,6 +1,7 @@
 import { style } from '@manaflair/term-strings'
-import { Element, Event } from '../../core'
+import { Element } from '../../core/dom/Element'
 import { KeySequence } from '../misc/KeySequence'
+import { BackgroundClip, Color } from '../../core/dom/StyleHelpers'
 
 export class TermElement extends Element {
   static elementName = 'element'
@@ -18,128 +19,13 @@ export class TermElement extends Element {
     //     overflow: `hidden`
     // }))
 
-    // this.declareEvent(`keypress`)
-    // this.declareEvent(`mousewheel`)
-    // this.declareEvent(`mousedown`)
-    // this.declareEvent(`mouseup`)
-    // this.declareEvent(`mousemove`)
-    // this.declareEvent(`mouseover`)
-    // this.declareEvent(`mouseout`)
-    // this.declareEvent(`mouseenter`)
-    // this.declareEvent(`mouseleave`)
-    // this.declareEvent(`click`)
-    // this.declareEvent(`change`)
-    // this.declareEvent(`submit`)
-    // this.declareEvent(`data`)
-
-    // this.addEventListener(
-    //   `mousewheel`,
-    //   e => {
-    //     if (this.scrollHeight === this.offsetHeight) return
-
-    //     e.setDefault(() => {
-    //       this.scrollTop += e.mouse.d * 2
-    //     })
-    //   },
-    //   { capture: true }
-    // )
-
-    // this.addEventListener(`mouseenter`, e => {
-    //   this.styleManager.setStateStatus(`hover`, true)
-
-    //   if (this.isActive) {
-    //     this.styleManager.setStateStatus(`active`, true)
-    //   }
-    // })
-
-    // this.addEventListener(`mouseleave`, e => {
-    //   this.styleManager.setStateStatus(`hover`, false)
-
-    //   if (this.isActive) {
-    //     this.styleManager.setStateStatus(`active`, false)
-    //   }
-    // })
-
-    // this.addEventListener(
-    //   `mousedown`,
-    //   e => {
-    //     if (e.mouse.name !== `left`) return
-
-    //     this.styleManager.setStateStatus(`active`, true)
-    //     this.isActive = true
-
-    //     if (!this.style.$.focusEvents) return
-
-    //     e.setDefault(() => {
-    //       this.focus()
-    //     })
-    //   },
-    //   { capture: true }
-    // )
-
-    // this.addEventListener(
-    //   `mouseup`,
-    //   e => {
-    //     if (e.mouse.name !== `left`) return
-
-    //     if (this.rootNode.isActive) {
-    //       let element = this.rootNode
-
-    //       disableLoop: while (element) {
-    //         element.styleManager.setStateStatus(`active`, false)
-    //         element.isActive = false
-
-    //         for (let child of element.childNodes) {
-    //           if (!child.isActive) continue
-
-    //           element = child
-    //           continue disableLoop
-    //         }
-
-    //         break
-    //       }
-    //     }
-
-    //     e.setDefault(() => {
-    //       let event = new Event(`click`, { bubbles: true })
-    //       event.mouse = e.mouse
-
-    //       event.worldCoordinates = e.worldCoordinates
-    //       event.contentCoordinates = e.contentCoordinates
-
-    //       this.dispatchEvent(event)
-    //     })
-    //   },
-    //   { capture: true }
-    // )
-
     this.reset()
   }
 
   reset() {
     super.reset()
+    this.style.reset()
     this.isActive = false
-  }
-
-  appendChild(node) {
-    if (!(node instanceof TermElement))
-      throw new Error(`Failed to execute 'appendChild': Parameter 1 is not of type 'TermElement'.`)
-
-    return super.appendChild(node)
-  }
-
-  insertBefore(node, referenceNode) {
-    if (!(node instanceof TermElement))
-      throw new Error(`Failed to execute 'appendChild': Parameter 1 is not of type 'TermElement'.`)
-
-    return super.insertBefore(node, referenceNode)
-  }
-
-  removeChild(node) {
-    if (!(node instanceof TermElement))
-      throw new Error(`Failed to execute 'appendChild': Parameter 1 is not of type 'TermElement'.`)
-
-    return super.removeChild(node)
   }
 
   addShortcutListener(descriptors, callback, { capture = false } = {}) {
@@ -173,70 +59,63 @@ export class TermElement extends Element {
       let prepend = ``
       let append = ``
 
-      if (y === 0 && this.style.$.borderTopCharacter) {
+      if (y === 0 && this.style.get('borderTopCharacter')) {
         let contentL = l
 
-        if (x === 0 && this.style.$.borderLeftCharacter) {
-          prepend = this.style.$.borderTopLeftCharacter
+        if (x === 0 && this.style.get('borderLeftCharacter')) {
+          prepend = this.style.get('borderTopLeftCharacter')
           contentL -= 1
         }
 
-        if (x + l === this.elementRect.width && this.style.$.borderRightCharacter) {
-          append = this.style.$.borderTopRightCharacter
+        if (x + l === this.elementRect.width && this.style.get('borderRightCharacter')) {
+          append = this.style.get('borderTopRightCharacter')
           contentL -= 1
         }
 
-        let data = prepend + this.style.$.borderTopCharacter.repeat(contentL) + append
+        let data = prepend + this.style.get('borderTopCharacter').repeat(contentL) + append
 
-        if (
-          !this.rootNode.debugPaintRects &&
-          this.style.$.backgroundColor &&
-          this.style.$.backgroundClip.doesIncludeBorders
-        )
-          data = this.style.$.backgroundColor.back + data
+        if (!this.rootNode.debugPaintRects && BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))
+        ) { data = Color.front(this.style.get('backgroundColor')) + data }
 
-        if (!this.rootNode.debugPaintRects && this.style.$.borderColor)
-          data = this.style.$.borderColor.front + data
+        if (!this.rootNode.debugPaintRects && this.style.get('borderColor')) {
+          data = Color.front(this.style.get('borderColor')) + data
+        }
 
-        if (
-          !this.rootNode.debugPaintRects &&
-          ((this.style.$.backgroundColor && this.style.$.backgroundClip.doesIncludeBorders) ||
-            this.style.$.borderColor)
-        )
-          data += style.clear
+        if (!this.rootNode.debugPaintRects && ((BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) ||
+          this.style.get('borderColor'))
+        ) { data += style.clear }
 
         return data
-      } else if (y === this.elementRect.height - 1 && this.style.$.borderBottomCharacter) {
+      } else if (y === this.elementRect.height - 1 && this.style.get('borderBottomCharacter')) {
         let contentL = l
 
-        if (x === 0 && this.style.$.borderLeftCharacter) {
-          prepend = this.style.$.borderBottomLeftCharacter
+        if (x === 0 && this.style.get('borderLeftCharacter')) {
+          prepend = this.style.get('borderBottomLeftCharacter')
           contentL -= 1
         }
 
-        if (x + l === this.elementRect.width && this.style.$.borderRightCharacter) {
-          append = this.style.$.borderBottomRightCharacter
+        if (x + l === this.elementRect.width && this.style.get('borderRightCharacter')) {
+          append = this.style.get('borderBottomRightCharacter')
           contentL -= 1
         }
 
-        let data = prepend + this.style.$.borderBottomCharacter.repeat(contentL) + append
+        let data = prepend + this.style.get('borderBottomCharacter').repeat(contentL) + append
 
         if (
           !this.rootNode.debugPaintRects &&
-          this.style.$.backgroundColor &&
-          this.style.$.backgroundClip.doesIncludeBorders
+          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))
         )
-          data = this.style.$.backgroundColor.back + data
+          data = Color.back(this.style.get('backgroundColor')) + data
 
-        if (!this.rootNode.debugPaintRects && this.style.$.borderColor)
-          data = this.style.$.borderColor.front + data
+        if (!this.rootNode.debugPaintRects && this.style.get('borderColor')) {
+          data = Color.front(this.style.get('borderColor')) + data
+        }
 
-        if (
-          !this.rootNode.debugPaintRects &&
-          ((this.style.$.backgroundColor && this.style.$.backgroundClip.doesIncludeBorders) ||
-            this.style.$.borderColor)
-        )
+        if (!this.rootNode.debugPaintRects && ((this.style.get('backgroundColor') &&
+          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) || this.style.get('borderColor'))
+        ) {
           data += style.clear
+        }
 
         return data
       } else {
@@ -244,9 +123,9 @@ export class TermElement extends Element {
         let contentY = y
         let contentL = l
 
-        if (this.style.$.borderLeftCharacter) {
+        if (this.style.get('borderLeftCharacter')) {
           if (x === 0) {
-            prepend = this.style.$.borderLeftCharacter
+            prepend = this.style.get('borderLeftCharacter')
             contentX += 1
             contentL -= 1
           } else {
@@ -254,33 +133,31 @@ export class TermElement extends Element {
           }
         }
 
-        if (this.style.$.borderRightCharacter) {
+        if (this.style.get('borderRightCharacter')) {
           if (x + l === this.elementRect.width) {
-            append = this.style.$.borderRightCharacter
+            append = this.style.get('borderRightCharacter')
             contentL -= 1
           }
         }
 
-        if (this.style.$.backgroundColor && this.style.$.backgroundClip.doesIncludeBorders) {
-          if (prepend) prepend = this.style.$.backgroundColor.back + prepend
+        if (BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) {
+          if (prepend) prepend = Color.back(this.style.get('backgroundColor')) + prepend
 
           if (append) {
-            append = this.style.$.backgroundColor.back + append
+            append = Color.back(this.style.get('backgroundColor')) + append
           }
         }
 
-        if (this.style.$.borderColor) {
-          if (prepend) prepend = this.style.$.borderColor.front + prepend
+        if (this.style.get('borderColor')) {
+          if (prepend) prepend = Color.front(this.style.get('borderColor')) + prepend
 
           if (append) {
-            append = this.style.$.borderColor.front + append
+            append = Color.front(this.style.get('borderColor')) + append
           }
         }
 
-        if (
-          (this.style.$.backgroundColor && this.style.$.backgroundClip.doesIncludeBorders) ||
-          this.style.$.borderColor
-        ) {
+        if ((BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) ||
+          this.style.get('borderColor')) {
           if (prepend) prepend += style.clear
 
           if (append) {
@@ -337,17 +214,17 @@ export class TermElement extends Element {
 
     if (l === 0) return ``
 
-    if (this.rootNode.debugPaintRects) return this.style.$.backgroundCharacter.repeat(l)
+    if (this.rootNode.debugPaintRects) { return this.style.get('backgroundCharacter').repeat(l) }
 
     let background = ``
 
-    if (this.style.$.backgroundColor) background += this.style.$.backgroundColor.back
+    if (this.style.get('backgroundColor')) { background += Color.back(this.style.get('backgroundColor')) }
 
-    if (this.style.$.color) background += this.style.$.color.front
+    if (this.style.get('color')) { background += Color.front(this.style.get('color')) }
 
-    background += this.style.$.backgroundCharacter.repeat(l)
+    background += this.style.get('backgroundCharacter').repeat(l)
 
-    if (this.style.$.backgroundColor || this.style.$.color) background += style.clear
+    if (this.style.get('backgroundColor') || this.style.get('color')) { background += style.clear }
 
     return background
   }
@@ -358,17 +235,15 @@ export class TermElement extends Element {
     let prefix = ``
     let suffix = ``
 
-    if (this.style.$.fontWeight.size < 400) prefix += style.fainted.in
-    else if (this.style.$.fontWeight.size > 400) prefix += style.emboldened.in
+    if (this.style.get('fontWeight') == 'fainted') { prefix += style.fainted.in }
+    else if (this.style.get('fontWeight') == 'bold') { prefix += style.emboldened.in }
+    if (this.style.get('textDecoration') == 'underline') { prefix += style.underlined.in }
 
-    if (this.style.$.textDecoration && this.style.$.textDecoration.isUnderlined)
-      prefix += style.underlined.in
+    if (this.style.get('backgroundColor')) { prefix += Color.back(this.style.get('backgroundColor')) }
 
-    if (this.style.$.backgroundColor) prefix += this.style.$.backgroundColor.back
+    if (this.style.get('color')) { prefix += Color.front(this.style.get('color')) }
 
-    if (this.style.$.color) prefix += this.style.$.color.front
-
-    if (prefix.length !== 0) suffix += style.clear
+    if (prefix.length !== 0) { suffix += style.clear }
 
     return prefix + text + suffix
   }

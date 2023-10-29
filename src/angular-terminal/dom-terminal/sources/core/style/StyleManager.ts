@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { autobind } from 'core-decorators'
 import _ from 'lodash'
 

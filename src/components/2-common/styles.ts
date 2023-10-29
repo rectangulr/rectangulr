@@ -1,13 +1,11 @@
-import { makeRuleset } from '../../angular-terminal/dom-terminal'
+export const blackOnWhite = { backgroundColor: 'white', color: 'black' }
+export const blackOnGray = { backgroundColor: 'dimgray', color: 'black' }
+export const whiteOnGray = { backgroundColor: 'dimgray', color: 'white' }
 
-export const blackOnWhite = makeRuleset({ backgroundColor: 'white', color: 'black' })
-export const blackOnGray = makeRuleset({ backgroundColor: 'dimgray', color: 'black' })
-export const whiteOnGray = makeRuleset({ backgroundColor: 'dimgray', color: 'white' })
-
-export const borderBottom = makeRuleset({
+export const borderBottom = {
   borderBottomCharacter: '-',
   backgroundClip: 'contentBox',
-})
-export const borderTop = makeRuleset({ borderTopCharacter: '-', backgroundClip: 'contentBox' })
+}
+export const borderTop = { borderTopCharacter: '-', backgroundClip: 'contentBox' }
 
-// export const hidden = makeRuleset({ display: null });
+// export const hidden = { display: null };

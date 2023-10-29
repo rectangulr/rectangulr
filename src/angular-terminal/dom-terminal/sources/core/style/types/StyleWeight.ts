@@ -1,11 +1,8 @@
 export class StyleWeight {
-  size: any
   static normal: StyleWeight = null
   static bold: StyleWeight = null
 
-  constructor(size) {
-    this.size = size
-  }
+  constructor(public size: any) { }
 
   serialize() {
     return this.size

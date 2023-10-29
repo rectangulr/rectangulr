@@ -38,7 +38,7 @@ export class TermText2 extends TermElement {
   textLayout() {
     const text = this.textContent
 
-    const textWrap = this.style.$.wrap ?? 'truncate-end'
+    const textWrap = this.style.wrap() ?? 'truncate-end'
     const wrappedText = wrapText(text, this.maxWidth, textWrap)
     this.lines = wrappedText.split('\n')
 
@@ -74,10 +74,10 @@ export class TermText2 extends TermElement {
 
     let fullLineStart = 0
 
-    if (this.style.$.textAlign.isCentered)
+    if (this.style.textAlign() == 'center')
       fullLineStart = Math.floor((this.scrollRect.width - fullLineLength) / 2)
 
-    if (this.style.$.textAlign.isRightAligned)
+    if (this.style.textAlign() == 'right')
       fullLineStart = this.scrollRect.width - fullLineLength
 
     let prefixLength = Math.max(0, Math.min(fullLineStart - x, l))

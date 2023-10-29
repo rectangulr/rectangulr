@@ -1,11 +1,13 @@
-import { Injectable, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, inject, } from '@angular/core'
+import { Injectable, Injector, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, inject, runInInjectionContext, } from '@angular/core'
+import * as _ from '@s-libs/micro-dash'
 import * as json5 from 'json5'
-import _ from 'lodash'
 import { addToGlobalRg, assert, mergeDeep } from '../utils/utils'
 import { Element, TermElement, TermScreen, TermText2 } from './dom-terminal'
 import { ScreenService } from './screen-service'
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class RectangulrRendererFactory implements RendererFactory2 {
   protected renderer: Renderer2
 
@@ -35,7 +37,7 @@ export class ElementPool {
   elementClassesByName = new Map<string, typeof TermElement>()
   elementPools = new Map<typeof TermElement, TermElement[]>()
 
-  constructor() {
+  constructor(public injector: Injector) {
     this.elementClassesByName = new Map()
     this.elementPools = new Map()
     this.elementClasses.forEach(el => {
@@ -57,13 +59,21 @@ export class ElementPool {
       const el = elPool.pop()
       return el
     } else {
-      const el = new elementContructor()
+      let el: TermElement
+      runInInjectionContext(this.injector, () => {
+        el = new elementContructor()
+      })
       return el
     }
   }
 
+  /**
+   * Resets an element, and puts it back in the pool.
+   */
   dispose(el: TermElement) {
-    el.reset()
+    runInInjectionContext(this.injector, () => {
+      el.reset()
+    })
     const elPool = this.elementPools.get(el.constructor as any)
     elPool.push(el)
     assert(el.parentNode == null)
@@ -71,7 +81,9 @@ export class ElementPool {
   }
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class TerminalRenderer implements Renderer2 {
   readonly data: { [p: string]: any }
   destroyNode = null
@@ -92,7 +104,7 @@ export class TerminalRenderer implements Renderer2 {
 
   createComment(value: string): any {
     const comment = this.createElement('text')
-    comment.style.display = 'none'
+    comment.style.add({ display: 'none' })
     comment.name = 'comment'
     return comment
   }
@@ -151,29 +163,29 @@ export class TerminalRenderer implements Renderer2 {
   }
 
   setProperty(el: TermElement, name: string, value: any): void {
-    if (name == 'classes') {
-      const enabledClasses = value
-        .map(item => {
-          if (Array.isArray(item)) {
-            return item[1] ? item[0] : null
-          } else {
-            return item
-          }
-        })
-        .filter(t => t)
+    // if (name == 'classes') {
+    //   const enabledClasses = value
+    //     .map(item => {
+    //       if (Array.isArray(item)) {
+    //         return item[1] ? item[0] : null
+    //       } else {
+    //         return item
+    //       }
+    //     })
+    //     .filter(t => t)
 
-      el.classList.assign(enabledClasses)
-    } else {
-      el[name] = value
-    }
+    //   el.classList.assign(enabledClasses)
+    // } else {
+    //   el[name] = value
+    // }
   }
 
   setStyle(el: TermElement, style: string, value: any, flags?: RendererStyleFlags2): void {
-    el.style[style] = value
+    // el.style[style] = value
   }
 
   removeStyle(el: TermElement, style: string, flags?: RendererStyleFlags2): void {
-    el.style[style] = null
+    // el.style[style] = null
   }
 
   addClass(el: TermElement, className: string): void {
@@ -204,10 +216,12 @@ function stringifyDomNode(node, options?: StringifyOptions) {
     res.infos = {}
     res.infos = mergeDeep(
       res.infos,
-      _.mapValues(
-        _.pick(node.style.$, 'flexGrow', 'flexShrink', 'height', 'width'),
-        i => i.serialize?.() ?? i
-      )
+      {
+        flexGrow: node.style.get('flexGrow'),
+        flexShrink: node.style.get('flexShrink'),
+        height: node.style.get('height'),
+        width: node.style.get('width'),
+      }
     )
     res.infos = mergeDeep(res.infos, _.pick(node, 'elementRect', 'scrollRect'))
     res.ref = node

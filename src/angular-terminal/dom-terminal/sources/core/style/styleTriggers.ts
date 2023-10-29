@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import * as _ from '@s-libs/micro-dash'
 import Yoga from 'typeflex'
 import { Element } from '../dom/Element'
 
@@ -14,9 +14,9 @@ export function dirtyRendering(node: Element) {
   node.queueDirtyRect()
 }
 
-export function dirtyFocusList(node: Element) {
-  node.rootNode.setDirtyFocusListFlag()
-}
+// export function dirtyFocusList(node: Element) {
+//   node.rootNode.setDirtyFocusListFlag()
+// }
 
 export function dirtyRenderList(node: Element) {
   node.rootNode.setDirtyRenderListFlag()
@@ -24,7 +24,7 @@ export function dirtyRenderList(node: Element) {
 
 export function onNullSwitch(trigger) {
   return function (node, newValue, oldValue) {
-    if (_.isNull(newValue) === _.isNull(oldValue)) return
+    if ((newValue === null) === (oldValue === null)) return
 
     trigger(node, newValue, oldValue)
   }

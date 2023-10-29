@@ -15,7 +15,6 @@ import { Subject } from 'rxjs'
 import { makeRuleset } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { HBox, VBox } from '../components/1-basics/box'
-import { ClassesDirective } from '../components/1-basics/classes'
 import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
@@ -456,9 +455,9 @@ describe('FocusDirective -', () => {
 @Component({
   selector: 'component-data-display',
   standalone: true,
-  imports: [HBox, List, NgIf, ListItem, FocusDirective, ClassesDirective, StyleDirective],
+  imports: [HBox, List, NgIf, ListItem, FocusDirective, StyleDirective],
   template: `
-    <h [classes]="[[shortcutService.$isFocused(), s.selected]]"> {{ data.name }}</h>
+    <h [s]="cond(shortcutService.$isFocused, s.selected)"> {{ data.name }}</h>
     <list
       #list
       [items]="data?.children"
@@ -466,7 +465,7 @@ describe('FocusDirective -', () => {
       [focusIf]="focused == 'children'"
       (selectedItem)="onSelectedItem($event)"
       [styleItem]="false"
-      [style]="{ marginLeft: 1 }">
+      [s]="{ marginLeft: 1 }">
       <component-data-display
         *item="let item; type: data.children"
         [data]="item"
@@ -563,7 +562,7 @@ class ComponentDataView {
 
 
   s = {
-    selected: makeRuleset({ backgroundColor: 'gray' }),
+    selected: { backgroundColor: 'gray' },
   }
 
   destroy$ = new Subject()

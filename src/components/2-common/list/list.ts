@@ -23,7 +23,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { DynamicModule } from 'ng-dynamic-component'
 import { Observable, Subject } from 'rxjs'
-import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { Element } from '../../../angular-terminal/dom-terminal'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
@@ -31,7 +31,7 @@ import { BaseControlValueAccessor } from '../../../utils/base-control-value-acce
 import { subscribe } from '../../../utils/reactivity'
 import { assert, inputToSignal } from '../../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
-import { ClassesDirective, NewClassesDirective } from '../../1-basics/classes'
+import { StyleDirective, cond } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
@@ -45,7 +45,7 @@ import { ListItem } from './list-item'
   selector: 'list',
   template: `
     <h *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items()?.length || 0 }}</h>
-    <v [style]="{ flexShrink: 0, scroll: 'y' }">
+    <v [s]="{ flexShrink: 0, scroll: 'y' }">
       <v
         #elementRef
         *ngFor="
@@ -58,7 +58,8 @@ import { ListItem } from './list-item'
           odd as odd;
           trackBy: trackByFn
         "
-        [classes]="[[styleItem && item == selected.value, s.whiteOnGray]]">
+        [s]="style.whiteOnGray">
+        <!-- TODO: only style if selected -->
         <ng-container
           [ngTemplateOutlet]="template || template2 || defaultTemplate"
           [ngTemplateOutletContext]="{
@@ -82,7 +83,7 @@ import { ListItem } from './list-item'
     <ng-template #defaultTemplate let-item let-selected>
       <basic-object-display
         [data]="item"
-        [classes]="[s.nullOnNull, [selected, s.whiteOnGray]]"></basic-object-display>
+        [s]="[style.nullOnNull, cond(selected, style.whiteOnGray)]"></basic-object-display>
     </ng-template>
   `,
   providers: [
@@ -99,12 +100,11 @@ import { ListItem } from './list-item'
     NgComponentOutlet,
     NgTemplateOutlet,
     HBox,
-    ClassesDirective,
     DynamicModule,
     BasicObjectDisplay,
     GrowDirective,
-    NewClassesDirective,
     VBox,
+    StyleDirective,
   ],
 })
 export class List<T> {
@@ -254,12 +254,9 @@ export class List<T> {
     }
   }
 
-  @Input() s = {
-    whiteOnGrayStyle: { backgroundColor: 'dimgray', color: 'white' },
-    nullOnNullStyle: { backgroundColor: 'inherit', color: 'inherit' },
-
+  @Input() style = {
     whiteOnGray: whiteOnGray,
-    nullOnNull: makeRuleset({ backgroundColor: 'inherit', color: 'inherit' }),
+    nullOnNull: { backgroundColor: 'inherit', color: 'inherit' },
   }
 
   shortcuts: Partial<Command>[] = [
@@ -298,6 +295,8 @@ export class List<T> {
     // .map(i => json5.stringify(i)).join()
     return `List: ${items.length}`
   }
+
+  cond = cond
 
   destroy$ = new Subject()
   ngOnDestroy() {

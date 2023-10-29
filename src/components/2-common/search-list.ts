@@ -16,7 +16,8 @@ import { Logger } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
 import { makeObservable, State } from '../../utils/reactivity'
 import { filterNulls } from '../../utils/utils'
-import { HBox, GrowDirective, VBox } from '../1-basics/box'
+import { GrowDirective, HBox, VBox } from '../1-basics/box'
+import { StyleDirective } from '../1-basics/style'
 import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
@@ -26,13 +27,13 @@ import { borderTop } from './styles'
   standalone: true,
   selector: 'search-list',
   template: `
-    <v [style]="{ flexDirection: 'column' }">
+    <v [s]="{ flexDirection: 'column' }">
       <text-input
         *ngIf="searchInputVisible"
         [text]="searchText"
         (textChange)="searchTextChange.next($event)"
         [focusIf]="focusInputIf"
-        [style]="{ backgroundColor: 'gray', color: 'white' }"></text-input>
+        [s]="{ backgroundColor: 'gray', color: 'white' }"></text-input>
       <list
         [items]="matchingItems.$"
         (selectedItem)="selectedItem.next($event)"
@@ -52,7 +53,7 @@ import { borderTop } from './styles'
       },
     },
   ],
-  imports: [HBox, VBox, TextInput, FocusDirective, List, NgIf, GrowDirective],
+  imports: [HBox, VBox, TextInput, FocusDirective, List, NgIf, GrowDirective, StyleDirective],
 })
 export class SearchList<T> {
   @Input() set items(items) {

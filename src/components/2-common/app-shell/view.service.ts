@@ -1,5 +1,5 @@
 import { Inject, Injectable, Signal, WritableSignal, computed, signal } from '@angular/core'
-import { Anything, assert } from '../../../utils/utils'
+import { AnyObject, assert } from '../../../utils/utils'
 
 /**
  * A service for switching to another view.
@@ -57,5 +57,5 @@ export class ViewService {
 export abstract class View {
   name: string
   component: any
-  tags: (string | Anything)[]
+  tags: (string | AnyObject)[]
 }

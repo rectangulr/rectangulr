@@ -1,9 +1,9 @@
-import { Injector, ProviderToken, effect, inject, isSignal } from '@angular/core'
+import { Injector, ProviderToken, effect, inject, isSignal, signal } from '@angular/core'
 import _ from 'lodash'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
-import { onChange, subscribe } from './reactivity'
 import { Logger } from '../angular-terminal/logger'
+import { onChange, subscribe } from './reactivity'
 
 /**
  * @example
@@ -104,7 +104,7 @@ export function addToGlobalRg(obj) {
   globalThis['rg'] = mergeDeep(globalThis['rg'], obj)
 }
 
-export interface Anything {
+export interface AnyObject {
   [prop: string]: any
 }
 
@@ -163,6 +163,21 @@ export function inputToSignal<T, K extends keyof T>(_component: T, key: K, signa
       component[signalKey].set(input)
     }
   })
+}
+
+export function propToSignal<T, K extends keyof T>(component: T, key: K) {
+  const initialValue = component[key]
+  const sig = signal(initialValue)
+
+  Object.defineProperty(component, key, {
+    get: () => {
+      return sig()
+    },
+    set: newValue => {
+      sig.set(newValue)
+    },
+  })
+
 }
 
 export type InjectFunction = <T>(token: ProviderToken<T>) => T
@@ -258,3 +273,23 @@ export function logError(logger: Logger, thing) {
     logger.log({ ...thing, level: 'error' })
   }
 }
+
+export function unwrapIfSignal(value: any) {
+  if (isSignal(value)) {
+    return value()
+  } else {
+    return value
+  }
+}
+
+export function unwrapIfFunction(value: any) {
+  if (typeof value == 'function') {
+    return value()
+  } else {
+    return value
+  }
+}
+
+// export function includesAny(array: any[], items: any[]): boolean {
+//   return array.some(item => items.includes(item))
+// }

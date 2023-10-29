@@ -1,21 +1,18 @@
+import { Injector, inject } from "@angular/core"
 import * as _ from "@s-libs/micro-dash"
 import Yoga from 'typeflex'
-import { IStyle } from '../../../../../components/1-basics/style'
-import { TermElement } from '../../term'
+import { TermElement } from '../../term/elements/TermElement'
 import { Event } from '../misc/Event'
 import { Point } from '../misc/Point'
 import { Rect } from '../misc/Rect'
-import { ClassList } from '../style/ClassList'
-import { StyleManager } from '../style/StyleManager'
-import { globalRuleset } from '../style/globalRuleset'
 import { runPropertyTriggers } from '../style/tools/runPropertyTriggers'
 import { Node } from './Node'
+import { StyleHandler } from "./StyleHandler"
+import { Position, } from "./StyleHelpers"
 import { flags } from './flags'
-import { isChildOf } from './traverse'
 
-let yogaConfig = Yoga.Config.create()
+const yogaConfig = Yoga.Config.create()
 yogaConfig.setPointScaleFactor(2)
-
 // yogaConfig.setExperimentalFeatureEnabled(Yoga.EXPE, true)
 
 function getPreferredSize(node, ...args) {
@@ -32,11 +29,14 @@ function mergeNewStyles(node) {
   this.styles = { ...this.styles, ...this.newStyles }
 }
 
+// export type SignalKeys<T> = {
+//   [P in keyof T]: Signal<T[P]>
+// }
+
 export class Element extends Node {
   name = 'element'
   yogaNode: Yoga.YogaNode
   flags = flags.ELEMENT_HAS_DIRTY_NODE_LIST | flags.ELEMENT_HAS_DIRTY_LAYOUT
-  styleManager: StyleManager
   dirtyRects: Rect[] = []
   nodeList: Element[] = []
   focusList: Element[] = []
@@ -59,27 +59,28 @@ export class Element extends Node {
   /** Position & size of the visible box that contains both the element itself and each of its children */
   elementBoundingRect: Rect = null
   caret: Point
-  decored: boolean
+  // decored: boolean
 
-  listeners: { [name: string]: Function[] } = {}
+  eventListeners: { [name: string]: Function[] } = {}
 
-  classList: ClassList
-  style: any
-  styles: IStyle
-  newStyles: IStyle
+  // styleManager: StyleManager
+  // classList: ClassList
+  // style: any
+
+  // styles: IStyle
+  // newStyles: IStyle
+
+  style: StyleHandler
 
   constructor() {
-
     super()
-
-    // EventSource.setup(this, { getParentInstance: () => this.parentNode })
 
     this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
     this.yogaNode.setMeasureFunc(getPreferredSize.bind(null, this))
 
-    this.styleManager = new StyleManager(this)
-    this.classList = this.styleManager.getClassList()
-    this.style = this.styleManager.getStyle()
+    // this.styleManager = new StyleManager(this)
+    // this.classList = this.styleManager.getClassList()
+    // this.style = this.styleManager.getStyle()
     // this.newStyles = {
     //     position: `relative`,
     //     width: 0,
@@ -87,37 +88,15 @@ export class Element extends Node {
     //     overflow: `hidden`
     // }
 
-    // this.declareEvent('layout') // After the element has been layouted, but before it is rendered. Modifying the layout during this event will result in a new layout pass, but no extra rendering.
-    // this.declareEvent('focus') // After the element acquired the focus.
-    // this.declareEvent('blur') // After the element lost the focus.
-    // this.declareEvent('scroll') // After the element scroll position has changed.
-    // this.declareEvent('caret') // After the element caret position has changed.
+    this.style = new StyleHandler(this, inject(Injector))
 
     this.setPropertyTrigger('caret', null, {
       validate: value => value === null || value instanceof Point,
       trigger: value => {
-        this.rootNode.requestUpdates()
+        this.rootNode?.requestUpdates()
       },
     })
 
-    this.setPropertyTrigger('decored', true, {
-      validate: value => _.isBoolean(value),
-      trigger: value => {
-        this.styleManager.setStateStatus('decored', value)
-      },
-    })
-
-    // Now that the node has been setup, we can register the default styles.
-    // We needed to wait until now, because some of these styles have triggers that expect the nodes to be fully setup.
-
-    this.styleManager.setStateStatus('firstChild', true)
-    this.styleManager.setStateStatus('lastChild', true)
-
-    this.styleManager.addRuleset(globalRuleset, StyleManager.RULESET_NATIVE)
-    this.styleManager.setRulesets(new Set(), StyleManager.RULESET_USER)
-
-    this.classList.assign([])
-    this.style.assign([])
   }
 
   reset() {
@@ -138,18 +117,13 @@ export class Element extends Node {
     this.contentClipRect = this.contentWorldRect
     this.elementBoundingRect = null
     this.caret = null
-    this.decored = true
-    this.styleManager.setStateStatus('firstChild', true)
-    this.styleManager.setStateStatus('lastChild', true)
-    this.classList.assign([])
-    this.style.assign([])
   }
 
   addEventListener(name: string, func: (e: Event) => void, options?: { bubbles: true }) {
-    if (!this.listeners[name]) {
-      this.listeners[name] = []
+    if (!this.eventListeners[name]) {
+      this.eventListeners[name] = []
     } else {
-      this.listeners[name].push(func)
+      this.eventListeners[name].push(func)
     }
 
     return () => {
@@ -158,11 +132,11 @@ export class Element extends Node {
   }
 
   removeEventListener(name: string, func: (e: Event) => void) {
-    _.remove(this.listeners[name], f => f == func)
+    _.remove(this.eventListeners[name], f => f == func)
   }
 
   dispatchEvent(event: Event, options?) {
-    const listeners = this.listeners[event.name]
+    const listeners = this.eventListeners[event.name]
     if (listeners) {
       for (const listener of listeners) {
         listener(event)
@@ -199,27 +173,17 @@ export class Element extends Node {
     super.appendChild(node)
   }
 
-  insertBefore(node, referenceNode) {
+  insertBefore(node: TermElement, referenceNode) {
     if (!(node instanceof Element))
       throw new Error(`Failed to execute 'insertBefore': Parameter 1 is not of type 'Element'.`)
 
     super.insertBefore(node, referenceNode)
   }
 
-  linkBefore(node, referenceNode) {
+  linkBefore(node: TermElement, referenceNode) {
     node.flushDirtyRects()
 
     super.linkBefore(node, referenceNode)
-
-    if (node.previousSibling) {
-      node.previousSibling.styleManager.setStateStatus('lastChild', false)
-      node.styleManager.setStateStatus('firstChild', false)
-    }
-
-    if (node.nextSibling) {
-      node.nextSibling.styleManager.setStateStatus('firstChild', false)
-      node.styleManager.setStateStatus('lastChild', false)
-    }
 
     this.yogaNode.unsetMeasureFunc()
     this.yogaNode.insertChild(node.yogaNode, this.childNodes.indexOf(node))
@@ -228,32 +192,20 @@ export class Element extends Node {
     this.setDirtyClippingFlag()
 
     this.rootNode.setDirtyNodeListFlag()
-    this.rootNode.setDirtyFocusListFlag()
+    // this.rootNode.setDirtyFocusListFlag()
     this.rootNode.setDirtyRenderListFlag()
 
     node.clearDirtyNodeListFlag()
     node.clearDirtyRenderListFlag()
 
-    node.styleManager.refresh(node.styleManager.inherited)
+    // node.styleManager.refresh(node.styleManager.inherited)
   }
 
-  removeChild(node) {
+  removeChild(node: TermElement) {
     if (!(node instanceof Element))
       throw new Error(`Failed to execute 'removeChild': Parameter 1 is not of type 'Element'.`)
 
-    let previousSibling = this.previousSibling
-    let nextSibling = this.nextSibling
-
     super.removeChild(node)
-
-    if (previousSibling)
-      previousSibling.styleManager.setStateStatus('lastChild', !nextSibling ? true : false)
-
-    if (nextSibling)
-      nextSibling.styleManager.setStateStatus('firstChild', !previousSibling ? true : false)
-
-    node.styleManager.setStateStatus('firstChild', true)
-    node.styleManager.setStateStatus('lastChild', true)
 
     this.yogaNode.removeChild(node.yogaNode)
     // yes it's important
@@ -266,30 +218,18 @@ export class Element extends Node {
     this.setDirtyClippingFlag()
 
     this.rootNode.setDirtyNodeListFlag()
-    this.rootNode.setDirtyFocusListFlag()
+    // this.rootNode.setDirtyFocusListFlag()
     this.rootNode.setDirtyRenderListFlag()
 
     node.setDirtyLayoutFlag()
     node.setDirtyClippingFlag()
 
     node.setDirtyNodeListFlag()
-    node.setDirtyFocusListFlag()
+    // node.setDirtyFocusListFlag()
     node.setDirtyRenderListFlag()
 
     // We need to manually register this rect because since the element will be removed from the tree, we will never iterate over it at the next triggerUpdates
     this.rootNode.queueDirtyRect(node.elementBoundingRect)
-
-    node.styleManager.refresh(node.styleManager.inherited)
-
-    if (
-      this.rootNode.activeElement &&
-      (this.rootNode.activeElement === node || isChildOf(this.rootNode.activeElement, node))
-    ) {
-      // It's a bit wtf: when an active element is removed from the tree, we need to trigger a blur event.
-      // The problem is that since we've already removed the node from the dom at this point! So we need to "fake" the parent node in order to cascade the event on the correct tree branch.
-
-      this.rootNode.activeElement.blur({ parentNode: this })
-    }
   }
 
   get scrollLeft() {
@@ -418,101 +358,6 @@ export class Element extends Node {
     return this.elementWorldRect
   }
 
-  focus() {
-    if (this.rootNode.activeElement === this) return
-
-    if (!this.style.$.focusEvents) return
-
-    let previousActiveNode = this.rootNode.activeElement
-
-    if (this.rootNode.activeElement) this.rootNode.activeElement.blur()
-
-    this.rootNode.activeElement = this
-    this.styleManager.setStateStatus('focus', true)
-
-    this.scrollIntoView()
-
-    this.dispatchEvent(new Event('focus', {}, { was: previousActiveNode }))
-
-    this.rootNode.requestUpdates()
-  }
-
-  blur({ parentNode = this.parentNode } = {}) {
-    if (parentNode.rootNode.activeElement !== this) return
-
-    parentNode.rootNode.activeElement = null
-    this.styleManager.setStateStatus('focus', false)
-
-    this.dispatchEvent(new Event('blur'))
-
-    parentNode.rootNode.requestUpdates()
-  }
-
-  focusRelativeElement(offset) {
-    if (this.rootNode !== this) return this.focusRelativeElement(offset)
-
-    if (!(offset < 0 || offset > 0)) return
-
-    this.triggerUpdates()
-
-    if (!this.focusList.length) return
-
-    let getNextIndex =
-      offset > 0
-        ? currentIndex => {
-          return currentIndex === this.focusList.length - 1 ? 0 : currentIndex + 1
-        }
-        : currentIndex => {
-          return currentIndex === 0 ? this.focusList.length - 1 : currentIndex - 1
-        }
-
-    if (!this.activeElement) {
-      if (offset > 0) {
-        this.focusList[0].focus()
-      } else {
-        this.focusList[this.focusList.length - 1].focus()
-      }
-    } else {
-      let activeIndex = this.focusList.indexOf(this.activeElement)
-
-      for (let t = 0, T = Math.abs(offset); t < T; ++t) {
-        let nextIndex = getNextIndex(activeIndex)
-
-        while (
-          nextIndex !== activeIndex &&
-          (!this.focusList[nextIndex].style.$.focusEvents ||
-            !this.activeElement.validateRelativeFocusTarget(this.focusList[nextIndex]) ||
-            !this.focusList[nextIndex].validateRelativeFocusTargetSelf(this.activeElement))
-        )
-          nextIndex = getNextIndex(nextIndex)
-
-        if (nextIndex !== activeIndex) {
-          activeIndex = nextIndex
-        } else {
-          break
-        }
-      }
-
-      this.focusList[activeIndex].focus()
-    }
-  }
-
-  validateRelativeFocusTargetSelf(source) {
-    return true
-  }
-
-  validateRelativeFocusTarget(target) {
-    return true
-  }
-
-  focusPreviousElement() {
-    this.focusRelativeElement(-1)
-  }
-
-  focusNextElement() {
-    this.focusRelativeElement(+1)
-  }
-
   scrollIntoView({
     align = 'auto',
     alignX = align,
@@ -595,7 +440,7 @@ export class Element extends Node {
   ) {
     this.triggerUpdates()
 
-    const scroll = this.style.$.scroll
+    const scroll = this.style.get('scroll')
 
     if ((direction == 'both' || direction == 'x') && (scroll === true || scroll == 'x')) {
       let effectiveAlignX = alignX
@@ -691,13 +536,13 @@ export class Element extends Node {
     this.clearDirtyFlag(flags.ELEMENT_HAS_DIRTY_NODE_LIST)
   }
 
-  setDirtyFocusListFlag() {
-    this.setDirtyFlag(flags.ELEMENT_HAS_DIRTY_FOCUS_LIST)
-  }
+  // setDirtyFocusListFlag() {
+  //   this.setDirtyFlag(flags.ELEMENT_HAS_DIRTY_FOCUS_LIST)
+  // }
 
-  clearDirtyFocusListFlag() {
-    this.clearDirtyFlag(flags.ELEMENT_HAS_DIRTY_FOCUS_LIST)
-  }
+  // clearDirtyFocusListFlag() {
+  //   this.clearDirtyFlag(flags.ELEMENT_HAS_DIRTY_FOCUS_LIST)
+  // }
 
   setDirtyRenderListFlag() {
     this.setDirtyFlag(flags.ELEMENT_HAS_DIRTY_RENDER_LIST)
@@ -821,10 +666,10 @@ export class Element extends Node {
       this.clearDirtyNodeListFlag()
     }
 
-    if (this.flags & flags.ELEMENT_HAS_DIRTY_FOCUS_LIST) {
-      this.focusList = this.generateFocusList()
-      this.clearDirtyFocusListFlag()
-    }
+    // if (this.flags & flags.ELEMENT_HAS_DIRTY_FOCUS_LIST) {
+    //   this.focusList = this.generateFocusList()
+    //   this.clearDirtyFocusListFlag()
+    // }
 
     if (this.flags & flags.ELEMENT_HAS_DIRTY_RENDER_LIST) {
       this.renderList = this.generateRenderList()
@@ -868,7 +713,7 @@ export class Element extends Node {
 
   generateNodeList() {
     let nodeList = []
-    let traverseList = [this]
+    let traverseList = [this as unknown as TermElement]
 
     while (!_.isEmpty(traverseList)) {
       let element = traverseList.shift()
@@ -883,14 +728,14 @@ export class Element extends Node {
   generateFocusList() {
     let focusList = []
 
-    for (let node of this.nodeList) if (node.style.$.focusEvents) focusList.push(node)
+    // for (let node of this.nodeList) if (node.style.get('focusEvents')) focusList.push(node)
 
     return focusList
   }
 
   generateRenderList() {
     let renderList = []
-    let stackingContexts = [this]
+    let stackingContexts: Element[] = [this]
 
     while (stackingContexts.length > 0) {
       let stackingContext = stackingContexts.shift()
@@ -902,9 +747,9 @@ export class Element extends Node {
       while (childNodes.length > 0) {
         let child = childNodes.shift()
 
-        if (child.style.$.zIndex != null) {
+        if (child.style.get('zIndex') != null) {
           subContexts.push(child)
-        } else if (child.style.$.position.isAbsolutelyPositioned) {
+        } else if (Position.isAbsolutelyPositioned(child.style.get('position'))) {
           subContexts.push(child)
         } else {
           renderList.push(child)
@@ -915,8 +760,8 @@ export class Element extends Node {
       stackingContexts.splice(
         0,
         0,
-        ...subContexts.sort((a, b) => {
-          return a.style.$.zIndex - b.style.$.zIndex
+        ...subContexts.sort((a: Element, b: Element) => {
+          return a.style.get('zIndex') - b.style.get('zIndex')
         })
       )
     }
@@ -957,7 +802,7 @@ export class Element extends Node {
         this.flags & (flags.ELEMENT_HAS_DIRTY_LAYOUT | flags.ELEMENT_HAS_DIRTY_LAYOUT_CHILDREN) ||
         doesLayoutChange
       ) {
-        for (let child of this.childNodes) child.cascadeLayout({ dirtyLayoutNodes, force: true })
+        for (let child of this.childNodes as Element[]) child.cascadeLayout({ dirtyLayoutNodes, force: true })
 
         let prevScrollWidth = this.scrollRect.width
         let prevScrollHeight = this.scrollRect.height
@@ -1021,7 +866,7 @@ export class Element extends Node {
         let prevScrollX = this.scrollRect.x
         let prevScrollY = this.scrollRect.y
 
-        if (this.style.$.scroll) {
+        if (this.style.get('scroll')) {
           this.scrollRect.x = Math.max(
             0,
             Math.min(this.scrollRect.x, this.scrollRect.width - this.elementRect.width)
@@ -1039,10 +884,8 @@ export class Element extends Node {
 
         if (doesScrollChange) dirtyScrollNodes.push(this)
 
-        let parentScrollX =
-          this.parentNode && this.style.$.position.isScrollAware ? this.parentNode.scrollRect.x : 0
-        let parentScrollY =
-          this.parentNode && this.style.$.position.isScrollAware ? this.parentNode.scrollRect.y : 0
+        let parentScrollX = this.parentNode?.scrollRect.x ?? 0
+        let parentScrollY = this.parentNode?.scrollRect.y ?? 0
 
         let prevElementWorldRect = this.elementWorldRect.clone()
 
@@ -1085,12 +928,13 @@ export class Element extends Node {
         }
       }
 
-      if (this.style.$.scroll || !relativeClipRect) relativeClipRect = this.elementClipRect
+      if (this.style.get('scroll') || !relativeClipRect) relativeClipRect = this.elementClipRect
 
       for (let child of this.childNodes)
         child.cascadeClipping({
           dirtyScrollNodes,
           relativeClipRect,
+          // @ts-ignore
           force: force || this.flags & flags.ELEMENT_HAS_DIRTY_CLIPPING,
         })
 

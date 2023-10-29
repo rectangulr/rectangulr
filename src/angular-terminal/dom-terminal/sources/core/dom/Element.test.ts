@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { expect } from 'chai'
 
 import { Point } from '../misc/Point'
@@ -12,20 +13,24 @@ describe(`Element`, () => {
     describe(`#scrollIntoView`, () => {
         it(`should scroll until the element is on the top of the screen`, () => {
             let container = new Element()
-            container.style.overflow = `hidden`
-            container.style.width = 100
-            container.style.height = 100
+            container.style.add({
+                overflow: `hidden`,
+                width: 100,
+                height: 100,
+            })
 
             let elementA = new Element()
-            elementA.style.height = 500
+            elementA.style.add({ height: 500 })
             elementA.appendTo(container)
 
             let elementB = new Element()
-            elementB.style.position = `absolute`
-            elementB.style.left = 0
-            elementB.style.right = 0
-            elementB.style.top = 200
-            elementB.style.height = 10
+            elementB.style.add({
+                position: `absolute`,
+                left: 0,
+                right: 0,
+                top: 200,
+                height: 10,
+            })
             elementB.appendTo(container)
 
             container.triggerUpdates()
@@ -39,9 +44,11 @@ describe(`Element`, () => {
 
         it(`should not scroll absolute containers that are inside the viewport`, () => {
             let container = new Element()
-            container.style.overflow = `hidden`
-            container.style.width = 100
-            container.style.height = 100
+            container.style.add({
+                overflow: `hidden`,
+                width: 100,
+                height: 100,
+            })
 
             let elementA = new Element()
             elementA.style.position = `absolute`
@@ -253,7 +260,7 @@ describe(`Element`, () => {
         it(`should start with default values`, () => {
             let element = new Element()
 
-            expect(element.style.$.display).to.equal(StyleDisplay.flex)
+            expect(element.style.display()).to.equal(StyleDisplay.flex)
         })
 
         it(`should accept valid property values`, () => {
@@ -296,79 +303,79 @@ describe(`Element`, () => {
             expect(() => {
                 element.style.display = `lolno`
             }).to.throw(Error)
-            expect(element.style.$.display).to.equal(StyleDisplay.flex)
+            expect(element.style.display).to.equal(StyleDisplay.flex)
 
             expect(() => {
                 element.style.color = 42
             }).to.throw(Error)
-            expect(element.style.$.color).to.equal(null)
+            expect(element.style.color).to.equal(null)
 
             expect(() => {
                 element.style.backgroundCharacter = `Super`
             }).to.throw(Error)
-            expect(element.style.$.backgroundCharacter).to.equal(` `)
+            expect(element.style.backgroundCharacter).to.equal(` `)
 
             expect(() => {
                 element.style.backgroundCharacter = ``
             }).to.throw(Error)
-            expect(element.style.$.backgroundCharacter).to.equal(` `)
+            expect(element.style.backgroundCharacter).to.equal(` `)
         })
 
         it(`should correctly parse style properties and make them accessible via $`, () => {
             let element = new Element()
 
             element.style.display = null
-            expect(element.style.$.display).to.equal(null)
+            expect(element.style.display).to.equal(null)
 
             element.style.display = `flex`
-            expect(element.style.$.display).to.equal(StyleDisplay.flex)
+            expect(element.style.display).to.equal(StyleDisplay.flex)
 
             element.style.position = `fixed`
-            expect(element.style.$.position).to.equal(StylePosition.fixed)
+            expect(element.style.position).to.equal(StylePosition.fixed)
         })
 
         it(`should support shorthand properties`, () => {
             let element = new Element()
 
             element.style.padding = 1
-            expect(element.style.$.paddingLeft)
+            expect(element.style.paddingLeft)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(1))
-            expect(element.style.$.paddingRight)
+            expect(element.style.paddingRight)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(1))
-            expect(element.style.$.paddingTop)
+            expect(element.style.paddingTop)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(1))
-            expect(element.style.$.paddingBottom)
+            expect(element.style.paddingBottom)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(1))
 
             element.style.padding = [1, 2]
-            expect(element.style.$.paddingLeft)
+            expect(element.style.paddingLeft)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(2))
-            expect(element.style.$.paddingRight)
+            expect(element.style.paddingRight)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(2))
-            expect(element.style.$.paddingTop)
+            expect(element.style.paddingTop)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(1))
-            expect(element.style.$.paddingBottom)
+            expect(element.style.paddingBottom)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(1))
 
             element.style.padding = [1, 2, 3, 4]
-            expect(element.style.$.paddingLeft)
+            expect(element.style.paddingLeft)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(4))
-            expect(element.style.$.paddingRight)
+            expect(element.style.paddingRight)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(2))
-            expect(element.style.$.paddingTop)
+            expect(element.style.paddingTop)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(1))
-            expect(element.style.$.paddingBottom)
+            expect(element.style.paddingBottom)
                 .to.be.instanceof(StyleLength)
                 .and.to.deep.equal(new StyleLength(3))
         })
@@ -380,11 +387,11 @@ describe(`Element`, () => {
             let elementB = new Element()
             elementB.style.color = `inherit`
 
-            expect(elementB.style.$.color).to.equal(null)
+            expect(elementB.style.color).to.equal(null)
 
             elementB.appendTo(elementA)
 
-            expect(elementB.style.$.color).to.deep.equal(new StyleColor(`#ff0000`))
+            expect(elementB.style.color).to.deep.equal(new StyleColor(`#ff0000`))
         })
 
         it(`should correctly inherit properties when a parent changes its own property (one level)`, () => {
@@ -395,11 +402,11 @@ describe(`Element`, () => {
             elementB.style.color = `inherit`
             elementB.appendTo(elementA)
 
-            expect(elementB.style.$.color).to.deep.equal(new StyleColor(`#ff0000`))
+            expect(elementB.style.color).to.deep.equal(new StyleColor(`#ff0000`))
 
             elementA.style.color = `blue`
 
-            expect(elementB.style.$.color).to.deep.equal(new StyleColor(`#0000ff`))
+            expect(elementB.style.color).to.deep.equal(new StyleColor(`#0000ff`))
         })
 
         it(`should correctly inherit properties when a parent changes its own property (two levels)`, () => {
@@ -414,11 +421,11 @@ describe(`Element`, () => {
             elementC.style.color = `inherit`
             elementC.appendTo(elementB)
 
-            expect(elementC.style.$.color).to.deep.equal(new StyleColor(`#ff0000`))
+            expect(elementC.style.color).to.deep.equal(new StyleColor(`#ff0000`))
 
             elementA.style.color = `blue`
 
-            expect(elementC.style.$.color).to.deep.equal(new StyleColor(`#0000ff`))
+            expect(elementC.style.color).to.deep.equal(new StyleColor(`#0000ff`))
         })
     })
 })

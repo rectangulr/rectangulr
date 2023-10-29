@@ -1,15 +1,15 @@
 import _ from 'lodash'
 import Yoga from 'typeflex'
+import { IStyle } from '../../../../../components/1-basics/style'
+import { Element } from '../dom/Element'
 import { character, color, length, list, number, optional, repeat } from './styleParsers'
 import {
-  dirtyClipping,
-  dirtyFocusList,
   dirtyLayout,
   dirtyRenderList,
   dirtyRendering,
   forwardToTextLayout,
   forwardToYoga,
-  onNullSwitch,
+  onNullSwitch
 } from './styleTriggers'
 import { StyleAlignment } from './types/StyleAlignment'
 import { StyleBackgroundClip } from './types/StyleBackgroundClip'
@@ -17,12 +17,11 @@ import { StyleDecoration } from './types/StyleDecoration'
 import { StyleDisplay } from './types/StyleDisplay'
 import { StyleFlexAlignment } from './types/StyleFlexAlignment'
 import { StyleFlexDirection } from './types/StyleFlexDirection'
-import { StyleOverflow } from './types/StyleOverflow'
 import { StyleOverflowWrap } from './types/StyleOverflowWrap'
 import { StylePosition } from './types/StylePosition'
 import { StyleWeight } from './types/StyleWeight'
 import { StyleWhiteSpace } from './types/StyleWhiteSpace'
-import { Element } from '../dom/Element'
+import { StyleHandler } from '../dom/StyleHandler'
 
 let simple = ['+', '+', '+', '+', '-', '|']
 let modern = ['┌', '┐', '└', '┘', '─', '│']
@@ -33,10 +32,8 @@ let rounded = ['╭', '╮', '╰', '╯', '─', '│']
 
 export interface StyleProperty {
   parsers: any[]
-  triggers?: any[]
-  initial?: any
-  getter?: (style) => any
-  setter?: (style, value) => void
+  triggers?: ((node?: Element, newValue?: any, oldValue?: any) => void)[]
+  initial: any
   default?: any
 }
 
@@ -65,14 +62,14 @@ export let styleProperties: { [name: string]: StyleProperty } = {
   },
 
   alignItems: {
-    parsers: [_.pick(StyleFlexAlignment, 'flexStart', 'flexEnd', 'center', 'baseline', 'stretch')],
+    parsers: [_.pick(StyleFlexAlignment, 'flexStart', 'flexEnd', 'center', 'stretch', 'spaceAround', 'spaceBetween')],
     triggers: [dirtyLayout, forwardToYoga('setAlignItems', forwardToYoga.value)],
     initial: 'flexStart',
   },
 
   alignSelf: {
     parsers: [
-      _.pick(StyleFlexAlignment, 'auto', 'flexStart', 'flexEnd', 'center', 'baseline', 'stretch'),
+      _.pick(StyleFlexAlignment, 'auto', 'flexStart', 'flexEnd', 'center', 'stretch', 'spaceAround', 'spaceBetween'),
     ],
     triggers: [dirtyLayout, forwardToYoga('setAlignSelf', forwardToYoga.value)],
     initial: 'auto',
@@ -120,14 +117,7 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     initial: null,
   },
 
-  margin: {
-    parsers: [repeat([1, 2, 4], [length, length.rel, length.auto])],
-    getter: style => [style.marginTop, style.marginRight, style.marginBottom, style.marginLeft],
-    setter: (
-      style,
-      [marginTop, marginRight = marginTop, marginBottom = marginTop, marginLeft = marginRight]
-    ) => Object.assign(style, { marginTop, marginRight, marginBottom, marginLeft }),
-  },
+
 
   marginLeft: {
     parsers: [length, length.rel, length.auto],
@@ -151,21 +141,6 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     parsers: [length, length.rel, length.auto],
     triggers: [dirtyLayout, forwardToYoga('setMargin', Yoga.EDGE_BOTTOM, forwardToYoga.value)],
     initial: 0,
-  },
-
-  flex: {
-    parsers: [
-      list([number, optional(number), optional([length, length.rel, length.autoNaN])]),
-      list([optional(number), optional(number), [length, length.rel, length.autoNaN]]),
-      new Map([[null, [0, 0, 'auto']]]),
-    ],
-    getter: style => [style.flexGrow, style.flexShrink, style.flexBasis],
-    setter: (style, [flexGrow = 1, flexShrink = 1, flexBasis = 0]) =>
-      Object.assign(
-        style,
-        { flexGrow, flexShrink, flexBasis },
-        console.log(flexGrow, flexShrink, flexBasis)
-      ),
   },
 
   flexGrow: {
@@ -229,86 +204,6 @@ export let styleProperties: { [name: string]: StyleProperty } = {
   //   default: 'visible',
   // },
 
-  border: {
-    parsers: [
-      { simple, modern, strong, double, block, rounded },
-      repeat([1, 2, 4, 5, 8], [character, null]),
-    ],
-    getter: style => [
-      style.borderTopLeftCharacter,
-      style.borderTopRightCharacter,
-      style.borderBottomLeftCharacter,
-      style.borderBottomRightCharacter,
-      style.borderTopCharacter,
-      style.borderRightCharacter,
-      style.borderBottomCharacter,
-      style.borderLeftCharacter,
-    ],
-    setter: (
-      style,
-      [
-        borderTopLeftCharacter,
-        borderTopRightCharacter,
-        borderBottomLeftCharacter,
-        borderBottomRightCharacter,
-        borderTopCharacter,
-        borderRightCharacter = borderTopCharacter,
-        borderBottomCharacter = borderTopCharacter,
-        borderLeftCharacter = borderRightCharacter,
-      ]
-    ) =>
-      Object.assign(style, {
-        borderTopLeftCharacter,
-        borderTopRightCharacter,
-        borderBottomLeftCharacter,
-        borderBottomRightCharacter,
-        borderTopCharacter,
-        borderRightCharacter,
-        borderBottomCharacter,
-        borderLeftCharacter,
-      }),
-  },
-
-  borderCharacter: {
-    parsers: [
-      { simple, modern, strong, double, block, rounded },
-      repeat([5, 6, 8], [character, null]),
-    ],
-    getter: style => [
-      style.borderTopLeftCharacter,
-      style.borderTopRightCharacter,
-      style.borderBottomLeftCharacter,
-      style.borderBottomRightCharacter,
-      style.borderTopCharacter,
-      style.borderRightCharacter,
-      style.borderBottomCharacter,
-      style.borderLeftCharacter,
-    ],
-    setter: (
-      style,
-      [
-        borderTopLeftCharacter,
-        borderTopRightCharacter,
-        borderBottomLeftCharacter,
-        borderBottomRightCharacter,
-        borderTopCharacter,
-        borderRightCharacter = borderTopCharacter,
-        borderBottomCharacter = borderTopCharacter,
-        borderLeftCharacter = borderRightCharacter,
-      ]
-    ) =>
-      Object.assign(style, {
-        borderTopLeftCharacter,
-        borderTopRightCharacter,
-        borderBottomLeftCharacter,
-        borderBottomRightCharacter,
-        borderTopCharacter,
-        borderRightCharacter,
-        borderBottomCharacter,
-        borderLeftCharacter,
-      }),
-  },
-
   borderLeftCharacter: {
     parsers: [character, null],
     triggers: [
@@ -371,20 +266,6 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     parsers: [character, null],
     triggers: [onNullSwitch(dirtyLayout), dirtyRendering],
     initial: null,
-  },
-
-  padding: {
-    parsers: [repeat([1, 2, 4], [length, length.rel])],
-    getter: style => [style.paddingTop, style.paddingRight, style.paddingBottom, style.paddingLeft],
-    setter: (
-      style,
-      [
-        paddingTop,
-        paddingRight = paddingTop,
-        paddingBottom = paddingTop,
-        paddingLeft = paddingRight,
-      ]
-    ) => Object.assign(style, { paddingTop, paddingRight, paddingBottom, paddingLeft }),
   },
 
   paddingLeft: {
@@ -468,19 +349,6 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     initial: null,
   },
 
-  background: {
-    parsers: [
-      list([optional(character), color]),
-      list([character, optional(color)]),
-      new Map([[null, [null, ' ']]]),
-    ],
-    getter: style => [style.backgroundCharacter, style.backgroundColor],
-    setter: (
-      style,
-      [backgroundCharacter = style.backgroundCharacter, backgroundColor = style.backgroundColor]
-    ) => Object.assign(style, { backgroundCharacter, backgroundColor }),
-  },
-
   backgroundClip: {
     parsers: [_.pick(StyleBackgroundClip, 'borderBox', 'paddingBox', 'contentBox')],
     triggers: [dirtyRendering],
@@ -500,11 +368,11 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     initial: ' ',
   },
 
-  focusEvents: {
-    parsers: [true, null],
-    triggers: [dirtyFocusList],
-    initial: null,
-  },
+  // focusEvents: {
+  //   parsers: [true, null],
+  //   triggers: [dirtyFocusList],
+  //   initial: null,
+  // },
 
   pointerEvents: {
     parsers: [true, null],
@@ -528,18 +396,6 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     default: null,
   },
 
-  hgrow: {
-    parsers: [true, false],
-    triggers: [dirtyLayout, (node, value) => grow(node, value, 'horizontal')],
-    initial: false,
-  },
-
-  vgrow: {
-    parsers: [true, false],
-    triggers: [dirtyLayout, (node, value) => grow(node, value, 'vertical')],
-    initial: false,
-  },
-
   justifyContent: {
     parsers: ['flexStart', 'flexEnd', 'center', 'baseline', 'stretch'],
     triggers: [dirtyLayout, forwardToYoga('setJustifyContent', value => value)],
@@ -547,28 +403,223 @@ export let styleProperties: { [name: string]: StyleProperty } = {
   },
 }
 
-function grow(node: Element, value: boolean, direction: 'vertical' | 'horizontal') {
-  if (value == false) return
-  if (!node.parentNode) return
+export interface ComputedStyle {
+  /** A list of style keys that this computed style depdends on. */
+  inKeys?: string[]
+  /** A list of style keys that this computed style will produce. */
+  outKeys?: string[]
+  parsers: any[]
+  getter: (style) => any
+  setter: (style: StyleHandler, value: any) => IStyle
+}
 
-  const flexDirection = (node.parentNode as Element).yogaNode.getFlexDirection()
+
+export const computedStyles: { [name: string]: ComputedStyle } = {
+  margin: {
+    outKeys: ['marginTop', 'marginRight', 'marginBottom', 'marginLeft'],
+    parsers: [repeat([1, 2, 4], [length, length.rel, length.auto])],
+    getter: style => [style.get('marginTop'), style.get('marginRight'), style.get('marginBottom'), style.get('marginLeft')],
+    setter: (
+      style,
+      [marginTop, marginRight = marginTop, marginBottom = marginTop, marginLeft = marginRight]
+    ) => ({ marginTop, marginRight, marginBottom, marginLeft }),
+  },
+
+  flex: {
+    outKeys: ['flexGrow', 'flexShrink', 'flexBasis'],
+    parsers: [
+      list([number, optional(number), optional([length, length.rel, length.autoNaN])]),
+      list([optional(number), optional(number), [length, length.rel, length.autoNaN]]),
+      new Map([[null, [0, 0, 'auto']]]),
+    ],
+    getter: style => [style.get('flexGrow'), style.get('flexShrink'), style.get('flexBasis')],
+    setter: (style, [flexGrow = 1, flexShrink = 1, flexBasis = 0]) =>
+      ({ flexGrow, flexShrink, flexBasis }),
+  },
+
+  border: {
+    outKeys: [
+      'borderTopLeftCharacter',
+      'borderTopRightCharacter',
+      'borderBottomLeftCharacter',
+      'borderBottomRightCharacter',
+      'borderTopCharacter',
+      'borderRightCharacter',
+      'borderBottomCharacter',
+      'borderLeftCharacter',
+    ],
+    parsers: [
+      { simple, modern, strong, double, block, rounded },
+      repeat([1, 2, 4, 5, 8], [character, null]),
+    ],
+    getter: style => [
+      style.get('borderTopLeftCharacter'),
+      style.get('borderTopRightCharacter'),
+      style.get('borderBottomLeftCharacter'),
+      style.get('borderBottomRightCharacter'),
+      style.get('borderTopCharacter'),
+      style.get('borderRightCharacter'),
+      style.get('borderBottomCharacter'),
+      style.get('borderLeftCharacter'),
+    ],
+    setter: (
+      style,
+      [
+        borderTopLeftCharacter,
+        borderTopRightCharacter,
+        borderBottomLeftCharacter,
+        borderBottomRightCharacter,
+        borderTopCharacter,
+        borderRightCharacter = borderTopCharacter,
+        borderBottomCharacter = borderTopCharacter,
+        borderLeftCharacter = borderRightCharacter,
+      ]
+    ) =>
+    ({
+      borderTopLeftCharacter,
+      borderTopRightCharacter,
+      borderBottomLeftCharacter,
+      borderBottomRightCharacter,
+      borderTopCharacter,
+      borderRightCharacter,
+      borderBottomCharacter,
+      borderLeftCharacter,
+    }),
+  },
+
+  borderCharacter: {
+    parsers: [
+      { simple, modern, strong, double, block, rounded },
+      repeat([5, 6, 8], [character, null]),
+    ],
+    getter: style => [
+      style.get('borderTopLeftCharacter'),
+      style.get('borderTopRightCharacter'),
+      style.get('borderBottomLeftCharacter'),
+      style.get('borderBottomRightCharacter'),
+      style.get('borderTopCharacter'),
+      style.get('borderRightCharacter'),
+      style.get('borderBottomCharacter'),
+      style.get('borderLeftCharacter'),
+    ],
+    setter: (
+      style,
+      [
+        borderTopLeftCharacter,
+        borderTopRightCharacter,
+        borderBottomLeftCharacter,
+        borderBottomRightCharacter,
+        borderTopCharacter,
+        borderRightCharacter = borderTopCharacter,
+        borderBottomCharacter = borderTopCharacter,
+        borderLeftCharacter = borderRightCharacter,
+      ]
+    ) =>
+    ({
+      borderTopLeftCharacter,
+      borderTopRightCharacter,
+      borderBottomLeftCharacter,
+      borderBottomRightCharacter,
+      borderTopCharacter,
+      borderRightCharacter,
+      borderBottomCharacter,
+      borderLeftCharacter,
+    }),
+  },
+
+  padding: {
+    outKeys: ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'],
+    parsers: [repeat([1, 2, 4], [length, length.rel])],
+    getter: style => [style.get('paddingTop'), style.get('paddingRight'), style.get('paddingBottom'), style.get('paddingLeft')],
+    setter: (
+      style,
+      [
+        paddingTop,
+        paddingRight = paddingTop,
+        paddingBottom = paddingTop,
+        paddingLeft = paddingRight,
+      ]
+    ) => ({ paddingTop, paddingRight, paddingBottom, paddingLeft }),
+  },
+
+  background: {
+    parsers: [
+      list([optional(character), color]),
+      list([character, optional(color)]),
+      new Map([[null, [null, ' ']]]),
+    ],
+    getter: style => [style.get('backgroundCharacter'), style.get('backgroundColor')],
+    setter: (
+      style,
+      [backgroundCharacter = style.get('backgroundCharacter'), backgroundColor = style.get('backgroundColor')]
+    ) => ({ backgroundCharacter, backgroundColor }),
+  },
+
+  hgrow: {
+    parsers: [true, false],
+    // triggers: [dirtyLayout, (node, value) => grow(node, value, 'horizontal')],
+    // initial: false,
+    getter: () => {
+      throw new Error('unreachable')
+
+    },
+    setter: (style, value) => ({
+
+    })
+  },
+
+  vgrow: {
+    inKeys: ['parent.flexDirection'],
+    outKeys: [''],
+    parsers: [true, false],
+    // triggers: [dirtyLayout, (node, value) => grow(node, value, 'vertical')],
+    // initial: false,
+    getter: () => {
+      throw new Error('unreachable')
+    },
+    setter: (style, value) => {
+      return grow(style, value, 'vertical')
+    }
+  },
+
+}
+
+export function isComputedStyle(key: string) {
+  return Object.keys(computedStyles).includes(key)
+}
+
+
+/**
+ * Looks at the parent flex direction and decides what style to apply to make the node grow along the specified direction.
+ * @returns The style to apply to make it grow accordingly.
+ * @example
+ */
+function grow(style: StyleHandler, value: boolean, direction: 'vertical' | 'horizontal'): IStyle {
+  if (value == false) return {}
+  if (!style.element.parentNode) throw new Error('unreachable')
+
+  const flexDirection = (style.element.parentNode as Element).yogaNode.getFlexDirection()
   if (
     flexDirection == Yoga.FLEX_DIRECTION_ROW ||
     flexDirection == Yoga.FLEX_DIRECTION_ROW_REVERSE
   ) {
     if (direction == 'vertical') {
-      node.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
+      // style.element.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
+      return { alignSelf: 'stretch' }
     } else {
-      node.yogaNode.setFlexGrow(1)
+      // node.yogaNode.setFlexGrow(1)
+      return { flexGrow: 1 }
     }
   } else if (
     flexDirection == Yoga.FLEX_DIRECTION_COLUMN ||
     flexDirection == Yoga.FLEX_DIRECTION_COLUMN_REVERSE
   ) {
     if (direction == 'horizontal') {
-      node.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
+      // node.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
+      return { alignSelf: 'stretch' }
     } else {
-      node.yogaNode.setFlexGrow(1)
+      // node.yogaNode.setFlexGrow(1)
+      return { flexGrow: 1 }
     }
   }
 }

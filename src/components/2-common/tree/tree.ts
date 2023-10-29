@@ -5,11 +5,11 @@ import { Command, ShortcutService, registerShortcuts } from '../../../commands/s
 import { HBox } from "../../1-basics/box"
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
-import { ClassesDirective } from '../../1-basics/classes'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Json5Pipe } from "../json5.pipe"
 import { NgComponentOutlet, NgIf, NgTemplateOutlet } from '@angular/common'
 import { TreeNode } from './tree-node'
+import { StyleDirective } from '../../1-basics/style'
 
 export interface NodeData { name: any, children: any[] }
 
@@ -27,7 +27,7 @@ export interface NodeData { name: any, children: any[] }
 					[items]="nodes"
 					[focusIf]="focused == 'children'"
 					[styleItem]="false">
-					<tree *item="let node" focus [nodes]="node.children" [nodeTemplate]="nodeTemplate || nodeTemplate2 || defaultTemplate" [level]="level" [style]="{ marginLeft: 1 }" (selectedItem)="$$selectedItem.emit($event)" />
+					<tree *item="let node" focus [nodes]="node.children" [nodeTemplate]="nodeTemplate || nodeTemplate2 || defaultTemplate" [level]="level" [s]="{ marginLeft: 1 }" (selectedItem)="$$selectedItem.emit($event)" />
 				</list>
 			</ng-container>
 		</ng-container>
@@ -45,7 +45,7 @@ export interface NodeData { name: any, children: any[] }
 			</list>
 		</ng-container>
   	`,
-	imports: [NgIf, List, ListItem, HBox, FocusDirective, ClassesDirective, Json5Pipe, NgComponentOutlet, NgTemplateOutlet]
+	imports: [NgIf, List, ListItem, HBox, FocusDirective, Json5Pipe, NgComponentOutlet, NgTemplateOutlet, StyleDirective]
 })
 export class Tree<T> {
 	@Input({ required: true }) nodes: (T & NodeData)[]

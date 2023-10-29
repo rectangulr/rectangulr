@@ -19,10 +19,9 @@ import { Command, ShortcutService, registerShortcuts } from '../../../commands/s
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { DataFormat } from '../../../utils/data-format'
 import { onChange, subscribe } from '../../../utils/reactivity'
-import { Anything, assert, inputToSignal, removeFromArray } from '../../../utils/utils'
+import { AnyObject, assert, inputToSignal, propToSignal, removeFromArray } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
-import { NewClassesDirective } from '../../1-basics/classes'
-import { StyleDirective } from '../../1-basics/style'
+import { StyleDirective, cond } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
 import { List, selectItem } from '../list/list'
@@ -41,7 +40,7 @@ export type JsonPath = Array<string | number>
   selector: 'json-editor',
   host: { '[style]': "{flexDirection: 'row'}" },
   template: `
-    <h *ngIf="visibleKey()" [focusIf]="focused == 'key'" [style]="{ flexShrink: 0 }">
+    <h *ngIf="visibleKey()" [focusIf]="focused == 'key'" [s]="{ flexShrink: 0 }">
       <text-input [(text)]="valueRef.key"></text-input>:
     </h>
 
@@ -59,8 +58,9 @@ export type JsonPath = Array<string | number>
             [valueRef]="ref"
             [isRoot]="false"
             [focusPath]="$childFocusPath"
-            [newclasses]="[[!isRoot, { paddingLeft: 2 }]]"></json-editor>
+            [s]="cond(!isRoot, { paddingLeft: 2 })"/>
         </list>
+        <!-- TODO: conditional style -->
       </ng-container>
     </ng-container>
   `,
@@ -73,7 +73,6 @@ export type JsonPath = Array<string | number>
     FocusDirective,
     FocusDebugDirective,
     StyleDirective,
-    NewClassesDirective,
   ],
   providers: [
     ShortcutService,
@@ -111,6 +110,7 @@ export class JsonEditor {
     onChange(this, 'dataFormat', dataFormat => { this.setup() })
     onChange(this, 'data', data => { this.setup() })
     inputToSignal(this, 'focusPath', '$focusPath')
+    propToSignal(this, 'isRoot')
   }
 
   async setup() {
@@ -193,7 +193,7 @@ export class JsonEditor {
   /**
    * Creates a javascript object from the json-editor.
    */
-  getValue(): Anything | string | null | number {
+  getValue(): AnyObject | string | null | number {
     return getValueFromRef(this.valueRef)
   }
 
@@ -329,6 +329,8 @@ export class JsonEditor {
       },
     },
   ]
+
+  cond = cond
 
   toString() {
     const keyValue = json5.stringify(this.valueRef)

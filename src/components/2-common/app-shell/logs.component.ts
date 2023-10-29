@@ -1,7 +1,7 @@
-import { Component, SkipSelf, inject } from '@angular/core'
+import { Component, SkipSelf } from '@angular/core'
 import { Logger } from '../../../angular-terminal/logger'
 import { HBox } from '../../1-basics/box'
-import { NewClassesDirective } from '../../1-basics/classes'
+import { StyleDirective } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 
@@ -11,13 +11,14 @@ class NullLogger {
 
 @Component({
   selector: 'logs-view',
-  standalone: true,
-  imports: [HBox, List, ListItem, NewClassesDirective],
+
   host: { '[style]': "{height: '100%', width: '100%'}" },
   template: `
-    <h [newclasses]="[blackOnWhite, { hgrow: true }]">Logs</h>
+    <h [s]="[blackOnWhite, { hgrow: true }]">Logs</h>
     <list [items]="logs"></list>
   `,
+  standalone: true,
+  imports: [HBox, List, ListItem, StyleDirective],
   // providers: [{ provide: Logger, useClass: NullLogger }],
 })
 export class Logs {

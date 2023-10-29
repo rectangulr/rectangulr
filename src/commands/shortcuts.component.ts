@@ -24,7 +24,7 @@ import { Command, ShortcutService } from './shortcut.service'
     <search-list
       #searchList
       [items]="listOfCommands"
-      [style]="{ border: 'rounded', backgroundColor: 'darkgray', hgrow: true }">
+      [s]="{ border: 'rounded', backgroundColor: 'darkgray', hgrow: true }">
       <v *item="let command; type: listOfCommands"
         >{{ command.name }} ({{ command.keys }})
       </v>

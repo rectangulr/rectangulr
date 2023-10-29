@@ -6,15 +6,16 @@ export function parseRawValue(rawValue, parser) {
   }
 
   if (_.isArray(parser)) {
-    let value
-
-    for (let t = 0; _.isUndefined(value) && t < parser.length; ++t)
-      value = parseRawValue(rawValue, parser[t])
-
-    return value
+    for (const p of parser) {
+      const value = parseRawValue(rawValue, p)
+      if (value !== undefined) {
+        return value
+      }
+    }
+    return undefined
   }
 
-  if (_.isPlainObject(parser)) {
+  if (parser && typeof parser == 'object') {
     if (!_.isString(rawValue)) return undefined
 
     let camelized = _.camelCase(rawValue)

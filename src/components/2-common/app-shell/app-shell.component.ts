@@ -7,8 +7,7 @@ import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { Shortcuts } from '../../../commands/shortcuts.component'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
-import { ClassesDirective } from '../../1-basics/classes'
-import { StyleDirective } from '../../1-basics/style'
+import { StyleDirective, cond, eq, neq } from '../../1-basics/style'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
 import { ViewService } from './view.service'
@@ -23,24 +22,24 @@ import { ViewService } from './view.service'
       *ngFor="let view of viewService.views()"
       [focusPropagateUp]="false"
       [focusIf]="view == this.viewService.currentTab()"
-      [style]="{ display: view == this.viewService.currentTab() ? 'flex' : 'none', width: '100%', height: '100%' }">
+      [s]="[{width: '100%', height: '100%'}, cond(neq(view,this.viewService.currentTab()),{display: 'none'})]">
       <ng-container [ngComponentOutlet]="view.component"/>
     </v>
 
     <!-- Push the bottom-bar to the bottom. -->
-    <h [style]="{ vgrow: true }"/>
+    <h [s]="{ vgrow: true }"/>
 
     <!-- Bottom bar. List of visible views. -->
-    <h [style]="{ hgrow: true, backgroundColor: 'grey' }">
+    <h [s]="{ hgrow: true, backgroundColor: 'grey' }">
       <h
         *ngFor="let view of viewService.visibleViews()"
-        [classes]="[[view == this.viewService.currentTab(), s.blackOnWhite]]"
+        [s]="cond(eq(view, this.viewService.currentTab()), s.blackOnWhite)"
         (mousedown)="viewService.switchTo(view.name)"
-        [style]="{ paddingLeft: 1, paddingRight: 1 }"
+        [s]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</h
       >
-      <h [style]="{ hgrow: true }"/>
-      <h [style]="{ flexShrink: 0 }">Help: alt+p</h>
+      <h [s]="{ hgrow: true }"/>
+      <h [s]="{ flexShrink: 0 }">Help: alt+p</h>
     </h>
 
     <!-- Popup to discover shortcuts -->
@@ -49,7 +48,7 @@ import { ViewService } from './view.service'
     <!-- Popup to show notifications -->
     <notifications/>
   `,
-  imports: [HBox, VBox, NgIf, NgFor, ClassesDirective, FocusDirective, NgComponentOutlet, Notifications, Shortcuts, GrowDirective, StyleDirective],
+  imports: [HBox, VBox, NgIf, NgFor, FocusDirective, NgComponentOutlet, Notifications, Shortcuts, GrowDirective, StyleDirective],
 })
 export class AppShell {
   showCommands = false
@@ -65,8 +64,11 @@ export class AppShell {
   s = {
     blackOnWhite: blackOnWhite,
     whiteOnGray: whiteOnGray,
-    nullOnNull: makeRuleset({ backgroundColor: null, color: null }),
   }
+
+  cond = cond
+  eq = eq
+  neq = neq
 
   commands: Partial<Command>[] = [
     {

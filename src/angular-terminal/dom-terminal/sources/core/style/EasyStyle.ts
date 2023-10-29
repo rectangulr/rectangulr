@@ -40,9 +40,10 @@ export function EasyStyle(ruleset: Ruleset, selector = [], base = Object.create(
           `Failed to set a style property: '${key}' is not a valid style property name.`
         )
 
-      if (_.has(styleProperties[key], `setter`))
+      if (_.has(styleProperties[key], `setter`)) {
+        // @ts-ignore
         styleProperties[key].setter(receiver, parsePropertyValue(key, value))
-      else if (!_.isUndefined(value)) assign(new Map([[key, parsePropertyValue(key, value)]]))
+      } else if (!_.isUndefined(value)) assign(new Map([[key, parsePropertyValue(key, value)]]))
       else assign(new Map([[key, undefined]]))
 
       return true

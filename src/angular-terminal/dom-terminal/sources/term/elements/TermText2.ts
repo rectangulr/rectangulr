@@ -1,10 +1,8 @@
-import _ from 'lodash'
-import { Anything, assert } from '../../../../../utils/utils'
-import { TermElement } from './TermElement'
 import cliTruncate from 'cli-truncate'
-import wrapAnsi from 'wrap-ansi'
 import widestLine from 'widest-line'
-import { StyleManager, makeRuleset } from '../../core'
+import wrapAnsi from 'wrap-ansi'
+import { AnyObject } from '../../../../../utils/utils'
+import { TermElement } from './TermElement'
 
 export class TermText2 extends TermElement {
   static elementName = 'text'
@@ -13,7 +11,7 @@ export class TermText2 extends TermElement {
   lines = []
 
   internalDimensions = { width: 0, height: 0 }
-  conf: Anything = {
+  conf: AnyObject = {
     maxWidth: Number.MAX_SAFE_INTEGER,
     maxHeight: Number.MAX_SAFE_INTEGER,
     wrap: null,
@@ -22,12 +20,16 @@ export class TermText2 extends TermElement {
   constructor() {
     super()
 
-    this.styleManager.addRuleset(
-      makeRuleset({
-        minHeight: 1,
-      }),
-      StyleManager.RULESET_NATIVE
-    )
+    // this.styleManager.addRuleset(
+    //   makeRuleset({
+    //     minHeight: 1,
+    //   }),
+    //   StyleManager.RULESET_NATIVE
+    // )
+
+    this.style.add({
+      minHeight: 1,
+    })
 
     this.setPropertyTrigger('textContent', '', {
       trigger: value => {
@@ -36,7 +38,7 @@ export class TermText2 extends TermElement {
     })
   }
 
-  setLayoutConfig(configuration: Anything) {
+  setLayoutConfig(configuration: AnyObject) {
     Object.assign(this.conf, configuration)
     this.update()
   }
@@ -96,10 +98,10 @@ export class TermText2 extends TermElement {
 
     let fullLineStart = 0
 
-    if (this.style.$.textAlign.isCentered)
+    if (this.style.get('textAlign') == 'center')
       fullLineStart = Math.floor((this.scrollRect.width - fullLineLength) / 2)
 
-    if (this.style.$.textAlign.isRightAligned)
+    if (this.style.get('textAlign') == 'right')
       fullLineStart = this.scrollRect.width - fullLineLength
 
     let prefixLength = Math.max(0, Math.min(fullLineStart - x, l))

@@ -3,12 +3,13 @@ import * as json5 from 'json5'
 import { mapKeyValue, stringifyReplacer } from '../../../utils/utils'
 import { HBox, GrowDirective } from '../../1-basics/box'
 import { List } from './list'
+import { StyleDirective } from '../../1-basics/style'
 
 @Component({
-  standalone: true,
   selector: 'basic-object-display',
-  template: `<h [style]="{ height: 1 }">{{ text }}</h>`,
-  imports: [HBox, GrowDirective],
+  template: `<h [s]="{ height: 1 }">{{ text }}</h>`,
+  standalone: true,
+  imports: [HBox, GrowDirective, StyleDirective],
 })
 export class BasicObjectDisplay {
   @Input() data: any

@@ -1,61 +1,43 @@
+import { Injector } from '@angular/core'
 import { cursor, feature, screen, style } from '@manaflair/term-strings'
 import { Key, Mouse, parseTerminalInputs } from '@manaflair/term-strings/parse.js'
 import _ from 'lodash'
 import { ReadStream, WriteStream } from 'tty'
 import { Logger } from '../../../../logger'
-import { Event, Point, Rect, StyleManager, makeRuleset } from '../../core'
+import { Event, Point, Rect } from '../../core'
 import { Element } from '../../core/dom/Element'
 import { isInsideOf } from '../../core/dom/Node'
 import { TermElement } from './TermElement'
 
 
 export class TermScreen extends TermElement {
-  ready: boolean
-  stdin: ReadStream
-  stdout: WriteStream
-  subscription: any
-  updateTimer: any
-  trackOutputSize: boolean
-  mouseOverElement: Element
-  mouseEnterElements: Element[]
-  caret: Point
-  logger: Logger
+  /** We keep track of whether the screen is fully setup or not (has stdin/stdout) */
+  ready = false
+  stdin: ReadStream = null
+  stdout: WriteStream = null
+  /**  Our subscription to the input events */
+  subscription: any = null
+  /** A timer used to trigger layout / clipping / render updates after a node becomes dirty */
+  updateTimer: any = null
+  trackOutputSize = false
+  mouseOverElement: Element = null
+  mouseEnterElements: Element[] = []
+  caret: Point = null
 
-  constructor({ debugPaintRects = false, logger = null } = {}) {
+  constructor(debugPaintRects = false, public logger: Logger = null, public injector: Injector) {
     super()
+    this.rootNode = this
 
     this.logger = logger
 
-    this.styleManager.addRuleset(
-      makeRuleset({
-        position: `relative`,
-        width: 0,
-        height: 0,
-        // overflow: `hidden`,
-        scroll: null,
-      }),
-      StyleManager.RULESET_NATIVE
-    )
+    this.style.add({
+      position: 'relative',
+      width: 0,
+      height: 0,
+      // overflow: `hidden`,
+      scroll: null,
+    })
 
-    // We keep track of whether the screen is fully setup or not (has stdin/stdout)
-    this.ready = false
-
-    // Input/output streams
-    this.stdin = null
-    this.stdout = null
-
-    // Our subscription to the input events
-    this.subscription = null
-
-    // A timer used to trigger layout / clipping / render updates after a node becomes dirty
-    this.updateTimer = null
-
-    //
-    this.trackOutputSize = false
-
-    //
-    this.mouseOverElement = null
-    this.mouseEnterElements = []
 
     // Bind the listeners that will convert the "mousemove" events into "mouseover" / "mouseout" / "mouseenter" / "mouseleave"
     this.addEventListener(`mousemove`, e => this.dispatchMouseOverEvents(e))
@@ -496,9 +478,7 @@ export class TermScreen extends TermElement {
     let width = this.stdout.columns
     let height = this.stdout.rows
 
-    this.style.assign({
-      // maxWidth: width,
-      // maxHeight: height,
+    this.style.add({
       width: width,
       height: height,
     })

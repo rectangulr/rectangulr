@@ -5,10 +5,10 @@ import { Logger } from '../../angular-terminal/logger'
 import { KeyValue } from '../../utils/interfaces'
 import { inputToSignal, longest } from '../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../1-basics/box'
-import { ClassesDirective } from '../1-basics/classes'
 import { List } from "./list/list"
 import { blackOnWhite } from './styles'
 import { ListItem } from './list/list-item'
+import { StyleDirective } from '../1-basics/style'
 
 @Component({
   standalone: true,
@@ -17,15 +17,15 @@ import { ListItem } from './list/list-item'
     <list [items]="$keyValues">
       <h *item="let keyValue; type: $keyValues()">
       <h
-          [style]="{ flexShrink: 0, width: $longestKey() + 1, vgrow: true }"
-          [classes]="[s.blackOnWhite]"
+          [s]="{ flexShrink: 0, width: $longestKey() + 1, vgrow: true }"
+          [s]="[s.blackOnWhite]"
           >{{ keyValue.key }}</h
         >
-        <h [style]="{ wrap: 'wrap' }">{{ keyValue.value }}</h>
+        <h [s]="{ wrap: 'wrap' }">{{ keyValue.value }}</h>
       </h>
     </list>
   `,
-  imports: [GrowDirective, HBox, ClassesDirective, NgFor, VBox, List, ListItem]
+  imports: [GrowDirective, HBox, NgFor, VBox, List, ListItem, StyleDirective]
 })
 export class ObjectDisplay<T> {
   @Input() object: T | Observable<T> | Signal<T>

@@ -1,4 +1,4 @@
-import { Inject, Injectable, NgZone } from '@angular/core'
+import { Inject, Injectable, Injector, NgZone } from '@angular/core'
 import { TermScreen } from './dom-terminal'
 import { INPUT_OUTPUT, InputOutput } from './input-output'
 import { Logger } from './logger'
@@ -12,9 +12,10 @@ export class ScreenService {
   constructor(
     @Inject(INPUT_OUTPUT) public inputOutput: InputOutput,
     public ngZone: NgZone,
-    public logger: Logger
+    public logger: Logger,
+    public injector: Injector,
   ) {
-    this.termScreen = new TermScreen({ debugPaintRects: false, logger: this.logger })
+    this.termScreen = new TermScreen(false, this.logger, injector)
 
     {
       // Patch the `inputOutput.output.write` function, so that writing doesn't trigger

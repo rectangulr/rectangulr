@@ -15,7 +15,6 @@ import {
 } from '@angular/core'
 import { RectangulrRendererFactory } from './angular-terminal/angular-dom'
 import { global_rgComponent, global_rgLView } from './angular-terminal/debug'
-import { Node } from './angular-terminal/dom-terminal'
 import { RectangulrErrorHandler } from './angular-terminal/error-handler'
 import { INPUT_OUTPUT, StdinStdout } from './angular-terminal/input-output'
 import { global_logs, patchGlobalConsole } from './angular-terminal/logger'
@@ -24,13 +23,11 @@ import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { FocusDebugDirective, FocusDirective } from './commands/focus.directive'
 import { Shortcuts } from './commands/shortcuts.component'
 import { GrowDirective, HBox, HGrowDirective, VBox, VGrowDirective } from './components/1-basics/box'
-import { ClassesDirective, NewClassesDirective } from './components/1-basics/classes'
-import { StyleDirective, StylesDirective } from './components/1-basics/style'
+import { StyleDirective, } from './components/1-basics/style'
 import { TextInput } from './components/1-basics/text-input'
 import { AppShell } from './components/2-common/app-shell/app-shell.component'
 import { Logs } from './components/2-common/app-shell/logs.component'
 import { Notifications } from './components/2-common/app-shell/notifications.component'
-import { View } from './components/2-common/app-shell/view.service'
 import { FormEditor, KeyValueEditor } from './components/2-common/form-editor'
 import { JsonEditor } from './components/2-common/json-editor/json-editor'
 import { Json5Pipe } from './components/2-common/json5.pipe'
@@ -42,11 +39,11 @@ import { OnEnterDirective } from './components/2-common/on-enter.directive'
 import { SearchList } from './components/2-common/search-list'
 import { SignalDirective } from './components/2-common/signal.directive'
 import { Row, Table } from './components/2-common/table/table.component'
+import { Tree } from './components/2-common/tree/tree'
+import { TreeNode } from './components/2-common/tree/tree-node'
 import { ValueDirective } from './components/2-common/value.directive'
 import { ComponentOutletInputs } from './utils/componentOutletInput'
 import { InjectFunction, addToGlobalRg } from './utils/utils'
-import { Tree } from './components/2-common/tree/tree'
-import { TreeNode } from './components/2-common/tree/tree-node'
 
 // @ts-ignore
 const NG_DEV_MODE = typeof ngDevMode === 'undefined' || !!ngDevMode
@@ -74,9 +71,6 @@ const TEMPLATE_COMPONENTS = [
   Table,
   Row,
   StyleDirective,
-  StylesDirective,
-  NewClassesDirective,
-  ClassesDirective,
   FocusDirective,
   FocusDebugDirective,
   DetachedCommandServiceDirective,

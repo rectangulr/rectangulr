@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import * as _ from '@s-libs/micro-dash'
 
 export class Event {
   name: any

@@ -24,11 +24,7 @@ export {
   VGrowDirective,
   GrowDirective,
 } from './components/1-basics/box'
-export {
-  NewClassesDirective,
-  ClassesDirective,
-} from './components/1-basics/classes'
-export { StyleDirective, StylesDirective } from './components/1-basics/style'
+export { StyleDirective, cond } from './components/1-basics/style'
 export { TextInput } from './components/1-basics/text-input'
 export { AppShell } from './components/2-common/app-shell/app-shell.component'
 export { Logs } from './components/2-common/app-shell/logs.component'

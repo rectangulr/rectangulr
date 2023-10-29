@@ -1,8 +1,7 @@
 import { Inject, Injectable, InjectionToken, signal } from '@angular/core'
+import * as _ from '@s-libs/micro-dash'
 import * as fs from 'fs'
-import _ from 'lodash'
 import { Subject } from 'rxjs'
-import { onChange } from '../utils/reactivity'
 import { InjectFunction, stringifyReplacer } from '../utils/utils'
 
 export const LOG_FILE = new InjectionToken<string>('LOG_FILE', { factory: () => 'log.json' })
@@ -14,7 +13,7 @@ export class Logger {
   $logs = signal<any[]>([])
   $onLog = new Subject<any>()
 
-  constructor(@Inject(LOG_FILE) private logFile: string) {}
+  constructor(@Inject(LOG_FILE) private logFile: string) { }
 
   log(thing) {
     // String or Object
@@ -70,7 +69,7 @@ export function patchGlobalConsole(inject: InjectFunction) {
   const logFile = inject(LOG_FILE)
 
   // Save original
-  globalThis['original_console'] = _.pick(console, ['error', 'log', 'info', 'debug', 'warn'])
+  globalThis['original_console'] = _.pick(console, 'error', 'log', 'info', 'debug', 'warn')
 
   // Replace
   console.error = createConsoleLog({ logger, level: 'error' })

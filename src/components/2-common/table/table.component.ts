@@ -24,7 +24,7 @@ import { BaseControlValueAccessor } from '../../../utils/base-control-value-acce
 import { makeObservable, subscribe } from '../../../utils/reactivity'
 import { assert, filterNulls, inputToSignal } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
-import { ClassesDirective } from '../../1-basics/classes'
+import { StyleDirective } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 
@@ -96,7 +96,7 @@ interface Column {
   selector: 'table',
   host: { '[style]': `{scroll: 'x'}` },
   template: `
-    <h [style]="{ maxHeight: 1 }" [classes]="[s.header]">{{ $headers() }}</h>
+    <h [s]="{ maxHeight: 1 }" [s]="[s.header]">{{ $headers() }}</h>
     <list
       #list
       [items]="items"
@@ -104,13 +104,13 @@ interface Column {
       [template]="template || template2 || defaultRowTemplate"
       (selectedItem)="$selectedItem.set($event)"
       (visibleItems)="$visibleItems.set($event)"
-      [style]="{ hgrow: true }">
+      [s]="{ hgrow: true }">
       <ng-template #defaultRowTemplate>
-        <row [style]="{ flexShrink: 0 }" *item="let item" [data]="item"></row>
+        <row [s]="{ flexShrink: 0 }" *item="let item" [data]="item"></row>
       </ng-template>
     </list>
   `,
-  imports: [HBox, List, Row, ListItem, ClassesDirective],
+  imports: [HBox, List, Row, ListItem, StyleDirective],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

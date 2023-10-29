@@ -1,7 +1,7 @@
-import _ from 'lodash'
+import { StyleManager } from './StyleManager'
 
 export class ClassList {
-  styleManager: any
+  styleManager: StyleManager
 
   constructor(styleManager) {
     this.styleManager = styleManager
@@ -19,21 +19,21 @@ export class ClassList {
     this.styleManager.removeRuleset(ruleset)
   }
 
-  toggle(ruleset, force) {
-    if (_.isUndefined(force)) force = !this.includes(ruleset)
+  // toggle(ruleset, force) {
+  //   if (_.isUndefined(force)) force = !this.includes(ruleset)
 
-    if (force) {
-      this.add(ruleset)
-    } else {
-      this.remove(ruleset)
-    }
-  }
+  //   if (force) {
+  //     this.add(ruleset)
+  //   } else {
+  //     this.remove(ruleset)
+  //   }
+  // }
 
-  contains() {
-    throw new Error(`Failed to execute 'contains': Use 'includes' instead.`)
-  }
+  // contains() {
+  //   throw new Error(`Failed to execute 'contains': Use 'includes' instead.`)
+  // }
 
-  includes(ruleset) {
-    return this.styleManager.hasRuleset(ruleset)
-  }
+  // includes(ruleset) {
+  //   return this.styleManager.hasRuleset(ruleset)
+  // }
 }

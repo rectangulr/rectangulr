@@ -1,4 +1,5 @@
-import _ from 'lodash'
+import * as _ from '@s-libs/micro-dash'
+import { TermElement } from '../../term/elements/TermElement'
 
 let currentNodeId = 0
 let attributeNameRegex = /^[a-z_][a-z_-]*$/
@@ -8,10 +9,10 @@ export class Node {
   id = currentNodeId++
   nodeName = this.constructor.name
   rootNode = this
-  parentNode = null
-  previousSibling = null
-  nextSibling = null
-  childNodes = []
+  parentNode: TermElement = null
+  previousSibling: TermElement = null
+  nextSibling: TermElement = null
+  childNodes: TermElement[] = []
 
   reset() {
     this.id = currentNodeId++
@@ -23,18 +24,6 @@ export class Node {
     this.nextSibling = null
 
     this.childNodes = []
-  }
-
-  get firstChild() {
-    if (_.isEmpty(this.childNodes)) return null
-
-    return _.first(this.childNodes)
-  }
-
-  get lastChild() {
-    if (_.isEmpty(this.childNodes)) return null
-
-    return _.last(this.childNodes)
   }
 
   appendTo(node) {
@@ -105,13 +94,6 @@ export class Node {
 
     node.parentNode = this
 
-    node.previousSibling = referenceNode ? referenceNode.previousSibling : this.lastChild
-    node.nextSibling = referenceNode
-
-    if (node.nextSibling) node.nextSibling.previousSibling = node
-
-    if (node.previousSibling) node.previousSibling.nextSibling = node
-
     this.childNodes.splice(index, 0, node)
 
     node.traverse(traversedNode => {
@@ -123,7 +105,7 @@ export class Node {
     if (!(node instanceof Node))
       throw new Error(`Failed to execute 'removeChild': Parameter 1 is not of type 'Node'.`)
 
-    if (node.parentNode !== this)
+    if (node.parentNode !== this as unknown as TermElement)
       throw new Error(
         `Failed to execute 'removeChild': The node to be removed is not a child of this node.`
       )
@@ -137,7 +119,7 @@ export class Node {
     node.previousSibling = null
     node.nextSibling = null
 
-    let index = this.childNodes.indexOf(node)
+    let index = this.childNodes.indexOf(node as TermElement)
     this.childNodes.splice(index, 1)
 
     node.traverse(traversedNode => {
@@ -148,7 +130,7 @@ export class Node {
   remove() {
     if (!this.parentNode) return
 
-    this.parentNode.removeChild(this)
+    this.parentNode.removeChild(this as unknown as TermElement)
   }
 
   setPropertyAccessor(name, { validate = val => true, get = null, set = null }) {

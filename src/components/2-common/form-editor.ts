@@ -8,20 +8,19 @@ import { registerShortcuts, ShortcutService } from '../../commands/shortcut.serv
 import { State } from '../../utils/reactivity'
 import { longest, mapKeyValue } from '../../utils/utils'
 import { HBox } from '../1-basics/box'
-import { ClassesDirective } from '../1-basics/classes'
 import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
 import { blackOnWhite } from './styles'
-import { FocusDirective } from '../../public-api'
+import { FocusDirective, StyleDirective } from '../../public-api'
 
 @Component({
   standalone: true,
-  imports: [HBox, TextInput, ReactiveFormsModule, ClassesDirective],
+  imports: [HBox, TextInput, ReactiveFormsModule, StyleDirective],
   selector: 'keyvalue-editor',
   template: `
-    <v [formGroup]="formGroup" [style]="{ flexDirection: 'row' }">
-      <v [style]="{ width: keyWidth + 1 }" [classes]="[blackOnWhite]">{{ keyValue.key }}</v>
+    <v [formGroup]="formGroup" [s]="{ flexDirection: 'row' }">
+      <v [s]="{ width: keyWidth + 1 }" [s]="[blackOnWhite]">{{ keyValue.key }}</v>
       <text-input [formControlName]="keyValue.key" [text]="keyValue.value"></text-input>
     </v>
   `,

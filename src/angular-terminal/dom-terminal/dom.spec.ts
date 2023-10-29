@@ -11,8 +11,8 @@ describe('DOM - ', () => {
       standalone: true,
       imports: [HBox, VBox, GrowDirective],
       template: `
-        <v #parent [style]="{ width: 5 }">
-          <v #child [style]="{ flexShrink: 0 }">aaaaaaaaaa</v>
+        <v #parent [s]="{ width: 5 }">
+          <v #child [s]="{ flexShrink: 0 }">aaaaaaaaaa</v>
         </v>
       `,
     })
@@ -53,7 +53,7 @@ describe('DOM - ', () => {
       standalone: true,
       imports: [HBox, VBox, GrowDirective, StyleDirective],
       template: `
-        <v [style]="{ width: 20 }">
+        <v [s]="{ width: 20 }">
           <v #child1>Test</v>
           <v #child2>Test2</v>
         </v>
@@ -80,9 +80,9 @@ describe('DOM - ', () => {
       standalone: true,
       imports: [HBox, VBox, GrowDirective, StyleDirective],
       template: `
-        <v #parent [style]="{ width: 20 }">
-          <v #child1 [style]="{ hgrow: true }">Test</v>
-          <v #child2 [style]="{ hgrow: true }">Test2</v>
+        <v #parent [s]="{ width: 20 }">
+          <v #child1 [s]="{ hgrow: true }">Test</v>
+          <v #child2 [s]="{ hgrow: true }">Test2</v>
         </v>
       `,
     })
@@ -114,9 +114,9 @@ describe('DOM - ', () => {
       standalone: true,
       imports: [HBox, VBox, StyleDirective],
       template: `
-        <h #parent [style]="{ height: 20 }">
-          <v #child1 [style]="{ vgrow: true }">Test</v>
-          <v #child2 [style]="{ vgrow: true }">Test2</v>
+        <h #parent [s]="{ height: 20 }">
+          <v #child1 [s]="{ vgrow: true }">Test</v>
+          <v #child2 [s]="{ vgrow: true }">Test2</v>
         </h>
       `,
     })
@@ -149,7 +149,7 @@ describe('DOM - ', () => {
       standalone: true,
       imports: [HBox, VBox, StyleDirective, GrowDirective],
       template: `
-        <h #parent [style]="{ height: 20, width: 20 }">
+        <h #parent [s]="{ height: 20, width: 20 }">
           <h grow #child1></h>
         </h>
       `,
