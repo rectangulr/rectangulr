@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TermStringBuilder } from '@manaflair/term-strings/gen'
 import { style } from '@manaflair/term-strings'
 import { TextLayout, TextOperation } from '@manaflair/text-layout'
@@ -83,18 +84,18 @@ export class SyntaxHighlighter extends TextLayout {
         let props = _.isNull(this.theme.active)
           ? {}
           : _.merge(
-              {},
-              ...this.theme.active.settings
-                .filter(({ scope }) => {
-                  return (
-                    _.isNil(scope) ||
-                    scopes.some(other => scope === other || other.startsWith(`${scope}.`))
-                  )
-                })
-                .map(({ settings }) => {
-                  return settings
-                })
-            )
+            {},
+            ...this.theme.active.settings
+              .filter(({ scope }) => {
+                return (
+                  _.isNil(scope) ||
+                  scopes.some(other => scope === other || other.startsWith(`${scope}.`))
+                )
+              })
+              .map(({ settings }) => {
+                return settings
+              })
+          )
 
         if (_.isUndefined(name)) return props
 

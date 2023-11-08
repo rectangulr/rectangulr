@@ -1,24 +1,11 @@
 import { CommonModule } from '@angular/common'
 import {
-  APP_INITIALIZER,
   ApplicationModule,
-  ErrorHandler,
   Inject,
-  InjectionToken,
-  Injector,
   NgModule,
   Optional,
-  RendererFactory2,
-  SkipSelf,
-  inject,
-  ɵINJECTOR_SCOPE,
+  SkipSelf
 } from '@angular/core'
-import { RectangulrRendererFactory } from './angular-terminal/angular-dom'
-import { global_rgComponent, global_rgLView } from './angular-terminal/debug'
-import { RectangulrErrorHandler } from './angular-terminal/error-handler'
-import { INPUT_OUTPUT, StdinStdout } from './angular-terminal/input-output'
-import { global_logs, patchGlobalConsole } from './angular-terminal/logger'
-import { ScreenService } from './angular-terminal/screen-service'
 import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { FocusDebugDirective, FocusDirective } from './commands/focus.directive'
 import { Shortcuts } from './commands/shortcuts.component'
@@ -42,15 +29,8 @@ import { Row, Table } from './components/2-common/table/table.component'
 import { Tree } from './components/2-common/tree/tree'
 import { TreeNode } from './components/2-common/tree/tree-node'
 import { ValueDirective } from './components/2-common/value.directive'
+import { NG_DEV_MODE, RECTANGULR_MODULE_PROVIDERS, RECTANGULR_MODULE_PROVIDERS_MARKER } from './rectangulr-module-providers'
 import { ComponentOutletInputs } from './utils/componentOutletInput'
-import { InjectFunction, addToGlobalRg } from './utils/utils'
-
-// @ts-ignore
-const NG_DEV_MODE = typeof ngDevMode === 'undefined' || !!ngDevMode
-
-const RECTANGULR_MODULE_PROVIDERS_MARKER = new InjectionToken(
-  NG_DEV_MODE ? 'RectangulrModule Providers Marker' : ''
-)
 
 const TEMPLATE_COMPONENTS = [
   HBox,
@@ -86,42 +66,7 @@ const TEMPLATE_COMPONENTS = [
   SignalDirective,
 ]
 
-export const RECTANGULR_MODULE_PROVIDERS = [
-  { provide: ɵINJECTOR_SCOPE, useValue: 'root' },
-  { provide: ErrorHandler, useClass: RectangulrErrorHandler },
-  { provide: RendererFactory2, useClass: RectangulrRendererFactory },
-  NG_DEV_MODE ? { provide: RECTANGULR_MODULE_PROVIDERS_MARKER, useValue: true } : [],
-  { provide: 'global', useValue: globalThis },
-  { provide: ScreenService, useClass: ScreenService },
-  { provide: INPUT_OUTPUT, useValue: StdinStdout },
-  {
-    provide: APP_INITIALIZER,
-    useFactory: () => {
-      const injector = inject(Injector)
-      const globalInject: InjectFunction = token => injector.get(token)
 
-      return function () {
-        // @ts-ignore
-        if (globalThis['Zone']) {
-          // @ts-ignore
-          globalThis['angularZone'] = Zone.current // used by ./lib/reactivity.ts -> forceRefresh()
-          // @ts-ignore
-          globalThis['rootZone'] = Zone.current.parent
-        }
-
-        addToGlobalRg({
-          lView: global_rgLView,
-          component: global_rgComponent,
-          logs: global_logs,
-          inject: globalInject,
-        })
-
-        patchGlobalConsole(globalInject)
-      }
-    },
-    multi: true,
-  },
-]
 
 @NgModule({
   providers: [...RECTANGULR_MODULE_PROVIDERS],

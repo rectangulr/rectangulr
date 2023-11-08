@@ -1,6 +1,7 @@
 import { Injector, inject } from "@angular/core"
 import * as _ from "@s-libs/micro-dash"
-import Yoga from 'typeflex'
+import * as Yoga from 'typeflex'
+import type * as TYoga from '../../../yoga-types/index'
 import { TermElement } from '../../term/elements/TermElement'
 import { Event } from '../misc/Event'
 import { Point } from '../misc/Point'
@@ -11,16 +12,21 @@ import { StyleHandler } from "./StyleHandler"
 import { Position, } from "./StyleHelpers"
 import { flags } from './flags'
 
-const yogaConfig = Yoga.Config.create()
+const yogaConfig = Yoga.Config.create() as TYoga.Config
 yogaConfig.setPointScaleFactor(2)
-// yogaConfig.setExperimentalFeatureEnabled(Yoga.EXPE, true)
-
-function getPreferredSize(node, ...args) {
-  const dimensions = node.getPreferredSize(...args)
-  // node.yogaNode.setWidth(dimensions.width)
-  // node.yogaNode.setHeight(dimensions.height)
-  return dimensions
-}
+//@ts-ignore
+// yogaConfig.config.setLogger((...args) => {
+//   const newArgs = args.map(arg => {
+//     if (arg instanceof Yoga.Node) {
+//       return arg.id
+//     } else if (arg instanceof Yoga.Config) {
+//       return 'config'
+//     } else {
+//       return arg
+//     }
+//   })
+//   console.log(newArgs.join())
+// })
 
 function mergeNewStyles(node) {
   for (const [style, value] of Object.entries(this.newStyles)) {
@@ -35,7 +41,7 @@ function mergeNewStyles(node) {
 
 export class Element extends Node {
   name = 'element'
-  yogaNode: Yoga.YogaNode
+  yogaNode: TYoga.Node
   flags = flags.ELEMENT_HAS_DIRTY_NODE_LIST | flags.ELEMENT_HAS_DIRTY_LAYOUT
   dirtyRects: Rect[] = []
   nodeList: Element[] = []
@@ -75,21 +81,6 @@ export class Element extends Node {
   constructor() {
     super()
 
-    this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
-    this.yogaNode.setMeasureFunc(getPreferredSize.bind(null, this))
-
-    // this.styleManager = new StyleManager(this)
-    // this.classList = this.styleManager.getClassList()
-    // this.style = this.styleManager.getStyle()
-    // this.newStyles = {
-    //     position: `relative`,
-    //     width: 0,
-    //     height: 0,
-    //     overflow: `hidden`
-    // }
-
-    this.style = new StyleHandler(this, inject(Injector))
-
     this.setPropertyTrigger('caret', null, {
       validate: value => value === null || value instanceof Point,
       trigger: value => {
@@ -102,7 +93,11 @@ export class Element extends Node {
   reset() {
     super.reset()
     this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
-    this.yogaNode.setMeasureFunc(getPreferredSize.bind(null, this))
+    // @ts-ignore
+    this.yogaNode.setMeasureFunc((node, maxWidth, widthMode, maxHeight, heightMode) => this.getPreferredSize(maxWidth, widthMode, maxHeight, heightMode))
+
+    this.style = new StyleHandler(this, inject(Injector))
+
     this.dirtyRects = []
     this.nodeList = []
     this.focusList = []
@@ -211,8 +206,10 @@ export class Element extends Node {
     // yes it's important
     this.yogaNode.calculateLayout()
 
-    if (this.childNodes.length === 0)
-      this.yogaNode.setMeasureFunc(getPreferredSize.bind(null, this))
+    if (this.childNodes.length === 0) {
+      // @ts-ignore
+      this.yogaNode.setMeasureFunc((node, maxWidth, widthMode, maxHeight, heightMode) => this.getPreferredSize(maxWidth, widthMode, maxHeight, heightMode))
+    }
 
     this.setDirtyLayoutFlag()
     this.setDirtyClippingFlag()
@@ -930,13 +927,14 @@ export class Element extends Node {
 
       if (this.style.get('scroll') || !relativeClipRect) relativeClipRect = this.elementClipRect
 
-      for (let child of this.childNodes)
+      for (let child of this.childNodes) {
         child.cascadeClipping({
           dirtyScrollNodes,
           relativeClipRect,
           // @ts-ignore
           force: force || this.flags & flags.ELEMENT_HAS_DIRTY_CLIPPING,
         })
+      }
 
       this.elementBoundingRect = Rect.getBoundingRect(
         this.elementClipRect,
@@ -956,20 +954,31 @@ export class Element extends Node {
     return { width: maxWidth, height: 0 }
   }
 
+  /** The max of the children's elementRect.(x+width) */
   getInternalContentWidth() {
+    // if (this.childNodes.length == 1) {
+    //   const child = this.childNodes[0]
+    //   return child.getInternalContentWidth()
+    // } else {
     return Math.max(
       ...this.childNodes.map(child => {
         return child.elementRect.x + child.elementRect.width
       })
     )
+    // }
   }
 
   getInternalContentHeight() {
+    // if (this.childNodes.length == 1) {
+    //   const child = this.childNodes[0]
+    //   return child.getInternalContentHeight()
+    // } else {
     return Math.max(
       ...this.childNodes.map(child => {
         return child.elementRect.y + child.elementRect.height
       })
     )
+    // }
   }
 }
 

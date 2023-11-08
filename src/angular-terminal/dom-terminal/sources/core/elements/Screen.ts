@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Element } from '../dom/Element'
 
 export class Screen extends Element {

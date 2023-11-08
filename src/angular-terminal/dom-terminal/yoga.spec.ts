@@ -1,13 +1,44 @@
-import Yoga from 'typeflex'
+import * as Yoga from 'typeflex'
+import * as TYoga from './yoga-types/index'
+
+function insert(child, parent) {
+  parent.insertChild(child, 0)
+}
 
 describe('Yoga Layout - ', () => {
+  it('the bug', async () => {
+    const parent3 = Yoga.Node.create() as TYoga.Node // 5
+    parent3.setWidth(5)
+
+    const child5 = Yoga.Node.create() as TYoga.Node // 10
+    insert(child5, parent3)
+    child5.setFlexShrink(0)
+    child5.setAlignSelf(Yoga.ALIGN_FLEX_START)
+    // child5.setFlexGrow(1)
+
+    const child7 = Yoga.Node.create() as TYoga.Node // 10
+    insert(child7, child5)
+    // child7.setAlignSelf(1)
+    child7.setFlexDirection(2)
+    child7.setMinHeight(1)
+    child7.setFlexShrink(0)
+    child7.setWidth(10)
+    // child7.setMeasureFunc((maxWidth, widthMode, maxHeight, heightMode) => {
+    //   return { width: 10, height: 1 }
+    // })
+
+    parent3.calculateLayout()
+    expect(parent3.getComputedLayout().width).withContext('parent3').toEqual(5)
+    expect(child5.getComputedLayout().width).withContext('child5').toEqual(10)
+    expect(child7.getComputedLayout().width).withContext('child7').toEqual(10)
+  })
+
   it('child setMeasureFunc', async () => {
     const parent = Yoga.Node.create()
     parent.setWidth(5)
 
     const child = Yoga.Node.create()
     parent.insertChild(child, 0)
-    // parent.setAlignItems(Yoga.ALIGN_FLEX_START)
     child.setAlignSelf(Yoga.ALIGN_FLEX_START)
     child.setMeasureFunc((maxWidth, widthMode, maxHeight, heightMode) => {
       return { width: 10, height: 1 }
@@ -43,7 +74,7 @@ describe('Yoga Layout - ', () => {
   })
 })
 
-export function debugYoga(node: Yoga.YogaNode) {
+export function debugYoga(node: Yoga.Node) {
   const res: any = {
     computed: node.getComputedLayout(),
     asked: {
@@ -69,4 +100,4 @@ export function debugYoga(node: Yoga.YogaNode) {
   return res
 }
 
-globalThis['debugYoga'] = debugYoga
+

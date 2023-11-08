@@ -12,13 +12,12 @@ import {
 } from '@angular/core'
 import { TestBed, fakeAsync, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
-import { makeRuleset } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { HBox, VBox } from '../components/1-basics/box'
+import { StyleDirective, cond } from '../components/1-basics/style'
 import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
-import { StyleDirective } from '../public-api'
 import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
 import { FocusDirective } from './focus.directive'
 import { Command, ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
@@ -564,6 +563,7 @@ class ComponentDataView {
   s = {
     selected: { backgroundColor: 'gray' },
   }
+  cond = cond
 
   destroy$ = new Subject()
   ngOnDestroy() {

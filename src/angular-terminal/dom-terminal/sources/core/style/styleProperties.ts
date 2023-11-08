@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import Yoga from 'typeflex'
+import * as Yoga from 'typeflex'
 import { IStyle } from '../../../../../components/1-basics/style'
 import { Element } from '../dom/Element'
 import { character, color, length, list, number, optional, repeat } from './styleParsers'
@@ -396,11 +396,11 @@ export let styleProperties: { [name: string]: StyleProperty } = {
     default: null,
   },
 
-  justifyContent: {
-    parsers: ['flexStart', 'flexEnd', 'center', 'baseline', 'stretch'],
-    triggers: [dirtyLayout, forwardToYoga('setJustifyContent', value => value)],
-    initial: 'flexStart',
-  },
+  // justifyContent: {
+  //   parsers: [number, 'flexStart', 'flexEnd', 'center', 'baseline', 'stretch'],
+  //   triggers: [dirtyLayout, forwardToYoga('setJustifyContent', value => value)],
+  //   initial: 'flexStart',
+  // },
 }
 
 export interface ComputedStyle {
@@ -556,30 +556,25 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   },
 
   hgrow: {
+    inKeys: ['parent.flexDirection'],
     parsers: [true, false],
     // triggers: [dirtyLayout, (node, value) => grow(node, value, 'horizontal')],
     // initial: false,
     getter: () => {
       throw new Error('unreachable')
-
     },
-    setter: (style, value) => ({
-
-    })
+    setter: (style, value) => grow(style, value, 'horizontal')
   },
 
   vgrow: {
     inKeys: ['parent.flexDirection'],
-    outKeys: [''],
     parsers: [true, false],
     // triggers: [dirtyLayout, (node, value) => grow(node, value, 'vertical')],
     // initial: false,
     getter: () => {
       throw new Error('unreachable')
     },
-    setter: (style, value) => {
-      return grow(style, value, 'vertical')
-    }
+    setter: (style, value) => grow(style, value, 'vertical')
   },
 
 }

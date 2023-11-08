@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { style } from '@manaflair/term-strings'
 import _ from 'lodash'
 

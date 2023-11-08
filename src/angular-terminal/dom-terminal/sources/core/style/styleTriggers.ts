@@ -1,6 +1,7 @@
 import * as _ from '@s-libs/micro-dash'
-import Yoga from 'typeflex'
+import * as Yoga from 'typeflex'
 import { Element } from '../dom/Element'
+import { TermElement } from '../../term'
 
 export function dirtyLayout(node: Element) {
   node.setDirtyLayoutFlag()
@@ -31,20 +32,28 @@ export function onNullSwitch(trigger) {
 }
 
 export function forwardToYoga(fnName, ...args) {
-  // @ts-ignore
   if (!Yoga.Node.prototype[fnName]) throw new Error(`Invalid Yoga method "${fnName}"`)
 
-  return function (node, newValue) {
+  return function (node: TermElement, newValue) {
+    const newArgs = args.map(arg => {
+      if (typeof arg === `function`) {
+        return arg(newValue)
+      } else {
+        return arg
+      }
+    })
     node.yogaNode[fnName](
-      ...args.map(arg => {
-        if (typeof arg === `function`) {
-          return arg(newValue)
-        } else {
-          return arg
-        }
-      })
+      ...newArgs
     )
   }
+}
+
+function printParentChain(el: TermElement, res = "") {
+  if (el.parentNode) {
+    printParentChain(el.parentNode, res)
+  }
+  res += `${el.id} -> `
+  return res
 }
 
 forwardToYoga.value = function (value) {

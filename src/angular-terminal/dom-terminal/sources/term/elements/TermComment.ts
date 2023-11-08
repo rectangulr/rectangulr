@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { TermText2 } from '.'
 
 export class TermComment extends TermText2 {

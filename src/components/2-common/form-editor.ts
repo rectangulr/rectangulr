@@ -12,7 +12,8 @@ import { TextInput } from '../1-basics/text-input'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
 import { blackOnWhite } from './styles'
-import { FocusDirective, StyleDirective } from '../../public-api'
+import { StyleDirective } from '../1-basics/style'
+import { FocusDirective } from '../../commands/focus.directive'
 
 @Component({
   standalone: true,

@@ -28,10 +28,6 @@ export default {
 
 	devtool: 'source-map',
 
-	externals: {
-		'pg-native': "require('pg-native')",
-	},
-
 	resolve: {
 		// Some npm packages want to `require` .json files.
 		extensions: ['.json'],

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as TL from '@manaflair/text-layout'
 import _ from 'lodash'
 import TextBuffer from 'text-buffer'

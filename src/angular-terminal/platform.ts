@@ -1,15 +1,15 @@
 import { DOCUMENT } from '@angular/common'
 import {
-  createPlatformFactory,
-  platformCore,
-  PLATFORM_ID,
-  PLATFORM_INITIALIZER,
   ApplicationConfig,
   ApplicationRef,
+  PLATFORM_ID,
+  PLATFORM_INITIALIZER,
   Type,
+  createPlatformFactory,
+  platformCore,
+  ɵinternalCreateApplication,
 } from '@angular/core'
-import { ɵinternalCreateApplication } from '@angular/core'
-import { RECTANGULR_MODULE_PROVIDERS } from '../rectangulr.module'
+import { RECTANGULR_MODULE_PROVIDERS } from '../rectangulr-module-providers'
 
 export const INTERNAL_RECTANGULR_PLATFORM_PROVIDERS = [
   { provide: PLATFORM_ID, useValue: 'rectangulr' },

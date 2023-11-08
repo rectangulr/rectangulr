@@ -1,3 +1,4 @@
+// @ts-nocheck
 import spies from 'chai-spies'
 import chai, { expect, spy } from 'chai'
 
@@ -12,7 +13,7 @@ describe(`EventSource`, () => {
         EventSource.setup(source)
         source.declareEvent(`test`)
 
-        let fn = spy(() => {})
+        let fn = spy(() => { })
         source.addEventListener(`test`, fn)
 
         let event = new Event(`test`)
@@ -27,10 +28,10 @@ describe(`EventSource`, () => {
         source.declareEvent(`testA`)
         source.declareEvent(`testB`)
 
-        let fnA = spy(() => {})
+        let fnA = spy(() => { })
         source.addEventListener(`testA`, fnA)
 
-        let fnB = spy(() => {})
+        let fnB = spy(() => { })
         source.addEventListener(`testB`, fnB)
 
         let event = new Event(`testA`)
@@ -45,7 +46,7 @@ describe(`EventSource`, () => {
         EventSource.setup(source)
         source.declareEvent(`test`)
 
-        let fnA = spy(() => {})
+        let fnA = spy(() => { })
         source.addEventListener(`test`, fnA)
 
         let event = new Event(`test`)
@@ -68,7 +69,7 @@ describe(`EventSource`, () => {
 
         let event = new Event(`test`, { cancelable: true })
 
-        let fn = spy(() => {})
+        let fn = spy(() => { })
         event.setDefault(fn)
 
         source.dispatchEvent(event)
@@ -85,7 +86,7 @@ describe(`EventSource`, () => {
         EventSource.setup(source, { getParentInstance: () => parent })
         source.declareEvent(`test`)
 
-        let fn = spy(() => {})
+        let fn = spy(() => { })
         parent.addEventListener(`test`, fn)
 
         let event = new Event(`test`)
@@ -105,7 +106,7 @@ describe(`EventSource`, () => {
 
         let event = new Event(`test`, { bubbles: true })
 
-        let fnA = spy(() => {})
+        let fnA = spy(() => { })
         source.addEventListener(`test`, fnA)
 
         let fnB = spy(() => {
@@ -134,7 +135,7 @@ describe(`EventSource`, () => {
         })
         source.addEventListener(`test`, fnA)
 
-        let fnB = spy(() => {})
+        let fnB = spy(() => { })
         parent.addEventListener(`test`, fnB)
 
         source.dispatchEvent(event)

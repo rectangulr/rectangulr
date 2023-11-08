@@ -1,4 +1,4 @@
-import Yoga from 'typeflex'
+import * as Yoga from 'typeflex'
 
 export class StyleFlexDirection {
   static row: StyleFlexDirection = null

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import cliTruncate from 'cli-truncate'
 import _ from 'lodash'
 import widestLine from 'widest-line'

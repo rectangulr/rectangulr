@@ -1,3 +1,4 @@
+// @ts-nocheck
 import _ from 'lodash'
 import { TermText2 } from './TermText2'
 
