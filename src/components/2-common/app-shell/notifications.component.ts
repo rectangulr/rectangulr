@@ -1,18 +1,15 @@
 import { NgIf } from '@angular/common'
-import { Component } from '@angular/core'
+import { Component, ElementRef } from '@angular/core'
 import { Subject } from 'rxjs'
 import { subscribe } from '../../../utils/reactivity'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { ObjectDisplay } from '../object-display'
 import { Notification, NotificationsService } from './notifications.service'
+import { StyleDirective } from '../../1-basics/style'
 
 @Component({
   standalone: true,
   selector: 'notifications',
-  host: {
-    '[style]':
-      "{position: 'absolute', bottom: 1, right: 0, width: '50%', backgroundColor: 'darkgray', color: 'white', borderColor: 'white' }",
-  },
   template: `
     <v
       *ngIf="notification"
@@ -22,12 +19,22 @@ import { Notification, NotificationsService } from './notifications.service'
       <!-- <h [s]="{ hgrow: true, justifyContent: 'flexEnd' }"><h>Go To Logs: alt+l</h></h> -->
     </v>
   `,
-  imports: [GrowDirective, HBox, NgIf, ObjectDisplay, VBox],
+  imports: [VBox, HBox, GrowDirective, NgIf, ObjectDisplay, StyleDirective],
 })
 export class Notifications {
   notification: Notification
 
-  constructor(public notificationsService: NotificationsService) {
+  constructor(public notificationsService: NotificationsService, public elementRef: ElementRef) {
+    this.elementRef.nativeElement.style.add({
+      position: 'absolute',
+      bottom: 1,
+      right: 0,
+      width: '50%',
+      backgroundColor: 'darkgray',
+      color: 'white',
+      borderColor: 'white'
+    })
+
     subscribe(this, notificationsService.$onNotification, async notification => {
       this.notification = notification
       await timeout(4000)

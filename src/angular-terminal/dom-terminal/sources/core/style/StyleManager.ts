@@ -12,7 +12,7 @@ import { ClassList } from './ClassList'
 import { EasyComputedStyle } from './EasyComputedStyle'
 import { EasyStyle } from './EasyStyle'
 import { Ruleset } from './Ruleset'
-import { styleProperties } from './styleProperties'
+import { styles } from './styleProperties'
 import { TermElement } from '../../term'
 
 export class StyleManager {
@@ -259,7 +259,7 @@ export class StyleManager {
         if (this.element.parentNode) {
           newValue = this.element.parentNode.style.$[propertyName]
         } else {
-          newValue = parsePropertyValue(propertyName, styleProperties[propertyName].default)
+          newValue = parsePropertyValue(propertyName, styles[propertyName].default)
         }
       } else {
         this.inherited.delete(propertyName)

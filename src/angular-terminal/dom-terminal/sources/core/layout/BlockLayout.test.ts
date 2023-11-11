@@ -102,7 +102,7 @@ describe(`BlockLayout`, () => {
         screen.style.height = 600
 
         let element = new Element()
-        element.style.borderCharacter = `simple`
+        element.style.border = `simple`
         element.style.padding = 10
         screen.appendChild(element)
 
@@ -119,7 +119,7 @@ describe(`BlockLayout`, () => {
         screen.style.height = 600
 
         let element = new Element()
-        element.style.borderCharacter = `simple`
+        element.style.border = `simple`
         element.style.padding = 10
         screen.appendChild(element)
 

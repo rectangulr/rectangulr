@@ -1,14 +1,14 @@
 import _ from 'lodash'
 
-import { styleProperties } from '../styleProperties'
+import { styles } from '../styleProperties'
 
 export function runPropertyTriggers(name, node, newValue, oldValue) {
-  if (!Object.prototype.hasOwnProperty.call(styleProperties, name))
+  if (!Object.prototype.hasOwnProperty.call(styles, name))
     throw new Error(
       `Failed to run property triggers: '${name}' is not a valid style property name.`
     )
 
-  let property = styleProperties[name]
+  let property = styles[name]
 
   if (_.isUndefined(property.triggers)) return
 

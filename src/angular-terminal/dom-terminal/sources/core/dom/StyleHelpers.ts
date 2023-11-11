@@ -1,8 +1,8 @@
 import { style } from '@manaflair/term-strings'
-import { IStyle } from "../../../../../components/1-basics/style"
+import { StyleValue } from './StyleHandler'
 
 export namespace Position {
-	export function isAbsolutelyPositioned(value: IStyle['position']) {
+	export function isAbsolutelyPositioned(value: StyleValue['position']) {
 		switch (value) {
 			case "absolute": return true
 			case "fixed": return true

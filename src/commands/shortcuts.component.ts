@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, NgZone, Output, ViewChild } from '@angular/core'
+import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
@@ -15,11 +15,7 @@ import { Command, ShortcutService } from './shortcut.service'
  * Popup to discover commands.
  */
 @Component({
-  standalone: true,
   selector: 'shortcuts',
-  host: {
-    '[style]': "{ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' }",
-  },
   template: `
     <search-list
       #searchList
@@ -32,13 +28,14 @@ import { Command, ShortcutService } from './shortcut.service'
   `,
   providers: [
     {
-      // The shortcuts of this component must be stored separately
+      // This creates a ShortcutService to store separately the shortcuts of this component.
       provide: ShortcutService,
       useFactory: () => {
         return new ShortcutService(null, inject(Logger), null)
       },
     },
   ],
+  standalone: true,
   imports: [GrowDirective, SearchList, ListItem, StyleDirective, VBox],
 })
 export class Shortcuts {

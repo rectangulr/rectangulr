@@ -31,10 +31,11 @@ import { BaseControlValueAccessor } from '../../../utils/base-control-value-acce
 import { subscribe } from '../../../utils/reactivity'
 import { assert, inputToSignal } from '../../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
-import { StyleDirective, cond } from '../../1-basics/style'
+import { StyleDirective } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
+import { cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 
 /**
  * Displays a list of items and highlights the current item.
@@ -81,9 +82,7 @@ import { ListItem } from './list-item'
     </v>
 
     <ng-template #defaultTemplate let-item let-selected>
-      <basic-object-display
-        [data]="item"
-        [s]="[style.nullOnNull, cond(selected, style.whiteOnGray)]"></basic-object-display>
+      <basic-object-display [data]="item" [s]="[style.nullOnNull, cond(selected, style.whiteOnGray)]"/>
     </ng-template>
   `,
   providers: [

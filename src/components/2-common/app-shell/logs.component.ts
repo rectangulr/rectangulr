@@ -4,6 +4,7 @@ import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
+import { addStyle } from '../../../public-api'
 
 class NullLogger {
   log(thing) { }
@@ -11,8 +12,6 @@ class NullLogger {
 
 @Component({
   selector: 'logs-view',
-
-  host: { '[style]': "{height: '100%', width: '100%'}" },
   template: `
     <h [s]="[blackOnWhite, { hgrow: true }]">Logs</h>
     <list [items]="logs"></list>
@@ -24,7 +23,9 @@ class NullLogger {
 export class Logs {
   logs = this.logger.$logs()
 
-  constructor(@SkipSelf() public logger: Logger) { }
+  constructor(@SkipSelf() public logger: Logger) {
+    addStyle({ height: '100%', width: '100%' })
+  }
 
   blackOnWhite = { backgroundColor: 'white', color: 'black' }
 }

@@ -6,6 +6,8 @@ import { INPUT_OUTPUT, StdinStdout } from "./angular-terminal/input-output"
 import { global_logs, patchGlobalConsole } from "./angular-terminal/logger"
 import { ScreenService } from "./angular-terminal/screen-service"
 import { InjectFunction, addToGlobalRg } from "./utils/utils"
+import { debugYoga } from "./angular-terminal/debug-yoga"
+
 
 // @ts-ignore
 export const NG_DEV_MODE = typeof ngDevMode === 'undefined' || !!ngDevMode
@@ -43,10 +45,10 @@ export const RECTANGULR_MODULE_PROVIDERS = [
 					component: global_rgComponent,
 					logs: global_logs,
 					inject: globalInject,
+					debugYoga: debugYoga,
 				})
 
-				// @ts-ignore
-				if (!TEST) {
+				if (!('TEST' in globalThis)) {
 					patchGlobalConsole(globalInject)
 				}
 			}

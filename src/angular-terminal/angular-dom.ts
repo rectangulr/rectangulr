@@ -71,13 +71,16 @@ export class ElementPool {
    * Resets an element, and puts it back in the pool.
    */
   dispose(el: TermElement) {
-    runInInjectionContext(this.injector, () => {
-      el.reset()
-    })
-    const elPool = this.elementPools.get(el.constructor as any)
-    elPool.push(el)
-    assert(el.parentNode == null)
-    assert(el.childNodes.length == 0)
+    const objectPooling = false
+    if (objectPooling) {
+      runInInjectionContext(this.injector, () => {
+        el.reset()
+      })
+      const elPool = this.elementPools.get(el.constructor as any)
+      elPool.push(el)
+      assert(el.parentNode == null)
+      assert(el.childNodes.length == 0)
+    }
   }
 }
 

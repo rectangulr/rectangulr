@@ -1,13 +1,13 @@
 import { NgComponentOutlet, NgFor, NgIf } from '@angular/common'
-import { Component, Inject } from '@angular/core'
+import { Component } from '@angular/core'
 import { Subject } from 'rxjs'
-import { makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { cond, eq, neq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { Shortcuts } from '../../../commands/shortcuts.component'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
-import { StyleDirective, cond, eq, neq } from '../../1-basics/style'
+import { StyleDirective } from '../../1-basics/style'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
 import { ViewService } from './view.service'
@@ -15,14 +15,15 @@ import { ViewService } from './view.service'
 @Component({
   standalone: true,
   selector: 'app-shell',
-  host: { '[style]': "{width: '100%', height: '100%'}" },
+  hostDirectives: [GrowDirective],
   template: `
     <!-- Display the currentTab. The others are styled 'display: none'. -->
     <v
       *ngFor="let view of viewService.views()"
       [focusPropagateUp]="false"
       [focusIf]="view == this.viewService.currentTab()"
-      [s]="[{width: '100%', height: '100%'}, cond(neq(view,this.viewService.currentTab()),{display: 'none'})]">
+      grow
+      [s]="[cond(neq(view,this.viewService.currentTab()),{display: 'none'})]">
       <ng-container [ngComponentOutlet]="view.component"/>
     </v>
 
@@ -54,11 +55,12 @@ export class AppShell {
   showCommands = false
 
   constructor(
-    @Inject(ViewService) public viewService: ViewService,
+    public viewService: ViewService,
     public shortcutService: ShortcutService,
     public logger: Logger
   ) {
-    registerShortcuts(this, this.commands)
+    registerShortcuts(this, this.shortcuts)
+    this.viewService.currentTab
   }
 
   s = {
@@ -70,7 +72,7 @@ export class AppShell {
   eq = eq
   neq = neq
 
-  commands: Partial<Command>[] = [
+  shortcuts: Partial<Command>[] = [
     {
       keys: 'alt+p',
       id: 'toggleCommands',
@@ -118,4 +120,8 @@ export class AppShell {
     this.destroy$.next(null)
     this.destroy$.complete()
   }
+
+  Appshelltest2 = test2
 }
+
+function test2() { }

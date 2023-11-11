@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { parsePropertyValue } from './tools/parsePropertyValue'
 import { parseSelector } from './tools/parseSelector'
 import { serializePropertyValue } from './tools/serializePropertyValue'
-import { styleProperties } from './styleProperties'
+import { styles } from './styleProperties'
 import { Ruleset } from './Ruleset'
 
 export function EasyStyle(ruleset: Ruleset, selector = [], base = Object.create(null)) {
@@ -11,11 +11,11 @@ export function EasyStyle(ruleset: Ruleset, selector = [], base = Object.create(
 
   return new Proxy(base, {
     ownKeys(target) {
-      return Reflect.ownKeys(styleProperties)
+      return Reflect.ownKeys(styles)
     },
 
     has(target, key) {
-      return _.has(styleProperties, key)
+      return _.has(styles, key)
     },
 
     get(target, key: string, receiver) {
@@ -24,7 +24,7 @@ export function EasyStyle(ruleset: Ruleset, selector = [], base = Object.create(
       if (String(key).startsWith('toJSON')) {
         return {}
       }
-      if (!_.has(styleProperties, key))
+      if (!_.has(styles, key))
         throw new Error(
           `Failed to get a style property: '${key}' is not a valid style property name. ${typeof base} ${JSON.stringify(
             Object.keys(base)
@@ -35,14 +35,14 @@ export function EasyStyle(ruleset: Ruleset, selector = [], base = Object.create(
     },
 
     set(target, key: string, value, receiver) {
-      if (!_.has(styleProperties, key))
+      if (!_.has(styles, key))
         throw new Error(
           `Failed to set a style property: '${key}' is not a valid style property name.`
         )
 
-      if (_.has(styleProperties[key], `setter`)) {
+      if (_.has(styles[key], `setter`)) {
         // @ts-ignore
-        styleProperties[key].setter(receiver, parsePropertyValue(key, value))
+        styles[key].setter(receiver, parsePropertyValue(key, value))
       } else if (!_.isUndefined(value)) assign(new Map([[key, parsePropertyValue(key, value)]]))
       else assign(new Map([[key, undefined]]))
 
@@ -50,7 +50,7 @@ export function EasyStyle(ruleset: Ruleset, selector = [], base = Object.create(
     },
 
     deleteProperty(target, key) {
-      if (!_.has(styleProperties, key))
+      if (!_.has(styles, key))
         throw new Error(
           `Failed to delete a style property: '${String(key)}' is not a valid style property name.`
         )

@@ -3,25 +3,21 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
+import { addStyle } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../angular-terminal/logger'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { onChange } from '../../utils/reactivity'
 import { assert } from '../../utils/utils'
-import { HBox, GrowDirective } from './box'
+import { GrowDirective, HBox } from './box'
 import { StyleDirective } from './style'
-import { debug } from 'console'
 
 let globalId = 0
 
 @Component({
-  standalone: true,
   selector: 'text-input',
-  host: {
-    '[style]': "{ flexDirection: 'row', scroll: 'x' }",
-  },
   template: `
     <h>{{ text }}</h>
-    <h [s]="{ width: 1, height: 1 }"></h>
+    <h [s]="{ width: 1, height: 1 }"/>
   `,
   providers: [
     {
@@ -31,6 +27,7 @@ let globalId = 0
     },
     { provide: ShortcutService },
   ],
+  standalone: true,
   imports: [HBox, StyleDirective, GrowDirective],
 })
 export class TextInput implements ControlValueAccessor {
@@ -47,7 +44,9 @@ export class TextInput implements ControlValueAccessor {
     public shortcutService: ShortcutService,
     public elementRef: ElementRef<Element>,
     public logger: Logger
-  ) { }
+  ) {
+    addStyle({ flexDirection: 'row', scroll: 'x' })
+  }
 
   ngOnInit() {
     assert(typeof this.text == 'string')

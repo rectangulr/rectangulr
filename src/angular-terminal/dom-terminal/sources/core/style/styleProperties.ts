@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import * as Yoga from 'typeflex'
-import { IStyle } from '../../../../../components/1-basics/style'
 import { Element } from '../dom/Element'
-import { character, color, length, list, number, optional, repeat } from './styleParsers'
+import { StyleHandler, StyleValue } from '../dom/StyleHandler'
+import { character, color, length, number } from './styleParsers'
 import {
   dirtyLayout,
   dirtyRenderList,
@@ -21,7 +21,6 @@ import { StyleOverflowWrap } from './types/StyleOverflowWrap'
 import { StylePosition } from './types/StylePosition'
 import { StyleWeight } from './types/StyleWeight'
 import { StyleWhiteSpace } from './types/StyleWhiteSpace'
-import { StyleHandler } from '../dom/StyleHandler'
 
 let simple = ['+', '+', '+', '+', '-', '|']
 let modern = ['┌', '┐', '└', '┘', '─', '│']
@@ -30,6 +29,8 @@ let double = ['╔', '╗', '╚', '╝', '═', '║']
 let block = ['▄', '▄', '▀', '▀', '▄', '█', '▀', '█']
 let rounded = ['╭', '╮', '╰', '╯', '─', '│']
 
+const borders = { simple, modern, strong, double, block, rounded }
+
 export interface StyleProperty {
   parsers: any[]
   triggers?: ((node?: Element, newValue?: any, oldValue?: any) => void)[]
@@ -37,7 +38,7 @@ export interface StyleProperty {
   default?: any
 }
 
-export let styleProperties: { [name: string]: StyleProperty } = {
+export let styles: { [name: string]: StyleProperty } = {
   display: {
     parsers: [_.pick(StyleDisplay, 'flex', 'none')],
     triggers: [dirtyLayout, dirtyRenderList, forwardToYoga('setDisplay', forwardToYoga.value)],
@@ -408,63 +409,23 @@ export interface ComputedStyle {
   inKeys?: string[]
   /** A list of style keys that this computed style will produce. */
   outKeys?: string[]
-  parsers: any[]
-  getter: (style) => any
-  setter: (style: StyleHandler, value: any) => IStyle
+  func: (style: StyleHandler, value: any) => StyleValue
 }
 
 
 export const computedStyles: { [name: string]: ComputedStyle } = {
   margin: {
-    outKeys: ['marginTop', 'marginRight', 'marginBottom', 'marginLeft'],
-    parsers: [repeat([1, 2, 4], [length, length.rel, length.auto])],
-    getter: style => [style.get('marginTop'), style.get('marginRight'), style.get('marginBottom'), style.get('marginLeft')],
-    setter: (
-      style,
-      [marginTop, marginRight = marginTop, marginBottom = marginTop, marginLeft = marginRight]
-    ) => ({ marginTop, marginRight, marginBottom, marginLeft }),
+    func: (style, [marginTop, marginRight = marginTop, marginBottom = marginTop, marginLeft = marginRight]) => ({ marginTop, marginRight, marginBottom, marginLeft }),
   },
 
   flex: {
-    outKeys: ['flexGrow', 'flexShrink', 'flexBasis'],
-    parsers: [
-      list([number, optional(number), optional([length, length.rel, length.autoNaN])]),
-      list([optional(number), optional(number), [length, length.rel, length.autoNaN]]),
-      new Map([[null, [0, 0, 'auto']]]),
-    ],
-    getter: style => [style.get('flexGrow'), style.get('flexShrink'), style.get('flexBasis')],
-    setter: (style, [flexGrow = 1, flexShrink = 1, flexBasis = 0]) =>
+    func: (style, [flexGrow = 1, flexShrink = 1, flexBasis = 0]) =>
       ({ flexGrow, flexShrink, flexBasis }),
   },
 
   border: {
-    outKeys: [
-      'borderTopLeftCharacter',
-      'borderTopRightCharacter',
-      'borderBottomLeftCharacter',
-      'borderBottomRightCharacter',
-      'borderTopCharacter',
-      'borderRightCharacter',
-      'borderBottomCharacter',
-      'borderLeftCharacter',
-    ],
-    parsers: [
-      { simple, modern, strong, double, block, rounded },
-      repeat([1, 2, 4, 5, 8], [character, null]),
-    ],
-    getter: style => [
-      style.get('borderTopLeftCharacter'),
-      style.get('borderTopRightCharacter'),
-      style.get('borderBottomLeftCharacter'),
-      style.get('borderBottomRightCharacter'),
-      style.get('borderTopCharacter'),
-      style.get('borderRightCharacter'),
-      style.get('borderBottomCharacter'),
-      style.get('borderLeftCharacter'),
-    ],
-    setter: (
-      style,
-      [
+    func: (style, value) => {
+      const [
         borderTopLeftCharacter,
         borderTopRightCharacter,
         borderBottomLeftCharacter,
@@ -473,65 +434,22 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
         borderRightCharacter = borderTopCharacter,
         borderBottomCharacter = borderTopCharacter,
         borderLeftCharacter = borderRightCharacter,
-      ]
-    ) =>
-    ({
-      borderTopLeftCharacter,
-      borderTopRightCharacter,
-      borderBottomLeftCharacter,
-      borderBottomRightCharacter,
-      borderTopCharacter,
-      borderRightCharacter,
-      borderBottomCharacter,
-      borderLeftCharacter,
-    }),
-  },
-
-  borderCharacter: {
-    parsers: [
-      { simple, modern, strong, double, block, rounded },
-      repeat([5, 6, 8], [character, null]),
-    ],
-    getter: style => [
-      style.get('borderTopLeftCharacter'),
-      style.get('borderTopRightCharacter'),
-      style.get('borderBottomLeftCharacter'),
-      style.get('borderBottomRightCharacter'),
-      style.get('borderTopCharacter'),
-      style.get('borderRightCharacter'),
-      style.get('borderBottomCharacter'),
-      style.get('borderLeftCharacter'),
-    ],
-    setter: (
-      style,
-      [
+      ] = borders[value]
+      return {
         borderTopLeftCharacter,
         borderTopRightCharacter,
         borderBottomLeftCharacter,
         borderBottomRightCharacter,
         borderTopCharacter,
-        borderRightCharacter = borderTopCharacter,
-        borderBottomCharacter = borderTopCharacter,
-        borderLeftCharacter = borderRightCharacter,
-      ]
-    ) =>
-    ({
-      borderTopLeftCharacter,
-      borderTopRightCharacter,
-      borderBottomLeftCharacter,
-      borderBottomRightCharacter,
-      borderTopCharacter,
-      borderRightCharacter,
-      borderBottomCharacter,
-      borderLeftCharacter,
-    }),
+        borderRightCharacter,
+        borderBottomCharacter,
+        borderLeftCharacter
+      }
+    },
   },
 
   padding: {
-    outKeys: ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'],
-    parsers: [repeat([1, 2, 4], [length, length.rel])],
-    getter: style => [style.get('paddingTop'), style.get('paddingRight'), style.get('paddingBottom'), style.get('paddingLeft')],
-    setter: (
+    func: (
       style,
       [
         paddingTop,
@@ -543,40 +461,19 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   },
 
   background: {
-    parsers: [
-      list([optional(character), color]),
-      list([character, optional(color)]),
-      new Map([[null, [null, ' ']]]),
-    ],
-    getter: style => [style.get('backgroundCharacter'), style.get('backgroundColor')],
-    setter: (
+    func: (
       style,
       [backgroundCharacter = style.get('backgroundCharacter'), backgroundColor = style.get('backgroundColor')]
     ) => ({ backgroundCharacter, backgroundColor }),
   },
 
   hgrow: {
-    inKeys: ['parent.flexDirection'],
-    parsers: [true, false],
-    // triggers: [dirtyLayout, (node, value) => grow(node, value, 'horizontal')],
-    // initial: false,
-    getter: () => {
-      throw new Error('unreachable')
-    },
-    setter: (style, value) => grow(style, value, 'horizontal')
+    func: (style, value) => grow(style, value, 'horizontal')
   },
 
   vgrow: {
-    inKeys: ['parent.flexDirection'],
-    parsers: [true, false],
-    // triggers: [dirtyLayout, (node, value) => grow(node, value, 'vertical')],
-    // initial: false,
-    getter: () => {
-      throw new Error('unreachable')
-    },
-    setter: (style, value) => grow(style, value, 'vertical')
+    func: (style, value) => grow(style, value, 'vertical')
   },
-
 }
 
 export function isComputedStyle(key: string) {
@@ -587,17 +484,13 @@ export function isComputedStyle(key: string) {
 /**
  * Looks at the parent flex direction and decides what style to apply to make the node grow along the specified direction.
  * @returns The style to apply to make it grow accordingly.
- * @example
  */
-function grow(style: StyleHandler, value: boolean, direction: 'vertical' | 'horizontal'): IStyle {
+function grow(style: StyleHandler, value: boolean, direction: 'vertical' | 'horizontal'): StyleValue {
   if (value == false) return {}
   if (!style.element.parentNode) throw new Error('unreachable')
 
-  const flexDirection = (style.element.parentNode as Element).yogaNode.getFlexDirection()
-  if (
-    flexDirection == Yoga.FLEX_DIRECTION_ROW ||
-    flexDirection == Yoga.FLEX_DIRECTION_ROW_REVERSE
-  ) {
+  const parentDirection = style.element.parentNode.style.get('flexDirection')
+  if (parentDirection == 'row') {
     if (direction == 'vertical') {
       // style.element.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
       return { alignSelf: 'stretch' }
@@ -605,10 +498,7 @@ function grow(style: StyleHandler, value: boolean, direction: 'vertical' | 'hori
       // node.yogaNode.setFlexGrow(1)
       return { flexGrow: 1 }
     }
-  } else if (
-    flexDirection == Yoga.FLEX_DIRECTION_COLUMN ||
-    flexDirection == Yoga.FLEX_DIRECTION_COLUMN_REVERSE
-  ) {
+  } else if (parentDirection == 'column') {
     if (direction == 'horizontal') {
       // node.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
       return { alignSelf: 'stretch' }

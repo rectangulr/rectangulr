@@ -21,12 +21,13 @@ import { DataFormat } from '../../../utils/data-format'
 import { onChange, subscribe } from '../../../utils/reactivity'
 import { AnyObject, assert, inputToSignal, propToSignal, removeFromArray } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
-import { StyleDirective, cond } from '../../1-basics/style'
+import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
 import { List, selectItem } from '../list/list'
 import { ListItem } from '../list/list-item'
 import { Observable } from 'rxjs'
+import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 
 /**
  * Used by json-editor to know what part of the json to focus on.
@@ -36,9 +37,7 @@ import { Observable } from 'rxjs'
 export type JsonPath = Array<string | number>
 
 @Component({
-  standalone: true,
   selector: 'json-editor',
-  host: { '[style]': "{flexDirection: 'row'}" },
   template: `
     <h *ngIf="visibleKey()" [focusIf]="focused == 'key'" [s]="{ flexShrink: 0 }">
       <text-input [(text)]="valueRef.key"></text-input>:
@@ -64,6 +63,7 @@ export type JsonPath = Array<string | number>
       </ng-container>
     </ng-container>
   `,
+  standalone: true,
   imports: [
     HBox,
     TextInput,
@@ -106,6 +106,7 @@ export class JsonEditor {
     public externalTextEditor: ExternalTextEditor,
     public injector: Injector
   ) {
+    addStyle({ flexDirection: 'row' })
     onChange(this, 'valueRef', valueRef => { this.onValueRefChange() })
     onChange(this, 'dataFormat', dataFormat => { this.setup() })
     onChange(this, 'data', data => { this.setup() })

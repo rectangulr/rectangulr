@@ -20,6 +20,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { addStyle } from '../../../public-api'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, subscribe } from '../../../utils/reactivity'
 import { assert, filterNulls, inputToSignal } from '../../../utils/utils'
@@ -31,14 +32,15 @@ import { ListItem } from '../list/list-item'
 @Component({
   standalone: true,
   selector: 'row',
-  host: { '[style]': `{ height: 1 }` },
   template: `{{ text() }}`,
 })
 export class Row<T> {
   @Input() data: T
   text: Signal<string>
 
-  constructor(public table: Table<T>) { }
+  constructor(public table: Table<T>) {
+    addStyle({ height: 1 })
+  }
 
   ngOnInit() {
     assert(this.data)
@@ -94,7 +96,6 @@ interface Column {
 @Component({
   standalone: true,
   selector: 'table',
-  host: { '[style]': `{scroll: 'x'}` },
   template: `
     <h [s]="{ maxHeight: 1 }" [s]="[s.header]">{{ $headers() }}</h>
     <list

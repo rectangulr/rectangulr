@@ -138,7 +138,7 @@ describe(`AbsoluteLayout`, () => {
 
         let element = new Element()
         element.style.position = `relative`
-        element.style.borderCharacter = `simple`
+        element.style.border = `simple`
         element.style.padding = 10
         screen.appendChild(element)
 

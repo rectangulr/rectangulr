@@ -14,34 +14,9 @@ import { flags } from './flags'
 
 const yogaConfig = Yoga.Config.create() as TYoga.Config
 yogaConfig.setPointScaleFactor(2)
-//@ts-ignore
-// yogaConfig.config.setLogger((...args) => {
-//   const newArgs = args.map(arg => {
-//     if (arg instanceof Yoga.Node) {
-//       return arg.id
-//     } else if (arg instanceof Yoga.Config) {
-//       return 'config'
-//     } else {
-//       return arg
-//     }
-//   })
-//   console.log(newArgs.join())
-// })
-
-function mergeNewStyles(node) {
-  for (const [style, value] of Object.entries(this.newStyles)) {
-    runPropertyTriggers(style, this, value, this.style[style] ?? null)
-  }
-  this.styles = { ...this.styles, ...this.newStyles }
-}
-
-// export type SignalKeys<T> = {
-//   [P in keyof T]: Signal<T[P]>
-// }
 
 export class Element extends Node {
   name = 'element'
-  yogaNode: TYoga.Node
   flags = flags.ELEMENT_HAS_DIRTY_NODE_LIST | flags.ELEMENT_HAS_DIRTY_LAYOUT
   dirtyRects: Rect[] = []
   nodeList: Element[] = []
@@ -65,18 +40,11 @@ export class Element extends Node {
   /** Position & size of the visible box that contains both the element itself and each of its children */
   elementBoundingRect: Rect = null
   caret: Point
-  // decored: boolean
 
   eventListeners: { [name: string]: Function[] } = {}
 
-  // styleManager: StyleManager
-  // classList: ClassList
-  // style: any
-
-  // styles: IStyle
-  // newStyles: IStyle
-
   style: StyleHandler
+  yogaNode: TYoga.Node
 
   constructor() {
     super()
@@ -215,7 +183,6 @@ export class Element extends Node {
     this.setDirtyClippingFlag()
 
     this.rootNode.setDirtyNodeListFlag()
-    // this.rootNode.setDirtyFocusListFlag()
     this.rootNode.setDirtyRenderListFlag()
 
     node.setDirtyLayoutFlag()

@@ -24,7 +24,8 @@ export {
   VGrowDirective,
   GrowDirective,
 } from './components/1-basics/box'
-export { StyleDirective, cond } from './components/1-basics/style'
+export { StyleDirective } from './components/1-basics/style'
+export { cond, eq, neq, addStyle } from './angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 export { TextInput } from './components/1-basics/text-input'
 export { AppShell } from './components/2-common/app-shell/app-shell.component'
 export { Logs } from './components/2-common/app-shell/logs.component'
