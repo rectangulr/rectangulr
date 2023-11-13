@@ -23,7 +23,7 @@ import { ViewService } from './view.service'
       [focusPropagateUp]="false"
       [focusIf]="view == this.viewService.currentTab()"
       grow
-      [s]="[cond(neq(view,this.viewService.currentTab()),{display: 'none'})]">
+      [s]="[cond(neq(view, this.viewService.currentTab), {display: 'none'})]">
       <ng-container [ngComponentOutlet]="view.component"/>
     </v>
 
@@ -34,9 +34,8 @@ import { ViewService } from './view.service'
     <h [s]="{ hgrow: true, backgroundColor: 'grey' }">
       <h
         *ngFor="let view of viewService.visibleViews()"
-        [s]="cond(eq(view, this.viewService.currentTab()), s.blackOnWhite)"
+        [s]="[{ paddingLeft: 1, paddingRight: 1, flexShrink: 0 }, cond(eq(view, this.viewService.currentTab), s.blackOnWhite)]"
         (mousedown)="viewService.switchTo(view.name)"
-        [s]="{ paddingLeft: 1, paddingRight: 1 }"
         >{{ view.name }}</h
       >
       <h [s]="{ hgrow: true }"/>
@@ -120,8 +119,4 @@ export class AppShell {
     this.destroy$.next(null)
     this.destroy$.complete()
   }
-
-  Appshelltest2 = test2
 }
-
-function test2() { }

@@ -20,12 +20,12 @@ export class BasicObjectDisplay {
   constructor(public list: List<any>) { }
 
   ngOnInit() {
-    const type = typeof this.data
+    const typeOf = typeof this.data
     if (this.data == null) {
       this.text = 'null'
-    } else if (type == 'string' || type == 'number') {
+    } else if (typeOf == 'string' || typeOf == 'number') {
       this.text = this.data
-    } else if (type == 'object') {
+    } else if (typeOf == 'object') {
       this.includeKeys = this.includeKeys || Object.keys(this.data)
       if (this.data.name != undefined) {
         this.text = this.data.name

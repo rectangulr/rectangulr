@@ -71,7 +71,7 @@ export class ElementPool {
    * Resets an element, and puts it back in the pool.
    */
   dispose(el: TermElement) {
-    const objectPooling = false
+    const objectPooling = true
     if (objectPooling) {
       runInInjectionContext(this.injector, () => {
         el.reset()

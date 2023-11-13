@@ -294,10 +294,10 @@ export class JsonEditor {
       keys: ['tab', 'ctrl+n'],
       func: () => {
         const length = this.list.$items().length
-        if (length == 0 || this.list.selected.index == length - 1) {
+        if (length == 0 || this.list.$selectedIndex() == length - 1) {
           this.createNewLine()
         } else {
-          this.list.selectIndex(this.list.selected.index + 1)
+          this.list.selectIndex(this.list.$selectedIndex().index + 1)
         }
       },
     },
@@ -305,16 +305,16 @@ export class JsonEditor {
       keys: ['left', 'ctrl+left', 'shift+tab', 'home'],
       func: key => {
         if (this.list.$items().length == 0) return key
-        if (this.list.selected.index == 0) return key
-        this.list.selectIndex(this.list.selected.index - 1)
+        if (this.list.$selectedIndex().index == 0) return key
+        this.list.selectIndex(this.list.$selectedIndex().index - 1)
       },
     },
     {
       keys: ['right', 'ctrl+right', 'end'],
       func: key => {
         if (this.list.$items().length == 0) return key
-        if (this.list.selected.index == this.list.$items().length - 1) return key
-        this.list.selectIndex(this.list.selected.index + 1)
+        if (this.list.$selectedIndex().index == this.list.$items().length - 1) return key
+        this.list.selectIndex(this.list.$selectedIndex().index + 1)
       },
     },
     {
@@ -323,9 +323,9 @@ export class JsonEditor {
         if (this.valueRef.childrenValueRefs.length >= 2) {
           this.valueRef.childrenValueRefs = removeFromArray(
             this.valueRef.childrenValueRefs,
-            this.list.selected.value
+            this.list.$selectedIndex().value
           )
-          this.list.selectIndex(this.list.selected.index - 1)
+          this.list.selectIndex(this.list.$selectedIndex().index - 1)
         }
       },
     },

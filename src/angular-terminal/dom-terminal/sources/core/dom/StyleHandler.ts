@@ -149,11 +149,11 @@ export function cond(condition: Signal<any> | any | ((...args) => boolean), styl
 }
 
 export function eq(value1, value2) {
-	return () => value1 == value2
+	return () => unwrapIfFunction(value1) == unwrapIfFunction(value2)
 }
 
 export function neq(value1, value2) {
-	return () => value1 != value2
+	return () => unwrapIfFunction(value1) != unwrapIfFunction(value2)
 }
 
 export function addStyle(layer: Layer) {

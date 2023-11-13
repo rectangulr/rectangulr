@@ -33,7 +33,7 @@ describe('List - ', () => {
   it(`should move down`, async () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     shortcuts.incomingKey({ key: { name: 'down' } })
-    expect(component.list.selected.index).toEqual(1)
+    expect(component.list.selected().index).toEqual(1)
   })
 
   it(`should move down/up/down`, async () => {
@@ -41,13 +41,13 @@ describe('List - ', () => {
     shortcuts.incomingKey({ key: { name: 'down' } })
     shortcuts.incomingKey({ key: { name: 'up' } })
     shortcuts.incomingKey({ key: { name: 'down' } })
-    expect(component.list.selected.index).toEqual(1)
+    expect(component.list.selected().index).toEqual(1)
   })
 
   it(`should pgdown`, async () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     shortcuts.incomingKey({ key: { name: 'pgdown' } })
-    expect(component.list.selected.index).toEqual(2)
+    expect(component.list.selected().index).toEqual(2)
   })
 })
 
@@ -75,7 +75,7 @@ describe('List - ', () => {
   it(`should focus the first of the list`, fakeAsync(async () => {
     const { fixture, component, shortcuts } = setupTest(Test2)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'pgdown' })
-    expect(component.list.selected.index).toEqual(2)
+    expect(component.list.selected().index).toEqual(2)
   }))
 })
 
@@ -135,11 +135,11 @@ describe('List - ', () => {
 
   it(`should work with signals`, fakeAsync(async () => {
     const { fixture, component, shortcuts } = setupTest(Test4)
-    expect(component.list.selected.value).toEqual(null)
+    expect(component.list.selected().value).toEqual(null)
     component.items.set([1, 2, 3])
     fixture.detectChanges()
     tick()
-    expect(component.list.selected.value).toEqual(1)
+    expect(component.list.selected().value).toEqual(1)
   }))
 
   it(`should work with observables`, fakeAsync(async () => {
@@ -147,10 +147,10 @@ describe('List - ', () => {
     component.items = new BehaviorSubject([])
     fixture.detectChanges()
     tick()
-    expect(component.list.selected.value).toEqual(null)
+    expect(component.list.selected().value).toEqual(null)
     component.items.next([1, 2, 3])
     fixture.detectChanges()
     tick()
-    expect(component.list.selected.value).toEqual(1)
+    expect(component.list.selected().value).toEqual(1)
   }))
 })

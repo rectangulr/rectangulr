@@ -10,6 +10,7 @@ import { onChange } from '../utils/reactivity'
 import { assert, logError } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Command, ShortcutService } from './shortcut.service'
+import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 
 /**
  * Popup to discover commands.
@@ -47,6 +48,7 @@ export class Shortcuts {
   @ViewChild('searchList') list: SearchList<any>
 
   constructor(public isolatedShortcutService: ShortcutService, public logger: Logger) {
+    addStyle({ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' })
     onChange(this, 'hideCommands', hideCommands => {
       this.listOfCommands = this.listCommands()
     })

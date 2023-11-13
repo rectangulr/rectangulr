@@ -1,5 +1,6 @@
 import { NgComponentOutlet, NgFor, NgIf, NgTemplateOutlet } from '@angular/common'
 import {
+  ChangeDetectionStrategy,
   Component,
   ContentChild,
   ContentChildren,
@@ -16,7 +17,8 @@ import {
   ViewChildren,
   computed,
   effect,
-  signal
+  signal,
+  untracked
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
@@ -29,23 +31,22 @@ import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
-import { assert, inputToSignal } from '../../../utils/utils'
+import { assert, detectInfiniteLoop, inputToSignal } from '../../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
-import { cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 
 /**
  * Displays a list of items and highlights the current item.
  * Go up and down with the keyboard.
  */
 @Component({
-  standalone: true,
   selector: 'list',
   template: `
-    <h *ngIf="showIndex">{{ selected.index + 1 }}/{{ $items()?.length || 0 }}</h>
+    <h *ngIf="showIndex">{{ $selectedIndex() + 1 }}/{{ $items()?.length || 0 }}</h>
     <v [s]="{ flexShrink: 0, scroll: 'y' }">
       <v
         #elementRef
@@ -59,7 +60,7 @@ import { cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/St
           odd as odd;
           trackBy: trackByFn
         "
-        [s]="style.whiteOnGray">
+        [s]="cond($isItemSelected(item), style.whiteOnGray)">
         <!-- TODO: only style if selected -->
         <ng-container
           [ngTemplateOutlet]="template || template2 || defaultTemplate"
@@ -71,7 +72,7 @@ import { cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/St
             last: last,
             even: even,
             odd: odd,
-            selected: item == selected.value
+            selected: $isItemSelected(item)
           }"></ng-container>
 
         <!-- <ng-container
@@ -82,7 +83,7 @@ import { cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/St
     </v>
 
     <ng-template #defaultTemplate let-item let-selected>
-      <basic-object-display [data]="item" [s]="[style.nullOnNull, cond(selected, style.whiteOnGray)]"/>
+      <basic-object-display [data]="item" [s]="[cond(selected, style.whiteOnGray)]"/>
     </ng-template>
   `,
   providers: [
@@ -105,6 +106,8 @@ import { cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/St
     VBox,
     StyleDirective,
   ],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class List<T> {
   @Input() items: T[] | Observable<T[]> | Signal<T[]> = undefined
@@ -125,11 +128,14 @@ export class List<T> {
   // $focusPath = signal(null)
 
   $selectedIndex = signal(undefined)
-
-  selected = {
-    index: undefined,
-    value: undefined,
-  }
+  $selectedValue = computed(() => {
+    const index = this.$selectedIndex()
+    if (index === null) {
+      return null
+    } else {
+      return this.$items()[this.$selectedIndex()]
+    }
+  })
 
   windowSize = 20
   $visibleRange = signal({ start: 0, end: this.windowSize })
@@ -184,7 +190,7 @@ export class List<T> {
       } else if (this.onItemsChangeSelect == 'last') {
         this.selectIndex(items.length - 1)
       } else if (this.onItemsChangeSelect == 'same') {
-        const index = items.indexOf(this.selected.value)
+        const index = items.indexOf(this.$selectedValue())
         if (index != -1) {
           this.selectIndex(index)
         } else {
@@ -203,7 +209,10 @@ export class List<T> {
       }
     }
     onInitSelect()
-    effect(() => selectNewIndex(), { injector: this.injector, allowSignalWrites: true })
+    effect(() => {
+      this.$items()
+      untracked(() => selectNewIndex())
+    }, { injector: this.injector, allowSignalWrites: true })
   }
 
   /**
@@ -213,32 +222,30 @@ export class List<T> {
    */
   selectIndex(value): boolean {
     if (!this.$items() || this.$items().length == 0) {
-      this.selected.index = null
-      this.selected.value = null
+      this.$selectedIndex.set(null)
       return false
     }
 
-    this.selected.index = _.clamp(value, 0, this.$items().length - 1)
-    this.selected.value = this.$items()[this.selected.index]
-    this.$selectedItem.emit(this.selected.value)
+    this.$selectedIndex.set(_.clamp(value, 0, this.$items().length - 1))
+    this.$selectedItem.emit(this.$selectedValue())
 
     this.$visibleRange.set(
-      rangeCenteredAroundIndex(this.selected.index, this.windowSize, this.$items().length)
+      rangeCenteredAroundIndex(this.$selectedIndex(), this.windowSize, this.$items().length)
     )
 
-    // this.logger.log(`selectIndex - ${this.selected.index}`)
+    // this.logger.log(`selectIndex - ${this.$selectedIndex()}`)
     setTimeout(() => {
       this.afterViewUpdate()
     })
 
-    return this.selected.index == value
+    return this.$selectedIndex() === value
   }
 
   afterViewUpdate() {
     assert(this.focusRefs)
 
     if (this.focusRefs.length > 0) {
-      const selectedFocusDirective = this.focusRefs?.get(this.selected.index)
+      const selectedFocusDirective = this.focusRefs?.get(this.$selectedIndex())
       if (!selectedFocusDirective) {
         debugger
       }
@@ -247,7 +254,7 @@ export class List<T> {
 
     if (this.elementRefs?.length > 0) {
       const element: Element = this.elementRefs.get(
-        this.selected.index - this.$visibleRange().start
+        this.$selectedIndex() - this.$visibleRange().start
       )?.nativeElement
       element?.scrollIntoView({ direction: 'y' })
     }
@@ -262,28 +269,28 @@ export class List<T> {
     {
       keys: 'down',
       func: key => {
-        const success = this.selectIndex(this.selected.index + 1)
+        const success = this.selectIndex(this.$selectedIndex() + 1)
         if (!success) return key
       },
     },
     {
       keys: 'up',
       func: key => {
-        const success = this.selectIndex(this.selected.index - 1)
+        const success = this.selectIndex(this.$selectedIndex() - 1)
         if (!success) return key
       },
     },
     {
       keys: 'pgup',
       func: key => {
-        const success = this.selectIndex(this.selected.index - this.windowSize)
+        const success = this.selectIndex(this.$selectedIndex() - this.windowSize)
         if (!success) return key
       },
     },
     {
       keys: 'pgdown',
       func: key => {
-        const success = this.selectIndex(this.selected.index + this.windowSize)
+        const success = this.selectIndex(this.$selectedIndex() + this.windowSize)
         if (!success) return key
       },
     },
@@ -295,7 +302,13 @@ export class List<T> {
     return `List: ${items.length}`
   }
 
+  computed = computed
   cond = cond
+  eq = eq
+
+  $isItemSelected(item) {
+    return computed(() => item == this.$selectedValue())
+  }
 
   destroy$ = new Subject()
   ngOnDestroy() {
