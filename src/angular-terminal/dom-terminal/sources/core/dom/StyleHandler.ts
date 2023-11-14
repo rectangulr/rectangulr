@@ -92,7 +92,7 @@ export class StyleHandler {
 		}
 
 		if (value === 'inherit') {
-			if (this.element.parentNode) {
+			if (this.element.parentNode?.style) {
 				value = this.element.parentNode.style.get(propName)
 			} else {
 				value = styles[propName].default

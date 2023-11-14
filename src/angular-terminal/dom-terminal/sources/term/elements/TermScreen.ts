@@ -1,4 +1,4 @@
-import { Injector } from '@angular/core'
+import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core'
 import { cursor, feature, screen, style } from '@manaflair/term-strings'
 import { Key, Mouse, parseTerminalInputs } from '@manaflair/term-strings/parse.js'
 import _ from 'lodash'
@@ -8,8 +8,13 @@ import { Event, Point, Rect } from '../../core'
 import { Element } from '../../core/dom/Element'
 import { isInsideOf } from '../../core/dom/Node'
 import { TermElement } from './TermElement'
+import { ElementPool } from './element-pool'
+import { runInThisContext } from 'vm'
 
 
+@Injectable({
+  providedIn: 'root'
+})
 export class TermScreen extends TermElement {
   /** We keep track of whether the screen is fully setup or not (has stdin/stdout) */
   ready = false
@@ -23,8 +28,11 @@ export class TermScreen extends TermElement {
   mouseOverElement: Element = null
   mouseEnterElements: Element[] = []
   caret: Point = null
+  // detachedNodes: TermElement[] = []
+  elementPool = inject(ElementPool)
+  // recycledThisTick = 0
 
-  constructor(debugPaintRects = false, public logger: Logger = null, public injector: Injector) {
+  constructor(public logger: Logger, public context: Injector) {
     super()
     this.rootNode = this
 
@@ -54,7 +62,7 @@ export class TermScreen extends TermElement {
     // Bind the listener that exit the application on C-c
     this.addShortcutListener(`C-c`, e => this.terminate(), { capture: true })
 
-    this.setPropertyTrigger(`debugPaintRects`, debugPaintRects, {
+    this.setPropertyTrigger(`debugPaintRects`, false, {
       validate: value => _.isBoolean(value),
       trigger: value => {
         this.queueDirtyRect()
@@ -299,6 +307,36 @@ export class TermScreen extends TermElement {
     this.triggerUpdates()
 
     this.renderScreenImpl(this.flushDirtyRects())
+
+    // // Recycle unused nodes after rendering
+    // this.detachedNodes.forEach(node => {
+    //   if (!node.parentNode) {
+    //     this.recycleNode(node)
+    //   }
+    // })
+
+    // setTimeout(() => {
+    //   if (this.recycledThisTick > 0) {
+    //     this.logger.log({ message: `recycleNode : recycled ${this.recycledThisTick} nodes` })
+    //   }
+    //   this.recycledThisTick = 0
+    // })
+    // this.detachedNodes.length = 0
+  }
+
+  recycleNode(node: TermElement) {
+    // Recycle children
+    for (const c of node.childNodes) {
+      this.recycleNode(c)
+    }
+    // Reset node
+    runInInjectionContext(this.context, () => {
+      node.reset()
+    })
+    // Pool node
+    this.elementPool.pool(node)
+
+    // this.recycledThisTick++
   }
 
   renderScreenImpl(dirtyRects = [this.elementClipRect]) {

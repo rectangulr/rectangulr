@@ -7,7 +7,7 @@
     "@s-libs/micro-dash": "^16.1.0",
     "ng-dynamic-component": "^10.5.1",
     "tslib": "^2.0.0",
-    "typeflex": "^0.1.0"
+    "typeflex": "file:../typeflex"
   },
   "scripts": {
     "build": "ng build --configuration production",

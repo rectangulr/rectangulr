@@ -3,19 +3,21 @@ import { TermScreen } from './dom-terminal'
 import { INPUT_OUTPUT, InputOutput } from './input-output'
 import { Logger } from './logger'
 
+/**
+ * The bridge between Angular and @manaflair/mylittledom
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class ScreenService {
-  public termScreen: TermScreen
 
   constructor(
     @Inject(INPUT_OUTPUT) public inputOutput: InputOutput,
     public ngZone: NgZone,
     public logger: Logger,
     public injector: Injector,
+    public termScreen: TermScreen,
   ) {
-    this.termScreen = new TermScreen(false, this.logger, injector)
 
     {
       // Patch the `inputOutput.output.write` function, so that writing doesn't trigger

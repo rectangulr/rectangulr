@@ -6,26 +6,16 @@ import { BackgroundClip, Color } from '../../core/dom/StyleHelpers'
 export class TermElement extends Element {
   static elementName = 'element'
 
-  isActive: boolean
-  debugPaintRects: boolean
+  debugPaintRects = false
 
   constructor() {
     super()
-
-    // // Init style
-    // this.styleManager.computed = new Map(Object.entries({
-    //     position: `relative`,
-    //     width: 0, height: 0,
-    //     overflow: `hidden`
-    // }))
-
     this.reset()
   }
 
   reset() {
     super.reset()
     this.style.reset()
-    this.isActive = false
   }
 
   addShortcutListener(descriptors, callback, { capture = false } = {}) {

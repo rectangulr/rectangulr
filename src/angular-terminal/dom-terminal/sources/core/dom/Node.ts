@@ -15,8 +15,6 @@ export class Node {
   childNodes: TermElement[] = []
 
   reset() {
-    this.id = currentNodeId++
-
     this.rootNode = this
     this.parentNode = null
 
@@ -110,6 +108,7 @@ export class Node {
         `Failed to execute 'removeChild': The node to be removed is not a child of this node.`
       )
 
+    // @ts-ignore
     node.parentNode = null
 
     if (node.previousSibling) node.previousSibling.nextSibling = node.nextSibling
@@ -123,6 +122,7 @@ export class Node {
     this.childNodes.splice(index, 1)
 
     node.traverse(traversedNode => {
+      // @ts-ignore
       traversedNode.rootNode = node
     })
   }
@@ -174,10 +174,10 @@ export class Node {
     this[name] = initial
   }
 
-  traverse(fn, { depth = Infinity, currentDepth = 0 } = {}) {
+  traverse(fn: (el: TermElement, depth) => void, { depth = Infinity, currentDepth = 0 } = {}) {
     if (currentDepth >= depth) return
 
-    fn(this, currentDepth)
+    fn(this as unknown as TermElement, currentDepth)
 
     for (let child of this.childNodes) {
       child.traverse(fn, { depth, currentDepth: currentDepth + 1 })
@@ -208,4 +208,11 @@ export function isInsideOf(parent: Node, child: Node) {
     }
   }
   return false
+}
+
+export function traverseChildrenFirst(node: TermElement, func: (parent: TermElement, child: TermElement) => void) {
+  for (const child of node.childNodes) {
+    traverseChildrenFirst(child, func)
+    func(node, child)
+  }
 }

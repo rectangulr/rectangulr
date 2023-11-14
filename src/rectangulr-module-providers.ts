@@ -1,5 +1,5 @@
 import { APP_INITIALIZER, ErrorHandler, InjectionToken, Injector, RendererFactory2, inject, ɵINJECTOR_SCOPE } from "@angular/core"
-import { RectangulrRendererFactory } from "./angular-terminal/angular-dom"
+import { RectangulrRendererFactory2 } from "./angular-terminal/angular-dom"
 import { global_rgComponent, global_rgLView } from "./angular-terminal/debug"
 import { RectangulrErrorHandler } from "./angular-terminal/error-handler"
 import { INPUT_OUTPUT, StdinStdout } from "./angular-terminal/input-output"
@@ -20,7 +20,7 @@ export const RECTANGULR_MODULE_PROVIDERS_MARKER = new InjectionToken(
 export const RECTANGULR_MODULE_PROVIDERS = [
 	{ provide: ɵINJECTOR_SCOPE, useValue: 'root' },
 	{ provide: ErrorHandler, useClass: RectangulrErrorHandler },
-	{ provide: RendererFactory2, useClass: RectangulrRendererFactory },
+	{ provide: RendererFactory2, useClass: RectangulrRendererFactory2 },
 	NG_DEV_MODE ? { provide: RECTANGULR_MODULE_PROVIDERS_MARKER, useValue: true } : [],
 	{ provide: 'global', useValue: globalThis },
 	{ provide: ScreenService, useClass: ScreenService },

@@ -11,6 +11,7 @@ import { Node } from './Node'
 import { StyleHandler } from "./StyleHandler"
 import { Position, } from "./StyleHelpers"
 import { flags } from './flags'
+import { TermScreen } from "../../term"
 
 const yogaConfig = Yoga.Config.create() as TYoga.Config
 yogaConfig.setPointScaleFactor(2)
@@ -144,7 +145,7 @@ export class Element extends Node {
   }
 
   linkBefore(node: TermElement, referenceNode) {
-    node.flushDirtyRects()
+    // node.flushDirtyRects()
 
     super.linkBefore(node, referenceNode)
 
@@ -155,13 +156,10 @@ export class Element extends Node {
     this.setDirtyClippingFlag()
 
     this.rootNode.setDirtyNodeListFlag()
-    // this.rootNode.setDirtyFocusListFlag()
     this.rootNode.setDirtyRenderListFlag()
 
     node.clearDirtyNodeListFlag()
     node.clearDirtyRenderListFlag()
-
-    // node.styleManager.refresh(node.styleManager.inherited)
   }
 
   removeChild(node: TermElement) {
@@ -180,7 +178,9 @@ export class Element extends Node {
     }
 
     this.setDirtyLayoutFlag()
-    this.setDirtyClippingFlag()
+    this.setDirtyClippingFlag();
+
+    // (this.rootNode as unknown as TermScreen).detachedNodes.push(node)
 
     this.rootNode.setDirtyNodeListFlag()
     this.rootNode.setDirtyRenderListFlag()
@@ -554,7 +554,7 @@ export class Element extends Node {
       }
     }
 
-    this.rootNode.requestUpdates()
+    this.rootNode?.requestUpdates()
   }
 
   clearDirtyFlag(flag) {
@@ -601,10 +601,9 @@ export class Element extends Node {
   }
 
   flushDirtyRects() {
-    if (this.rootNode !== this)
-      throw new Error(
-        `Failed to execute 'queueDirtyRect': This function can only be called from a root node.`
-      )
+    if (this.rootNode !== this) {
+      throw new Error(`Failed to execute 'queueDirtyRect': This function can only be called from a root node.`)
+    }
 
     let dirtyRects = this.dirtyRects
     this.dirtyRects = []

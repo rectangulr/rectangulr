@@ -1,18 +1,20 @@
-import { Injectable, Injector, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, inject, runInInjectionContext, } from '@angular/core'
+import { Injectable, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, inject } from '@angular/core'
 import * as _ from '@s-libs/micro-dash'
 import * as json5 from 'json5'
-import { addToGlobalRg, assert, mergeDeep } from '../utils/utils'
-import { Element, TermElement, TermScreen, TermText2 } from './dom-terminal'
+import { addToGlobalRg, mergeDeep } from '../utils/utils'
+import { Element, TermElement, TermScreen } from './dom-terminal'
+import { ElementPool } from './dom-terminal/sources/term/elements/element-pool'
+import { Logger } from './logger'
 import { ScreenService } from './screen-service'
 
 @Injectable({
   providedIn: 'root'
 })
-export class RectangulrRendererFactory implements RendererFactory2 {
+export class RectangulrRendererFactory2 implements RendererFactory2 {
   protected renderer: Renderer2
 
   constructor(private screen: ScreenService) {
-    this.renderer = inject(TerminalRenderer)
+    this.renderer = inject(RectangulrRenderer2)
   }
 
   end() {
@@ -26,72 +28,14 @@ export class RectangulrRendererFactory implements RendererFactory2 {
   }
 }
 
-/**
- *
- */
 @Injectable({
   providedIn: 'root'
 })
-export class ElementPool {
-  elementClasses = [TermElement, TermText2]
-  elementClassesByName = new Map<string, typeof TermElement>()
-  elementPools = new Map<typeof TermElement, TermElement[]>()
-
-  constructor(public injector: Injector) {
-    this.elementClassesByName = new Map()
-    this.elementPools = new Map()
-    this.elementClasses.forEach(el => {
-      const name = el.elementName
-      this.elementClassesByName.set(name, el)
-      this.elementPools.set(el, [])
-    })
-  }
-
-  /**
-   * Creates an HTML element.
-   * Or returns an old one from the pool.
-   */
-  create(name: string) {
-    let elementContructor = this.elementClassesByName.get(name) || TermElement
-
-    const elPool = this.elementPools.get(elementContructor)
-    if (elPool.length > 0) {
-      const el = elPool.pop()
-      return el
-    } else {
-      let el: TermElement
-      runInInjectionContext(this.injector, () => {
-        el = new elementContructor()
-      })
-      return el
-    }
-  }
-
-  /**
-   * Resets an element, and puts it back in the pool.
-   */
-  dispose(el: TermElement) {
-    const objectPooling = true
-    if (objectPooling) {
-      runInInjectionContext(this.injector, () => {
-        el.reset()
-      })
-      const elPool = this.elementPools.get(el.constructor as any)
-      elPool.push(el)
-      assert(el.parentNode == null)
-      assert(el.childNodes.length == 0)
-    }
-  }
-}
-
-@Injectable({
-  providedIn: 'root'
-})
-export class TerminalRenderer implements Renderer2 {
+export class RectangulrRenderer2 implements Renderer2 {
   readonly data: { [p: string]: any }
-  destroyNode = null
+  logger = inject(Logger)
 
-  constructor(public screen: ScreenService, public elementManager: ElementPool) { }
+  constructor(public screen: ScreenService, public elementPool: ElementPool) { }
 
   destroy(): void { }
 
@@ -100,38 +44,45 @@ export class TerminalRenderer implements Renderer2 {
   }
 
   createElement(name: string, namespace?: string | null): Element {
-    const element = this.elementManager.create(name)
+    const element = this.elementPool.create(name)
     element.name = name
+    // this.logger.log({ message: 'createElement', id: element.id })
     return element
   }
 
   createComment(value: string): any {
     const comment = this.createElement('text')
-    comment.style.add({ display: 'none' })
+  comment.style.add({ display: 'none' })
     comment.name = 'comment'
+    // this.logger.log({ message: 'createComment', id: comment.id })
     return comment
   }
 
   createText(value: string): any {
     const element = this.createElement('text') as any
     element.textContent = value
+    // this.logger.log({ message: 'createText', id: element.id })
     return element
   }
 
   appendChild(parent: TermElement, newChild: TermElement): void {
-    // log(`appendChild: ${serializeDOMNode(parent)} -> ${serializeDOMNode(newChild)}`);
+    // this.logger.log({ message: 'appendChild', parent: parent.id, newChild: newChild.id })
     parent.appendChild(newChild)
   }
 
-  insertBefore(parent: TermElement, newChild: any, refChild: any): void {
-    // log(`insertBefore: ${serializeDOMNode(parent)} -> ${serializeDOMNode(newChild)},${serializeDOMNode(refChild)}`);
+  insertBefore(parent: TermElement, newChild: TermElement, refChild: TermElement): void {
+    // this.logger.log({ message: 'insertBefore', parent: parent.id, newChild: newChild.id, refChild: refChild.id })
     parent.insertBefore(newChild, refChild)
   }
 
   removeChild(parent: TermElement, oldChild: any): void {
-    // log(`removeChild: ${serializeDOMNode(parent)} -> ${JSON.stringify(simplifyViewTree(oldChild), null, 2)}`);
+    // this.logger.log({ message: 'removeChild', parent: parent.id, oldChild: oldChild.id })
     parent.removeChild(oldChild)
-    this.elementManager.dispose(oldChild)
+    return oldChild
+  }
+
+  destroyNode(node: TermElement) {
+    this.selectRootElement().recycleNode(node)
   }
 
   listen(
