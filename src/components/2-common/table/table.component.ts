@@ -18,7 +18,7 @@ import * as json5 from 'json5'
 import _ from 'lodash'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { Element, makeRuleset } from '../../../angular-terminal/dom-terminal'
+import { Element } from '../../../angular-terminal/dom-terminal'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { addStyle } from '../../../public-api'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
@@ -283,7 +283,7 @@ export class Table<T> {
   ]
 
   s = {
-    header: makeRuleset({ backgroundColor: 'gray', color: 'white' }),
+    header: { backgroundColor: 'gray', color: 'white' },
   }
 
   destroy$ = new Subject()

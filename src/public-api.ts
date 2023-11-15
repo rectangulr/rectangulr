@@ -3,7 +3,7 @@
  */
 
 // Basics
-export { Element, Event, makeRuleset, TermScreen } from './angular-terminal/dom-terminal/'
+export { Element, Event, TermScreen } from './angular-terminal/dom-terminal/'
 export { Logger } from './angular-terminal/logger'
 
 // Platform

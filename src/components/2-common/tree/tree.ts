@@ -1,6 +1,5 @@
 import { Component, ContentChild, EventEmitter, Input, Output, TemplateRef, ViewChild, effect, signal } from '@angular/core'
 import { Subject } from 'rxjs'
-import { makeRuleset } from '../../../angular-terminal/dom-terminal'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { HBox } from "../../1-basics/box"
 import { List } from '../list/list'
@@ -149,7 +148,7 @@ export class Tree<T> {
 	}
 
 	s = {
-		selected: makeRuleset({ backgroundColor: 'gray' }),
+		selected: { backgroundColor: 'gray' },
 	}
 
 	destroy$ = new Subject(); ngOnDestroy() { this.destroy$.next(null); this.destroy$.complete() }

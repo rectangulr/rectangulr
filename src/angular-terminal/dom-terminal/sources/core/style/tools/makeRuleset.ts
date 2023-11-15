@@ -4,9 +4,9 @@ import { EasyStyle } from '../EasyStyle'
 import { Ruleset } from '../Ruleset'
 import { parseSelector } from './parseSelector'
 
-export function makeRuleset(value) {
-  return value
-}
+// export function makeRuleset(value) {
+//   return value
+// }
 
 // export function makeRuleset(...parts) {
 //   let ruleset = new Ruleset()

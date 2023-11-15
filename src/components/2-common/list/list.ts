@@ -26,18 +26,18 @@ import _ from 'lodash'
 import { DynamicModule } from 'ng-dynamic-component'
 import { Observable, Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
+import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
-import { assert, detectInfiniteLoop, inputToSignal } from '../../../utils/utils'
+import { assert, inputToSignal } from '../../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
-import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 
 /**
  * Displays a list of items and highlights the current item.
@@ -110,24 +110,56 @@ import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/do
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class List<T> {
+  /**
+   * The item to be displayed in the list.
+   * Can be an array, a signal<array> or an observable<array>.
+   */
   @Input() items: T[] | Observable<T[]> | Signal<T[]> = undefined
+  /**
+   * A trackByFn. Same as for *ngFor.
+   */
   @Input() trackByFn = (index, item) => item
+  /**
+   * TODO: remove
+   */
   @Input() showIndex = false
+  /**
+   * What a line of this list should contain
+   * This is an alternative to `template`. You can provide a component instead of a template.
+   */
   @Input() displayComponent: any = undefined
+  /**
+   * What a line of this list should contain
+   */
   @Input() template: TemplateRef<any> = undefined
+  /**
+   * What item to select when the list is updated
+   */
   @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
+  /**
+   * What item to select when the list is created
+   */
   @Input() onInitSelect: 'first' | 'last' = 'first'
+  /**
+   * Should the list add a style to the selected line
+   */
   @Input() styleItem = true
   // @Input() focusPath: Signal<JsonPath | null> = signal(null)
 
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
+  /**
+   * Emits when the selected line changes.
+   */
   @Output('selectedItem') $selectedItem = new EventEmitter<T>()
+  /**
+   * Emits the currently visible lines of the list.
+   */
   @Output('visibleItems') $$visibleItems = null
 
   $items = signal([])
   // $focusPath = signal(null)
 
-  $selectedIndex = signal(undefined)
+  $selectedIndex = signal<number | null>(null)
   $selectedValue = computed(() => {
     const index = this.$selectedIndex()
     if (index === null) {

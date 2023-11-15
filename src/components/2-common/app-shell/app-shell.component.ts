@@ -81,7 +81,7 @@ export class AppShell {
       },
     },
     {
-      keys: 'alt+o',
+      keys: 'alt+e',
       id: 'nextTab',
       keywords: 'next view',
       func: () => {

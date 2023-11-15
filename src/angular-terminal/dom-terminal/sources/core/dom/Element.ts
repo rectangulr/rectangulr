@@ -6,12 +6,10 @@ import { TermElement } from '../../term/elements/TermElement'
 import { Event } from '../misc/Event'
 import { Point } from '../misc/Point'
 import { Rect } from '../misc/Rect'
-import { runPropertyTriggers } from '../style/tools/runPropertyTriggers'
 import { Node } from './Node'
 import { StyleHandler } from "./StyleHandler"
 import { Position, } from "./StyleHelpers"
 import { flags } from './flags'
-import { TermScreen } from "../../term"
 
 const yogaConfig = Yoga.Config.create() as TYoga.Config
 yogaConfig.setPointScaleFactor(2)
@@ -178,7 +176,7 @@ export class Element extends Node {
     }
 
     this.setDirtyLayoutFlag()
-    this.setDirtyClippingFlag();
+    this.setDirtyClippingFlag()
 
     // (this.rootNode as unknown as TermScreen).detachedNodes.push(node)
 

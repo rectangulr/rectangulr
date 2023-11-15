@@ -20,13 +20,6 @@ export class TermText2 extends TermElement {
   constructor() {
     super()
 
-    // this.styleManager.addRuleset(
-    //   makeRuleset({
-    //     minHeight: 1,
-    //   }),
-    //   StyleManager.RULESET_NATIVE
-    // )
-
     this.style.add({
       minHeight: 1,
       flexDirection: 'row',

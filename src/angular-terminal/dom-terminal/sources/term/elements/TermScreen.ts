@@ -9,7 +9,6 @@ import { Element } from '../../core/dom/Element'
 import { isInsideOf } from '../../core/dom/Node'
 import { TermElement } from './TermElement'
 import { ElementPool } from './element-pool'
-import { runInThisContext } from 'vm'
 
 
 @Injectable({
@@ -35,8 +34,6 @@ export class TermScreen extends TermElement {
   constructor(public logger: Logger, public context: Injector) {
     super()
     this.rootNode = this
-
-    this.logger = logger
 
     this.style.add({
       position: 'relative',
