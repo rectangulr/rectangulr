@@ -322,10 +322,6 @@ export class TermScreen extends TermElement {
   }
 
   recycleNode(node: TermElement) {
-    // Recycle children
-    for (const c of node.childNodes) {
-      this.recycleNode(c)
-    }
     // Reset node
     runInInjectionContext(this.context, () => {
       node.reset()

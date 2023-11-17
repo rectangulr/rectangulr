@@ -52,7 +52,7 @@ export class RectangulrRenderer2 implements Renderer2 {
 
   createComment(value: string): any {
     const comment = this.createElement('text')
-  comment.style.add({ display: 'none' })
+    comment.style.add({ display: 'none' })
     comment.name = 'comment'
     // this.logger.log({ message: 'createComment', id: comment.id })
     return comment
@@ -82,6 +82,11 @@ export class RectangulrRenderer2 implements Renderer2 {
   }
 
   destroyNode(node: TermElement) {
+    // Destroy children first
+    for (const child of node.childNodes) {
+      this.removeChild(node, child)
+      this.destroyNode(child)
+    }
     this.selectRootElement().recycleNode(node)
   }
 

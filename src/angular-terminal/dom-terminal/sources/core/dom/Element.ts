@@ -14,6 +14,8 @@ import { flags } from './flags'
 const yogaConfig = Yoga.Config.create() as TYoga.Config
 yogaConfig.setPointScaleFactor(2)
 
+const cleanNode = Yoga.Node.createWithConfig(yogaConfig)
+
 export class Element extends Node {
   name = 'element'
   flags = flags.ELEMENT_HAS_DIRTY_NODE_LIST | flags.ELEMENT_HAS_DIRTY_LAYOUT
@@ -26,7 +28,7 @@ export class Element extends Node {
   elementRect: Rect = new Rect()
   /** Position & size of the content box inside the element. Comes from Yoga.getComputedBorder(...) */
   contentRect: Rect = new Rect()
-  /** Position & size of the element children box | note: both 'x' and 'y' are "wrong", in that they are not the actual box offset (which would always be 0;0), but rather the scroll offset (ie = scrollLeft / scrollTop) */
+  /** Position & size of the element children box | note: xy 'x' and 'y' are "wrong", in that they are not the actual box offset (which would always be 0;0), but rather the scroll offset (ie = scrollLeft / scrollTop) */
   scrollRect: Rect = new Rect()
   /** Position & size of the element inside the viewport */
   elementWorldRect: Rect = new Rect()
@@ -36,7 +38,7 @@ export class Element extends Node {
   elementClipRect: Rect = this.elementWorldRect
   /** Used to check if the caret is visible */
   contentClipRect: Rect = this.contentWorldRect
-  /** Position & size of the visible box that contains both the element itself and each of its children */
+  /** Position & size of the visible box that contains xy the element itself and each of its children */
   elementBoundingRect: Rect = null
   caret: Point
 
@@ -47,6 +49,12 @@ export class Element extends Node {
 
   constructor() {
     super()
+
+    this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
+
+    // @ts-ignore
+    this.yogaNode.setMeasureFunc((node, maxWidth, widthMode, maxHeight, heightMode) => this.getPreferredSize(maxWidth, widthMode, maxHeight, heightMode))
+    this.style = new StyleHandler(this, inject(Injector))
 
     this.setPropertyTrigger('caret', null, {
       validate: value => value === null || value instanceof Point,
@@ -59,11 +67,13 @@ export class Element extends Node {
 
   reset() {
     super.reset()
-    this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
+    // this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
     // @ts-ignore
-    this.yogaNode.setMeasureFunc((node, maxWidth, widthMode, maxHeight, heightMode) => this.getPreferredSize(maxWidth, widthMode, maxHeight, heightMode))
+    // this.yogaNode.setMeasureFunc((node, maxWidth, widthMode, maxHeight, heightMode) => this.getPreferredSize(maxWidth, widthMode, maxHeight, heightMode))
 
-    this.style = new StyleHandler(this, inject(Injector))
+    // this.style = new StyleHandler(this, inject(Injector))
+    // this.yogaNode.copyStyle(cleanNode.node)
+    this.style.reset()
 
     this.dirtyRects = []
     this.nodeList = []
@@ -327,7 +337,7 @@ export class Element extends Node {
     force = false,
     forceX = force,
     forceY = force,
-    direction = 'both',
+    direction = 'xy',
   } = {}) {
     this.triggerUpdates()
 
@@ -397,14 +407,14 @@ export class Element extends Node {
       force = false,
       forceX = force,
       forceY = force,
-      direction = 'both',
+      direction = 'xy',
     } = {}
   ) {
     this.triggerUpdates()
 
     const scroll = this.style.get('scroll')
 
-    if ((direction == 'both' || direction == 'x') && (scroll === true || scroll == 'x')) {
+    if (direction?.includes('x') && scroll?.includes('x')) {
       let effectiveAlignX = alignX
 
       if (effectiveAlignX === 'auto') {
@@ -436,7 +446,7 @@ export class Element extends Node {
       }
     }
 
-    if ((direction == 'both' || direction == 'y') && (scroll === true || scroll == 'y')) {
+    if (direction?.includes('y') && scroll?.includes('y')) {
       let effectiveAlignY = alignY
 
       if (effectiveAlignY === 'auto') {
@@ -497,14 +507,6 @@ export class Element extends Node {
   clearDirtyNodeListFlag() {
     this.clearDirtyFlag(flags.ELEMENT_HAS_DIRTY_NODE_LIST)
   }
-
-  // setDirtyFocusListFlag() {
-  //   this.setDirtyFlag(flags.ELEMENT_HAS_DIRTY_FOCUS_LIST)
-  // }
-
-  // clearDirtyFocusListFlag() {
-  //   this.clearDirtyFlag(flags.ELEMENT_HAS_DIRTY_FOCUS_LIST)
-  // }
 
   setDirtyRenderListFlag() {
     this.setDirtyFlag(flags.ELEMENT_HAS_DIRTY_RENDER_LIST)

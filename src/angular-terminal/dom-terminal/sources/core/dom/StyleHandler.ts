@@ -12,7 +12,7 @@ type SignalLayer = Signal<StyleValue>
 export class StyleHandler {
 
 	layers: Layer[] = []
-	style: StyleValue = {}
+	// style: StyleValue = {}
 	/** TODO: only initialize if signal layer added */
 	oldValues = new WeakMap()
 	onDestroy: (() => void)[] = []
@@ -48,7 +48,7 @@ export class StyleHandler {
 		for (const key of orderKeys(keysChanged)) {
 			const propInfo = styles[key]
 			const rawValue = this.get(key as any)
-			this.style[key as string] = rawValue
+			// this.style[key as string] = rawValue
 			// if (this.style[key] !== rawValue) {
 			propInfo.triggers?.forEach(trigger => {
 				const value = parsePropertyValue(key, rawValue)
@@ -121,8 +121,9 @@ export class StyleHandler {
 
 	reset() {
 		this.layers = []
-		this.style = {}
+		// this.style = {}
 		this.onDestroy.forEach(func => func())
+		this.retriggerKeys(styles)
 	}
 }
 
@@ -217,7 +218,7 @@ export interface StyleValue {
 	// focusEvents?: boolean
 	pointerEvents?: boolean
 
-	scroll?: true | null | 'x' | 'y'
+	scroll?: 'x' | 'y' | 'xy' | null
 	hgrow?: boolean
 	vgrow?: boolean
 	justifyContent?: 'flexStart' | 'flexEnd' | 'center' | 'baseline' | 'stretch'

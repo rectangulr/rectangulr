@@ -33,7 +33,10 @@ export class Logger {
     })
 
     // Store in file
-    fs.writeFileSync(this.logFile, stringify(logObject) + '\n', { flag: 'a+' })
+    fs.writeFile(this.logFile, stringify(logObject) + '\n', { flag: 'a+' }, () => { })
+
+    // The previous line has a problem, what is it ?
+
 
     // Notify subscribers
     this.$onLog.next(logObject)

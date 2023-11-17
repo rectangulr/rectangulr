@@ -64,8 +64,11 @@ export class TermElement extends Element {
 
         let data = prepend + this.style.get('borderTopCharacter').repeat(contentL) + append
 
-        if (!this.rootNode.debugPaintRects && BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))
-        ) { data = Color.front(this.style.get('backgroundColor')) + data }
+        if (!this.rootNode.debugPaintRects && BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) {
+          const backgroundColor = this.style.get('backgroundColor')
+          const backgroundAnsi = Color.front(backgroundColor)
+          data = backgroundAnsi + data
+        }
 
         if (!this.rootNode.debugPaintRects && this.style.get('borderColor')) {
           data = Color.front(this.style.get('borderColor')) + data
@@ -73,7 +76,9 @@ export class TermElement extends Element {
 
         if (!this.rootNode.debugPaintRects && ((BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) ||
           this.style.get('borderColor'))
-        ) { data += style.clear }
+        ) {
+          data += style.clear
+        }
 
         return data
       } else if (y === this.elementRect.height - 1 && this.style.get('borderBottomCharacter')) {
@@ -91,19 +96,17 @@ export class TermElement extends Element {
 
         let data = prepend + this.style.get('borderBottomCharacter').repeat(contentL) + append
 
-        if (
-          !this.rootNode.debugPaintRects &&
-          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))
-        )
+        if (!this.rootNode.debugPaintRects &&
+          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) {
           data = Color.back(this.style.get('backgroundColor')) + data
+        }
 
         if (!this.rootNode.debugPaintRects && this.style.get('borderColor')) {
           data = Color.front(this.style.get('borderColor')) + data
         }
 
         if (!this.rootNode.debugPaintRects && ((this.style.get('backgroundColor') &&
-          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) || this.style.get('borderColor'))
-        ) {
+          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))) || this.style.get('borderColor'))) {
           data += style.clear
         }
 

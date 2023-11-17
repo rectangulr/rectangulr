@@ -22,7 +22,7 @@ describe('List - ', () => {
   it(`should move down`, fakeAsync(async () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
-    expect(component.editor.list.selected.index).toEqual(1)
+    expect(component.editor.list.$selectedIndex()).toEqual(1)
   }))
 
   it(`should edit first key/value`, fakeAsync(async () => {

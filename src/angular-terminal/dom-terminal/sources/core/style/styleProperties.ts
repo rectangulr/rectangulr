@@ -382,17 +382,7 @@ export let styles: { [name: string]: StyleProperty } = {
   },
 
   scroll: {
-    parsers: [true, null, 'x', 'y'],
-    triggers: [
-      (node: Element, value) => {
-        if (value === true || value == 'x') {
-          node.yogaNode.setMaxWidth(Number.MAX_SAFE_INTEGER)
-        }
-        if (value === true || value == 'y') {
-          node.yogaNode.setMaxHeight(Number.MAX_SAFE_INTEGER)
-        }
-      },
-    ],
+    parsers: [null, 'x', 'y', 'xy'],
     initial: null,
     default: null,
   },
@@ -474,6 +464,25 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   vgrow: {
     func: (style, value) => grow(style, value, 'vertical')
   },
+
+
+  scroll: {
+    func: (style, value) => {
+      if (value) {
+        if (value == 'x' || value == 'xy') {
+          // node.yogaNode.setMaxWidth(Number.MAX_SAFE_INTEGER)
+          return { maxWidth: Number.MAX_SAFE_INTEGER, scroll: value }
+        }
+        if (value == 'y' || value == 'xy') {
+          // node.yogaNode.setMaxHeight(Number.MAX_SAFE_INTEGER)
+          return { maxHeight: Number.MAX_SAFE_INTEGER, scroll: value }
+        }
+      } else {
+        return {}
+      }
+    },
+  },
+
 }
 
 export function isComputedStyle(key: string) {

@@ -54,14 +54,16 @@ export class ElementPool {
 	pool(el: TermElement) {
 		const objectPooling = true
 		if (objectPooling) {
-			runInInjectionContext(this.injector, () => {
-				el.reset()
-			})
 			const elPool = this.elementPools.get(el.constructor as any)
-			elPool.push(el)
+			if (elPool) {
+				elPool.push(el)
+				runInInjectionContext(this.injector, () => {
+					el.reset()
+					assert(el.parentNode == null)
+					assert(el.childNodes.length == 0)
+				})
+			}
 			// this.logger.log({ message: 'push', id: el.id })
-			assert(el.parentNode == null)
-			assert(el.childNodes.length == 0)
 		}
 	}
 }

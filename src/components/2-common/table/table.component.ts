@@ -94,10 +94,9 @@ interface Column {
 }
 
 @Component({
-  standalone: true,
   selector: 'table',
   template: `
-    <h [s]="{ maxHeight: 1 }" [s]="[s.header]">{{ $headers() }}</h>
+    <h [s]="s.header">{{ $headers() }}</h>
     <list
       #list
       [items]="items"
@@ -105,12 +104,13 @@ interface Column {
       [template]="template || template2 || defaultRowTemplate"
       (selectedItem)="$selectedItem.set($event)"
       (visibleItems)="$visibleItems.set($event)"
-      [s]="{ hgrow: true }">
-      <ng-template #defaultRowTemplate>
-        <row [s]="{ flexShrink: 0 }" *item="let item" [data]="item"></row>
-      </ng-template>
+      [s]="{ hgrow: true}">
     </list>
+    <ng-template #defaultRowTemplate [item] let-item>
+      <row [data]="item" [s]="{ flexShrink: 0 }"></row>
+    </ng-template>
   `,
+  standalone: true,
   imports: [HBox, List, Row, ListItem, StyleDirective],
   providers: [
     {
@@ -154,6 +154,7 @@ export class Table<T> {
     public elementRef: ElementRef<Element>,
     public injector: Injector
   ) {
+    addStyle({ scroll: 'x' })
     makeObservable(this, 'list', '$list')
     inputToSignal(this, 'items', '$items')
 
@@ -283,7 +284,7 @@ export class Table<T> {
   ]
 
   s = {
-    header: { backgroundColor: 'gray', color: 'white' },
+    header: { backgroundColor: 'gray', color: 'white', maxHeight: 1 },
   }
 
   destroy$ = new Subject()
