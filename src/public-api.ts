@@ -66,6 +66,7 @@ export {
   State,
   subscribe,
   makeSignal,
+  propToSignal,
   derived,
   makeIntoSignal,
 } from './utils/reactivity'

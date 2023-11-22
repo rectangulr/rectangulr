@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, Signal } from '@angular/core'
+import { Directive, ElementRef, Input, Signal, computed } from '@angular/core'
 import { TermElement } from '../../angular-terminal/dom-terminal'
 import { StyleValue } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 

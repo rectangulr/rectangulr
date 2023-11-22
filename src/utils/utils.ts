@@ -1,4 +1,4 @@
-import { Injector, ProviderToken, effect, inject, isSignal, signal } from '@angular/core'
+import { Injector, ProviderToken, effect, inject, isSignal } from '@angular/core'
 import _ from 'lodash'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
@@ -163,21 +163,6 @@ export function inputToSignal<T, K extends keyof T>(_component: T, key: K, signa
       component[signalKey].set(input)
     }
   })
-}
-
-export function propToSignal<T, K extends keyof T>(component: T, key: K) {
-  const initialValue = component[key]
-  const sig = signal(initialValue)
-
-  Object.defineProperty(component, key, {
-    get: () => {
-      return sig()
-    },
-    set: newValue => {
-      sig.set(newValue)
-    },
-  })
-
 }
 
 export type InjectFunction = <T>(token: ProviderToken<T>) => T

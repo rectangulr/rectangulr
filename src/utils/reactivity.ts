@@ -1,8 +1,8 @@
+import { computed, isSignal, signal, WritableSignal } from '@angular/core'
 import { BehaviorSubject, isObservable, Observable, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { Destroyable } from './mixins'
 import { addToGlobalRg } from './utils'
-import { computed, isSignal, Signal, signal, WritableSignal } from '@angular/core'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.
@@ -278,3 +278,17 @@ export function forceRefresh() {
 addToGlobalRg({
   forceRefresh: forceRefresh,
 })
+export function propToSignal<T, K extends keyof T>(component: T, key: K) {
+  const initialValue = component[key]
+  const sig = signal(initialValue)
+
+  Object.defineProperty(component, key, {
+    get: () => {
+      return sig()
+    },
+    set: newValue => {
+      sig.set(newValue)
+    },
+  })
+
+}

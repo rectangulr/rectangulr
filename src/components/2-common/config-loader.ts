@@ -14,7 +14,7 @@ export class ConfigLoader {
     let jsonData = null
     try {
       jsonData = fs.readFileSync(this.fileName, { encoding: 'utf-8' })
-    } catch (error) {}
+    } catch (error) { }
     this.config = json5.parse(jsonData)
   }
 }

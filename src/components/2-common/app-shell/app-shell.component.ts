@@ -59,7 +59,6 @@ export class AppShell {
     public logger: Logger
   ) {
     registerShortcuts(this, this.shortcuts)
-    this.viewService.currentTab
   }
 
   s = {

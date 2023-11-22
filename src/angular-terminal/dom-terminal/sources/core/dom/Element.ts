@@ -67,9 +67,9 @@ export class Element extends Node {
 
   reset() {
     super.reset()
-    // this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
+    this.yogaNode = Yoga.Node.createWithConfig(yogaConfig)
     // @ts-ignore
-    // this.yogaNode.setMeasureFunc((node, maxWidth, widthMode, maxHeight, heightMode) => this.getPreferredSize(maxWidth, widthMode, maxHeight, heightMode))
+    this.yogaNode.setMeasureFunc((node, maxWidth, widthMode, maxHeight, heightMode) => this.getPreferredSize(maxWidth, widthMode, maxHeight, heightMode))
 
     // this.style = new StyleHandler(this, inject(Injector))
     // this.yogaNode.copyStyle(cleanNode.node)
