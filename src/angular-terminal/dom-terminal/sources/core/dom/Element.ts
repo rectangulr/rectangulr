@@ -93,7 +93,7 @@ export class Element extends Node {
 
   addEventListener(name: string, func: (e: Event) => void, options?: { bubbles: true }) {
     if (!this.eventListeners[name]) {
-      this.eventListeners[name] = []
+      this.eventListeners[name] = [func]
     } else {
       this.eventListeners[name].push(func)
     }

@@ -60,6 +60,7 @@ import { ListItem } from './list-item'
           odd as odd;
           trackBy: trackByFn
         "
+        (mousedown)="selectVisibleIndex(index)"
         [s]="cond($isItemSelected(item), style.whiteOnGray)">
         <!-- TODO: only style if selected -->
         <ng-container
@@ -273,9 +274,15 @@ export class List<T> {
     return this.$selectedIndex() === value
   }
 
+  selectVisibleIndex(visibleIndex: number) {
+    const index = this.$visibleRange().start + visibleIndex
+    return this.selectIndex(index)
+  }
+
   afterViewUpdate() {
     assert(this.focusRefs)
 
+    // RequestFocus
     if (this.focusRefs.length > 0) {
       const selectedFocusDirective = this.focusRefs?.get(this.$selectedIndex())
       if (!selectedFocusDirective) {
@@ -284,6 +291,7 @@ export class List<T> {
       selectedFocusDirective.shortcutService.requestFocus({ reason: 'List selectIndex' })
     }
 
+    // ScrollIntoView
     if (this.elementRefs?.length > 0) {
       const element: Element = this.elementRefs.get(
         this.$selectedIndex() - this.$visibleRange().start
