@@ -5,7 +5,9 @@
     "@manaflair/term-strings",
     "ng-dynamic-component",
     "typeflex",
-    "@s-libs/micro-dash"
+    "@s-libs/micro-dash",
+    "cli-truncate",
+    "widest-line"
   ],
   "lib": {
     "entryFile": "src/public-api.ts"

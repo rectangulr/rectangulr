@@ -188,9 +188,9 @@ export class ShortcutService {
   registerCommand(_command: Partial<Command>): Disposable {
     const command = sanitizeCommand(_command)
 
-    this.$commands.mutate(commands => {
-      commands[command.id] ??= []
-      commands[command.id].push(command)
+    this.$commands.update(commands => {
+      const array = commands[command.id] ?? []
+      return { ...commands, id: [...array, command] }
       // if (command.id == 'down' && commands[command.id].length > 1) debugger
       // assertDebug(commands[command.id].length <= 1)
     })
@@ -206,8 +206,8 @@ export class ShortcutService {
   }
 
   private removeCommand(command: Command) {
-    this.$commands.mutate(commands => {
-      return removeLastMatch(commands[command.id], command)
+    this.$commands.update(commands => {
+      return { ...removeLastMatch(commands[command.id], command) }
     })
     for (const keys of command.keys) {
       removeLastMatch(this.shortcuts[keys], command.id)

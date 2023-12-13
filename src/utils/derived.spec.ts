@@ -13,8 +13,10 @@ describe('derived signals - ', () => {
     const $item = derived(
       () => $list()[0],
       value =>
-        $list.mutate(list => {
-          list[0] = value
+        $list.update(list => {
+          const newList = [...list]
+          newList[0] = value
+          return newList
         })
     )
 
@@ -38,16 +40,18 @@ describe('derived signals - ', () => {
     const $list = derived(
       () => $matrix()[0],
       value =>
-        $matrix.mutate(matrix => {
+        $matrix.update(matrix => {
           matrix[0] = value
+          return [...matrix]
         })
     )
 
     const $item = derived(
       () => $list()[0],
       value =>
-        $list.mutate(list => {
+        $list.update(list => {
           list[0] = value
+          return [...list]
         })
     )
 

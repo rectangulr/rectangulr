@@ -224,11 +224,11 @@ export function derived<T>(computation: () => T, updateSource: (value: T) => voi
     const value = updateFn(signal())
     updateSource(value)
   }
-  signal.mutate = mutatorFn => {
-    let value = signal()
-    mutatorFn(value)
-    updateSource(value)
-  }
+  // signal.mutate = mutatorFn => {
+  //   let value = signal()
+  //   mutatorFn(value)
+  //   updateSource(value)
+  // }
   return signal
 }
 

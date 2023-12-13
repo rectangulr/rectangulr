@@ -28,17 +28,17 @@
     "@s-libs/micro-dash": "^16.1.0",
     "ng-dynamic-component": "^10.5.1",
     "tslib": "^2.0.0",
-    "typeflex": "file:../typeflex"
+    "typeflex": "file:../typeflex",
+    "cli-truncate": "^3.1.0",
+    "widest-line": "^4.0.1"
   },
   "peerDependencies": {
     "@types/node": "^14.0.0",
     "chai": "^4.3.7",
-    "cli-truncate": "^3.1.0",
     "core-decorators": "^0.13.0",
     "fuse.js": "^6.4.6",
     "json5": "^2.2.0",
     "lodash": "^4.17.21",
-    "widest-line": "^4.0.1",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
