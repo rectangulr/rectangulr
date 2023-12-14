@@ -190,7 +190,7 @@ export class ShortcutService {
 
     this.$commands.update(commands => {
       const array = commands[command.id] ?? []
-      return { ...commands, id: [...array, command] }
+      return { ...commands, [command.id]: [...array, command] }
       // if (command.id == 'down' && commands[command.id].length > 1) debugger
       // assertDebug(commands[command.id].length <= 1)
     })
@@ -207,7 +207,11 @@ export class ShortcutService {
 
   private removeCommand(command: Command) {
     this.$commands.update(commands => {
-      return { ...removeLastMatch(commands[command.id], command) }
+      const array = commands[command.id]
+      if (array) {
+        removeLastMatch(array, command)
+      }
+      return { ...commands }
     })
     for (const keys of command.keys) {
       removeLastMatch(this.shortcuts[keys], command.id)
@@ -249,17 +253,17 @@ export class ShortcutService {
     // To be able to call focus() without arguments
     if (!args.child) {
       this.parent?.requestFocus({ ...args, child: this, source: this })
-      // this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
+      this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
       return
     }
 
     if (!args.child.focusIf) {
-      // this.logger.log(`denied - ${args.child} - focusIf`)
+      this.logger.log(`denied - ${args.child} - focusIf`)
       return
     }
 
     if (this.askedForFocusThisTick.find(item => item.child === args.child)) {
-      // this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
+      this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
       return
     }
 
@@ -270,17 +274,17 @@ export class ShortcutService {
     const stackBefore = this.focusStack.map(i => i._id).join(',')
     this.focusStack.splice(index, 0, args.child)
     const stackAfter = this.focusStack.map(i => i._id).join(',')
-    // this.logger.log(`${stringifyPathToNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
+    this.logger.log(`${stringifyPathToNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
 
     this.askedForFocusThisTick.push({ child: args.child, reason: args.reason, source: args.source })
     this.focusedChild = _.last(this.focusStack)
     assert(this.focusedChild, 'should focus a child')
     // log('received')
 
-    // this.logger.log('setTimeout')
+    this.logger.log('setTimeout')
     setTimeout(() => {
       this.askedForFocusThisTick = []
-      // this.logger.log(`focused end of tick: ${stringifyPathToLeaf(this)}`)
+      this.logger.log(`focused end of tick: ${stringifyPathToLeaf(this)}`)
     })
 
     if (this.focusPropagateUp) {
