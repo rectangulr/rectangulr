@@ -18,9 +18,7 @@
     },
     "test:watch": {
       "command": "ng test --watch",
-      "dependencies": [
-        "test:build"
-      ]
+      "service": true
     }
   },
   "dependencies": {

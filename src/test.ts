@@ -4,9 +4,9 @@ const jasmine = new Jasmine()
 
 globalThis['TEST'] = true
 
-require('zone.js/dist/zone.js') // to have Promise[__symbol('uncaughtPromiseError')]
-require('zone.js/dist/zone-node.js')
-require('zone.js/dist/zone-testing-node-bundle.js')
+require('zone.js') // to have Promise[__symbol('uncaughtPromiseError')]
+require('zone.js/node')
+require('zone.js/plugins/zone-testing')
 
 const { getTestBed } = require('@angular/core/testing')
 const { platformRectangulrDynamicTesting } = require('./angular-terminal/testing/platform-testing')
@@ -18,6 +18,13 @@ getTestBed().initTestEnvironment(
   platformRectangulrDynamicTesting(),
   { teardown: { destroyAfterEach: true } }
 )
+
+beforeEach(() => {
+  globalThis['__zone_symbol__FakeAsyncTestMacroTask'] = [{
+    source: 'fs.writeFile',
+    callbackArgs: []
+  }]
+})
 
 require('./commands/shortcut.service.spec')
 require('./components/2-common/json-editor/json-editor.spec')

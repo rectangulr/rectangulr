@@ -10,7 +10,7 @@ import {
   WritableSignal,
   signal
 } from '@angular/core'
-import { TestBed, fakeAsync, tick } from '@angular/core/testing'
+import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
 import { HBox, VBox } from '../components/1-basics/box'
@@ -165,6 +165,7 @@ describe('ShortcutService ngIf - ', () => {
     log('expect')
     expect(component.firstFunc).toHaveBeenCalledTimes(2)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
+    flush()
   }))
 })
 
