@@ -16,6 +16,7 @@ export class FocusDirective {
   @Input() focusFull = false
   @Input() focusOnInit = true
   @Input() focusName = null
+  debugDenied = false
 
   constructor(@Self() public shortcutService: ShortcutService) { }
 
@@ -61,20 +62,6 @@ export class FocusDirective {
 })
 export class FocusDebugDirective {
   constructor(public shortcutService: ShortcutService) {
-    debugger
-    const original = this.shortcutService.requestFocus
-    Object.defineProperty(this.shortcutService, 'requestFocus', {
-      get: () => {
-        debugger
-        return original
-      },
-    })
-    this.shortcutService.requestFocus({ reason: 'focusDebugDirective onInit' })
-  }
-
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
+    this.shortcutService.debugDenied = true
   }
 }

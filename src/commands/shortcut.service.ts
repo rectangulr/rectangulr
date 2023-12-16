@@ -63,6 +63,7 @@ export class ShortcutService {
 
   focusPropagateUp = true
   focusIf = true
+  debugDenied = false
 
   constructor(
     @Optional() public screen: ScreenService,
@@ -259,11 +260,13 @@ export class ShortcutService {
 
     if (!args.child.focusIf) {
       this.logger.log(`denied - ${args.child} - focusIf`)
+      if (this.debugDenied) { debugger }
       return
     }
 
     if (this.askedForFocusThisTick.find(item => item.child === args.child)) {
       this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
+      if (this.debugDenied) { debugger }
       return
     }
 
@@ -291,6 +294,7 @@ export class ShortcutService {
       this.parent?.requestFocus({ ...args, child: this })
     } else {
       // log('!focusPropagateUp')
+      if (this.debugDenied) { debugger }
       return
     }
   }
@@ -312,7 +316,7 @@ export class ShortcutService {
   /**
    *  Tell our parent that we're getting destroyed.
    */
-  private ngOnDestroy() {
+  ngOnDestroy() {
     this.destroy$.next(null)
     this.destroy$.complete()
     if (this.parent) {

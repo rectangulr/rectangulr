@@ -339,7 +339,7 @@ export class List<T> {
   toString() {
     const items = this.$items()
     // .map(i => json5.stringify(i)).join()
-    return `List: ${items.length}`
+    return `List: ${items?.length ?? 0}`
   }
 
   computed = computed
