@@ -1,10 +1,17 @@
 import { Component } from '@angular/core'
-import { bootstrapApplication } from 'rectangulr'
+import { TermScreen, bootstrapApplication } from '@rectangulr/rectangulr'
+import 'zone.js/node'
 
 @Component({
-	selector: 'main',
-	template: `main`,
+	template: 'main',
+	standalone: true,
 })
-class Main { }
+class Main {
+	constructor(public screen: TermScreen) {
+		setTimeout(() => {
+			screen.terminate()
+		}, 20)
+	}
+}
 
 bootstrapApplication(Main)

@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      # Setup
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      # Install / Build
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+      - run: cd dist && npm link
+
+      # packages/starter
+      - run: npm link @rectangulr/rectangulr && npm run build && npm run test
+        working-directory: ./packages/starter
+
+      # Version / Publish
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

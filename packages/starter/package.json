@@ -1,35 +1,52 @@
 {
-	"name": "ice",
+	"name": "starter",
 	"version": "0.0.0",
 	"type": "module",
+	"private": true,
 	"scripts": {
-		"build": "ng build",
-		"watch": "ng build --watch"
+		"build": "wireit",
+		"test": "node dist/main.js"
+	},
+	"wireit": {
+		"build": {
+			"command": "bash dev/dist.sh",
+			"dependencies": [
+				"build:angular"
+			]
+		},
+		"build:angular": {
+			"command": "ng build",
+			"files": [
+				"src/**",
+				"angular.json"
+			],
+			"output": [
+				"dist-angular"
+			]
+		}
 	},
 	"dependencies": {
-		"@angular/common": "^14.2.6",
-		"@angular/compiler": "^14.2.6",
-		"@angular/compiler-cli": "^14.2.6",
-		"@angular/core": "^14.2.6",
-		"@angular/forms": "^14.2.6",
-		"@angular/platform-browser": "^14.2.6",
+		"@angular/common": "^17.0.6",
+		"@angular/compiler": "^17.0.6",
+		"@angular/compiler-cli": "^17.0.6",
+		"@angular/core": "^17.0.6",
+		"@angular/forms": "^17.0.6",
+		"@angular/platform-browser": "^17.0.6",
 		"@manaflair/term-strings": "^0.9.2",
-		"@tsconfig/node14": "^1.0.2",
 		"core-decorators": "^0.13.0",
 		"fuse.js": "^6.4.6",
 		"json5": "^2.2.0",
-		"ng-dynamic-component": "^10.5.1",
-		"rectangulr": "file:../../dist",
-		"rxjs": "~6.6.0",
+		"@rectangulr/rectangulr": "*",
+		"rxjs": "^7.8.1",
 		"tslib": "^2.0.0",
-		"yoga-layout-prebuilt": "^1.10.0",
-		"zone.js": "^0.11.3"
+		"zone.js": "^0.14.2"
 	},
 	"devDependencies": {
-		"@angular-builders/custom-webpack": "^14.0.1",
-		"@angular/cli": "^14.2.7",
-		"@types/lodash": "^4.14.178",
+		"@angular-builders/custom-webpack": "^17.0.0",
+		"@angular/cli": "^17.0.7",
 		"@types/node": "^12.20.51",
-		"typescript": "^4.7.0"
+		"@tsconfig/node14": "^1.0.2",
+		"typescript": "^5.2.0",
+		"wireit": "^0.14.0"
 	}
 }

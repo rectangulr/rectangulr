@@ -17,6 +17,8 @@ import {
   ViewChildren,
   computed,
   effect,
+  forwardRef,
+  inject,
   signal,
   untracked
 } from '@angular/core'
@@ -90,8 +92,7 @@ import { ListItem } from './list-item'
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useFactory: list => list.controlValueAccessor,
-      deps: [List],
+      useFactory: list => inject(List).controlValueAccessor,
       multi: true,
     },
   ],

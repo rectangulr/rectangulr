@@ -1,6 +1,6 @@
 {
-  "name": "rectangulr",
-  "version": "0.1.0",
+  "name": "@rectangulr/rectangulr",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build": "ng build --configuration production",
@@ -8,6 +8,13 @@
     "test": "wireit",
     "test:build": "ng test",
     "test:watch": "wireit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rectangulr/rectangulr.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@rectangulr"
   },
   "wireit": {
     "test": {
@@ -31,7 +38,6 @@
     "widest-line": "^4.0.1"
   },
   "peerDependencies": {
-    "@types/node": "^14.0.0",
     "chai": "^4.3.7",
     "core-decorators": "^0.13.0",
     "fuse.js": "^6.4.6",
@@ -51,6 +57,7 @@
     "@angular/platform-browser": "^17.0.6",
     "@angular/platform-browser-dynamic": "^17.0.6",
     "@babel/cli": "^7.19.3",
+    "@changesets/cli": "^2.27.1",
     "@types/jasmine": "^4.3.1",
     "@types/lodash": "^4.14.189",
     "@types/node": "^14.0.0",
@@ -69,6 +76,6 @@
     "rollup": "^4.9.0",
     "typescript": "^5.2.0",
     "wireit": "^0.14.0",
-    "zone.js": "~0.14.2"
+    "zone.js": "^0.14.2"
   }
 }

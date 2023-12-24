@@ -1,9 +1,9 @@
-import { Component, Input } from '@angular/core'
+import { Component, Input, forwardRef, inject } from '@angular/core'
 import * as json5 from 'json5'
 import { mapKeyValue, stringifyReplacer } from '../../../utils/utils'
-import { HBox, GrowDirective } from '../../1-basics/box'
-import { List } from './list'
+import { GrowDirective, HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
+import { List } from './list'
 
 @Component({
   selector: 'basic-object-display',
@@ -17,7 +17,7 @@ export class BasicObjectDisplay {
   @Input() excludeKeys: string[] = []
   text = 'error'
 
-  constructor(public list: List<any>) { }
+  list = inject(forwardRef(() => List))
 
   ngOnInit() {
     const typeOf = typeof this.data
