@@ -19,16 +19,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: 'pnpm'
 
       # Install / Build
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+      - run: pnpm ci
+      - run: pnpm run build --if-present
+      - run: pnpm test
       - run: cd dist && npm link
 
       # packages/starter
-      - run: npm link @rectangulr/rectangulr && npm run build && npm run test
+      - run: pnpm link @rectangulr/rectangulr && pnpm run build && pnpm run test
         working-directory: ./packages/starter
 
       # Version / Publish
