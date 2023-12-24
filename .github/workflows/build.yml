@@ -25,7 +25,7 @@ jobs:
           cache: 'pnpm'
 
       # Install / Build
-      - run: pnpm ci
+      - run: pnpm install --frozen-lockfile
       - run: pnpm run build --if-present
       - run: pnpm test
       - run: cd dist && npm link
