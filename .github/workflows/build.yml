@@ -48,7 +48,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: npm publish
+          publish: cd dist && npm publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.TOKEN }}
