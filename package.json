@@ -35,7 +35,8 @@
     "ng-dynamic-component": "^10.5.1",
     "tslib": "^2.0.0",
     "typeflex": "^0.1.0",
-    "widest-line": "^4.0.1"
+    "widest-line": "^4.0.1",
+    "wrap-ansi": "^9.0.0"
   },
   "peerDependencies": {
     "chai": "^4.3.7",

@@ -44,7 +44,7 @@
 	"devDependencies": {
 		"@angular-builders/custom-webpack": "^17.0.0",
 		"@angular/cli": "^17.0.7",
-		"@types/node": "^12.20.51",
+		"@types/node": "^18.0.0",
 		"@tsconfig/node14": "^1.0.2",
 		"typescript": "^5.2.0",
 		"wireit": "^0.14.0"

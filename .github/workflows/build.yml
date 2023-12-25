@@ -15,23 +15,27 @@ jobs:
     steps:
       # Setup
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: 'npm'
+          registry-url: https://npm.pkg.github.com
+          scope: '@rectangulr'
 
       # Install / Build
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build --if-present
-      - run: pnpm test
-      - run: cd dist && npm link
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test
 
       # packages/starter
-      - run: pnpm link @rectangulr/rectangulr && pnpm run build && pnpm run test
+      - run: npm link ../../dist
+        working-directory: ./packages/starter
+      - run: npm ci
+        working-directory: ./packages/starter
+      - run: npm run build
+        working-directory: ./packages/starter
+      - run: npm run test
         working-directory: ./packages/starter
 
       # Version / Publish
