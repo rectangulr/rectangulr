@@ -22,8 +22,7 @@ jobs:
           cache: 'npm'
           registry-url: https://npm.pkg.github.com
         env:
-          NPM_TOKEN: ${{ secrets.TOKEN }}
-          NPM_AUTH_TOKEN: ${{ secrets.TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Install / Build
       - run: npm ci
