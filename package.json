@@ -9,9 +9,6 @@
     "test:build": "ng test",
     "test:watch": "wireit"
   },
-  "workspaces": [
-    "packages/starter"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/rectangulr/rectangulr.git"

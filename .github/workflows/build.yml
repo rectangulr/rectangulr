@@ -25,7 +25,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Install / Build
-      - run: npm ci
+      - run: npm ci --include=dev
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build
@@ -34,7 +34,7 @@ jobs:
       # packages/starter
       - run: npm link ../../dist
         working-directory: ./packages/starter
-      - run: npm ci
+      - run: npm ci --include=dev
         working-directory: ./packages/starter
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
