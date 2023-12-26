@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "ng build --configuration production",
+    "build": "wireit",
     "dev": "ng build --watch",
     "test": "wireit",
     "test:build": "ng test",
@@ -18,6 +18,15 @@
     "registry": "https://npm.pkg.github.com/@rectangulr"
   },
   "wireit": {
+    "build": {
+      "command": "bash dev/dist.sh",
+      "dependencies": [
+        "build:angular"
+      ]
+    },
+    "build:angular": {
+      "command": "ng build --configuration production"
+    },
     "test": {
       "command": "node dist-test/main.cjs",
       "dependencies": [
