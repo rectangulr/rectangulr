@@ -7,7 +7,8 @@
     "dev": "ng build --watch",
     "test": "wireit",
     "test:build": "ng test",
-    "test:watch": "wireit"
+    "test:watch": "wireit",
+    "publish": "bash dev/publish.sh"
   },
   "repository": {
     "type": "git",
