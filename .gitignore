@@ -49,3 +49,5 @@ private
 dist
 dist-test
 .angular
+dist-angular
+.wireit
