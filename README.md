@@ -2,7 +2,9 @@
 
 Powerful terminal apps
 
+- Runs locally in the terminal
 - Simple interface
-- No complex styling
-- Runs locally
-- Based on Angular, a proven framework
+	- No CSS, simple styling using signals
+- Builtin components: List, JsonEditor, AppShell
+- Based on Angular
+- Runs on the web for demos or if you want to share your program with other people
