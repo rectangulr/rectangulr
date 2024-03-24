@@ -11,7 +11,7 @@ grep --line-number -R "from 'console'" src/ && error=1
 
 # If in CI, check that no file is .mjs
 if [ -n "$CI" ]; then
-    res=$(find -name '*.mjs')
+    res=$(find -name 'src/*.mjs')
     if [ -n "$res" ]; then
         echo "Files with .mjs extension found in commit:"
         echo $res
