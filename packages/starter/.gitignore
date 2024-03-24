@@ -3,6 +3,7 @@
 # Compiled output
 /dist
 /rg
+/rg-web
 rectangulr
 dist-node
 /tmp
