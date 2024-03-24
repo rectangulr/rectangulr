@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { TermScreen, bootstrapApplication } from '@rectangulr/rectangulr'
 
 @Component({
@@ -6,9 +6,10 @@ import { TermScreen, bootstrapApplication } from '@rectangulr/rectangulr'
 	standalone: true,
 })
 class Main {
-	constructor(public screen: TermScreen) {
+	screen = inject(TermScreen)
+	constructor() {
 		setTimeout(() => {
-			screen.terminate()
+			this.screen.exit()
 		}, 20)
 	}
 }
