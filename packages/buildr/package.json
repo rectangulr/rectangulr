@@ -1,0 +1,20 @@
+{
+  "name": "@rectangulr/buildr",
+  "version": "0.0.2",
+  "type": "module",
+  "description": "Buildr is an async build graph library",
+  "main": "dist/graph.js",
+  "module": "dist/graph.js",
+  "typings": "dist/graph.d.ts",
+  "scripts": {
+    "build": "tsup graph.ts --dts --format esm",
+    "watch": "tsup graph.ts --dts --format esm --watch",
+    "test": "echo \"Error: no test specified\""
+  },
+  "keywords": [],
+  "license": "MIT",
+  "dependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.2.0"
+  }
+}

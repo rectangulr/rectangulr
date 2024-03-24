@@ -1,0 +1,32 @@
+{
+  "name": "smoke-test",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsx dev/build.ts",
+    "watch": "tsx dev/build.ts --watch",
+    "test": "node rg/main.mjs"
+  },
+  "dependencies": {
+    "@angular/common": "^17.2.2",
+    "@angular/compiler": "^17.2.2",
+    "@angular/compiler-cli": "^17.2.2",
+    "@angular/core": "^17.2.2",
+    "@angular/forms": "^17.2.2",
+    "@angular/platform-browser": "^17.2.2",
+    "@rectangulr/rectangulr": "file:../rectangulr/dist",
+    "@rectangulr/buildr": "file:../buildr",
+    "tslib": "^2.0.0",
+    "zone.js": "^0.14.2"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^17.2.0",
+    "@angular/cli": "^17.2.1",
+    "@types/node": "^18.0.0",
+    "rxjs": "^7.8.1",
+    "tsx": "^4.7.1",
+    "typescript": "~5.2.0",
+    "zx": "^7.2.3"
+  }
+}

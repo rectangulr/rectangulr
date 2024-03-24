@@ -1,0 +1,87 @@
+<h1>rectangulr</h1>
+<blockquote>Powerful terminal apps</blockquote>
+
+<div style="margin: auto; width: 800px">
+  <app-root></app-root>
+</div>
+
+<div>
+  Rectangulr makes creating terminal tools easy.
+
+  <ul>
+    <li>
+      Simple design
+      <ul>
+        <li>No CSS</li>
+        <li>Quick to learn</li>
+        <li>Fast to develop</li>
+      </ul>
+    </li>
+    <li>No complex styling</li>
+    <li>Runs locally</li>
+    <li>Based on Angular</li>
+  </ul>
+</div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "fs": "./missing.js",
+      "os": "./missing.js",
+      "child_process": "./missing.js"
+    }
+  }
+</script>
+
+<!-- XTerm -->
+<script type="module">
+  import { Terminal } from 'https://cdn.jsdelivr.net/npm/xterm@5.3.0/+esm'
+  import { WebglAddon } from 'https://cdn.jsdelivr.net/npm/xterm-addon-webgl@0.16.0/+esm'
+  import { FitAddon } from 'https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/+esm'
+
+  const term = new Terminal({
+    fontSize: 16,
+    fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
+    theme: {
+      foreground: '#d2d2d2',
+      background: '#2b2b2b',
+      cursor: '#adadad',
+    },
+  })
+  term.loadAddon(new WebglAddon())
+  const fitAddon = new FitAddon()
+  term.loadAddon(fitAddon)
+  term.open(document.querySelector('app-root'))
+  fitAddon.fit()
+
+  globalThis['xterm'] = term
+</script>
+
+<!-- Rectangulr Todo  -->
+<script src="polyfills.js" type="module"></script>
+<script src="main.js" type="module"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+<style>
+  h1 {
+    text-align: center;
+    font-size: 60px;
+    line-height: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  blockquote {
+    font-size: 16px;
+    text-align: center;
+    font-style: italic;
+    margin: 0 0 40px 0;
+  }
+
+  body {
+    .xterm .xterm-viewport {
+      overflow-y: hidden;
+    }
+  }
+
+</style>

@@ -1,0 +1,79 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+
+      # Setup
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      # - name: Use Node.js ${{ matrix.node-version }}
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: ${{ matrix.node-version }}
+      #     cache: 'npm'
+      #     registry-url: 'https://registry.npmjs.org/'
+
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Install / Build
+
+      - name: "Package: Rectangulr"
+        run: npm ci --include=dev
+        working-directory: ./packages/rectangulr
+      - run: bash dev/checks-source.sh
+        working-directory: ./packages/rectangulr
+      - run: npm run build
+        working-directory: ./packages/rectangulr
+      - run: bash dev/checks-build.sh
+        working-directory: ./packages/rectangulr
+      - run: npm run test
+        working-directory: ./packages/rectangulr
+
+      # packages/buildr
+
+      - name: "Package: Buildr"
+        run: npm i --include=dev
+        working-directory: ./packages/buildr
+      - run: npm run build
+        working-directory: ./packages/buildr
+      - run: npm run test
+        working-directory: ./packages/buildr
+
+      # packages/smoke-test
+
+      - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr ../buildr
+        working-directory: ./packages/smoke-test
+      # - name: "Package: Smoke Test"
+      #   run: npm i --include=dev
+      #   working-directory: ./packages/smoke-test
+      - run: npm run build
+        working-directory: ./packages/smoke-test
+      - run: npm run test
+        working-directory: ./packages/smoke-test
+
+      # packages/starter
+
+      - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr ../buildr
+        working-directory: ./packages/smoke-test
+      # - name: "Package: Starter"
+      #   run: npm i --include=dev
+      #   working-directory: ./packages/starter
+      - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr
+        working-directory: ./packages/starter
+      - run: npm run build
+        working-directory: ./packages/starter

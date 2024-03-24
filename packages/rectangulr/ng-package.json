@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "dist",
+  "allowedNonPeerDependencies": [
+    "cli-truncate",
+    "widest-line",
+    "wrap-ansi",
+    "slice-ansi",
+    "strip-ansi",
+    "string-width",
+    "zen-observable",
+    "@s-libs/micro-dash",
+    "ansi-styles",
+    "ansi-regex",
+    "is-fullwidth-code-point",
+    "chai",
+    "color-diff",
+    "core-decorators",
+    "fuse.js",
+    "json5",
+    "lodash",
+    "rxjs",
+    "term-strings",
+    "tslib",
+    "typeflex",
+    "xterm",
+    "zod"
+  ],
+  "lib": {
+    "entryFile": "src/public-api.ts"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "starter": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "optimization": false,
+            "externalDependencies": [
+              "fs",
+              "os",
+              "timers",
+              "child_process"
+            ],
+            "preserveSymlinks": true,
+            "outputPath": "dist",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "scripts": []
+          },
+          "configurations": {
+            "production": {},
+            "development": {
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "node-build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "externalDependencies": [
+              "fs",
+              "os",
+              "timers",
+              "child_process"
+            ],
+            "outputPath": "dist-node",
+            "index": false,
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              // "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "starter:build:production"
+            },
+            "development": {
+              "buildTarget": "starter:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}

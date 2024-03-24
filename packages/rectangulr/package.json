@@ -1,0 +1,112 @@
+{
+  "name": "@rectangulr/rectangulr",
+  "version": "0.0.3",
+  "type": "module",
+  "scripts": {
+    "build": "wireit",
+    "dev": "ng build --watch",
+    "test": "wireit",
+    "test:build": "ng test",
+    "test:watch": "wireit",
+    "publish": "bash dev/publish.sh"
+  },
+  "module": "dist/fesm2022/rectangulr-rectangulr.mjs",
+  "typings": "dist/index.d.ts",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "esm2022": "./dist/esm2022/rectangulr-rectangulr.mjs",
+      "esm": "./dist/esm2022/rectangulr-rectangulr.mjs",
+      "default": "./dist/fesm2022/rectangulr-rectangulr.mjs"
+    }
+  },
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rectangulr/rectangulr.git"
+  },
+  "wireit": {
+    "build": {
+      "command": "ng build --configuration production"
+    },
+    "test": {
+      "command": "node dist-test/main.cjs",
+      "dependencies": [
+        "test:build"
+      ]
+    },
+    "test:watch": {
+      "command": "ng test --watch",
+      "service": true
+    }
+  },
+  "peerDependencies": {
+    "@angular/cli": "^17.2.0",
+    "@angular/common": "^17.2.2",
+    "@angular/compiler": "^17.2.2",
+    "@angular/compiler-cli": "^17.2.2",
+    "@angular/core": "^17.2.2",
+    "@angular/forms": "^17.2.2",
+    "@angular/platform-browser": "^17.2.2",
+    "@angular/platform-browser-dynamic": "^17.2.2"
+  },
+  "dependencies": {
+    "@s-libs/micro-dash": "^16.1.0",
+    "ansi-regex": "^6.0.1",
+    "ansi-styles": "^6.2.1",
+    "chai": "^4.3.7",
+    "cli-truncate": "^3.1.0",
+    "color-diff": "^1.4.0",
+    "core-decorators": "^0.13.0",
+    "fuse.js": "^6.4.6",
+    "is-fullwidth-code-point": "^5.0.0",
+    "json5": "^2.2.0",
+    "lodash": "^4.17.21",
+    "rxjs": "^7.8.1",
+    "slice-ansi": "^7.1.0",
+    "string-width": "^7.1.0",
+    "strip-ansi": "^7.1.0",
+    "term-strings": "^0.14.2",
+    "tslib": "^2.3.0",
+    "typeflex": "^0.1.0",
+    "widest-line": "^5.0.0",
+    "wrap-ansi": "^9.0.0",
+    "xterm": "^5.3.0",
+    "zen-observable": "^0.10.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@angular-builders/custom-webpack": "^17.0.0",
+    "@angular-devkit/build-angular": "^17.2.0",
+    "@angular/cli": "^17.2.0",
+    "@angular/common": "^17.2.2",
+    "@angular/compiler": "^17.2.2",
+    "@angular/compiler-cli": "^17.2.2",
+    "@angular/core": "^17.2.2",
+    "@angular/forms": "^17.2.2",
+    "@angular/platform-browser": "^17.2.2",
+    "@angular/platform-browser-dynamic": "^17.2.2",
+    "@babel/cli": "^7.19.3",
+    "@changesets/cli": "^2.27.1",
+    "@types/jasmine": "^4.3.1",
+    "@types/lodash": "^4.14.189",
+    "@types/node": "^18.0.0",
+    "@types/webpack-env": "^1.18.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.0",
+    "core-decorators": "^0.13.0",
+    "eslint": "^8.56.0",
+    "eslint-config-standard-with-typescript": "^43.0.0",
+    "fuse.js": "^6.4.6",
+    "jasmine": "^4.5.0",
+    "json5": "^2.2.0",
+    "lodash": "^4.17.21",
+    "ng-packagr": "^17.0.2",
+    "rollup": "^4.9.0",
+    "typescript": "^5.2.0",
+    "wireit": "^0.14.4",
+    "zone.js": "^0.14.2"
+  }
+}

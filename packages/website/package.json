@@ -1,0 +1,21 @@
+{
+	"scripts": {
+		"build": "tsx dev/build.mts",
+		"watch": "tsx dev/build.mts --watch",
+		"serve": "python3 -m http.server",
+		"test": "node src/scripts/check.js"
+	},
+	"devDependencies": {
+		"@s-libs/micro-dash": "^17.1.0",
+		"cheerio": "^1.0.0-rc.12",
+		"chokidar": "^3.6.0",
+		"dom-parser": "^1.1.5",
+		"fast-xml-parser": "^4.3.4",
+		"fswatch": "^0.1.4",
+		"json2html": "^0.0.8",
+		"live-server": "^1.2.2",
+		"node-html-parser": "^6.1.12",
+		"tsx": "^4.7.1",
+		"zx": "^7.2.3"
+	}
+}

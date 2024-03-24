@@ -1,0 +1,153 @@
+.v {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.h {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 1;
+}
+
+body {
+	font: 16px/140% sans-serif;
+	margin: auto;
+	max-width: 1800px;
+}
+
+a {
+	color: inherit;
+}
+
+main {
+	padding-top: 40px;
+}
+
+nav {
+	width: 300px;
+	margin-top: 40px;
+	margin-left: 40px;
+
+	a {
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+
+	ul {
+		margin: 0;
+		padding: 0;
+	}
+
+	ul.h2 {
+		padding-left: 10px;
+		font-size: 80%;
+		line-height: 150%;
+	}
+
+	ul.h3 {
+		padding: 0 0 0 10px;
+	}
+
+	li {
+		list-style: none;
+		margin-bottom: 10px;
+	}
+
+	li.current {
+		font-weight: bold;
+	}
+
+	li.current>ul.h3 {
+		font-weight: normal;
+	}
+}
+
+#icons {
+	margin: 20px 0 20px 50px;
+
+	a {
+		display: inline-block;
+	}
+}
+
+.logo {
+	display: inline-block;
+	font-size: 200%;
+	font-weight: bold;
+	margin-top: 10px;
+	margin-bottom: 30px;
+	line-height: 40px;
+	padding-left: 50px;
+	background-image: url(/images/favicon.svg);
+	background-repeat: no-repeat;
+	background-size: 40px 40px;
+}
+
+
+/* Theme: light */
+html:not([data-theme=dark]) {
+	--bg-grad: rgba(255, 255, 255, 0) 0%, #fff 25%, #fff 75%, rgba(255, 255, 255, 0) 100%;
+	--bg: #fff;
+	--dark: none;
+	--fg-on: #000;
+	--fg: #222;
+	--lite: block;
+	--menu-bg: #fff;
+	--menu-fg: #222;
+	--menu-a: 0.25;
+	--pre-dim: #777;
+	--pre-val: #870;
+	--pre: #222;
+	--svg: #444;
+	--td: #ddd;
+	--tr: #f7f7f7;
+	--warn-info: #222;
+}
+
+/* Theme: dark (JS triggered) */
+html[data-theme=dark] {
+	color-scheme: dark;
+	--bg-grad: rgba(25, 25, 25, 0) 0%, #191919 25%, #191919 75%, rgba(25, 25, 25, 0) 100%;
+	--bg: #191919;
+	--dark: block;
+	--fg-on: #ddd;
+	--fg: #aaa;
+	--lite: none;
+	--menu-bg: #222;
+	--menu-fg: #aaa;
+	--menu-a: 0.65;
+	--pre-dim: #999;
+	--pre-val: #cb8;
+	--pre: #ccc;
+	--svg: #aaa;
+	--td: #333;
+	--tr: #151515;
+	--warn-info: #ddd;
+}
+
+/* Theme: dark (JS disabled) */
+@media (prefers-color-scheme: dark) {
+	html:not([data-theme=light]) {
+		color-scheme: dark;
+		--bg-grad: rgba(25, 25, 25, 0) 0%, #191919 25%, #191919 75%, rgba(25, 25, 25, 0) 100%;
+		--bg: #191919;
+		--dark: block;
+		--fg-on: #ddd;
+		--fg: #aaa;
+		--lite: none;
+		--menu-bg: #222;
+		--menu-fg: #aaa;
+		--menu-a: 0.65;
+		--pre-dim: #999;
+		--pre-val: #cb8;
+		--pre: #ccc;
+		--svg: #aaa;
+		--td: #333;
+		--tr: #151515;
+		--warn-info: #ddd;
+	}
+}
