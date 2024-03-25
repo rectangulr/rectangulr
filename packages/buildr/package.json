@@ -16,5 +16,8 @@
   "dependencies": {
     "tsup": "^8.0.2",
     "typescript": "^5.2.0"
+  },
+  "devDependencies": {
+    "publish-if-not-exists": "^1.1.0"
   }
 }

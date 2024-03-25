@@ -4,4 +4,4 @@ set -ex
 cd $(dirname $0)/../dist
 pwd
 
-npm publish --access public
+npx publish-if-not-exists
