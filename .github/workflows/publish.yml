@@ -49,7 +49,7 @@ jobs:
       - run: npm run build
         working-directory: ./packages/buildr
       - name: Publish
-        run: np publish-if-not-exists
+        run: npx publish-if-not-exists
         working-directory: ./packages/buildr
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
