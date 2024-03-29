@@ -10,6 +10,10 @@
 	flex-grow: 1;
 }
 
+h2 {
+	margin-top: 40px;
+}
+
 body {
 	font: 16px/140% sans-serif;
 	margin: auto;

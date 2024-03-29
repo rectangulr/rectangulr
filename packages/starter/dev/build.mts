@@ -39,3 +39,7 @@ call(() => {
 
 	console.log(`Done building: ${new Date().toLocaleTimeString()}`)
 })
+
+if (argv['serve']) {
+	$`npx live-server dist`
+}

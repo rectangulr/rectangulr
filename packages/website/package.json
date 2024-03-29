@@ -7,6 +7,7 @@
 	},
 	"devDependencies": {
 		"@s-libs/micro-dash": "^17.1.0",
+		"@types/markdown-it": "^13.0.7",
 		"cheerio": "^1.0.0-rc.12",
 		"chokidar": "^3.6.0",
 		"dom-parser": "^1.1.5",
@@ -14,8 +15,12 @@
 		"fswatch": "^0.1.4",
 		"json2html": "^0.0.8",
 		"live-server": "^1.2.2",
+		"markdown-it": "^14.1.0",
 		"node-html-parser": "^6.1.12",
 		"tsx": "^4.7.1",
 		"zx": "^7.2.3"
+	},
+	"dependencies": {
+		"highlight.js": "^11.9.0"
 	}
 }

@@ -1,5 +1,6 @@
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
 import {
+  AfterRenderPhase,
   ChangeDetectionStrategy,
   Component,
   ContentChild,
@@ -15,6 +16,7 @@ import {
   Signal,
   TemplateRef,
   ViewChildren,
+  afterNextRender,
   computed,
   effect,
   forwardRef,
@@ -51,9 +53,7 @@ import { ListItem } from './list-item'
       <h>{{ $selectedIndex() + 1 }}/{{ $items()?.length || 0 }}</h>
     }
     <v [s]="{ flexShrink: 0, scrollF: 'y' }">
-      @for (
-        item of $visibleItems(); track trackByFn(index,
-        item); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd) {
+      @for (item of $visibleItems(); track trackByFn(index,item); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd) {
         <v
           #elementRef
           (mousedown)="selectVisibleIndex(index)"
@@ -80,7 +80,7 @@ import { ListItem } from './list-item'
     </v>
 
     <ng-template #defaultTemplate let-item let-selected>
-      <basic-object-display [data]="item" [s]="[cond(selected, style.whiteOnGray)]"/>
+      <basic-object-display [data]="item" />
     </ng-template>
     `,
   providers: [
