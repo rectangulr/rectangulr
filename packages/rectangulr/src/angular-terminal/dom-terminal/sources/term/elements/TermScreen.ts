@@ -188,7 +188,8 @@ export class TermScreen extends TermElement {
       this.terminal.inputs.setRawMode(true)
     }
 
-    // Enter the alternate screen    this.write(screen.alternateScreen.in)
+    // Enter the alternate screen
+    this.writeToTerminal(screen.alternateScreen.in)
 
     // Disable the terminal soft wrapping
     this.writeToTerminal(screen.noWrap.in)
