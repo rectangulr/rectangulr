@@ -1,5 +1,5 @@
 import type { Terminal as XtermRef } from "xterm"
-import { EventHandler } from "../../utils/event-handler"
+import { EventDispatch } from "../../utils/event-handler"
 import { Disposable, Queue } from "../../utils/queue"
 import { Input } from "../dom-terminal/sources/term/elements/TermScreen"
 import { Terminal } from './terminal'
@@ -15,7 +15,7 @@ export class XTermTerminal implements Terminal {
 	constructor(xterm: XtermRef) {
 		this.inputs = new class {
 			queue = new Queue<Input>()
-			eventHandler = new EventHandler()
+			eventDispatch = new EventDispatch()
 
 			send(input: Input) {
 				this.queue.send(input)
@@ -26,12 +26,12 @@ export class XTermTerminal implements Terminal {
 			}
 
 			on(event: string, func: () => void) {
-				return this.eventHandler.on(event, func)
+				return this.eventDispatch.on(event, func)
 			}
 		}()
 
 		this.screen = new class {
-			eventHandler = new EventHandler()
+			eventHandler = new EventDispatch()
 
 			constructor(public xterm: XtermRef) { }
 
