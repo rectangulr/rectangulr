@@ -498,9 +498,13 @@ export class TermScreen extends TermElement {
   }
 
   writeToTerminal(text: string) {
-    this.ngZone.runOutsideAngular(() => {
+    if (this.ngZone) {
+      this.ngZone.runOutsideAngular(() => {
+        this.terminal.screen.write(text)
+      })
+    } else {
       this.terminal.screen.write(text)
-    })
+    }
   }
 
   handleException(exception) {
