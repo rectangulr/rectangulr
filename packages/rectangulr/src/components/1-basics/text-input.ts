@@ -1,13 +1,13 @@
-import { Component, effect, ElementRef, forwardRef, HostListener, Input, model } from '@angular/core'
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, effect, forwardRef, input, model, signal, untracked } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import _ from 'lodash'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
 import { addStyle } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../angular-terminal/logger'
-import { Command, registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
+import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
 import { onChange } from '../../utils/reactivity'
 import { assert } from '../../utils/utils'
-import { GrowDirective, HBox } from './box'
+import { HBox } from './box'
 import { StyleDirective } from './style'
 
 let globalId = 0
@@ -27,16 +27,20 @@ let globalId = 0
     { provide: ShortcutService },
   ],
   standalone: true,
-  imports: [HBox, StyleDirective, GrowDirective],
+  imports: [HBox, StyleDirective],
 })
 export class TextInput implements ControlValueAccessor {
   _id = ++globalId
 
-  text = model('')
-  @Input() focusOnInit = true
+  @Input({ alias: 'text' }) textInput = ''
+  text = signal('')
+  @Output() textChange = new EventEmitter<string>()
 
-  caretIndex = 0
-  domElement: Element
+  multiline = input(false)
+  focusOnInit = input(true)
+
+  caretIndex = model(0)
+  domElement: Element | undefined = undefined
 
   constructor(
     public shortcutService: ShortcutService,
@@ -44,30 +48,42 @@ export class TextInput implements ControlValueAccessor {
     public logger: Logger
   ) {
     addStyle({ flexDirection: 'row', scrollF: 'x' })
+
+    onChange(this, 'textInput', value => {
+      assert(typeof value == 'string')
+
+      this.text.set(value)
+      this.setCaret(value.length)
+    })
+
     effect(() => {
       const value = this.text()
       assert(typeof value == 'string')
 
-      // this.textChange.next(value)
+      this.textChange.next(value)
       this.controlValueAccessor.onChange(value)
     })
+
+    effect(() => {
+      this.caretIndex()
+      untracked(() => {
+        this.updateCaretPositionAndScroll()
+      })
+    })
+    this.setCaret(this.text().length)
+
     registerShortcuts(this.shortcuts)
   }
 
   ngOnInit() {
-    assert(typeof this.text() == 'string')
-
-    onChange(
-      this,
-      'caretIndex',
-      () => this.updateCaretPositionAndScroll(),
-      value => _.clamp(value, 0, this.text().length)
-    )
-    this.caretIndex = this.text().length
-
-    if (this.focusOnInit) {
+    if (this.focusOnInit()) {
       this.shortcutService.requestFocus({ reason: 'TextInput onInit' })
     }
+  }
+
+  setCaret(value: number) {
+    value = _.clamp(value, 0, this.text().length)
+    this.caretIndex.set(value)
   }
 
   @HostListener('mousedown', ['$event'])
@@ -83,13 +99,18 @@ export class TextInput implements ControlValueAccessor {
 
   updateCaretPositionAndScroll() {
     if (this.domElement) {
-      this.domElement.caret = new Point({ x: this.caretIndex, y: 0 })
+      if (this.multiline()) {
+        const { x, y } = fromCaretIndexToXY(this.text(), this.caretIndex())
+        this.domElement.caret = new Point({ x, y })
+      } else {
+        this.domElement.caret = new Point({ x: this.caretIndex(), y: 0 })
+      }
       this.domElement.scrollCellIntoView(this.domElement.caret)
     }
   }
 
   toString() {
-    return `TextInput: '${this.text()}'`
+    return `TextInput: '${this.text}'`
   }
 
   // implements ControlValueAccessor, so a form can read/write the value of this input
@@ -102,7 +123,7 @@ export class TextInput implements ControlValueAccessor {
 
   writeValue(value: string) {
     this.text.set(value)
-    this.caretIndex = _.clamp(this.caretIndex, 0, this.text().length)
+    this.setCaret(_.clamp(this.caretIndex(), 0, this.text().length))
     this.controlValueAccessor.onChange(value)
   }
 
@@ -124,87 +145,142 @@ export class TextInput implements ControlValueAccessor {
     {
       keys: 'left',
       func: key => {
-        if (this.caretIndex == 0) return key
-        this.caretIndex--
+        if (this.caretIndex() == 0) return key
+        this.caretIndex.update(v => --v)
       },
     },
     {
       keys: 'right',
       func: key => {
-        if (this.caretIndex == this.text().length) return key
-        this.caretIndex++
+        if (this.caretIndex() == this.text().length) return key
+        this.caretIndex.update(v => ++v)
       },
+    },
+    {
+      keys: 'down',
+      func: key => {
+        let i = this.caretIndex()
+        for (; true; i++) {
+          if (i >= this.text().length) {
+            return key
+          }
+          if (this.text[i] == "\n") {
+            this.setCaret(i + 1)
+            break
+          }
+        }
+      },
+    },
+    {
+      keys: 'up',
+      func: key => {
+        let i = this.caretIndex()
+        for (; true; i--) {
+          if (i <= 0) {
+            return key
+          }
+          if (this.text[i] == "\n") {
+            this.setCaret(i - 1)
+            break
+          }
+        }
+      },
+    },
+    {
+      keys: 'enter',
+      func: key => {
+        if (this.multiline()) {
+          this.text.set(this.text + '\n')
+          this.caretIndex.update(v => ++v)
+        } else {
+          return key
+        }
+      }
     },
     {
       keys: 'home',
       func: key => {
-        if (this.caretIndex == 0) return key
-        this.caretIndex = 0
+        if (this.caretIndex() == 0) return key
+        this.setCaret(0)
       },
     },
     {
       keys: 'end',
       func: key => {
-        if (this.caretIndex == this.text().length) return key
-        this.caretIndex = this.text().length
+        if (this.caretIndex() == this.text().length) return key
+        this.setCaret(this.text().length)
       },
     },
     {
       keys: 'backspace',
       func: key => {
-        if (this.caretIndex == 0) return key
-        this.text.set(this.text().substring(0, this.caretIndex - 1) + this.text().substring(this.caretIndex))
-        this.caretIndex--
+        if (this.caretIndex() == 0) return key
+        this.text.set(this.text().substring(0, this.caretIndex() - 1) + this.text().substring(this.caretIndex()))
+        this.caretIndex.update(v => --v)
       },
     },
     {
       keys: 'ctrl+left',
       func: key => {
-        if (this.caretIndex == 0) return key
-        this.caretIndex = searchFromIndex(this.text(), this.caretIndex, -1)
+        if (this.caretIndex() == 0) return key
+        this.setCaret(searchFromIndex(this.text(), this.caretIndex(), -1))
       },
     },
     {
       keys: 'ctrl+u',
       func: () => {
         this.text.set('')
-        this.caretIndex = 0
+        this.setCaret(0)
       },
     },
     {
       keys: 'ctrl+right',
       func: key => {
-        if (this.caretIndex == this.text().length) return key
-        this.caretIndex = searchFromIndex(this.text(), this.caretIndex, +1)
+        if (this.caretIndex() == this.text().length) return key
+        this.setCaret(searchFromIndex(this.text(), this.caretIndex(), +1))
       },
     },
     {
       keys: ['ctrl+h', 'ctrl+w', 'ctrl+backspace'],
       func: key => {
-        if (this.caretIndex == 0) return key
-        const index = searchFromIndex(this.text(), this.caretIndex, -1)
-        this.text.set(this.text().substring(0, index) + this.text().substring(this.caretIndex, this.text().length))
-        this.caretIndex = index
+        if (this.caretIndex() == 0) return key
+        const index = searchFromIndex(this.text(), this.caretIndex(), -1)
+        this.text.set(this.text().substring(0, index) + this.text().substring(this.caretIndex(), this.text().length))
+        this.setCaret(index)
       },
     },
     {
       keys: 'delete',
       func: () => {
-        this.text.set(this.text().substring(0, this.caretIndex) + this.text().substring(this.caretIndex + 1))
+        this.text.set(this.text().substring(0, this.caretIndex()) + this.text().substring(this.caretIndex() + 1))
       },
     },
     {
       keys: 'else',
       func: key => {
         if (!key.shift && !key.ctrl && !key.alt && !key.meta && key.name.length == 1) {
-          this.text.set(this.text().substring(0, this.caretIndex) + key.name + this.text().substring(this.caretIndex))
-          this.caretIndex++
+          this.text.set(this.text().substring(0, this.caretIndex()) + key.name + this.text().substring(this.caretIndex()))
+          this.caretIndex.update(v => ++v)
         } else {
           return key
         }
       },
     },
   ]
+}
+
+function fromCaretIndexToXY(text: string, caretIndex: number) {
+  let x = 0
+  let y = 0
+  for (let i = 0; i < caretIndex; i++) {
+    if (text[i] == '\n') {
+      y++
+      x = 0
+    } else {
+      x++
+    }
+  }
+  return { x, y }
 }
 
 /**
@@ -216,7 +292,7 @@ function searchFromIndex(
   text: string,
   startIndex: number,
   incrementBy = 1,
-  characters = ` \t\`~!@#$%^&*()-=+[{]}\|;:'",.<>/?`
+  characters = ` \n\t\`~!@#$%^&*()-=+[{]}\|;:'",.<>/?`
 ) {
   let index = startIndex + incrementBy
   if (characters.includes(text[index])) {

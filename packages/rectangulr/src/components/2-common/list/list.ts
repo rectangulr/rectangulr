@@ -53,28 +53,18 @@ import { ListItem } from './list-item'
       <h>{{ $selectedIndex() + 1 }}/{{ $items()?.length || 0 }}</h>
     }
     <v [s]="{ flexShrink: 0, scrollF: 'y' }">
-      @for (item of $visibleItems(); track trackByFn(index,item); let index = $index; let count = $count; let first = $first; let last = $last; let even = $even; let odd = $odd) {
+      @for (item of $visibleItems(); track trackByFn(index,item); let index = $index) {
         <v
           #elementRef
           (mousedown)="selectVisibleIndex(index)"
-          [s]="cond($isItemSelected(item), style.whiteOnGray)">
-          <!-- TODO: only style if selected -->
+          [s]="cond(isVisibleIndexSelected(index), style.whiteOnGray)">
           <ng-container
             [ngTemplateOutlet]="template || template2 || defaultTemplate"
             [ngTemplateOutletContext]="{
               $implicit: item,
               index: index,
-              count: count,
-              first: first,
-              last: last,
-              even: even,
-              odd: odd,
-              selected: $isItemSelected(item)
-          }"></ng-container>
-          <!-- <ng-container
-          *ngIf="!template && !template2 && _displayComponent"
-          [ngComponentOutlet]="_displayComponent"
-        [ndcDynamicInputs]="{ data: item }"></ng-container> -->
+              selected: isVisibleIndexSelected(index)
+          }"/>
       </v>
     }
     </v>
@@ -348,8 +338,14 @@ export class List<T> {
   cond = cond
   eq = eq
 
-  $isItemSelected(item) {
-    return computed(() => item == this.$selectedValue())
+  isVisibleIndexSelected(visibleIndex: number) {
+    return computed(() => {
+      const selectedIndex = this.$selectedIndex()
+      if (selectedIndex === null) {
+        return false
+      }
+      return visibleIndex === this.$visibleRange().start + selectedIndex
+    })
   }
 
   destroy$ = new Subject()

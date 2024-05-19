@@ -39,8 +39,7 @@ export class XTermTerminal implements Terminal {
 				this.xterm.write(text)
 			}
 
-			columns = this.xterm.cols
-			rows = this.xterm.rows
+			size = () => ({ width: this.xterm.cols, height: this.xterm.rows })
 
 			on(event, func) {
 				return this.eventHandler.on(event, func)

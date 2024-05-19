@@ -8,8 +8,8 @@ import { ScreenService } from "./angular-terminal/screen-service"
 import { TERMINAL } from "./angular-terminal/terminals/terminal"
 import { voidTerminal } from './angular-terminal/terminals/void'
 import { InjectFunction, addToGlobalRg, assert } from "./utils/utils"
-import { XTermTerminal } from "./angular-terminal/terminals/xterm"
-import { ProcessTerminal } from "./angular-terminal/terminals/process"
+import { XTermTerminal } from "./angular-terminal/terminals/xtermTerminal"
+import { ProcessTerminal } from "./angular-terminal/terminals/processTerminal"
 
 
 // @ts-ignore

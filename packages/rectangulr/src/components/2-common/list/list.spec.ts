@@ -103,6 +103,7 @@ describe('List - ', () => {
   })
 
   it(`should focus the first line of the list`, fakeAsync(async () => {
+    debugger
     const { fixture, component, shortcuts } = setupTest(Test3)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: '-' })
     expect(component.inputs.get(0).text()).toBe('text1-')

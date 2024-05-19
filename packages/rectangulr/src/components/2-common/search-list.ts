@@ -27,13 +27,13 @@ import { borderTop } from './styles'
   standalone: true,
   selector: 'search-list',
   template: `
-    <v [s]="{ flexDirection: 'column' }">
+    <v>
       @if (searchInputVisible) {
         <text-input
           [text]="searchText"
           (textChange)="searchTextChange.next($event)"
           [focusIf]="focusInputIf"
-        [s]="{ backgroundColor: 'gray', color: 'white' }"></text-input>
+          [s]="{ backgroundColor: 'gray', color: 'white' }"/>
       }
       <list
         [items]="matchingItems.$"

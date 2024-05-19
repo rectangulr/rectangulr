@@ -1,4 +1,4 @@
-export class EventHandler {
+export class EventDispatch {
 	private listeners: { [event: string]: ((...args: any[]) => void)[] } = {}
 	on(event: string, func: (...args: any[]) => void) {
 		if (!this.listeners[event]) {

@@ -9,8 +9,7 @@ export const voidTerminal: Terminal = {
 	},
 	screen: {
 		write: text => true,
-		columns: 150,
-		rows: 40,
+		size: () => ({ width: 150, height: 40 }),
 		on: (event, func) => { },
 	},
 }

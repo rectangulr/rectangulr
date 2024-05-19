@@ -1,4 +1,3 @@
-
 import {
   Component,
   Injector,
@@ -17,7 +16,7 @@ import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
-import { DataFormat } from '../../../utils/data-format'
+import { DataFormat, JsonPath } from '../../../utils/data-format'
 import { onChange, propToSignal, subscribe } from '../../../utils/reactivity'
 import { AnyObject, assert, inputToSignal, removeFromArray } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
@@ -28,13 +27,6 @@ import { List, selectItem } from '../list/list'
 import { ListItem } from '../list/list-item'
 import { Observable } from 'rxjs'
 import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-
-/**
- * Used by json-editor to know what part of the json to focus on.
- * Example: {root: {name: 'aa}}
- * JsonPath = ['root','name', 2] would position the caret after 'aa'
- */
-export type JsonPath = Array<string | number>
 
 @Component({
   selector: 'json-editor',
@@ -49,7 +41,7 @@ export type JsonPath = Array<string | number>
       @if (['string', 'number', 'boolean', 'null'].includes(valueRef.type)) {
         <text-input
           [text]="valueText"
-        (textChange)="textChange($event)"></text-input>
+          (textChange)="textChange($event)"></text-input>
       }
       @if (valueRef.type == 'object' || valueRef.type == 'array') {
         <list [items]="valueRef.childrenValueRefs" [focusShortcuts]="shortcutsForList">

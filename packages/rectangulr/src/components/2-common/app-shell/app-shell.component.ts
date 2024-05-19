@@ -1,5 +1,5 @@
 import { NgComponentOutlet } from '@angular/common'
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { cond, eq, neq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../../angular-terminal/logger'
@@ -15,8 +15,8 @@ import { ViewService } from './view.service'
 @Component({
   standalone: true,
   selector: 'app-shell',
-  // hostDirectives: [GrowDirective],
-  host: { 's': '{widht: "100%", height: "100%"}' },
+  hostDirectives: [GrowDirective],
+  host: { 's': '{width: "100%", height: "100%"}' },
   template: `
     <!-- Display the currentTab. The others are styled 'display: none'. -->
     @for (view of viewService.views(); track view) {
@@ -42,7 +42,7 @@ import { ViewService } from './view.service'
         </h>
       }
       <h [s]="{ hgrow: true }"/>
-      <h [s]="{ flexShrink: 0 }">Help: alt+p</h>
+      <h [s]="{ flexShrink: 0 }" (mousedown)="toggleCommands()">Help: alt+p</h>
     </h>
 
     <!-- Popup to discover shortcuts -->
@@ -57,12 +57,11 @@ import { ViewService } from './view.service'
 })
 export class AppShell {
   showCommands = false
+  viewService = inject(ViewService)
+  shortcutService = inject(ShortcutService)
+  logger = inject(Logger)
 
-  constructor(
-    public viewService: ViewService,
-    public shortcutService: ShortcutService,
-    public logger: Logger
-  ) {
+  constructor() {
     registerShortcuts(this.shortcuts)
   }
 
@@ -75,14 +74,16 @@ export class AppShell {
   eq = eq
   neq = neq
 
+  toggleCommands() {
+    this.showCommands = !this.showCommands
+  }
+
   shortcuts: Partial<Command>[] = [
     {
       keys: 'alt+p',
       id: 'toggleCommands',
       keywords: 'commands shortcuts help',
-      func: () => {
-        this.showCommands = !this.showCommands
-      },
+      func: () => this.toggleCommands(),
     },
     {
       keys: 'alt+e',
@@ -117,10 +118,4 @@ export class AppShell {
       },
     },
   ]
-
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
-  }
 }

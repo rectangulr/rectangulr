@@ -38,8 +38,9 @@ export class ProcessTerminal implements Terminal {
 			write = text => {
 				this.process.stdout.write(text)
 			}
-			columns = this.process.stdout.columns
-			rows = this.process.stdout.rows
+			size = () => {
+				return { width: this.process.stdout.columns, height: this.process.stdout.rows }
+			}
 			on = (event, func) => { return this.process.stdout.on(event, func) }
 		}(process)
 

@@ -30,14 +30,9 @@ export interface TerminalScreen {
   on(event: string, func: (...args: any[]) => void): any
 
   /**
-   * The number of columns available in this terminal.
+   * The size available in this terminal as (width,height).
    */
-  columns: number
-
-  /**
-   * The number of rows available in this terminal.
-   */
-  rows: number
+  size: () => { width: number, height: number }
 }
 
 export interface Terminal {

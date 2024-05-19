@@ -1,4 +1,4 @@
-import { Inject, Injectable, Injector } from '@angular/core'
+import { Inject, Injectable, Injector, inject } from '@angular/core'
 import { TermScreen } from './dom-terminal'
 import { Logger } from './logger'
 import { TERMINAL, Terminal } from './terminals/terminal'
@@ -10,14 +10,11 @@ import { TERMINAL, Terminal } from './terminals/terminal'
   providedIn: 'root',
 })
 export class ScreenService {
+  terminal = inject(TERMINAL)
+  logger = inject(Logger)
+  termScreen = inject(TermScreen)
 
-  constructor(
-    @Inject(TERMINAL) public terminal: Terminal,
-    public logger: Logger,
-    public injector: Injector,
-    public termScreen: TermScreen,
-  ) {
-
+  constructor() {
     this.attachScreen()
 
     globalThis['DOM'] = this.termScreen

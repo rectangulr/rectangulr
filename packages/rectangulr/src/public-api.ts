@@ -38,7 +38,7 @@ export {
 export { View, ViewService } from './components/2-common/app-shell/view.service'
 export { ConfigLoader } from './components/2-common/config-loader'
 export { FormEditor, KeyValueEditor } from './components/2-common/form-editor'
-export { JsonEditor, JsonPath } from './components/2-common/json-editor/json-editor'
+export { JsonEditor } from './components/2-common/json-editor/json-editor'
 export { Json5Pipe } from './components/2-common/json5.pipe'
 export { List } from './components/2-common/list/list'
 export { ListItem } from './components/2-common/list/list-item'
@@ -71,7 +71,7 @@ export {
   derived,
   makeIntoSignal,
 } from './utils/reactivity'
-export { DataFormat, CheckReturn } from './utils/data-format'
+export { DataFormat, CheckReturn, JsonPath, Completion } from './utils/data-format'
 
 declare global {
   let RECTANGULR_TARGET: 'web' | 'node' | (string & {})

@@ -1,4 +1,4 @@
-import { Injectable, NgZone, inject } from '@angular/core'
+import { Injectable, NgZone, inject, signal } from '@angular/core'
 import _ from 'lodash'
 import z from 'zod'
 import { cursor, feature, screen, style } from '../../../../../term-strings/core'
@@ -37,6 +37,7 @@ export class TermScreen extends TermElement {
   // detachedNodes: Element[] = []
   parser: Parser
   decoder = new TextDecoder()
+  size = signal({ width: 0, height: 0 })
 
   // recycledThisTick = 0
 
@@ -157,15 +158,8 @@ export class TermScreen extends TermElement {
     this.trackScreenSize = trackOutputSize
 
     // Automatically clear the screen when the program exits
-    // process.on(`uncaughtException`, this.handleException)
-    // process.on(`exit`, this.handleExit)
-
-    // Listen for input events
-    // this.subscription = parseTerminalInputs(this.terminal.inputs, { throttleMouseMoveEvents }).subscribe(
-    //   input => {
-    //     this.handleInput(input)
-    //   },
-    // )
+    process.on(`uncaughtException`, () => { this.handleException })
+    process.on(`exit`, () => { this.handleExit })
 
     this.terminal.inputs.subscribe(input => {
       if (input.type == 'raw') {
@@ -177,10 +171,14 @@ export class TermScreen extends TermElement {
     })
 
     // Automatically resize the screen when its output changes
-    if (this.trackScreenSize) {
-      // this.style.assign({ width: this.terminal.output.columns, height: this.terminal.output.rows })
-      this.terminal.screen.on('resize', () => this.handleStdoutResize())
-      this.handleStdoutResize()
+    {
+      this.style.add(this.size)
+      this.size.set(this.terminal.screen.size())
+
+      this.terminal.screen.on('resize', size => {
+        this.size.set(this.terminal.screen.size())
+        console.log(this.size())
+      })
     }
 
     // If we can operate in raw mode, we do
@@ -616,16 +614,6 @@ export class TermScreen extends TermElement {
       throw new Error(`handleInput : Unknown input type ${input.type}`)
     }
     forceRefresh()
-  }
-
-  handleStdoutResize() {
-    let width = this.terminal.screen.columns
-    let height = this.terminal.screen.rows
-
-    this.style.add({
-      width: width,
-      height: height,
-    })
   }
 
   private dirtyStyleNodes: TermElement[] = []

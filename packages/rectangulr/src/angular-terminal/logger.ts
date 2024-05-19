@@ -1,4 +1,4 @@
-import { Injectable, InjectionToken, inject, signal } from '@angular/core'
+import { Injectable, InjectionToken, inject, signal, untracked } from '@angular/core'
 import * as _ from '@s-libs/micro-dash'
 import * as fs from 'fs'
 import * as os from 'os'
@@ -33,12 +33,14 @@ export class Logger {
     }
 
     // Store in memory (max 200)
-    this.$logs.update(logs => {
-      logs.push(logObject)
-      if (logs.length > 200) {
-        logs = logs.slice(-100)
-      }
-      return [...logs]
+    untracked(() => {
+      this.$logs.update(logs => {
+        logs.push(logObject)
+        if (logs.length > 200) {
+          logs = logs.slice(-100)
+        }
+        return [...logs]
+      })
     })
 
     // Store in file
