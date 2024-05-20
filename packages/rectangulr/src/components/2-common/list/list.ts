@@ -53,17 +53,17 @@ import { ListItem } from './list-item'
       <h>{{ $selectedIndex() + 1 }}/{{ $items()?.length || 0 }}</h>
     }
     <v [s]="{ flexShrink: 0, scrollF: 'y' }">
-      @for (item of $visibleItems(); track trackByFn(index,item); let index = $index) {
+      @for (item of $visibleItems(); track trackByFn($index,item)) {
         <v
           #elementRef
-          (mousedown)="selectVisibleIndex(index)"
-          [s]="cond(isVisibleIndexSelected(index), style.whiteOnGray)">
+          (mousedown)="selectVisibleIndex($index)"
+          [s]="cond(eq(item, $selectedValue), style.whiteOnGray)">
           <ng-container
             [ngTemplateOutlet]="template || template2 || defaultTemplate"
             [ngTemplateOutletContext]="{
               $implicit: item,
-              index: index,
-              selected: isVisibleIndexSelected(index)
+              index: $index,
+              selected: eq(item, $selectedValue)
           }"/>
       </v>
     }
@@ -337,16 +337,6 @@ export class List<T> {
   computed = computed
   cond = cond
   eq = eq
-
-  isVisibleIndexSelected(visibleIndex: number) {
-    return computed(() => {
-      const selectedIndex = this.$selectedIndex()
-      if (selectedIndex === null) {
-        return false
-      }
-      return visibleIndex === this.$visibleRange().start + selectedIndex
-    })
-  }
 
   destroy$ = new Subject()
   ngOnDestroy() {
