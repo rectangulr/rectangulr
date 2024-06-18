@@ -17,9 +17,7 @@ import { StyleDirective } from '../../1-basics/style'
         @if (notification.name) {
           <h>{{ notification.name }}</h>
         }
-        @if (!notification.name) {
-          <object-display [object]="notification"></object-display>
-        }
+        <object-display [object]="notification"></object-display>
         <!-- <h [s]="{ hgrow: true, justifyContent: 'flexEnd' }"><h>Go To Logs: alt+l</h></h> -->
       </v>
     }

@@ -164,7 +164,7 @@ export class TextInput implements ControlValueAccessor {
           if (i >= this.text().length) {
             return key
           }
-          if (this.text[i] == "\n") {
+          if (this.text()[i] == "\n") {
             this.setCaret(i + 1)
             break
           }
@@ -179,23 +179,12 @@ export class TextInput implements ControlValueAccessor {
           if (i <= 0) {
             return key
           }
-          if (this.text[i] == "\n") {
+          if (this.text()[i] == "\n") {
             this.setCaret(i - 1)
             break
           }
         }
       },
-    },
-    {
-      keys: 'enter',
-      func: key => {
-        if (this.multiline()) {
-          this.text.set(this.text + '\n')
-          this.caretIndex.update(v => ++v)
-        } else {
-          return key
-        }
-      }
     },
     {
       keys: 'home',
@@ -258,13 +247,26 @@ export class TextInput implements ControlValueAccessor {
     {
       keys: 'else',
       func: key => {
-        if (!key.shift && !key.ctrl && !key.alt && !key.meta && key.name.length == 1) {
-          this.text.set(this.text().substring(0, this.caretIndex()) + key.name + this.text().substring(this.caretIndex()))
-          this.caretIndex.update(v => ++v)
-        } else {
-          return key
+        if (!key.shift && !key.ctrl && !key.alt && !key.meta) {
+          if (key.name.length == 1) {
+            insertString(this, key.name)
+            return
+          } else {
+            if (key.name == 'enter') {
+              if (this.multiline()) {
+                insertString(this, "\n")
+                return
+              }
+            }
+          }
         }
-      },
+        return key
+
+        function insertString(textInput: TextInput, str: string) {
+          textInput.text.set(textInput.text().substring(0, textInput.caretIndex()) + str + textInput.text().substring(textInput.caretIndex()))
+          textInput.caretIndex.update(c => c + str.length)
+        }
+      }
     },
   ]
 }

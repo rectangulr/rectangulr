@@ -2,46 +2,45 @@ import {
   Component,
   Injector,
   Input,
-  QueryList,
   Signal,
-  ViewChild,
-  ViewChildren,
   signal,
+  viewChild,
+  viewChildren
 } from '@angular/core'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
 import _ from 'lodash'
-import { Subject } from 'rxjs'
+import { Observable, Subject } from 'rxjs'
+import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
-import { DataFormat, JsonPath } from '../../../utils/data-format'
+import { DataFormat } from '../../../utils/data-format'
 import { onChange, propToSignal, subscribe } from '../../../utils/reactivity'
 import { AnyObject, assert, inputToSignal, removeFromArray } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
-import { List, selectItem } from '../list/list'
+import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
-import { Observable } from 'rxjs'
-import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { JsonPath } from '../../../utils/jsonPath'
 
 @Component({
   selector: 'json-editor',
   template: `
     @if (visibleKey()) {
-      <h [focusIf]="focused == 'key'" [s]="{ flexShrink: 0 }">
-        <text-input [(text)]="valueRef.key"></text-input>:
+      <h [focusIf]="focused() == 'key'" [s]="{ flexShrink: 0 }">
+        <text-input [(text)]="valueRef.key"/>:
       </h>
     }
 
-    <ng-container [focusIf]="focused == 'value'">
+    <ng-container [focusIf]="focused() == 'value'">
       @if (['string', 'number', 'boolean', 'null'].includes(valueRef.type)) {
         <text-input
           [text]="valueText"
-          (textChange)="textChange($event)"></text-input>
+          (textChange)="textChange($event)"/>
       }
       @if (valueRef.type == 'object' || valueRef.type == 'array') {
         <list [items]="valueRef.childrenValueRefs" [focusShortcuts]="shortcutsForList">
@@ -86,13 +85,14 @@ export class JsonEditor {
   @Input() isRoot = true
   @Input() focusPath: JsonPath | Signal<JsonPath> | Observable<JsonPath> | undefined = undefined
 
-  focused: 'key' | 'value' = 'value'
+  focused = signal<'key' | 'value'>('value')
   valueText: string = ''
   controlValueAccessor = new BaseControlValueAccessor()
   $focusPath: Signal<JsonPath | null> = signal(null)
   $childFocusPath: Signal<JsonPath>
-  @ViewChild(List) list: List<any>
-  @ViewChildren(JsonEditor) jsonEditors: QueryList<JsonEditor>
+
+  list = viewChild(List)
+  jsonEditors = viewChildren(JsonEditor)
 
   constructor(
     public shortcutService: ShortcutService,
@@ -162,7 +162,15 @@ export class JsonEditor {
   }
 
   onValueRefChange() {
-    this.focused = this.visibleKey() ? 'key' : 'value'
+    if (this.visibleKey()) {
+      if (this.valueRef.key.length == 0) {
+        this.focused.set('key')
+      } else {
+        this.focused.set('value')
+      }
+    } else {
+      this.focused.set('value')
+    }
 
     if (this.valueRef.type == 'object') {
       this.valueRef.childrenValueRefs = Object.entries(this.valueRef.value).map(([key, value]) => ({
@@ -213,7 +221,9 @@ export class JsonEditor {
       newValueRef = { key: null, value: '', type: 'string' }
     }
     this.valueRef.childrenValueRefs.push(newValueRef)
-    selectItem(this.list, newValueRef)
+    const index = this.list().$items().indexOf(newValueRef)
+    assert(index !== -1, 'item not in list')
+    this.list().selectIndex(index)
   }
 
   focusJsonPath(jsonPath: JsonPath) {
@@ -223,11 +233,11 @@ export class JsonEditor {
       const key = jsonPath[0]
       const index = this.valueRef.childrenValueRefs.findIndex(ref => ref.key == key)
       if (index == -1) return
-      this.list.selectIndex(index)
+      this.list().selectIndex(index)
 
       if (jsonPath.length >= 2) {
         const rest = jsonPath.slice(1)
-        this.jsonEditors.get(index).focusJsonPath(rest)
+        this.jsonEditors().at(index).focusJsonPath(rest)
       }
     }
   }
@@ -239,13 +249,13 @@ export class JsonEditor {
     {
       keys: 'backspace',
       func: key => {
-        if (this.focused == 'value') {
+        if (this.focused() == 'value') {
           if (this.visibleKey()) {
-            this.focused = 'key'
+            this.focused.set('key')
           } else {
             return key
           }
-        } else if (this.focused == 'key') {
+        } else if (this.focused() == 'key') {
           return key
         }
       },
@@ -253,15 +263,15 @@ export class JsonEditor {
     {
       keys: ['left', 'ctrl+left', 'shift+tab', 'home'],
       func: key => {
-        if (this.focused == 'value' && this.visibleKey()) this.focused = 'key'
+        if (this.focused() == 'value' && this.visibleKey()) this.focused.set('key')
         else return key
       },
     },
     {
       keys: ['right', 'ctrl+right', 'tab', 'end'],
       func: key => {
-        if (this.focused == 'key') this.focused = 'value'
-        else if (this.focused == 'value') return key
+        if (this.focused() == 'key') this.focused.set('value')
+        else if (this.focused() == 'value') return key
       },
     },
   ]
@@ -269,6 +279,7 @@ export class JsonEditor {
   rootShortcuts: Partial<Command>[] = [
     {
       id: 'openInTextEditor',
+      context: this,
       func: () => {
         assert(this.externalTextEditor, 'No available externalTextEditor')
         const text = json5.stringify(this.getValue(), null, 2)
@@ -288,28 +299,28 @@ export class JsonEditor {
     {
       keys: ['tab', 'ctrl+n'],
       func: () => {
-        const length = this.list.$items().length
-        if (length == 0 || this.list.$selectedIndex() == length - 1) {
+        const length = this.list().$items().length
+        if (length == 0 || this.list().$selectedIndex() == length - 1) {
           this.createNewLine()
         } else {
-          this.list.selectIndex(this.list.$selectedIndex() + 1)
+          this.list().selectIndex(this.list().$selectedIndex() + 1)
         }
       },
     },
     {
       keys: ['left', 'ctrl+left', 'shift+tab', 'home'],
       func: key => {
-        if (this.list.$items().length == 0) return key
-        if (this.list.$selectedIndex() == 0) return key
-        this.list.selectIndex(this.list.$selectedIndex() - 1)
+        if (this.list().$items().length == 0) return key
+        if (this.list().$selectedIndex() == 0) return key
+        this.list().selectIndex(this.list().$selectedIndex() - 1)
       },
     },
     {
       keys: ['right', 'ctrl+right', 'end'],
       func: key => {
-        if (this.list.$items().length == 0) return key
-        if (this.list.$selectedIndex() == this.list.$items().length - 1) return key
-        this.list.selectIndex(this.list.$selectedIndex() + 1)
+        if (this.list().$items().length == 0) return key
+        if (this.list().$selectedIndex() == this.list().$items().length - 1) return key
+        this.list().selectIndex(this.list().$selectedIndex() + 1)
       },
     },
     {
@@ -318,9 +329,9 @@ export class JsonEditor {
         if (this.valueRef.childrenValueRefs.length >= 2) {
           this.valueRef.childrenValueRefs = removeFromArray(
             this.valueRef.childrenValueRefs,
-            this.list.$selectedValue()
+            this.list().$selectedValue()
           )
-          this.list.selectIndex(this.list.$selectedIndex() - 1)
+          this.list().selectIndex(this.list().$selectedIndex() - 1)
         }
       },
     },

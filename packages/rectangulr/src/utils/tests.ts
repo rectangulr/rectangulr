@@ -1,5 +1,5 @@
 import { Type } from '@angular/core'
-import { ComponentFixture, TestBed, tick } from '@angular/core/testing'
+import { ComponentFixture, TestBed, flush, tick } from '@angular/core/testing'
 import { Key } from '../commands/keypress-parser'
 import { ShortcutService } from '../commands/shortcut.service'
 

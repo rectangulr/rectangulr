@@ -215,14 +215,14 @@ export function makeProperty<T, K extends keyof T>(
   })
 }
 
-export function derived<T>(computation: () => T, updateSource: (value: T) => void) {
-  const signal = computed(computation) as unknown as WritableSignal<T>
+export function derived<R, W = R>(computation: () => R, updateSource: (value: W) => void) {
+  const signal = computed(computation) as unknown as WritableSignal<R>
   signal.set = value => {
-    updateSource(value)
+    updateSource(value as unknown as W)
   }
   signal.update = updateFn => {
     const value = updateFn(signal())
-    updateSource(value)
+    updateSource(value as unknown as W)
   }
   // signal.mutate = mutatorFn => {
   //   let value = signal()

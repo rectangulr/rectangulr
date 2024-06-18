@@ -1,5 +1,5 @@
 import { Injector, ProviderToken, effect, inject, isSignal } from '@angular/core'
-import _ from 'lodash'
+import _, { Truthy } from 'lodash'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
 import { Logger } from '../angular-terminal/logger'
@@ -17,11 +17,9 @@ export function assert(condition?, message?) {
 }
 
 /**
- * @example
- * assert(false, "throw this error message")
- * assert(true, "nothing happens")
+ * Stops the execution and opens the debugger.
  */
-export function assertDebug(condition?, message?) {
+export function assertDebug(condition?) {
   if (!condition) {
     debugger
   }
@@ -252,7 +250,7 @@ export function removeFromArray(array, item) {
 export function logError(logger: Logger, thing) {
   if (typeof thing == 'string') {
     logger.log({ message: thing, level: 'error' })
-  } else if ('message' in thing && 'stack' in thing) {
+  } else if ('message' in thing || 'stack' in thing) {
     logger.log({ message: thing.message, stack: thing.stack, level: 'error' })
   } else {
     logger.log({ ...thing, level: 'error' })

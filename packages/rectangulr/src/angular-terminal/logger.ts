@@ -31,6 +31,10 @@ export class Logger {
     } else {
       logObject = thing
     }
+    const entries = Object.entries(logObject)
+    if (entries.length == 1 && logObject.level == 'error') {
+      debugger
+    }
 
     // Store in memory (max 200)
     untracked(() => {
@@ -68,7 +72,9 @@ function createConsoleLog(arg: { logger: Logger; level: string }) {
       if (typeof thing == 'string') {
         return logger.log({ level: level, message: thing })
       } else {
-        return logger.log({ level: level, ...thing })
+        const res = _.cloneDeep(thing)
+        res['level'] = level
+        logger.log(res)
       }
     } else {
       return logger.log({ level: level, message: things })

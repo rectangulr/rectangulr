@@ -71,7 +71,7 @@ export {
   derived,
   makeIntoSignal,
 } from './utils/reactivity'
-export { DataFormat, CheckReturn, JsonPath, Completion } from './utils/data-format'
+export { DataFormat, CheckReturn, Completion } from './utils/data-format'
 
 declare global {
   let RECTANGULR_TARGET: 'web' | 'node' | (string & {})
