@@ -253,7 +253,9 @@ export function logError(logger: Logger, thing) {
   } else if ('message' in thing || 'stack' in thing) {
     logger.log({ message: thing.message, stack: thing.stack, level: 'error' })
   } else {
-    logger.log({ ...thing, level: 'error' })
+    const res = _.cloneDeep(thing)
+    res['level'] = 'error'
+    logger.log(res)
   }
 }
 

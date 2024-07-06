@@ -1,13 +1,20 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, effect, forwardRef, input, model, signal, untracked } from '@angular/core'
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, effect, forwardRef, input, model, untracked } from '@angular/core'
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
-import _ from 'lodash'
+import * as _ from '@s-libs/micro-dash'
+import { combineLatestWith, debounceTime } from 'rxjs/operators'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
 import { addStyle } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../angular-terminal/logger'
 import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
+import { Completion, CompletionProvider } from '../../utils/CompletionProvider'
+import { signal2 } from '../../utils/Signal2'
 import { onChange } from '../../utils/reactivity'
 import { assert } from '../../utils/utils'
-import { HBox } from './box'
+import { Json5Pipe } from '../2-common/json5.pipe'
+import { List } from '../2-common/list/list'
+import { ListItem } from '../2-common/list/list-item'
+import { HBox, VBox } from './box'
 import { StyleDirective } from './style'
 
 let globalId = 0
@@ -15,8 +22,21 @@ let globalId = 0
 @Component({
   selector: 'text-input',
   template: `
+    <!-- The text to edit -->
     <h>{{ text() }}</h>
+
+    <!-- One extra length for the caret at the end -->
     <h [s]="{ width: 1, height: 1 }"/>
+
+    <!-- Completions hover popup -->
+    @if(completionProvider && completions().length > 0) {
+      <v [s]="[{backgroundColor: 'gray', color: 'white', position: 'absolute'}, completionsSelectorPos]">
+        <h>selected: {{completionSelected()}}</h>
+        <list [items]="completions" (selectedItem)="completionSelected.set($event)" >
+          <h *item="let completion; type: completions">{{ completion.value }}</h>
+        </list>
+      </v>
+    }
   `,
   providers: [
     {
@@ -27,13 +47,13 @@ let globalId = 0
     { provide: ShortcutService },
   ],
   standalone: true,
-  imports: [HBox, StyleDirective],
+  imports: [HBox, VBox, StyleDirective, List, ListItem, Json5Pipe],
 })
 export class TextInput implements ControlValueAccessor {
   _id = ++globalId
 
   @Input({ alias: 'text' }) textInput = ''
-  text = signal('')
+  text = signal2('')
   @Output() textChange = new EventEmitter<string>()
 
   multiline = input(false)
@@ -41,19 +61,29 @@ export class TextInput implements ControlValueAccessor {
 
   caretIndex = model(0)
   domElement: Element | undefined = undefined
+  firstTextInput = true
+
+  // Completions
+  @Input() completionProvider: CompletionProvider | undefined = undefined
+  completions = signal2<Completion[]>([])
+  completionSelected = signal2<Completion | undefined>(undefined)
+  completionsSelectorPos = signal2({ left: 3, top: 5 })
 
   constructor(
     public shortcutService: ShortcutService,
     public elementRef: ElementRef<Element>,
     public logger: Logger
   ) {
-    addStyle({ flexDirection: 'row', scrollF: 'x' })
+    addStyle({ flexDirection: 'row', scrollF: 'x', overflow: 'visible' })
 
     onChange(this, 'textInput', value => {
       assert(typeof value == 'string')
 
-      this.text.set(value)
-      this.setCaret(value.length)
+      this.text.$ = value
+      if (this.firstTextInput) {
+        this.firstTextInput = false
+        this.setCaret(value.length)
+      }
     })
 
     effect(() => {
@@ -73,6 +103,28 @@ export class TextInput implements ControlValueAccessor {
     this.setCaret(this.text().length)
 
     registerShortcuts(this.shortcuts)
+
+    {
+      const text$ = toObservable(this.text)
+      const caretIndex$ = toObservable(this.caretIndex)
+
+      text$
+        .pipe(
+          combineLatestWith(caretIndex$),
+          debounceTime(20),
+          takeUntilDestroyed(),
+        )
+        .subscribe(async () => {
+          if (this.completionProvider) {
+            this.completions.$ = (await this.completionProvider.completions({
+              text: this.text(),
+              caretIndex: this.caretIndex(),
+            }))
+          } else {
+            this.completions.$ = []
+          }
+        })
+    }
   }
 
   ngOnInit() {
@@ -114,6 +166,7 @@ export class TextInput implements ControlValueAccessor {
   }
 
   // implements ControlValueAccessor, so a form can read/write the value of this input
+  //#region ControlValueAccessor
 
   controlValueAccessor = {
     disabled: false,
@@ -122,7 +175,7 @@ export class TextInput implements ControlValueAccessor {
   }
 
   writeValue(value: string) {
-    this.text.set(value)
+    this.text.$ = value
     this.setCaret(_.clamp(this.caretIndex(), 0, this.text().length))
     this.controlValueAccessor.onChange(value)
   }
@@ -204,7 +257,7 @@ export class TextInput implements ControlValueAccessor {
       keys: 'backspace',
       func: key => {
         if (this.caretIndex() == 0) return key
-        this.text.set(this.text().substring(0, this.caretIndex() - 1) + this.text().substring(this.caretIndex()))
+        this.text.$ = this.text().substring(0, this.caretIndex() - 1) + this.text().substring(this.caretIndex())
         this.caretIndex.update(v => --v)
       },
     },
@@ -218,7 +271,7 @@ export class TextInput implements ControlValueAccessor {
     {
       keys: 'ctrl+u',
       func: () => {
-        this.text.set('')
+        this.text.$ = ''
         this.setCaret(0)
       },
     },
@@ -234,15 +287,28 @@ export class TextInput implements ControlValueAccessor {
       func: key => {
         if (this.caretIndex() == 0) return key
         const index = searchFromIndex(this.text(), this.caretIndex(), -1)
-        this.text.set(this.text().substring(0, index) + this.text().substring(this.caretIndex(), this.text().length))
+        this.text.$ = this.text().substring(0, index) + this.text().substring(this.caretIndex(), this.text().length)
         this.setCaret(index)
       },
     },
     {
       keys: 'delete',
       func: () => {
-        this.text.set(this.text().substring(0, this.caretIndex()) + this.text().substring(this.caretIndex() + 1))
+        this.text.$ = this.text().substring(0, this.caretIndex()) + this.text().substring(this.caretIndex() + 1)
       },
+    },
+    {
+      id: 'selectCompletion',
+      keys: 'tab',
+      func: key => {
+        if (!this.completionSelected()) return
+        const completion = this.completionSelected()
+        const toBeInserted = completion?.textToInsert ?? completion?.value
+        this.text.$ = this.text().slice(0, this.caretIndex())
+          + toBeInserted
+          + this.text().slice(this.caretIndex())
+        this.caretIndex.update(c => c + toBeInserted.length)
+      }
     },
     {
       keys: 'else',
@@ -263,7 +329,7 @@ export class TextInput implements ControlValueAccessor {
         return key
 
         function insertString(textInput: TextInput, str: string) {
-          textInput.text.set(textInput.text().substring(0, textInput.caretIndex()) + str + textInput.text().substring(textInput.caretIndex()))
+          textInput.text.$ = textInput.text().substring(0, textInput.caretIndex()) + str + textInput.text().substring(textInput.caretIndex())
           textInput.caretIndex.update(c => c + str.length)
         }
       }

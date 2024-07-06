@@ -1,4 +1,4 @@
-import { Directive, Input } from '@angular/core'
+import { Directive, Input, Signal } from '@angular/core'
 import { Observable } from 'rxjs'
 
 @Directive({
@@ -6,7 +6,7 @@ import { Observable } from 'rxjs'
   selector: '[item]',
 })
 export class ListItem<T> {
-  @Input() itemType: T | T[] | Observable<T[]>
+  @Input() itemType: T | T[] | Observable<T[]> | Signal<T[]>
 
   static ngTemplateContextGuard<T>(
     directive: ListItem<T>,

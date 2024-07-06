@@ -69,9 +69,11 @@ export function debugComponent(arg: any) {
     return debugComponentByName(arg)
   } else if (typeof arg == 'object') {
     if (typeof arg.__ngContext__ == 'number') {
-      globalThis['ng'].getComponent(arg)
+      const comp = globalThis['ng'].getComponent(arg)
+      return new NiceView(comp)
+    } else {
+      return new NiceView(arg)
     }
-    return new NiceView(arg.__ngContext__.lView)
   } else if (typeof arg == 'undefined') {
     return new NiceView(rootLView())
   }

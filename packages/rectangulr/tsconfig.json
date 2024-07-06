@@ -7,6 +7,8 @@
     "node_modules/**"
   ],
   "compilerOptions": {
+    // "strict": true,
+    // "noImplicitAny": false,
     "baseUrl": ".",
     "outDir": "./dist",
     "sourceRoot": ".",

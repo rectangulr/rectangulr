@@ -5,6 +5,7 @@ import { TermElement } from '../dom/Element'
 import { StyleHandler, StyleValue, } from '../dom/StyleHandler'
 import { character, color, length, number } from './styleParsers'
 import {
+  dirtyClipping,
   dirtyLayout,
   dirtyRenderList,
   dirtyRendering,
@@ -24,6 +25,7 @@ import { StylePosition } from './types/StylePosition'
 import { StyleWeight } from './types/StyleWeight'
 import { StyleWhiteSpace } from './types/StyleWhiteSpace'
 import { assert } from '../../../../../utils/utils'
+import { StyleOverflow } from './types/StyleOverflow'
 
 let simple = ['+', '+', '+', '+', '-', '|']
 let modern = ['┌', '┐', '└', '┘', '─', '│']
@@ -236,12 +238,12 @@ export let styles: { [key: string]: StyleProperty } = {
     initial: Infinity,
   },
 
-  // overflow: {
-  //   parsers: [_.pick(StyleOverflow, 'visible', 'hidden')],
-  //   triggers: [dirtyClipping],
-  //   initial: 'inherit',
-  //   default: 'visible',
-  // },
+  overflow: {
+    parsers: [_.pick(StyleOverflow, 'visible', 'hidden')],
+    triggers: [dirtyClipping],
+    initial: 'inherit',
+    default: 'visible',
+  },
 
   borderLeftCharacter: {
     parsers: [character, null],
