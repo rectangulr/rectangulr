@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, effect, forwardRef, input, model, untracked } from '@angular/core'
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, computed, effect, forwardRef, input, model, untracked } from '@angular/core'
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as _ from '@s-libs/micro-dash'
@@ -31,7 +31,6 @@ let globalId = 0
     <!-- Completions hover popup -->
     @if(completionProvider && completions().length > 0) {
       <v [s]="[{backgroundColor: 'gray', color: 'white', position: 'absolute'}, completionsSelectorPos]">
-        <h>selected: {{completionSelected()}}</h>
         <list [items]="completions" (selectedItem)="completionSelected.set($event)" >
           <h *item="let completion; type: completions">{{ completion.value }}</h>
         </list>
@@ -67,7 +66,10 @@ export class TextInput implements ControlValueAccessor {
   @Input() completionProvider: CompletionProvider | undefined = undefined
   completions = signal2<Completion[]>([])
   completionSelected = signal2<Completion | undefined>(undefined)
-  completionsSelectorPos = signal2({ left: 3, top: 5 })
+  completionsSelectorPos = computed(() => {
+    const { x, y } = fromCaretIndexToXY(this.text(), this.caretIndex())
+    return { left: x, top: y + 1 }
+  })
 
   constructor(
     public shortcutService: ShortcutService,
@@ -337,7 +339,12 @@ export class TextInput implements ControlValueAccessor {
   ]
 }
 
+const fromCaretIndexToXYCache = { text: undefined, caretIndex: undefined, result: undefined }
+
 function fromCaretIndexToXY(text: string, caretIndex: number) {
+  if (fromCaretIndexToXYCache.text === text && fromCaretIndexToXYCache.caretIndex == caretIndex) {
+    return fromCaretIndexToXYCache.result
+  }
   let x = 0
   let y = 0
   for (let i = 0; i < caretIndex; i++) {
@@ -348,7 +355,11 @@ function fromCaretIndexToXY(text: string, caretIndex: number) {
       x++
     }
   }
-  return { x, y }
+  const result = { x, y }
+  fromCaretIndexToXYCache.text = text
+  fromCaretIndexToXYCache.caretIndex = caretIndex
+  fromCaretIndexToXYCache.result = result
+  return result
 }
 
 /**
