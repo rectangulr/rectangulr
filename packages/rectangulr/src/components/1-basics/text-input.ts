@@ -303,7 +303,8 @@ export class TextInput implements ControlValueAccessor {
       id: 'selectCompletion',
       keys: 'tab',
       func: key => {
-        if (!this.completionSelected()) return
+        if (this.completionProvider === undefined) return key
+        if (!this.completionSelected()) return key
         const completion = this.completionSelected()
         const toBeInserted = completion?.textToInsert ?? completion?.value
         this.text.$ = this.text().slice(0, this.caretIndex())

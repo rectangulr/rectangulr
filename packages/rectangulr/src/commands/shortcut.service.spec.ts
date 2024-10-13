@@ -10,7 +10,7 @@ import {
   WritableSignal,
   signal
 } from '@angular/core'
-import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing'
+import { TestBed, discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
 import { Logger } from '../angular-terminal/logger'
 import { HBox, VBox } from '../components/1-basics/box'
@@ -281,6 +281,7 @@ describe('ShortcutService - ', () => {
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.text()).toEqual('a')
+    discardPeriodicTasks()
   }))
 
   it(`shouldn't focus the text-input`, fakeAsync(async () => {
@@ -291,6 +292,7 @@ describe('ShortcutService - ', () => {
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.text()).toEqual('')
+    discardPeriodicTasks()
   }))
 })
 
@@ -323,6 +325,7 @@ describe('ShortcutService - ', () => {
     expect(component.input.get(0).text()).withContext('input0').toEqual('a')
     expect(component.input.get(1).text()).withContext('input1').toEqual('')
     expect(component.input.get(2).text()).withContext('input2').toEqual('')
+    discardPeriodicTasks()
   }))
 
   it('focuses the 2nd nested input', fakeAsync(async () => {
@@ -333,6 +336,7 @@ describe('ShortcutService - ', () => {
     expect(component.input.get(0).text()).withContext('input0').toEqual('')
     expect(component.input.get(1).text()).withContext('input1').toEqual('a')
     expect(component.input.get(2).text()).withContext('input2').toEqual('')
+    discardPeriodicTasks()
   }))
 
   it('focuses the 3rd nested input', fakeAsync(async () => {
@@ -347,6 +351,7 @@ describe('ShortcutService - ', () => {
     expect(component.input.get(0).text()).withContext('input0').toEqual('c')
     expect(component.input.get(1).text()).withContext('input1').toEqual('a')
     expect(component.input.get(2).text()).withContext('input2').toEqual('b')
+    discardPeriodicTasks()
   }))
 })
 
@@ -426,6 +431,7 @@ describe('ShortcutService -', () => {
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.spy1.handler).toHaveBeenCalledTimes(2)
+    discardPeriodicTasks()
   }))
 })
 
@@ -452,6 +458,7 @@ describe('FocusDirective -', () => {
     expect(component.parentShortcutService._id).not.toEqual(component.childShortcutService._id)
     expect(component.shortcutService._id).not.toEqual(component.childShortcutService._id)
     expect(component.shortcutService._id).not.toEqual(component.parentShortcutService._id)
+    discardPeriodicTasks()
   }))
 })
 
@@ -583,5 +590,6 @@ describe('ComponentDataView -', () => {
     expect(component.listShortcutService._id).toEqual(component.list.shortcutService._id)
 
     expect(component.shortcutService._id).not.toEqual(component.listShortcutService._id)
+    discardPeriodicTasks()
   }))
 })

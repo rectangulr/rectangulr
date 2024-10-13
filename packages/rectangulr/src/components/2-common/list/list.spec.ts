@@ -1,12 +1,12 @@
 import { Component, QueryList, ViewChild, ViewChildren, signal } from '@angular/core'
-import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing'
+import { discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing'
+import { BehaviorSubject } from 'rxjs'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
 import { HBox } from '../../1-basics/box'
 import { TextInput } from '../../1-basics/text-input'
 import { List } from './list'
 import { ListItem } from './list-item'
-import { BehaviorSubject } from 'rxjs'
 
 @Component({
   standalone: true,
@@ -19,24 +19,24 @@ export class Test1 {
 }
 
 describe('List - ', () => {
-  it('should create', async () => {
+  it('should create', () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     expect(component.list).toBeTruthy()
   })
 
-  it(`should have length 3`, async () => {
+  it(`should have length 3`, () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
 
     expect(component.list.$items().length).toEqual(3)
   })
 
-  it(`should move down`, async () => {
+  it(`should move down`, () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     shortcuts.incomingKey({ key: { name: 'down' } })
     expect(component.list.$selectedIndex()).toEqual(1)
   })
 
-  it(`should move down/up/down`, async () => {
+  it(`should move down/up/down`, () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     shortcuts.incomingKey({ key: { name: 'down' } })
     shortcuts.incomingKey({ key: { name: 'up' } })
@@ -44,7 +44,7 @@ describe('List - ', () => {
     expect(component.list.$selectedIndex()).toEqual(1)
   })
 
-  it(`should pgdown`, async () => {
+  it(`should pgdown`, () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     shortcuts.incomingKey({ key: { name: 'pgdown' } })
     expect(component.list.$selectedIndex()).toEqual(2)
@@ -64,7 +64,7 @@ export class Test2 {
 }
 
 describe('List - ', () => {
-  it('should use the item template', async () => {
+  it('should use the item template', () => {
     const { fixture, component, shortcuts } = setupTest(Test2)
     const elements = fixture.debugElement
       .queryAllNodes(node => node.nativeNode.name == 'text')
@@ -72,10 +72,11 @@ describe('List - ', () => {
     expect(elements[0].textContent).toBe('item: 1')
   })
 
-  it(`should focus the first of the list`, fakeAsync(async () => {
+  it(`should focus the first of the list`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test2)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'pgdown' })
     expect(component.list.$selectedIndex()).toEqual(2)
+    discardPeriodicTasks()
   }))
 })
 
@@ -95,22 +96,23 @@ export class Test3 {
 }
 
 describe('List - ', () => {
-  it(`should contain the text-input's text`, async () => {
+  it(`should contain the text-input's text`, () => {
     const { fixture, component, shortcuts } = setupTest(Test3)
     expect(component.inputs.get(0).text()).toBe('text1')
     expect(component.inputs.get(1).text()).toBe('text2')
     expect(component.inputs.get(2).text()).toBe('text3')
   })
 
-  it(`should focus the first line of the list`, fakeAsync(async () => {
+  it(`should focus the first line of the list`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test3)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: '-' })
     expect(component.inputs.get(0).text()).toBe('text1-')
     expect(component.inputs.get(1).text()).toBe('text2')
     expect(component.inputs.get(2).text()).toBe('text3')
+    discardPeriodicTasks()
   }))
 
-  it(`should focus the second line of the list`, fakeAsync(async () => {
+  it(`should focus the second line of the list`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test3)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
     sendKeyAndDetectChanges(fixture, shortcuts, { name: '-' })
@@ -118,6 +120,7 @@ describe('List - ', () => {
     expect(component.inputs.get(0).text()).toBe('text1')
     expect(component.inputs.get(1).text()).toBe('text2-')
     expect(component.inputs.get(2).text()).toBe('text3')
+    discardPeriodicTasks()
   }))
 })
 
@@ -133,16 +136,17 @@ describe('List - ', () => {
     @ViewChild(List) list: List<any>
   }
 
-  it(`should work with signals`, fakeAsync(async () => {
+  it(`should work with signals`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test4)
     expect(component.list.$selectedValue()).toEqual(null)
     component.items.set([1, 2, 3])
     fixture.detectChanges()
     tick()
     expect(component.list.$selectedValue()).toEqual(1)
+    discardPeriodicTasks()
   }))
 
-  it(`should work with observables`, fakeAsync(async () => {
+  it(`should work with observables`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test4)
     component.items = new BehaviorSubject([])
     fixture.detectChanges()
@@ -152,5 +156,6 @@ describe('List - ', () => {
     fixture.detectChanges()
     tick()
     expect(component.list.$selectedValue()).toEqual(1)
+    discardPeriodicTasks()
   }))
 })
