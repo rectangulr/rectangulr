@@ -96,7 +96,7 @@
     "ng-packagr": "^17.0.2",
     "publish-if-not-exists": "^1.1.0",
     "rollup": "^4.9.0",
-    "typescript": "^5.5.0",
+    "typescript": "^5.2.0",
     "wireit": "^0.14.4",
     "zone.js": "^0.14.2"
   }
