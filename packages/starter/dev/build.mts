@@ -1,6 +1,6 @@
+import { Buildr } from '@rectangulr/buildr'
 import { filter, from } from 'rxjs'
 import { $, argv } from 'zx'
-import { Buildr } from '@rectangulr/buildr'
 
 console.log(argv)
 const { call } = new Buildr()
@@ -28,7 +28,7 @@ call(() => {
 	const polyfills = target.polyfills.split(' ')
 	if (argv['watch']) {
 		const angular = $`npx ng build ${polyfills} --watch`
-		return from(angular.stdout).pipe(filter(line => line.toString().includes('complete')))
+		return from(angular.stdout).pipe(filter((line: string) => line.toString().includes('complete')))
 	} else {
 		return $`npx ng build ${polyfills}`
 	}
