@@ -8,7 +8,7 @@
   "typings": "dist/graph.d.ts",
   "scripts": {
     "build": "tsup graph.ts --dts --format esm",
-    "watch": "tsup graph.ts --dts --format esm --watch",
+    "dev": "tsup graph.ts --dts --format esm --watch",
     "test": "echo \"Error: no test specified\""
   },
   "keywords": [],

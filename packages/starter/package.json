@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "tsx dev/build.mts",
-    "watch": "tsx dev/build.mts --watch",
+    "dev": "tsx dev/build.mts --watch",
     "test": "node rg/main.mjs"
   },
   "dependencies": {

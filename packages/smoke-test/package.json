@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "tsx dev/build.ts",
-    "watch": "tsx dev/build.ts --watch",
+    "dev": "tsx dev/build.ts --watch",
     "test": "node rg/main.cjs"
   },
   "dependencies": {

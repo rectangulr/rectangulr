@@ -1,7 +1,7 @@
 {
 	"scripts": {
 		"build": "tsx dev/build.mts",
-		"watch": "tsx dev/build.mts --watch",
+		"dev": "tsx dev/build.mts --watch",
 		"serve": "python3 -m http.server",
 		"test": "node src/scripts/check.js"
 	},
