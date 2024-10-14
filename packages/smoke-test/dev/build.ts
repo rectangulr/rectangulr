@@ -1,6 +1,7 @@
 import { filter, from } from 'rxjs'
 import { $, argv } from 'zx'
 import { Buildr } from '@rectangulr/buildr'
+$.verbose = true
 
 console.log(argv)
 const { call } = new Buildr()
@@ -26,7 +27,7 @@ call(() => {
 }).then(async () => {
 	await new Promise(res => setTimeout(() => res(null), 1000))
 	await $`mkdir -p ${target.dist}`
-	await $`cat dist/browser/polyfills.js dist/browser/main.js > ${target.dist}/main.mjs`
+	await $`npx esbuild dist/browser/main.js --inject:dist/browser/polyfills.js --bundle --platform=node --outfile=${target.dist}/main.cjs`
 
 	console.log(`Done building: ${new Date().toLocaleTimeString()}`)
 })
