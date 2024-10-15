@@ -7,7 +7,9 @@ import { Command, GrowDirective, HBox, HGrowDirective, List, ListItem, StyleDire
       <v [s]="{width: '100%', height: '100%'}">
         <h [s]="s.title">Todo App</h>
         <text-input [(text)]="selectedTodo" />
-        <list [items]="items" (selectedIndex)="selectedIndex.set($event)" [s]="{backgroundColor: 'red'}" />
+        <list [items]="items" (selectedIndex)="selectedIndex.set($event)" >
+          <h *item="let item">{{ item }}</h>
+        </list>
       </v>
   `,
   standalone: true,
@@ -21,21 +23,6 @@ export class AppComponent {
   items = signal([
     'first thing to do',
     'second thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
-    'third thing to do',
     'third thing to do',
     'last thing to do',
   ])

@@ -1,4 +1,5 @@
 import { Buildr } from '@rectangulr/buildr'
+import { promises as fs } from 'fs'
 import { filter, from } from 'rxjs'
 import { $, argv } from 'zx'
 
@@ -17,7 +18,8 @@ const targets = {
 }
 
 // @ts-ignore
-const target = targets[argv['target'] || 'node']
+const target = targets[argv['target'] || process.env['TARGET'] || 'node']
+if (target === undefined) throw new Error(`Invalid target: '${argv['target']}'`)
 
 if (argv['clean']) {
 	await $`rm -r dist ${target.dist}`.nothrow()
@@ -35,7 +37,18 @@ call(() => {
 }).then(async () => {
 	await new Promise(res => setTimeout(() => res(null), 1000))
 	await $`mkdir -p ${target.dist}`
-	await $`cat dist/browser/polyfills.js dist/browser/main.js > ${target.dist}/main.mjs`
+
+	// Merge polyfills and main
+	const polyfillsContent = await fs.readFile('dist/browser/polyfills.js', 'utf8')
+	const mainContent = await fs.readFile('dist/browser/main.js', 'utf8')
+	await fs.writeFile(
+		`${target.dist}/main.mjs`,
+		`(function() {\n${polyfillsContent}\n})();\n${mainContent}`,
+		'utf8'
+	)
+
+	await $`cp dev/empty.js ${target.dist}/empty.js`
+	await $`cp src/index.html ${target.dist}/index.html`
 
 	console.log(`Done building: ${new Date().toLocaleTimeString()}`)
 })

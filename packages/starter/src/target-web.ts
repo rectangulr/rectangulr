@@ -1,6 +1,9 @@
 import 'zone.js'
 
 // @ts-ignore
+globalThis['RECTANGULR_TARGET'] = 'web'
+
+// @ts-ignore
 globalThis['process'] = {
 	env: {
 		TERM: 'xterm',

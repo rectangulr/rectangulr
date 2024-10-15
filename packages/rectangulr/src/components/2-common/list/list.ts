@@ -1,6 +1,5 @@
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
 import {
-  AfterRenderPhase,
   ChangeDetectionStrategy,
   Component,
   ContentChild,
@@ -16,10 +15,8 @@ import {
   Signal,
   TemplateRef,
   ViewChildren,
-  afterNextRender,
   computed,
   effect,
-  forwardRef,
   inject,
   signal,
   untracked
@@ -57,13 +54,13 @@ import { ListItem } from './list-item'
         <v
           #elementRef
           (mousedown)="selectVisibleIndex($index)"
-          [s]="cond(eq(item, $selectedValue), style.whiteOnGray)">
+          [s]="cond(eq($index, $selectedIndex), style.whiteOnGray)">
           <ng-container
             [ngTemplateOutlet]="template || template2 || defaultTemplate"
             [ngTemplateOutletContext]="{
               $implicit: item,
               index: $index,
-              selected: eq(item, $selectedValue)
+              selected: eq($index, $selectedIndex)
           }"/>
       </v>
     }
@@ -234,10 +231,10 @@ export class List<T> {
       }
     }
     onInitSelect()
-    effect(() => {
-      this.$items()
-      untracked(() => selectNewIndex())
-    }, { injector: this.injector, allowSignalWrites: true })
+    // effect(() => {
+    //   this.$items()
+    //   untracked(() => selectNewIndex())
+    // }, { injector: this.injector, allowSignalWrites: true })
   }
 
   /**

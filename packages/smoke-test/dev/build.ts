@@ -1,6 +1,8 @@
+import { Buildr } from '@rectangulr/buildr'
+import { promises as fs } from 'fs'
 import { filter, from } from 'rxjs'
 import { $, argv } from 'zx'
-import { Buildr } from '@rectangulr/buildr'
+
 $.verbose = true
 
 console.log(argv)
@@ -27,7 +29,14 @@ call(() => {
 }).then(async () => {
 	await new Promise(res => setTimeout(() => res(null), 1000))
 	await $`mkdir -p ${target.dist}`
-	await $`npx esbuild dist/browser/main.js --inject:dist/browser/polyfills.js --bundle --platform=node --outfile=${target.dist}/main.cjs`
+
+	const polyfillsContent = await fs.readFile('dist/browser/polyfills.js', 'utf8')
+	const mainContent = await fs.readFile('dist/browser/main.js', 'utf8')
+	await fs.writeFile(
+		`${target.dist}/main.mjs`,
+		`(function() {\n${polyfillsContent}\n})();\n${mainContent}`,
+		'utf8'
+	)
 
 	console.log(`Done building: ${new Date().toLocaleTimeString()}`)
 })

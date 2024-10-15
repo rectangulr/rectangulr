@@ -4,6 +4,7 @@ import { $, fs, argv } from 'zx'
 import * as html from 'node-html-parser'
 import markdown from 'markdown-it'
 import hljs from 'highlight.js'
+$.verbose = true
 
 const md = markdown({
 	html: true,
@@ -27,9 +28,9 @@ const md = markdown({
 
 async function main() {
 	try {
-		fs.access('../starter/dist')
+		fs.access('../starter/rg-web')
 	} catch (e) {
-		console.error('../starter/dist does not exist.')
+		console.error('../starter/rg-web does not exist.')
 		return
 	}
 	await $`mkdir -p ./dist`.catch(() => { })
@@ -52,7 +53,7 @@ async function main() {
 	}
 
 	// Copy example app
-	await $`cp ../starter/dist/browser/*.js ./dist/`
+	await $`cp ../starter/rg-web/*.*js ./dist/`
 	await $`cp ./dev/empty.js ./dist/`
 }
 
@@ -91,7 +92,7 @@ async function readFile(path: string) {
 }
 
 if (argv['watch']) {
-	const inputs = ['./src', '../starter/dist/browser/*.js', './dev/empty.js']
+	const inputs = ['./src', '../starter/rg-web/*.mjs', './dev/empty.js']
 	chokidar.watch(inputs).on('change', _.debounce(() => {
 		main()
 	}, 100))

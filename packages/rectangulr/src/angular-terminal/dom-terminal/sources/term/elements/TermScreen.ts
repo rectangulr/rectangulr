@@ -158,8 +158,10 @@ export class TermScreen extends TermElement {
     this.trackScreenSize = trackOutputSize
 
     // Automatically clear the screen when the program exits
-    process.on(`uncaughtException`, () => { this.handleException })
-    process.on(`exit`, () => { this.handleExit })
+    if (RECTANGULR_TARGET == 'node') {
+      process.on(`uncaughtException`, () => { this.handleException })
+      process.on(`exit`, () => { this.handleExit })
+    }
 
     this.terminal.inputs.subscribe(input => {
       if (input.type == 'raw') {
