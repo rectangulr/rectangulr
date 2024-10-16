@@ -53,8 +53,7 @@ async function main() {
 	}
 
 	// Copy example app
-	await $`cp ../starter/rg-web/*.*js ./dist/`
-	await $`cp ./dev/empty.js ./dist/`
+	await $`cp -r ../starter/rg-web ./dist/starter/`
 }
 
 function replacePlaceholder(shell: string, page: string) {

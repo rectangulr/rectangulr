@@ -18,8 +18,7 @@ import {
   computed,
   effect,
   inject,
-  signal,
-  untracked
+  signal
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
@@ -32,6 +31,7 @@ import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
+import { signal2 } from '../../../utils/Signal2'
 import { assert, inputToSignal } from '../../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
@@ -142,7 +142,8 @@ export class List<T> {
    */
   @Output('visibleItems') $$visibleItems = null
 
-  $items = signal([])
+  $items = signal2<T[]>([])
+
   // $focusPath = signal(null)
 
   $selectedIndex = signal<number | null>(null)
@@ -231,10 +232,7 @@ export class List<T> {
       }
     }
     onInitSelect()
-    // effect(() => {
-    //   this.$items()
-    //   untracked(() => selectNewIndex())
-    // }, { injector: this.injector, allowSignalWrites: true })
+    this.$items.subscribe(() => selectNewIndex())
   }
 
   /**

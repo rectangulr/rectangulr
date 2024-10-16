@@ -1,5 +1,5 @@
 import { Component, QueryList, ViewChild, ViewChildren, signal } from '@angular/core'
-import { discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing'
+import { discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
 import { BehaviorSubject } from 'rxjs'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
@@ -152,10 +152,10 @@ describe('List - ', () => {
     fixture.detectChanges()
     tick()
     expect(component.list.$selectedValue()).toEqual(null)
+    debugger
     component.items.next([1, 2, 3])
-    fixture.detectChanges()
-    tick()
     expect(component.list.$selectedValue()).toEqual(1)
+    tick()
     discardPeriodicTasks()
   }))
 })

@@ -17,6 +17,7 @@ import { ListItem } from '../2-common/list/list-item'
 import { HBox, VBox } from './box'
 import { StyleDirective } from './style'
 
+
 let globalId = 0
 
 @Component({
@@ -87,6 +88,7 @@ export class TextInput implements ControlValueAccessor {
         this.setCaret(value.length)
       }
     })
+
 
     effect(() => {
       const value = this.text()

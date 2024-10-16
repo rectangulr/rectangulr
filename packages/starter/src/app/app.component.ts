@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common'
-import { Component, signal } from '@angular/core'
+import { Component, inject, signal } from '@angular/core'
 import { Command, GrowDirective, HBox, HGrowDirective, List, ListItem, StyleDirective, TextInput, VBox, derived, registerShortcuts, } from '@rectangulr/rectangulr'
+import { NotificationsService } from '@rectangulr/rectangulr'
 
 @Component({
   template: `
-      <v [s]="{width: '100%', height: '100%'}">
+      <v grow>
         <h [s]="s.title">Todo App</h>
         <text-input [(text)]="selectedTodo" />
         <list [items]="items" (selectedIndex)="selectedIndex.set($event)" >
@@ -12,10 +13,13 @@ import { Command, GrowDirective, HBox, HGrowDirective, List, ListItem, StyleDire
         </list>
       </v>
   `,
+  hostDirectives: [GrowDirective],
   standalone: true,
   imports: [CommonModule, HBox, VBox, GrowDirective, HGrowDirective, List, ListItem, StyleDirective, TextInput],
 })
 export class AppComponent {
+  notificationService = inject(NotificationsService)
+
   constructor() {
     registerShortcuts(this.shortcuts)
   }
@@ -39,12 +43,16 @@ export class AppComponent {
     {
       keys: 'alt+n', id: 'new', func: () => {
         this.items.update(items => ['new item', ...items])
+        this.selectedIndex.set(0)
       }
     },
     {
       keys: 'alt+d', id: 'delete', func: () => {
         this.items.update(items => {
-          return items.splice(this.selectedIndex(), 1)
+          return items.filter((_, i) => i !== this.selectedIndex())
+        })
+        this.notificationService.notify({
+          name: 'Deleted todo'
         })
       },
     }
