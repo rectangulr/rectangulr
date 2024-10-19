@@ -39,7 +39,6 @@ import { borderTop } from './styles'
         [items]="matchingItems.$"
         (selectedItem)="selectedItem.next($event)"
         onItemsChangeSelect="first"
-        [showIndex]="showIndex"
         [trackByFn]="trackByFn"
         [template]="template || template2">
       </list>
@@ -61,7 +60,6 @@ export class SearchList<T> {
     this._items.subscribeSource(items)
   }
   @Input() searchText = ''
-  @Input() showIndex = false
   @Input() searchKeys = []
   @Input() trackByFn = (index, item) => item
   @Input() searchInputVisible = true

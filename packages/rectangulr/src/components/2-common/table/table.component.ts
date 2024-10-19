@@ -22,21 +22,23 @@ import { Element } from '../../../angular-terminal/dom-terminal'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, subscribe } from '../../../utils/reactivity'
-import { assert, filterNulls, inputToSignal } from '../../../utils/utils'
+import { filterNulls, inputToSignal, TODO } from '../../../utils/utils'
+import { assert } from '../../../utils/Assert'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 import { addStyle } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { computed2, signal2 } from '../../../utils/Signal2'
 
 @Component({
   standalone: true,
   selector: 'row',
   template: `{{ text() }}`,
 })
-export class Row<T> {
-  @Input() data: T
-  text: Signal<string>
+export class Row<T extends { [key: string | symbol]: any }> {
+  @Input() data!: T
+  text!: Signal<string>
 
   constructor(public table: Table<T>) {
     addStyle({ height: 1 })
@@ -121,18 +123,18 @@ interface Column {
   ],
 })
 export class Table<T> {
-  @Input() items: T[] | Observable<T[]> | Signal<T[]>
-  @Input() template: TemplateRef<any>
-  @Input() trackByFn = (index, item) => item
+  @Input() items: T[] | Observable<T[]> | Signal<T[]> | undefined
+  @Input() template: TemplateRef<any> | undefined
+  @Input() trackByFn = (index: number, item: T) => item
   @Input() includeKeys: string[] = []
   @Input() excludeKeys: string[] = []
-  @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any>
+  @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any> | undefined
   // @Output('selectedItem') $$selectedItem = new BehaviorSubject<T>(null)
 
   $items = signal([])
   $visibleItems = signal([])
-  $selectedColumnIndex = signal<number | null>(0)
-  $selectedItem = signal(null)
+  $selectedColumnIndex = signal2<number | null>(0)
+  $selectedItem = signal<T | null>(null)
 
   @Output('selectedItem') $$selectedItem = toObservable(this.$selectedItem)
   @Output('visibleItems') $$visibleItems = toObservable(this.$visibleItems)
@@ -140,14 +142,17 @@ export class Table<T> {
   $columns = computed(() => {
     return this.computeColumnWidths(this.$items())
   })
-  $selectedColumn = computed(() => this.$columns()[this.$selectedColumnIndex()])
+  $selectedColumn = computed2(() => {
+    assert(this.$selectedColumnIndex.$)
+    return this.$columns()[this.$selectedColumnIndex.$]
+  })
   $headers = computed(() => {
     return this.computeHeaders(this.$columns(), this.$selectedColumn())
   })
 
-  @ViewChild(List) list: List<T>
-  $list = new BehaviorSubject<List<T>>(null)
-  controlValueAccessor: ControlValueAccessor = null
+  @ViewChild(List) list!: List<T>
+  $list = new BehaviorSubject<List<T> | null>(null)
+  controlValueAccessor: ControlValueAccessor = new BaseControlValueAccessor()
 
   constructor(
     public shortcutService: ShortcutService,
@@ -162,6 +167,7 @@ export class Table<T> {
     effect(() => {
       const columns = this.$columns()
       const index = this.$selectedColumnIndex()
+      assert(index !== null)
 
       if (columns.length == 0 || index > columns.length - 1) return
       let range = { start: 0, end: 0 }
@@ -178,7 +184,6 @@ export class Table<T> {
 
     registerShortcuts(this.shortcuts)
 
-    this.controlValueAccessor = new BaseControlValueAccessor()
     subscribe(
       this,
       this.$list.pipe(
@@ -187,10 +192,10 @@ export class Table<T> {
       ),
       newControlValueAccessor => {
         newControlValueAccessor.value
-        newControlValueAccessor.onChangeHandlers.forEach(handler =>
+        newControlValueAccessor.onChangeHandlers.forEach((handler: TODO) =>
           newControlValueAccessor.registerOnChange(handler)
         )
-        newControlValueAccessor.onTouchHandlers.forEach(handler =>
+        newControlValueAccessor.onTouchHandlers.forEach((handler: TODO) =>
           newControlValueAccessor.registerOnTouched(handler)
         )
         newControlValueAccessor.setDisabledState(newControlValueAccessor.disabled)
@@ -234,6 +239,7 @@ export class Table<T> {
         return String(item[key]).length
       })
       const max = _.max(valuesWidth)
+      assert(max)
       return _.clamp(max, key.length, 50)
     }
   }
@@ -260,13 +266,15 @@ export class Table<T> {
     {
       keys: 'left',
       func: () => {
-        this.selectColumnIndex(this.$selectedColumnIndex() - 1)
+        assert(this.$selectedColumnIndex.$ !== null)
+        this.selectColumnIndex(this.$selectedColumnIndex.$ - 1)
       },
     },
     {
       keys: 'right',
       func: () => {
-        this.selectColumnIndex(this.$selectedColumnIndex() + 1)
+        assert(this.$selectedColumnIndex.$ !== null)
+        this.selectColumnIndex(this.$selectedColumnIndex.$ + 1)
       },
     },
     {

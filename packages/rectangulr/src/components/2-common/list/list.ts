@@ -1,6 +1,5 @@
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
 import {
-  AfterRenderPhase,
   ChangeDetectionStrategy,
   Component,
   ContentChild,
@@ -16,24 +15,24 @@ import {
   Signal,
   TemplateRef,
   ViewChildren,
-  afterNextRender,
   computed,
   inject,
   signal
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
-import * as _ from '@s-libs/micro-dash'
+import * as _ from 'lodash'
 import { Observable, Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
 import { signal2 } from '../../../utils/Signal2'
-import { assert, inputToSignal } from '../../../utils/utils'
+import { inputToSignal } from '../../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
@@ -47,9 +46,6 @@ import { ListItem } from './list-item'
 @Component({
   selector: 'list',
   template: `
-    @if (showIndex) {
-      <h>{{ $selectedIndex() + 1 }}/{{ $items()?.length || 0 }}</h>
-    }
     <v [s]="{ flexShrink: 0, scrollF: 'y' }">
       @for (item of $visibleItems(); track trackByFn($index,item)) {
         <v
@@ -74,7 +70,7 @@ import { ListItem } from './list-item'
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      useFactory: list => inject(List).controlValueAccessor,
+      useFactory: () => inject(List).controlValueAccessor,
       multi: true,
     },
   ],
@@ -95,24 +91,21 @@ export class List<T> {
    * The item to be displayed in the list.
    * Can be an array, a signal<array> or an observable<array>.
    */
-  @Input() items: T[] | Observable<T[]> | Signal<T[]> = undefined
+  @Input() items!: T[] | Observable<T[]> | Signal<T[]>
   /**
    * A trackByFn. Same as for *ngFor.
    */
-  @Input() trackByFn = (index, item) => item
-  /**
-   * TODO: remove
-   */
-  @Input() showIndex = false
+  @Input() trackByFn = (index: number, item: T) => item
+
   /**
    * What a line of this list should contain
    * This is an alternative to `template`. You can provide a component instead of a template.
    */
-  @Input() displayComponent: any = undefined
+  @Input() displayComponent: any | undefined = undefined
   /**
    * What a line of this list should contain
    */
-  @Input() template: TemplateRef<any> = undefined
+  @Input() template: TemplateRef<any> | undefined
   /**
    * What item to select when the list is updated
    */
@@ -130,7 +123,7 @@ export class List<T> {
 
   // @Input() focusPath: Signal<JsonPath | null> = signal(null)
 
-  @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
+  @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any> | undefined
 
   /**
    * Emits when the selected line changes.
@@ -145,20 +138,20 @@ export class List<T> {
   /**
    * Emits the currently visible lines of the list.
    */
-  @Output('visibleItems') $$visibleItems = null
+  @Output('visibleItems') $$visibleItems!: Observable<any>
 
   $items = signal2<T[]>([])
 
   // $focusPath = signal(null)
 
-  $selectedIndex = signal2<number | null>(null)
+  $selectedIndex = signal2<number | undefined>(undefined)
 
   $selectedValue = computed(() => {
     const index = this.$selectedIndex()
-    if (index === null) {
-      return null
+    if (index === undefined) {
+      return undefined
     } else {
-      return this.$items()[this.$selectedIndex()]
+      return this.$items()[index]
     }
   })
 
@@ -168,8 +161,8 @@ export class List<T> {
 
   _displayComponent = undefined
   controlValueAccessor = new BaseControlValueAccessor<T>()
-  @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs: QueryList<ElementRef>
-  @ContentChildren(FocusDirective) focusRefs: QueryList<FocusDirective>
+  @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs!: QueryList<ElementRef>
+  @ContentChildren(FocusDirective) focusRefs!: QueryList<FocusDirective>
 
   constructor(
     public shortcutService: ShortcutService,
@@ -211,17 +204,22 @@ export class List<T> {
     // The way the item is displayed can be customized via an Input, and Injected value, or defaults to a basic json stringify
     this._displayComponent = this.itemComponentInjected
 
-    const selectNewIndex = (items) => {
+    const selectNewIndex = (items: T[]) => {
       if (!items) return
       if (this.onItemsChangeSelect == 'first') {
         this.selectIndex(0)
       } else if (this.onItemsChangeSelect == 'last') {
         this.selectIndex(items.length - 1)
       } else if (this.onItemsChangeSelect == 'same') {
-        const isObject = _.isObject(this.$selectedValue())
         let index = this.$selectedIndex()
-        if (isObject) {
-          index = items.indexOf(this.$selectedValue())
+        if (_.isNil(index)) {
+          this.selectIndex(0)
+          return
+        }
+        assert(index !== undefined)
+        const value = this.$selectedValue()
+        if (value && _.isObject(value)) {
+          index = items.indexOf(value)
         }
         if (index != -1) {
           this.selectIndex(index)
@@ -249,17 +247,18 @@ export class List<T> {
    * @param value The index to select
    * @returns Returns false if the index got clamped, or if there's no items in the list
    */
-  selectIndex(value): boolean {
+  selectIndex(value: number): boolean {
     if (!this.$items() || this.$items().length == 0) {
-      this.$selectedIndex.set(null)
+      this.$selectedIndex.set(undefined)
       return false
     }
 
     this.$selectedIndex.set(_.clamp(value, 0, this.$items().length - 1))
     this.$selectedItem.emit(this.$selectedValue())
 
+    assert(this.$selectedIndex.$ !== undefined)
     this.$visibleRange.set(
-      rangeCenteredAroundIndex(this.$selectedIndex(), this.windowSize, this.$items().length)
+      rangeCenteredAroundIndex(this.$selectedIndex.$, this.windowSize, this.$items().length)
     )
 
     // this.logger.log(`selectIndex - ${this.$selectedIndex()}`)
@@ -277,20 +276,23 @@ export class List<T> {
 
   afterViewUpdate() {
     assert(this.focusRefs)
+    assert(this.$selectedIndex.$ !== undefined)
 
     // RequestFocus
     if (this.focusRefs.length > 0) {
-      const selectedFocusDirective = this.focusRefs?.get(this.$selectedIndex())
+      const selectedFocusDirective = this.focusRefs?.get(this.$selectedIndex.$)
       if (!selectedFocusDirective) {
         debugger
       }
+      assert(selectedFocusDirective)
       selectedFocusDirective.shortcutService.requestFocus({ reason: 'List selectIndex' })
     }
 
     // ScrollIntoView
     if (this.elementRefs?.length > 0) {
+      assert(this.$selectedIndex.$ !== undefined)
       const element: Element = this.elementRefs.get(
-        this.$selectedIndex() - this.$visibleRange().start
+        this.$selectedIndex.$ - this.$visibleRange().start
       )?.nativeElement
       element?.scrollIntoView({ direction: 'y' })
     }
@@ -305,28 +307,32 @@ export class List<T> {
     {
       keys: 'down',
       func: key => {
-        const success = this.selectIndex(this.$selectedIndex() + 1)
+        assert(this.$selectedIndex.$ !== undefined)
+        const success = this.selectIndex(this.$selectedIndex.$ + 1)
         if (!success) return key
       },
     },
     {
       keys: 'up',
       func: key => {
-        const success = this.selectIndex(this.$selectedIndex() - 1)
+        assert(this.$selectedIndex.$ !== undefined)
+        const success = this.selectIndex(this.$selectedIndex.$ - 1)
         if (!success) return key
       },
     },
     {
       keys: 'pgup',
       func: key => {
-        const success = this.selectIndex(this.$selectedIndex() - this.windowSize)
+        assert(this.$selectedIndex.$ !== undefined)
+        const success = this.selectIndex(this.$selectedIndex.$ - this.windowSize)
         if (!success) return key
       },
     },
     {
       keys: 'pgdown',
       func: key => {
-        const success = this.selectIndex(this.$selectedIndex() + this.windowSize)
+        assert(this.$selectedIndex.$ !== undefined)
+        const success = this.selectIndex(this.$selectedIndex.$ + this.windowSize)
         if (!success) return key
       },
     },
@@ -354,7 +360,7 @@ interface Range {
   end: number
 }
 
-function rangeCenteredAroundIndex(index, rangeSize, length) {
+function rangeCenteredAroundIndex(index: number, rangeSize: number, length: number) {
   if (rangeSize < length) {
     let range = { start: index - rangeSize / 2, end: index + rangeSize / 2 }
     if (range.start < 0) return { start: 0, end: rangeSize }
@@ -373,7 +379,7 @@ export function selectItem(list: List<any>, item: any) {
   list.selectIndex(index)
 }
 
-function clampRange(range, min, max) {
+function clampRange(range: { start: number; end: number }, min: number, max: number) {
   let newRange = _.clone(range)
   if (newRange.start < min) newRange.start = min
   if (newRange.end > max) newRange.end = max

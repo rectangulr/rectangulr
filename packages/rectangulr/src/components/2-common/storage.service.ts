@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core'
 import fs from 'fs'
 import json5 from 'json5'
-import _ from 'lodash'
+import * as _ from '@s-libs/micro-dash'
 import os from 'os'
 import { Logger } from '../../angular-terminal/logger'
 import { logError } from '../../utils/utils'
@@ -26,11 +26,11 @@ export class StorageService {
     })
   }
 
-  get(key) {
+  get(key: any) {
     return _.get(this.data, key)
   }
 
-  write(key, data) {
+  write(key: readonly (string | number)[], data: any) {
     _.set(this.data, key, data)
     if (this.saveToDisk) {
       fs.writeFileSync(this.filePath, json5.stringify(this.data))

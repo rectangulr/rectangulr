@@ -7,15 +7,16 @@ import { assert } from './utils'
   selector: '[ngComponentOutlet][inputs]',
 })
 export class ComponentOutletInputs {
-  @Input() inputs: { [prop: string]: any }
+  @Input() inputs: { [prop: string]: any } | undefined = undefined
   componentRef: any
 
   constructor(@Host() private componentOutlet: NgComponentOutlet) {
     this.componentRef = (this.componentOutlet as any)._componentRef
     assert(this.componentRef)
 
-    for (const [key, value] of Object.entries(this.inputs)) {
-      this.componentRef[key] = value
+    if (this.inputs) {
+      for (const [key, value] of Object.entries(this.inputs)) {
+      }
     }
   }
 }

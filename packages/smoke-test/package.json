@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsx dev/build.ts",
     "dev": "tsx dev/build.ts --watch",
-    "test": "node rg/main.cjs"
+    "test": "node rg/main.mjs"
   },
   "dependencies": {
     "@angular/common": "^17.2.2",

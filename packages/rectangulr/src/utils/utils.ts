@@ -5,10 +5,14 @@ import { filter, first } from 'rxjs/operators'
 import { Logger } from '../angular-terminal/logger'
 import { onChange, subscribe } from './reactivity'
 
+export type TODO = any
+
 /**
  * @example
+ * TODO: use Assert.ts instead
  * assert(false, "throw this error message")
  * assert(true, "nothing happens")
+ * @deprecated
  */
 export function assert(condition?, message?) {
   if (!condition) {
