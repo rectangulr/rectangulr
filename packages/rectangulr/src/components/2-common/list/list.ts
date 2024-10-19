@@ -1,5 +1,6 @@
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
 import {
+  AfterRenderPhase,
   ChangeDetectionStrategy,
   Component,
   ContentChild,
@@ -15,14 +16,14 @@ import {
   Signal,
   TemplateRef,
   ViewChildren,
+  afterNextRender,
   computed,
-  effect,
   inject,
   signal
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
-import _ from 'lodash'
+import * as _ from '@s-libs/micro-dash'
 import { Observable, Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
@@ -116,26 +117,30 @@ export class List<T> {
    * What item to select when the list is updated
    */
   @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
+
   /**
    * What item to select when the list is created
    */
   @Input() onInitSelect: 'first' | 'last' = 'first'
+
   /**
    * Should the list add a style to the selected line
    */
   @Input() styleItem = true
+
   // @Input() focusPath: Signal<JsonPath | null> = signal(null)
 
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any>
-  /**
-   * Emits when the selected line changes.
-   */
-  @Output('selectedItem') $selectedItem = new EventEmitter<T>()
 
   /**
    * Emits when the selected line changes.
    */
-  @Output('selectedIndex') selectedIndexOutput = new EventEmitter<number>()
+  @Output('selectedItem') $selectedItem = new EventEmitter<T | null>()
+
+  /**
+   * Emits when the selected line changes.
+   */
+  @Output('selectedIndex') selectedIndexOutput = new EventEmitter<number>(false)
 
   /**
    * Emits the currently visible lines of the list.
@@ -146,7 +151,7 @@ export class List<T> {
 
   // $focusPath = signal(null)
 
-  $selectedIndex = signal<number | null>(null)
+  $selectedIndex = signal2<number | null>(null)
 
   $selectedValue = computed(() => {
     const index = this.$selectedIndex()
@@ -195,9 +200,10 @@ export class List<T> {
     subscribe(this, this.$selectedItem, newValue => {
       this.controlValueAccessor.emitChange(newValue)
     })
-    effect(() => {
+
+    this.$selectedIndex.subscribe(index => {
       this.selectedIndexOutput.emit(this.$selectedIndex())
-    }, { allowSignalWrites: true })
+    })
     registerShortcuts(this.shortcuts)
   }
 
@@ -205,15 +211,18 @@ export class List<T> {
     // The way the item is displayed can be customized via an Input, and Injected value, or defaults to a basic json stringify
     this._displayComponent = this.itemComponentInjected
 
-    const selectNewIndex = () => {
-      const items = this.$items()
+    const selectNewIndex = (items) => {
       if (!items) return
       if (this.onItemsChangeSelect == 'first') {
         this.selectIndex(0)
       } else if (this.onItemsChangeSelect == 'last') {
         this.selectIndex(items.length - 1)
       } else if (this.onItemsChangeSelect == 'same') {
-        const index = items.indexOf(this.$selectedValue())
+        const isObject = _.isObject(this.$selectedValue())
+        let index = this.$selectedIndex()
+        if (isObject) {
+          index = items.indexOf(this.$selectedValue())
+        }
         if (index != -1) {
           this.selectIndex(index)
         } else {
@@ -232,7 +241,7 @@ export class List<T> {
       }
     }
     onInitSelect()
-    this.$items.subscribe(() => selectNewIndex())
+    this.$items.subscribe(items => selectNewIndex(items))
   }
 
   /**

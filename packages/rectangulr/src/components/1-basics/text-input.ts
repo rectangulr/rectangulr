@@ -82,28 +82,43 @@ export class TextInput implements ControlValueAccessor {
     onChange(this, 'textInput', value => {
       assert(typeof value == 'string')
 
-      this.text.$ = value
-      if (this.firstTextInput) {
-        this.firstTextInput = false
+      if (value != this.text()) {
+        this.text.set(value)
         this.setCaret(value.length)
       }
+      // if (this.firstTextInput) {
+      //   this.firstTextInput = false
+      //   this.setCaret(value.length)
+      // }
     })
 
 
-    effect(() => {
-      const value = this.text()
+    // effect(() => {
+    //   const value = this.text()
+    //   assert(typeof value == 'string')
+
+    //   this.textChange.next(value)
+    //   this.controlValueAccessor.onChange(value)
+    // })
+
+    this.text.subscribe(value => {
       assert(typeof value == 'string')
 
       this.textChange.next(value)
       this.controlValueAccessor.onChange(value)
     })
 
-    effect(() => {
-      this.caretIndex()
-      untracked(() => {
-        this.updateCaretPositionAndScroll()
-      })
+    // effect(() => {
+    //   this.caretIndex()
+    //   untracked(() => {
+    //     this.updateCaretPositionAndScroll()
+    //   })
+    // })
+
+    this.caretIndex.subscribe(index => {
+      this.updateCaretPositionAndScroll()
     })
+
     this.setCaret(this.text().length)
 
     registerShortcuts(this.shortcuts)

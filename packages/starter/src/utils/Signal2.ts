@@ -3,7 +3,7 @@ import { CreateComputedOptions, CreateSignalOptions, Signal, WritableSignal, com
 export type Signal2<T> = WritableSignal<T> & {
 	get $(): T,
 	set $(value: T)
-	subscribe(event: (T) => void): () => void
+	subscribe(callback: (value: T) => void): () => void
 }
 
 export type Computed2<T> = Signal<T> & {
@@ -24,7 +24,7 @@ export function signal2<T>(initialValue: T, options?: CreateSignalOptions<T>): S
 	const originalSet = sig.set
 	Object.defineProperty(sig, 'set', {
 		get() {
-			return value => {
+			return (value: any) => {
 				subscribers.forEach(subscriber => subscriber(value))
 				originalSet.call(sig, value)
 			}
@@ -34,18 +34,18 @@ export function signal2<T>(initialValue: T, options?: CreateSignalOptions<T>): S
 	const originalUpdate = sig.update
 	Object.defineProperty(sig, 'update', {
 		get() {
-			return (func) => {
+			return (func: any) => {
 				subscribers.forEach(subscriber => subscriber(func(sig())))
 				originalUpdate.call(sig, func)
 			}
 		}
 	})
 
-	const subscribers: ((T) => void)[] = []
+	const subscribers: ((value: T) => void)[] = []
 
 	Object.defineProperty(sig, 'subscribe', {
 		get() {
-			return event => {
+			return (event: any) => {
 				subscribers.push(event)
 				return () => {
 					const index = subscribers.indexOf(event)

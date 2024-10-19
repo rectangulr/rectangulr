@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common'
-import { Component, inject, signal } from '@angular/core'
-import { Command, GrowDirective, HBox, HGrowDirective, List, ListItem, StyleDirective, TextInput, VBox, derived, registerShortcuts, } from '@rectangulr/rectangulr'
-import { NotificationsService } from '@rectangulr/rectangulr'
+import { Component, inject, signal, untracked } from '@angular/core'
+import { Command, GrowDirective, HBox, HGrowDirective, List, ListItem, NotificationsService, StyleDirective, TextInput, VBox, derived, registerShortcuts, } from '@rectangulr/rectangulr'
+import * as _ from '@s-libs/micro-dash'
+import { signal2 } from '../utils/Signal2'
 
 @Component({
   template: `
@@ -31,10 +32,16 @@ export class AppComponent {
     'last thing to do',
   ])
 
-  selectedIndex = signal(0)
-  selectedTodo = derived(() => this.items()[this.selectedIndex()], value => {
+  selectedIndex = signal2<number | undefined>(undefined)
+
+  selectedTodo = derived<string>(() => {
+    const items = untracked(() => this.items())
+    if (_.isNil(this.selectedIndex.$)) return ''
+    return items[this.selectedIndex.$]
+  }, value => {
     this.items.update(items => {
-      items[this.selectedIndex()] = value
+      if (_.isNil(this.selectedIndex.$)) return items
+      items[this.selectedIndex.$] = value
       return [...items]
     })
   })
@@ -49,7 +56,10 @@ export class AppComponent {
     {
       keys: 'alt+d', id: 'delete', func: () => {
         this.items.update(items => {
-          return items.filter((_, i) => i !== this.selectedIndex())
+          const removed = items.filter((_, i) => i !== this.selectedIndex())
+          // Always at least one todo
+          if (removed.length == 0) return ['new item']
+          return removed
         })
         this.notificationService.notify({
           name: 'Deleted todo'
