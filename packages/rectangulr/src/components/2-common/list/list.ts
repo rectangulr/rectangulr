@@ -34,7 +34,7 @@ import { subscribe } from '../../../utils/reactivity'
 import { signal2 } from '../../../utils/Signal2'
 import { inputToSignal } from '../../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
-import { StyleDirective } from '../../1-basics/style'
+import { StyleDirective, TemplateStyle } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
@@ -51,7 +51,9 @@ import { ListItem } from './list-item'
         <v
           #elementRef
           (mousedown)="selectVisibleIndex($index)"
-          [s]="cond(eq($index, $selectedIndex), style.whiteOnGray)">
+          [st]="[this.itemStyle]"
+          [stv]="{index: $index}"
+          >
           <ng-container
             [ngTemplateOutlet]="template || template2 || defaultTemplate"
             [ngTemplateOutletContext]="{
@@ -92,6 +94,7 @@ export class List<T> {
    * Can be an array, a signal<array> or an observable<array>.
    */
   @Input() items!: T[] | Observable<T[]> | Signal<T[]>
+
   /**
    * A trackByFn. Same as for *ngFor.
    */
@@ -109,7 +112,7 @@ export class List<T> {
   /**
    * What item to select when the list is updated
    */
-  @Input() onItemsChangeSelect: 'nothing' | 'last' | 'first' | 'same' = 'same'
+  @Input() onItemsChangeSelect: 'last' | 'first' | 'same' = 'same'
 
   /**
    * What item to select when the list is created
@@ -120,6 +123,8 @@ export class List<T> {
    * Should the list add a style to the selected line
    */
   @Input() styleItem = true
+
+  itemStyle: TemplateStyle
 
   // @Input() focusPath: Signal<JsonPath | null> = signal(null)
 
@@ -205,7 +210,7 @@ export class List<T> {
     this._displayComponent = this.itemComponentInjected
 
     const selectNewIndex = (items: T[]) => {
-      if (!items) return
+      assert(!_.isNil(items))
       if (this.onItemsChangeSelect == 'first') {
         this.selectIndex(0)
       } else if (this.onItemsChangeSelect == 'last') {
@@ -226,8 +231,6 @@ export class List<T> {
         } else {
           this.selectIndex(0)
         }
-      } else if (this.onItemsChangeSelect == 'nothing') {
-        // nothing
       }
     }
     const onInitSelect = () => {
@@ -240,6 +243,13 @@ export class List<T> {
     }
     onInitSelect()
     this.$items.subscribe(items => selectNewIndex(items))
+    this.itemStyle = (signals) => computed(() => {
+      if (signals['index']() === this.$selectedIndex()) {
+        return this.style.whiteOnGray
+      } else {
+        return []
+      }
+    })
   }
 
   /**
@@ -248,6 +258,8 @@ export class List<T> {
    * @returns Returns false if the index got clamped, or if there's no items in the list
    */
   selectIndex(value: number): boolean {
+    assert(!_.isNil(this.$items()))
+
     if (!this.$items() || this.$items().length == 0) {
       this.$selectedIndex.set(undefined)
       return false
