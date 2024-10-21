@@ -1,4 +1,5 @@
-import { CreateComputedOptions, CreateSignalOptions, Signal, WritableSignal, computed, signal } from '@angular/core'
+import { CreateComputedOptions, CreateSignalOptions, InputSignal, Signal, WritableSignal, computed, signal } from '@angular/core'
+import { assert } from './Assert'
 
 export type Signal2<T> = WritableSignal<T> & {
 	get $(): T,
@@ -66,4 +67,37 @@ export function computed2<T>(computation: () => T, options?: CreateComputedOptio
 		}
 	})
 	return sig as Computed2<T>
+}
+
+export type InputSignal2<T> = InputSignal<T> & {
+	subscribe(callback: (value: T) => void): () => void
+}
+
+export function patchInputSignal<T>(input: Signal<T>): InputSignal2<T> {
+	const SIGNAL = Object.getOwnPropertySymbols(input).find(symbol => symbol.description == 'SIGNAL')
+	assert(SIGNAL !== undefined)
+
+	const subscribers: ((value: T) => void)[] = []
+
+	// @ts-ignore
+	const before = input[SIGNAL]['applyValueToInputSignal']
+	// @ts-ignore
+	input[SIGNAL]['applyValueToInputSignal'] = (...args) => {
+		const [node, value] = args
+		before(...args)
+	}
+
+	Object.defineProperty(input, 'subscribe', {
+		get() {
+			return (event: any) => {
+				subscribers.push(event)
+				return () => {
+					const index = subscribers.indexOf(event)
+					subscribers.splice(index, 1)
+				}
+			}
+		},
+	})
+
+	return input as InputSignal2<T>
 }

@@ -9,8 +9,7 @@ import { signal2 } from '../utils/Signal2'
       <v grow>
         <h [s]="s.title">Todo App</h>
         <text-input [(text)]="selectedTodo" />
-        <h>index = {{selectedIndex()}}</h>
-        <list [items]="items" (selectedIndex)="selectedIndex.set($event)" >
+        <list [items]="items()" (selectedIndex)="selectedIndex.set($event)" >
           <h *item="let item; let index = index">{{index}} - {{ item }}</h>
         </list>
       </v>

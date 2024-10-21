@@ -17,12 +17,13 @@ import {
   ViewChildren,
   computed,
   inject,
+  input,
   signal
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as _ from 'lodash'
-import { Observable, Subject } from 'rxjs'
+import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../../angular-terminal/logger'
@@ -31,8 +32,7 @@ import { Command, ShortcutService, registerShortcuts } from '../../../commands/s
 import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { subscribe } from '../../../utils/reactivity'
-import { signal2 } from '../../../utils/Signal2'
-import { inputToSignal } from '../../../utils/utils'
+import { patchInputSignal, signal2 } from '../../../utils/Signal2'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { StyleDirective, TemplateStyle } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
@@ -90,10 +90,10 @@ import { ListItem } from './list-item'
 })
 export class List<T> {
   /**
-   * The item to be displayed in the list.
+   * The items to be displayed in the list.
    * Can be an array, a signal<array> or an observable<array>.
    */
-  @Input() items!: T[] | Observable<T[]> | Signal<T[]>
+  items = input.required<T[]>()
 
   /**
    * A trackByFn. Same as for *ngFor.
@@ -105,10 +105,12 @@ export class List<T> {
    * This is an alternative to `template`. You can provide a component instead of a template.
    */
   @Input() displayComponent: any | undefined = undefined
+
   /**
    * What a line of this list should contain
    */
   @Input() template: TemplateRef<any> | undefined
+
   /**
    * What item to select when the list is updated
    */
@@ -124,7 +126,13 @@ export class List<T> {
    */
   @Input() styleItem = true
 
-  itemStyle: TemplateStyle
+  itemStyle: TemplateStyle = (templateVars) => computed(() => {
+    if (templateVars['index']() === this.$selectedIndex()) {
+      return this.style.whiteOnGray
+    } else {
+      return []
+    }
+  })
 
   // @Input() focusPath: Signal<JsonPath | null> = signal(null)
 
@@ -133,7 +141,7 @@ export class List<T> {
   /**
    * Emits when the selected line changes.
    */
-  @Output('selectedItem') $selectedItem = new EventEmitter<T | null>()
+  @Output('selectedItem') $selectedItem = new EventEmitter<T | null>(false)
 
   /**
    * Emits when the selected line changes.
@@ -145,8 +153,6 @@ export class List<T> {
    */
   @Output('visibleItems') $$visibleItems!: Observable<any>
 
-  $items = signal2<T[]>([])
-
   // $focusPath = signal(null)
 
   $selectedIndex = signal2<number | undefined>(undefined)
@@ -156,7 +162,7 @@ export class List<T> {
     if (index === undefined) {
       return undefined
     } else {
-      return this.$items()[index]
+      return this.items()[index]
     }
   })
 
@@ -175,12 +181,12 @@ export class List<T> {
     public logger: Logger,
     public injector: Injector
   ) {
-    inputToSignal(this, 'items', '$items')
+    // inputToSignal(this, 'items', '$items')
     // inputToSignal(this, 'focusPath', '$focusPath')
 
     this.$visibleItems = computed(() => {
       const visibleRange = this.$visibleRange()
-      const items = this.$items()
+      const items = this.items()
       if (items != null && visibleRange != null) {
         return items.slice(visibleRange.start, visibleRange.end)
       } else {
@@ -200,7 +206,7 @@ export class List<T> {
     })
 
     this.$selectedIndex.subscribe(index => {
-      this.selectedIndexOutput.emit(this.$selectedIndex())
+      this.selectedIndexOutput.emit(index)
     })
     registerShortcuts(this.shortcuts)
   }
@@ -234,7 +240,7 @@ export class List<T> {
       }
     }
     const onInitSelect = () => {
-      const items = this.$items()
+      const items = this.items()
       if (this.onInitSelect == 'first') {
         this.selectIndex(0)
       } else if (this.onInitSelect == 'last') {
@@ -242,14 +248,11 @@ export class List<T> {
       }
     }
     onInitSelect()
-    this.$items.subscribe(items => selectNewIndex(items))
-    this.itemStyle = (signals) => computed(() => {
-      if (signals['index']() === this.$selectedIndex()) {
-        return this.style.whiteOnGray
-      } else {
-        return []
-      }
-    })
+
+    const items = patchInputSignal(this.items)
+    items.subscribe(items => assert(!(items instanceof BehaviorSubject)))
+    items.subscribe(items => assert(!_.isNil(items)))
+    items.subscribe(items => selectNewIndex(items))
   }
 
   /**
@@ -258,19 +261,19 @@ export class List<T> {
    * @returns Returns false if the index got clamped, or if there's no items in the list
    */
   selectIndex(value: number): boolean {
-    assert(!_.isNil(this.$items()))
+    assert(!_.isNil(this.items()))
 
-    if (!this.$items() || this.$items().length == 0) {
+    if (!this.items() || this.items().length == 0) {
       this.$selectedIndex.set(undefined)
       return false
     }
 
-    this.$selectedIndex.set(_.clamp(value, 0, this.$items().length - 1))
+    this.$selectedIndex.set(_.clamp(value, 0, this.items().length - 1))
     this.$selectedItem.emit(this.$selectedValue())
 
     assert(this.$selectedIndex.$ !== undefined)
     this.$visibleRange.set(
-      rangeCenteredAroundIndex(this.$selectedIndex.$, this.windowSize, this.$items().length)
+      rangeCenteredAroundIndex(this.$selectedIndex.$, this.windowSize, this.items().length)
     )
 
     // this.logger.log(`selectIndex - ${this.$selectedIndex()}`)
@@ -319,7 +322,7 @@ export class List<T> {
     {
       keys: 'down',
       func: key => {
-        assert(this.$selectedIndex.$ !== undefined)
+        if (this.$selectedIndex.$ == undefined) return
         const success = this.selectIndex(this.$selectedIndex.$ + 1)
         if (!success) return key
       },
@@ -327,7 +330,7 @@ export class List<T> {
     {
       keys: 'up',
       func: key => {
-        assert(this.$selectedIndex.$ !== undefined)
+        if (this.$selectedIndex.$ == undefined) return
         const success = this.selectIndex(this.$selectedIndex.$ - 1)
         if (!success) return key
       },
@@ -335,7 +338,7 @@ export class List<T> {
     {
       keys: 'pgup',
       func: key => {
-        assert(this.$selectedIndex.$ !== undefined)
+        if (this.$selectedIndex.$ == undefined) return
         const success = this.selectIndex(this.$selectedIndex.$ - this.windowSize)
         if (!success) return key
       },
@@ -343,7 +346,7 @@ export class List<T> {
     {
       keys: 'pgdown',
       func: key => {
-        assert(this.$selectedIndex.$ !== undefined)
+        if (this.$selectedIndex.$ == undefined) return
         const success = this.selectIndex(this.$selectedIndex.$ + this.windowSize)
         if (!success) return key
       },
@@ -351,7 +354,7 @@ export class List<T> {
   ]
 
   toString() {
-    const items = this.$items()
+    const items = this.items()
     // .map(i => json5.stringify(i)).join()
     return `List: ${items?.length ?? 0}`
   }
@@ -386,7 +389,7 @@ function rangeCenteredAroundIndex(index: number, rangeSize: number, length: numb
 }
 
 export function selectItem(list: List<any>, item: any) {
-  const index = list.$items().indexOf(item)
+  const index = list.items().indexOf(item)
   assert(index !== -1, 'item not in list')
   list.selectIndex(index)
 }

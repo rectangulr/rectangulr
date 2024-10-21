@@ -1,16 +1,17 @@
 import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
+import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../angular-terminal/logger'
 import { GrowDirective, VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
 import { onChange } from '../utils/reactivity'
+import { signal2 } from '../utils/Signal2'
 import { assert, logError } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Command, ShortcutService } from './shortcut.service'
-import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 
 /**
  * Popup to discover commands.
@@ -20,7 +21,7 @@ import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/Styl
   template: `
     <search-list
       #searchList
-      [items]="listOfCommands"
+      [items]="listOfCommands()"
       [s]="{ border: 'rounded', backgroundColor: 'darkgray', hgrow: true }">
       <v *item="let command; type: listOfCommands"
         >{{ command.name }} ({{ command.keys }})
@@ -43,19 +44,19 @@ export class Shortcuts {
   @Input() shortcutService: ShortcutService = null
   @Output() onClose = new EventEmitter()
 
-  listOfCommands: Command[] = []
+  listOfCommands = signal2<Command[]>([])
   hideCommands = true
   @ViewChild('searchList') list: SearchList<any>
 
   constructor(public isolatedShortcutService: ShortcutService, public logger: Logger) {
     addStyle({ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' })
     onChange(this, 'hideCommands', hideCommands => {
-      this.listOfCommands = this.listCommands()
+      this.listOfCommands.$ = this.listCommands()
     })
   }
 
   ngOnInit() {
-    this.listOfCommands = this.listCommands()
+    this.listOfCommands.$ = this.listCommands()
     this.shortcutService.rootNode.before = this.isolatedShortcutService
 
     // almost like: registerShortcuts(this.commands)

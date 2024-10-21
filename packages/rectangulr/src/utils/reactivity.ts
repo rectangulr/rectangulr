@@ -52,12 +52,10 @@ export class State<T> {
     this._unsubscribeSource()
 
     // Subscribe to the new source if observable
-    if (isObservable(this.source)) {
+    if (this.source && isObservable(this.source)) {
       this.subscription = this.source.subscribe(value => {
         this.value = value
       })
-    } else {
-      this.value = this.source
     }
   }
 
@@ -278,6 +276,7 @@ export function forceRefresh() {
 addToGlobalRg({
   forceRefresh: forceRefresh,
 })
+
 export function propToSignal<T, K extends keyof T>(component: T, key: K) {
   const initialValue = component[key]
   const sig = signal(initialValue)

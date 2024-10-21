@@ -1,4 +1,3 @@
-
 import {
   Component,
   ContentChild,
@@ -24,7 +23,6 @@ import { ListItem } from './list/list-item'
 import { borderTop } from './styles'
 
 @Component({
-  standalone: true,
   selector: 'search-list',
   template: `
     <v>
@@ -36,14 +34,14 @@ import { borderTop } from './styles'
           [s]="{ backgroundColor: 'gray', color: 'white' }"/>
       }
       <list
-        [items]="matchingItems.$"
+        [items]="matchingItems.value"
         (selectedItem)="selectedItem.next($event)"
         onItemsChangeSelect="first"
         [trackByFn]="trackByFn"
         [template]="template || template2">
       </list>
     </v>
-    `,
+  `,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -53,11 +51,12 @@ import { borderTop } from './styles'
       },
     },
   ],
+  standalone: true,
   imports: [HBox, VBox, TextInput, FocusDirective, List, GrowDirective, StyleDirective],
 })
 export class SearchList<T> {
   @Input() set items(items) {
-    this._items.subscribeSource(items)
+    this._items.value = items
   }
   @Input() searchText = ''
   @Input() searchKeys = []

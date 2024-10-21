@@ -10,6 +10,7 @@ import {
   ViewChild,
   computed,
   effect,
+  input,
   signal,
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
@@ -101,7 +102,7 @@ interface Column {
     <h [s]="s.header">{{ $headers() }}</h>
     <list
       #list
-      [items]="items"
+      [items]="items()"
       [trackByFn]="trackByFn"
       [template]="template || template2 || defaultRowTemplate"
       (selectedItem)="$selectedItem.set($event)"
@@ -123,7 +124,7 @@ interface Column {
   ],
 })
 export class Table<T> {
-  @Input() items: T[] | Observable<T[]> | Signal<T[]> | undefined
+  items = input.required<T[]>()
   @Input() template: TemplateRef<any> | undefined
   @Input() trackByFn = (index: number, item: T) => item
   @Input() includeKeys: string[] = []

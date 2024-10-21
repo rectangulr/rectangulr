@@ -72,4 +72,4 @@ export class StyleDirective {
   }
 }
 
-export type TemplateStyle = (signals: { [key: string]: WritableSignal<any> }) => Signal<StyleValue>
+export type TemplateStyle = (templateVars: { [key: string]: WritableSignal<any> }) => Signal<StyleValue>

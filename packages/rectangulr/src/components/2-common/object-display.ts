@@ -14,7 +14,7 @@ import { StyleDirective } from '../1-basics/style'
   standalone: true,
   selector: 'object-display',
   template: `
-    <list [items]="$keyValues">
+    <list [items]="$keyValues()">
       <h *item="let keyValue; type: $keyValues()">
       <h
           [s]="{ flexShrink: 0, width: $longestKey() + 1, vgrow: true }"

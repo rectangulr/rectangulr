@@ -20,7 +20,7 @@ class NullLogger {
   template: `
     <h [s]="[s.blackOnWhite, { hgrow: true }]">Logs</h>
     <h grow>
-      <list [items]="logs" [s]="{ width: '50%' }" (selectedItem)="$selectedLog.set($event)">
+      <list [items]="logs()" [s]="{ width: '50%' }" (selectedItem)="$selectedLog.set($event)">
         <div *item="let item">{{item | json5}}</div>
       </list>
       <v [focusIf]="focused == 'right'" [s]="[s.rightPane]">

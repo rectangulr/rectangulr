@@ -68,7 +68,7 @@ export class KeyValueEditor {
 })
 export class FormEditor {
   @Input() set object(object) {
-    this._object.subscribeSource(object)
+    this._object.value = object
   }
   @Output() onSubmit = new Subject()
 

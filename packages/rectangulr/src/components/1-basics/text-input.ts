@@ -32,7 +32,7 @@ let globalId = 0
     <!-- Completions hover popup -->
     @if(completionProvider && completions().length > 0) {
       <v [s]="[{backgroundColor: 'gray', color: 'white', position: 'absolute'}, completionsSelectorPos]">
-        <list [items]="completions" (selectedItem)="completionSelected.set($event)" >
+        <list [items]="completions()" (selectedItem)="completionSelected.set($event)" >
           <h *item="let completion; type: completions">{{ completion.value }}</h>
         </list>
       </v>
