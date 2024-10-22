@@ -9,8 +9,7 @@ import { signal2 } from '../utils/Signal2'
       <v grow>
         <h [s]="s.title">Todo App</h>
         <text-input [(text)]="selectedTodo" />
-        <list [items]="items()" (selectedIndex)="selectedIndex.set($event)" >
-          <h *item="let item; let index = index">{{index}} - {{ item }}</h>
+        <list [items]="items()" (selectedIndex)="selectedIndex.set($event)">
         </list>
       </v>
   `,
@@ -35,8 +34,10 @@ export class AppComponent {
   selectedIndex = signal2<number | undefined>(undefined)
 
   selectedTodo = derived<string>(() => {
-    const items = untracked(() => this.items())
-    if (_.isNil(this.selectedIndex.$)) return ''
+    const items = this.items()
+    if (_.isNil(this.selectedIndex.$) || this.selectedIndex.$ > items.length) {
+      return ''
+    }
     return items[this.selectedIndex.$]
   }, value => {
     this.items.update(items => {

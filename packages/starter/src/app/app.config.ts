@@ -5,5 +5,6 @@ import { AppComponent } from './app.component'
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: View, useValue: { name: 'App', component: AppComponent }, multi: true },
+    // provideExperimentalZonelessChangeDetection(),
   ]
 }

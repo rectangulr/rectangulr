@@ -2,19 +2,21 @@ import {
   Component,
   ContentChild,
   inject,
+  input,
   Input,
   Output,
   TemplateRef,
-  ViewChild,
+  ViewChild
 } from '@angular/core'
+import { toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import Fuse from 'fuse.js'
-import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
-import { debounceTime, map, takeUntil } from 'rxjs/operators'
+import { BehaviorSubject, combineLatest } from 'rxjs'
+import { debounceTime, map } from 'rxjs/operators'
 import { Logger } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
-import { makeObservable, State } from '../../utils/reactivity'
-import { filterNulls } from '../../utils/utils'
+import { makeObservable } from '../../utils/reactivity'
+import { patchInputSignal } from '../../utils/Signal2'
 import { GrowDirective, HBox, VBox } from '../1-basics/box'
 import { StyleDirective } from '../1-basics/style'
 import { TextInput } from '../1-basics/text-input'
@@ -34,7 +36,7 @@ import { borderTop } from './styles'
           [s]="{ backgroundColor: 'gray', color: 'white' }"/>
       }
       <list
-        [items]="matchingItems.value"
+        [items]="matchingItems()"
         (selectedItem)="selectedItem.next($event)"
         onItemsChangeSelect="first"
         [trackByFn]="trackByFn"
@@ -55,9 +57,9 @@ import { borderTop } from './styles'
   imports: [HBox, VBox, TextInput, FocusDirective, List, GrowDirective, StyleDirective],
 })
 export class SearchList<T> {
-  @Input() set items(items) {
-    this._items.value = items
-  }
+  items = input.required<T[]>()
+  $items = toObservable(this.items)
+
   @Input() searchText = ''
   @Input() searchKeys = []
   @Input() trackByFn = (index, item) => item
@@ -70,22 +72,26 @@ export class SearchList<T> {
   @Output() searchTextChange = new BehaviorSubject(this.searchText)
   @Output() selectedItem = new BehaviorSubject(null)
 
-  _items: State<T[]>
   searchEnabled = true
   searchIndex = new Fuse([], {
     keys: this.searchKeys,
   })
-  matchingItems: State<T[]>
+  matchingItemsObservable = combineLatest([this.$items, this.searchTextChange]).pipe(
+    debounceTime(100),
+    map(([items, searchText]) => {
+      if (this.searchEnabled && searchText && searchText.length >= 2) {
+        return this.searchIndex.search(searchText).map(result => result.item)
+      } else {
+        return items
+      }
+    })
+  )
+  matchingItems = toSignal(this.matchingItemsObservable, { initialValue: [] })
   $list = new BehaviorSubject<List<T>>(null)
 
   constructor(public logger: Logger) {
-    this._items = new State([], this.destroy$)
-    this.matchingItems = new State([], this.destroy$)
-    makeObservable(this, 'list', '$list')
-  }
-
-  ngOnInit() {
-    this._items.$.pipe(filterNulls, takeUntil(this.destroy$)).subscribe(items => {
+    const items = patchInputSignal(this.items)
+    items.subscribe(items => {
       if (items.length <= 0) {
         this.searchEnabled = false
         this.searchIndex = new Fuse([])
@@ -109,26 +115,12 @@ export class SearchList<T> {
       })
       this.searchIndex = new Fuse(items, { keys: this.searchKeys })
     })
+    // effect(() => {
+    //   console.log(this.matchingItems())
+    // })
 
-    this.matchingItems.subscribeSource(
-      combineLatest([this._items.$, this.searchTextChange]).pipe(
-        debounceTime(100),
-        map(([items, searchText]) => {
-          if (this.searchEnabled && searchText && searchText.length >= 2) {
-            return this.searchIndex.search(searchText).map(result => result.item)
-          } else {
-            return items
-          }
-        })
-      )
-    )
+    makeObservable(this, 'list', '$list')
   }
 
   borderTop = borderTop
-
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
-  }
 }

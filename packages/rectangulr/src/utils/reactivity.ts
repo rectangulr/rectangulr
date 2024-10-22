@@ -3,6 +3,7 @@ import { BehaviorSubject, isObservable, Observable, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { Destroyable } from './mixins'
 import { addToGlobalRg } from './utils'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.
@@ -193,7 +194,7 @@ export function subscribe<T>(
   observable: Observable<T>,
   func: (value: T) => void
 ) {
-  return observable.pipe(takeUntil(component.destroy$)).subscribe(func)
+  return observable.pipe(takeUntilDestroyed()).subscribe(func)
 }
 
 /**

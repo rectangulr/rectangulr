@@ -26,8 +26,8 @@ export function signal2<T>(initialValue: T, options?: CreateSignalOptions<T>): S
 	Object.defineProperty(sig, 'set', {
 		get() {
 			return (value: any) => {
-				subscribers.forEach(subscriber => subscriber(value))
 				originalSet.call(sig, value)
+				subscribers.forEach(subscriber => subscriber(value))
 			}
 		}
 	})
@@ -36,8 +36,8 @@ export function signal2<T>(initialValue: T, options?: CreateSignalOptions<T>): S
 	Object.defineProperty(sig, 'update', {
 		get() {
 			return (func: any) => {
-				subscribers.forEach(subscriber => subscriber(func(sig())))
 				originalUpdate.call(sig, func)
+				subscribers.forEach(subscriber => subscriber(func(sig())))
 			}
 		}
 	})
@@ -84,8 +84,8 @@ export function patchInputSignal<T>(input: Signal<T>): InputSignal2<T> {
 	// @ts-ignore
 	input[SIGNAL]['applyValueToInputSignal'] = (...args) => {
 		const [node, value] = args
-		subscribers.forEach(subscriber => subscriber(value))
 		before(...args)
+		subscribers.forEach(subscriber => subscriber(value))
 	}
 
 	Object.defineProperty(input, 'subscribe', {

@@ -1,6 +1,5 @@
 import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
 import {
-  ChangeDetectionStrategy,
   Component,
   ContentChild,
   ContentChildren,
@@ -12,7 +11,6 @@ import {
   Optional,
   Output,
   QueryList,
-  Signal,
   TemplateRef,
   ViewChildren,
   computed,
@@ -23,7 +21,7 @@ import {
 import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as _ from 'lodash'
-import { BehaviorSubject, Observable, Subject } from 'rxjs'
+import { Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../../angular-terminal/logger'
@@ -86,7 +84,6 @@ import { ListItem } from './list-item'
     StyleDirective
   ],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class List<T> {
   /**
@@ -138,21 +135,6 @@ export class List<T> {
 
   @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any> | undefined
 
-  /**
-   * Emits when the selected line changes.
-   */
-  @Output('selectedItem') $selectedItem = new EventEmitter<T | null>(false)
-
-  /**
-   * Emits when the selected line changes.
-   */
-  @Output('selectedIndex') selectedIndexOutput = new EventEmitter<number>(false)
-
-  /**
-   * Emits the currently visible lines of the list.
-   */
-  @Output('visibleItems') $$visibleItems!: Observable<any>
-
   // $focusPath = signal(null)
 
   $selectedIndex = signal2<number | undefined>(undefined)
@@ -168,12 +150,35 @@ export class List<T> {
 
   windowSize = 20
   $visibleRange = signal({ start: 0, end: this.windowSize })
-  $visibleItems: Signal<any[]>
+  $visibleItems = computed(() => {
+    const visibleRange = this.$visibleRange()
+    const items = this.items()
+    if (items != null && visibleRange != null) {
+      return items.slice(visibleRange.start, visibleRange.end)
+    } else {
+      return []
+    }
+  })
 
   _displayComponent = undefined
   controlValueAccessor = new BaseControlValueAccessor<T>()
   @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs!: QueryList<ElementRef>
   @ContentChildren(FocusDirective) focusRefs!: QueryList<FocusDirective>
+
+  /**
+   * Emits when the selected line changes.
+   */
+  @Output('selectedItem') $selectedItem = new EventEmitter<T | null>(false)
+
+  /**
+   * Emits when the selected line changes.
+   */
+  @Output('selectedIndex') selectedIndexOutput = toObservable(this.$selectedIndex)
+
+  /**
+   * Emits the currently visible lines of the list.
+   */
+  @Output('visibleItems') $$visibleItems = toObservable(this.$visibleItems)
 
   constructor(
     public shortcutService: ShortcutService,
@@ -181,20 +186,7 @@ export class List<T> {
     public logger: Logger,
     public injector: Injector
   ) {
-    // inputToSignal(this, 'items', '$items')
     // inputToSignal(this, 'focusPath', '$focusPath')
-
-    this.$visibleItems = computed(() => {
-      const visibleRange = this.$visibleRange()
-      const items = this.items()
-      if (items != null && visibleRange != null) {
-        return items.slice(visibleRange.start, visibleRange.end)
-      } else {
-        return []
-      }
-    })
-
-    this.$$visibleItems = toObservable(this.$visibleItems)
 
     // effect(() => {
     //   const indexToFocus = this.$focusPath()[0]
@@ -205,9 +197,6 @@ export class List<T> {
       this.controlValueAccessor.emitChange(newValue)
     })
 
-    this.$selectedIndex.subscribe(index => {
-      this.selectedIndexOutput.emit(index)
-    })
     registerShortcuts(this.shortcuts)
   }
 
@@ -223,11 +212,12 @@ export class List<T> {
         this.selectIndex(items.length - 1)
       } else if (this.onItemsChangeSelect == 'same') {
         let index = this.$selectedIndex()
-        if (_.isNil(index)) {
+        if (_.isNil(index) /* If there's no previous selected item */) {
           this.selectIndex(0)
           return
         }
-        assert(index !== undefined)
+        // If the selectedValue is an object, we select the value again
+        // If its a primitive value, we select the index again
         const value = this.$selectedValue()
         if (value && _.isObject(value)) {
           index = items.indexOf(value)
@@ -250,8 +240,6 @@ export class List<T> {
     onInitSelect()
 
     const items = patchInputSignal(this.items)
-    items.subscribe(items => assert(!(items instanceof BehaviorSubject)))
-    items.subscribe(items => assert(!_.isNil(items)))
     items.subscribe(items => selectNewIndex(items))
   }
 
@@ -265,13 +253,12 @@ export class List<T> {
 
     if (!this.items() || this.items().length == 0) {
       this.$selectedIndex.set(undefined)
-      return false
+    } else {
+      this.$selectedIndex.set(_.clamp(value, 0, this.items().length - 1))
     }
 
-    this.$selectedIndex.set(_.clamp(value, 0, this.items().length - 1))
     this.$selectedItem.emit(this.$selectedValue())
 
-    assert(this.$selectedIndex.$ !== undefined)
     this.$visibleRange.set(
       rangeCenteredAroundIndex(this.$selectedIndex.$, this.windowSize, this.items().length)
     )
@@ -291,7 +278,9 @@ export class List<T> {
 
   afterViewUpdate() {
     assert(this.focusRefs)
-    assert(this.$selectedIndex.$ !== undefined)
+    if (this.$selectedIndex.$ !== undefined) {
+      return
+    }
 
     // RequestFocus
     if (this.focusRefs.length > 0) {
