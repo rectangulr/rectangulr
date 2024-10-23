@@ -1,9 +1,9 @@
 import { computed, isSignal, signal, WritableSignal } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { BehaviorSubject, isObservable, Observable, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
+import { addToGlobalRg } from './addToGlobalRg'
 import { Destroyable } from './mixins'
-import { addToGlobalRg } from './utils'
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 
 /**
  * A piece of reactive state. The changes can be subscribed to, and built upon.

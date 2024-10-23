@@ -74,10 +74,7 @@ export {
 export { DataFormat, CheckReturn, Completion } from './utils/data-format'
 
 declare global {
-  let RECTANGULR_TARGET: 'web' | 'node' | (string & {})
+  var RECTANGULR_TARGET: 'web' | 'node' | (string & {})
 }
 
-if (!('RECTANGULR_TARGET' in globalThis)) {
-  // @ts-ignore
-  globalThis['RECTANGULR_TARGET'] = 'web'
-}
+globalThis['RECTANGULR_TARGET'] = 'web'

@@ -1,9 +1,9 @@
 import { Component, ElementRef, ViewChild } from '@angular/core'
+import * as Yoga from 'typeflex'
 import { GrowDirective, HBox, VBox } from '../../components/1-basics/box'
 import { StyleDirective } from '../../components/1-basics/style'
 import { setupTest } from '../../utils/tests'
 import { Element } from './sources'
-import * as Yoga from 'typeflex'
 
 describe('DOM - ', () => {
   it('child should be bigger than parent', () => {

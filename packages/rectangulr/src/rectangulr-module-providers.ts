@@ -7,7 +7,8 @@ import { global_logs, patchNodeConsole } from "./angular-terminal/logger"
 import { ScreenService } from "./angular-terminal/screen-service"
 import { TERMINAL } from "./angular-terminal/terminals/terminal"
 import { voidTerminal } from './angular-terminal/terminals/void'
-import { InjectFunction, addToGlobalRg, assert } from "./utils/utils"
+import { InjectFunction, assert } from "./utils/utils"
+import { addToGlobalRg } from './utils/addToGlobalRg'
 import { XTermTerminal } from "./angular-terminal/terminals/xtermTerminal"
 import { ProcessTerminal } from "./angular-terminal/terminals/processTerminal"
 

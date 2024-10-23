@@ -7,9 +7,10 @@ import { Logger } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
 import { Destroyable } from '../utils/mixins'
 import { onChange } from '../utils/reactivity'
-import { addToGlobalRg, assert, last, remove, removeLastMatch } from '../utils/utils'
+import { assert, last, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
+import { addToGlobalRg } from '../utils/addToGlobalRg'
 
 /**
  * Commands are a function with an `id`.

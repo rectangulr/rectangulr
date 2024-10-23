@@ -1,12 +1,13 @@
 import { Injectable, Renderer2, RendererFactory2, RendererStyleFlags2, RendererType2, inject } from '@angular/core'
 import * as _ from '@s-libs/micro-dash'
 import * as json5 from 'json5'
-import { addToGlobalRg, mergeDeep } from '../utils/utils'
 import { TermScreen } from './dom-terminal'
 import { TermElement } from './dom-terminal/sources/core/dom/Element'
 import { ElementPool } from './dom-terminal/sources/term/elements/element-pool'
 import { Logger } from './logger'
 import { ScreenService } from './screen-service'
+import { mergeDeep } from '../utils/mergeDeep'
+import { addToGlobalRg } from '../utils/addToGlobalRg'
 
 @Injectable({
   providedIn: 'root'

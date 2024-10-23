@@ -1,5 +1,5 @@
 import { Injector, ProviderToken, effect, inject, isSignal } from '@angular/core'
-import _, { Truthy } from 'lodash'
+import _ from 'lodash'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
 import { Logger } from '../angular-terminal/logger'
@@ -82,28 +82,6 @@ export function mapKeyValue(object, func: (key, value) => [key: string, value: a
     }
   }
   return newObject
-}
-
-export function mergeDeep(object, other) {
-  function customizer(objValue, srcValue) {
-    if (_.isArray(objValue)) {
-      return objValue.concat(srcValue)
-    }
-  }
-
-  return _.mergeWith(object, other, customizer)
-}
-
-/**
- * Add something to the global variable `rg` from `rectangulr`.
- * @example addToGlobal({
- *  myGlobalFunction: (text)=>{console.log(text)}
- * })
- * rg.myGlobalFunction("print this")
- */
-export function addToGlobalRg(obj) {
-  globalThis['rg'] ||= {}
-  globalThis['rg'] = mergeDeep(globalThis['rg'], obj)
 }
 
 export interface AnyObject {
