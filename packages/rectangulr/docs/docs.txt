@@ -1,0 +1,5 @@
+e
+
+- bundle size
+	- angular.json -> "statsJson": true,
+	- esbuild.github.io/analyze/, upload
