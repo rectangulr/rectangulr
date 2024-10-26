@@ -79,7 +79,9 @@ export class RectangulrRenderer2 implements Renderer2 {
 
   removeChild(parent: TermElement, oldChild: any): void {
     // this.logger.log({ message: 'removeChild', parent: parent.id, oldChild: oldChild.id })
-    parent.removeChild(oldChild)
+    if (parent) {
+      parent.removeChild(oldChild)
+    }
   }
 
   destroyNode(node: TermElement) {
