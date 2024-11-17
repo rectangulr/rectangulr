@@ -77,4 +77,6 @@ declare global {
   var RECTANGULR_TARGET: 'web' | 'node' | (string & {})
 }
 
-globalThis['RECTANGULR_TARGET'] = 'web'
+if (!('RECTANGULR_TARGET' in globalThis)) {
+  globalThis['RECTANGULR_TARGET'] = 'web'
+}

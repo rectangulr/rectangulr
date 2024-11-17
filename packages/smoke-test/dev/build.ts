@@ -38,5 +38,6 @@ call(() => {
 		'utf8'
 	)
 
+	console.log(`output: ${target.dist}/main.mjs`)
 	console.log(`Done building: ${new Date().toLocaleTimeString()}`)
 })
