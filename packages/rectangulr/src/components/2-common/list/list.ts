@@ -1,8 +1,7 @@
-import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
+import { NgTemplateOutlet } from '@angular/common'
 import {
   Component,
   ContentChild,
-  ContentChildren,
   ElementRef,
   EventEmitter,
   Inject,
@@ -10,13 +9,15 @@ import {
   Input,
   Optional,
   Output,
-  QueryList,
   TemplateRef,
-  ViewChildren,
   computed,
+  contentChildren,
+  effect,
   inject,
   input,
-  signal
+  signal,
+  untracked,
+  viewChildren
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
@@ -29,9 +30,10 @@ import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
+import { Deferred } from '../../../utils/Deferred'
 import { subscribe } from '../../../utils/reactivity'
 import { patchInputSignal, signal2 } from '../../../utils/Signal2'
-import { GrowDirective, HBox, VBox } from '../../1-basics/box'
+import { VBox } from '../../1-basics/box'
 import { StyleDirective, TemplateStyle } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
@@ -75,11 +77,8 @@ import { ListItem } from './list-item'
     },
   ],
   imports: [
-    NgComponentOutlet,
     NgTemplateOutlet,
-    HBox,
     BasicObjectDisplay,
-    GrowDirective,
     VBox,
     StyleDirective
   ],
@@ -162,8 +161,8 @@ export class List<T> {
 
   _displayComponent = undefined
   controlValueAccessor = new BaseControlValueAccessor<T>()
-  @ViewChildren('elementRef', { emitDistinctChangesOnly: true }) elementRefs!: QueryList<ElementRef>
-  @ContentChildren(FocusDirective) focusRefs!: QueryList<FocusDirective>
+  elementRefs = viewChildren('elementRef', { read: ElementRef })
+  focusRefs = contentChildren(FocusDirective)
 
   /**
    * Emits when the selected line changes.
@@ -179,6 +178,8 @@ export class List<T> {
    * Emits the currently visible lines of the list.
    */
   @Output('visibleItems') $$visibleItems = toObservable(this.$visibleItems)
+  deferreds: Deferred<any>[] = []
+  previousItems: T[]
 
   constructor(
     public shortcutService: ShortcutService,
@@ -198,6 +199,12 @@ export class List<T> {
     })
 
     registerShortcuts(this.shortcuts)
+
+    effect(() => {
+      this.focusRefs()
+      this.elementRefs()
+      untracked(() => { this.afterViewUpdate() })
+    })
   }
 
   ngOnInit() {
@@ -248,7 +255,7 @@ export class List<T> {
    * @param value The index to select
    * @returns Returns false if the index got clamped, or if there's no items in the list
    */
-  selectIndex(value: number): boolean {
+  selectIndex(value: number): Promise<boolean> {
     assert(!_.isNil(this.items()))
 
     if (!this.items() || this.items().length == 0) {
@@ -263,12 +270,24 @@ export class List<T> {
       rangeCenteredAroundIndex(this.$selectedIndex.$, this.windowSize, this.items().length)
     )
 
-    // this.logger.log(`selectIndex - ${this.$selectedIndex()}`)
-    setTimeout(() => {
-      this.afterViewUpdate()
-    })
+    const deferred = new Deferred<boolean>()
+    deferred.value = this.$selectedIndex() === value
 
-    return this.$selectedIndex() === value
+    if (this.items() != this.previousItems) {
+      // wait for focusRefs to settle before
+      // RequestFocus
+      // ScrollIntoView
+      this.deferreds.push(deferred)
+    } else {
+      // Do it straight away
+      // RequestFocus
+      // ScrollIntoView
+      this.afterViewUpdate()
+      deferred.resolve(deferred.value)
+    }
+    this.previousItems = this.items()
+
+    return deferred.promise
   }
 
   selectVisibleIndex(visibleIndex: number) {
@@ -277,29 +296,29 @@ export class List<T> {
   }
 
   afterViewUpdate() {
-    assert(this.focusRefs)
+    assert(this.focusRefs())
+
     if (this.$selectedIndex.$ !== undefined) {
-      return
-    }
-
-    // RequestFocus
-    if (this.focusRefs.length > 0) {
-      const selectedFocusDirective = this.focusRefs?.get(this.$selectedIndex.$)
-      if (!selectedFocusDirective) {
-        debugger
+      // RequestFocus
+      if (this.focusRefs().length > 0) {
+        const selectedFocusDirective = this.focusRefs().at(this.$selectedIndex.$)
+        if (!selectedFocusDirective) {
+          debugger
+        }
+        assert(selectedFocusDirective)
+        selectedFocusDirective.shortcutService.requestFocus({ reason: 'List selectIndex' })
       }
-      assert(selectedFocusDirective)
-      selectedFocusDirective.shortcutService.requestFocus({ reason: 'List selectIndex' })
-    }
 
-    // ScrollIntoView
-    if (this.elementRefs?.length > 0) {
-      assert(this.$selectedIndex.$ !== undefined)
-      const element: Element = this.elementRefs.get(
-        this.$selectedIndex.$ - this.$visibleRange().start
-      )?.nativeElement
-      element?.scrollIntoView({ direction: 'y' })
+      // ScrollIntoView
+      if (this.elementRefs().length > 0) {
+        assert(this.$selectedIndex.$ !== undefined)
+        const element: Element = this.elementRefs().at(
+          this.$selectedIndex.$ - this.$visibleRange().start
+        )?.nativeElement
+        element?.scrollIntoView({ direction: 'y' })
+      }
     }
+    this.deferreds.forEach(def => def.resolve(def.value))
   }
 
   @Input() style = {
@@ -380,7 +399,7 @@ function rangeCenteredAroundIndex(index: number, rangeSize: number, length: numb
 export function selectItem(list: List<any>, item: any) {
   const index = list.items().indexOf(item)
   assert(index !== -1, 'item not in list')
-  list.selectIndex(index)
+  return list.selectIndex(index)
 }
 
 function clampRange(range: { start: number; end: number }, min: number, max: number) {

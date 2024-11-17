@@ -1,4 +1,5 @@
 // Use require() to make sure webpack doesnt change the order of the imports
+import { provideExperimentalZonelessChangeDetection } from '@angular/core'
 import Jasmine from 'jasmine'
 const jasmine = new Jasmine()
 
@@ -17,7 +18,9 @@ const { RectangulrDynamicTestingModule } = require('./angular-terminal/testing/t
 // First, initialize the Angular testing environment.
 getTestBed().initTestEnvironment(
   RectangulrDynamicTestingModule,
-  platformRectangulrDynamicTesting(),
+  platformRectangulrDynamicTesting([
+    // provideExperimentalZonelessChangeDetection()
+  ]),
   { teardown: { destroyAfterEach: true } }
 )
 

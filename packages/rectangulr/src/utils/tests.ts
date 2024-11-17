@@ -1,5 +1,5 @@
 import { Type } from '@angular/core'
-import { ComponentFixture, TestBed, flush, tick } from '@angular/core/testing'
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
 import { Key } from '../commands/keypress-parser'
 import { ShortcutService } from '../commands/shortcut.service'
 
@@ -14,6 +14,10 @@ export function setupTest<T>(componentClass: Type<T>) {
   const shortcuts = TestBed.inject(ShortcutService)
 
   fixture.detectChanges()
+  // @ts-ignore
+  if (Zone.current.get('FakeAsyncTestZoneSpec')) {
+    tick()
+  }
 
   return { fixture, shortcuts, component }
 }
@@ -23,11 +27,22 @@ export function sendKeyAndDetectChanges(
   shortcuts: ShortcutService,
   key: Partial<Key>
 ) {
-  shortcuts.incomingKey({ key: key })
-
-  // TestBed.inject(Logger).log('detectChanges')
   fixture?.detectChanges()
+  TestBed.flushEffects()
+  tick()
 
   // TestBed.inject(Logger).log('tick')
+  shortcuts.incomingKey({ key: key })
+
+  fixture?.detectChanges()
+  TestBed.flushEffects()
   tick()
+}
+
+export function keyboardTest(func: () => void) {
+  return fakeAsync(() => {
+    func()
+    tick()
+    discardPeriodicTasks()
+  })
 }

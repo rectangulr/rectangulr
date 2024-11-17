@@ -1,4 +1,3 @@
-
 import {
   Component,
   EventEmitter,
@@ -10,8 +9,9 @@ import {
   WritableSignal,
   signal
 } from '@angular/core'
-import { TestBed, discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
+import { TestBed, discardPeriodicTasks, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
+import { cond } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../angular-terminal/logger'
 import { HBox, VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
@@ -19,9 +19,9 @@ import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
 import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
+import { keyboardTest } from "src/utils/tests"
 import { FocusDirective } from './focus.directive'
 import { Command, ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
-import { cond } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 
 describe('ShortcutService Class', () => {
   let shortcuts: ShortcutService
@@ -29,10 +29,10 @@ describe('ShortcutService Class', () => {
   beforeEach(() => {
     TestBed.resetTestingModule()
     TestBed.configureTestingModule({})
-    shortcuts = new ShortcutService(null, TestBed.inject(Logger), null)
+    shortcuts = TestBed.inject(ShortcutService)
   })
 
-  it('should register a shortcut', fakeAsync(() => {
+  it('should register a shortcut', keyboardTest(() => {
     const spy = { handler: () => { } }
     spyOn(spy, 'handler')
     shortcuts.registerCommand({
@@ -43,7 +43,7 @@ describe('ShortcutService Class', () => {
     expect(spy.handler).toHaveBeenCalled()
   }))
 
-  it('should register/remove a shortcut', fakeAsync(() => {
+  it('should register/remove a shortcut', keyboardTest(() => {
     const spy = { handler: () => { } }
     spyOn(spy, 'handler')
     const disposable = shortcuts.registerCommand({
@@ -107,7 +107,7 @@ describe('ShortcutService ngIf - ', () => {
     expect(getFocusedNode(shortcuts)).toBe(component.first)
   })
 
-  it(`should focus according to ngIfs`, fakeAsync(async () => {
+  it(`should focus according to ngIfs`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test1)
 
     spyOn(component, 'firstFunc')
@@ -175,7 +175,7 @@ describe('ShortcutService ngIf - ', () => {
 
 @Component({
   standalone: true,
-  imports: [HBox, FocusDirective],
+  imports: [FocusDirective],
   template: `
     <v
       [focusIf]="focused == 'first'"
@@ -200,7 +200,7 @@ export class Test2 {
 }
 
 describe('ShortcutService FocusIf - ', () => {
-  it(`should focus the second box when focusIf=='second'`, fakeAsync(async () => {
+  it(`should focus the second box when focusIf=='second'`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test2)
 
     spyOn(component, 'firstFunc')
@@ -228,7 +228,7 @@ describe('ShortcutService FocusIf - ', () => {
 
 @Component({
   standalone: true,
-  imports: [HBox, FocusDirective],
+  imports: [VBox, FocusDirective],
   template: ` <v [focusShortcuts]="shortcuts"></v> `,
   providers: [ShortcutService],
 })
@@ -249,7 +249,7 @@ export class Test3 {
 }
 
 describe('ShortcutService - ', () => {
-  it(`should call latest registered shortcut`, fakeAsync(async () => {
+  it(`should call latest registered shortcut`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test3)
 
     spyOn(component, 'firstFunc')
@@ -266,7 +266,7 @@ describe('ShortcutService - ', () => {
 @Component({
   standalone: true,
   selector: 'shortcut-test-4',
-  imports: [HBox, FocusDirective, TextInput],
+  imports: [FocusDirective, TextInput],
   template: ` <text-input [focusIf]="condition"></text-input> `,
 })
 export class Test4 {
@@ -276,7 +276,7 @@ export class Test4 {
 }
 
 describe('ShortcutService - ', () => {
-  it(`should focus the text-input and accept inputs`, fakeAsync(async () => {
+  it(`should focus the text-input and accept inputs`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test4)
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
@@ -284,7 +284,7 @@ describe('ShortcutService - ', () => {
     discardPeriodicTasks()
   }))
 
-  it(`shouldn't focus the text-input`, fakeAsync(async () => {
+  it(`shouldn't focus the text-input`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test4)
 
     component.condition = false
@@ -300,7 +300,7 @@ describe('ShortcutService - ', () => {
 
 @Component({
   standalone: true,
-  imports: [HBox, TextInput, List, ListItem, FocusDirective],
+  imports: [TextInput, List, ListItem, FocusDirective],
   template: `
     <list [items]="items">
       <v *item focus>
@@ -318,7 +318,7 @@ export class Test5 {
 }
 
 describe('ShortcutService - ', () => {
-  it('focuses the nested input', fakeAsync(async () => {
+  it('focuses the nested input', keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test5)
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
@@ -328,7 +328,7 @@ describe('ShortcutService - ', () => {
     discardPeriodicTasks()
   }))
 
-  it('focuses the 2nd nested input', fakeAsync(async () => {
+  it('focuses the 2nd nested input', keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test5)
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
@@ -339,7 +339,7 @@ describe('ShortcutService - ', () => {
     discardPeriodicTasks()
   }))
 
-  it('focuses the 3rd nested input', fakeAsync(async () => {
+  it('focuses the 3rd nested input', keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test5)
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
@@ -358,7 +358,6 @@ describe('ShortcutService - ', () => {
 @Component({
   selector: 'Test6Comp',
   standalone: true,
-  imports: [HBox, TextInput, List, ListItem, FocusDirective],
   template: `something`,
 })
 export class Test6Comp {
@@ -386,7 +385,7 @@ export class Test6Comp {
 
 @Component({
   standalone: true,
-  imports: [HBox, TextInput, List, ListItem, FocusDirective, Test6Comp],
+  imports: [Test6Comp],
   template: ` @if (visible) {<Test6Comp />}`,
 })
 export class Test6 {
@@ -414,7 +413,7 @@ export class Test6 {
 }
 
 describe('ShortcutService -', () => {
-  it('registers/removes a shortcut', fakeAsync(() => {
+  it('registers/removes a shortcut', keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test6)
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
@@ -437,7 +436,7 @@ describe('ShortcutService -', () => {
 
 @Component({
   standalone: true,
-  imports: [HBox, VBox, FocusDirective],
+  imports: [HBox, FocusDirective],
   template: `<h #parent focus>
     <h #child focus></h>
   </h>
@@ -452,7 +451,7 @@ export class Test7 {
 
 
 describe('FocusDirective -', () => {
-  it('provides a ShortcutService', fakeAsync(() => {
+  it('provides a ShortcutService', keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test7)
     tick()
     expect(component.parentShortcutService._id).not.toEqual(component.childShortcutService._id)
@@ -584,7 +583,7 @@ class ComponentDataView {
 }
 
 describe('ComponentDataView -', () => {
-  it('test', fakeAsync(() => {
+  it('test', keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(ComponentDataView)
     tick()
     expect(component.listShortcutService._id).toEqual(component.list.shortcutService._id)

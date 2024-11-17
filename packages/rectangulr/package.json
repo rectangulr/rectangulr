@@ -12,17 +12,6 @@
   },
   "module": "dist/fesm2022/rectangulr-rectangulr.mjs",
   "typings": "dist/index.d.ts",
-  "exports": {
-    "./package.json": {
-      "default": "./package.json"
-    },
-    ".": {
-      "types": "./dist/index.d.ts",
-      "esm2022": "./dist/esm2022/rectangulr-rectangulr.mjs",
-      "esm": "./dist/esm2022/rectangulr-rectangulr.mjs",
-      "default": "./dist/fesm2022/rectangulr-rectangulr.mjs"
-    }
-  },
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -69,6 +58,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^18.0.0",
     "@angular-devkit/architect": "^0.1800.7",
     "@angular-devkit/build-angular": "^18.2.9",
     "@angular/cli": "^18.2.9",

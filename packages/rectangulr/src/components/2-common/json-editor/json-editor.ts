@@ -2,10 +2,12 @@ import {
   Component,
   Injector,
   Input,
+  model,
   Signal,
   signal,
   viewChild,
-  viewChildren
+  viewChildren,
+  WritableSignal
 } from '@angular/core'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
@@ -13,39 +15,40 @@ import _ from 'lodash'
 import { Observable, Subject } from 'rxjs'
 import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../../../angular-terminal/logger'
-import { FocusDebugDirective, FocusDirective } from '../../../commands/focus.directive'
-import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { FocusDirective } from '../../../commands/focus.directive'
+import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { DataFormat } from '../../../utils/data-format'
+import { JsonPath } from '../../../utils/jsonPath'
 import { onChange, propToSignal, subscribe } from '../../../utils/reactivity'
-import { AnyObject, assert, inputToSignal, removeFromArray } from '../../../utils/utils'
+import { patchSignal } from '../../../utils/Signal2'
+import { AnyObject, assert, inputToSignal } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
-import { JsonPath } from '../../../utils/jsonPath'
 
 @Component({
   selector: 'json-editor',
   template: `
     @if (visibleKey()) {
       <h [focusIf]="focused() == 'key'" [s]="{ flexShrink: 0 }">
-        <text-input [(text)]="valueRef.key"/>:
+        <text-input [(text)]="valueRef().key"/>:
       </h>
     }
 
     <ng-container [focusIf]="focused() == 'value'">
-      @if (['string', 'number', 'boolean', 'null'].includes(valueRef.type)) {
+      @if (['string', 'number', 'boolean', 'null'].includes(valueRef().type)) {
         <text-input
           [text]="valueText"
           (textChange)="textChange($event)"/>
       }
-      @if (valueRef.type == 'object' || valueRef.type == 'array') {
-        <list [items]="valueRef.childrenValueRefs" [focusShortcuts]="shortcutsForList">
+      @if (valueRef().type == 'object' || valueRef().type == 'array') {
+        <list [items]="valueRef().childrenValueRefs?.() ?? []" [focusShortcuts]="shortcutsForList">
           <json-editor
-            *item="let ref; type: valueRef.childrenValueRefs"
+            *item="let ref; type: valueRef().childrenValueRefs?.()"
             focus
             [focusOnInit]="!!focusPath"
             [valueRef]="ref"
@@ -64,7 +67,6 @@ import { JsonPath } from '../../../utils/jsonPath'
     List,
     ListItem,
     FocusDirective,
-    FocusDebugDirective,
     StyleDirective
   ],
   providers: [
@@ -79,7 +81,7 @@ import { JsonPath } from '../../../utils/jsonPath'
 })
 export class JsonEditor {
   @Input() data = undefined
-  @Input() valueRef: ValueRef = { key: null, value: null, type: 'null', childrenValueRefs: [] }
+  valueRef = model<ValueRef>({ key: null, value: null, type: 'null' })
   @Input() dataFormat: DataFormat | undefined = null
   @Input() path: string[] = []
   @Input() isRoot = true
@@ -101,7 +103,6 @@ export class JsonEditor {
     public injector: Injector
   ) {
     addStyle({ flexDirection: 'row' })
-    onChange(this, 'valueRef', valueRef => { this.onValueRefChange() })
     onChange(this, 'dataFormat', dataFormat => { this.setup() })
     onChange(this, 'data', data => { this.setup() })
     inputToSignal(this, 'focusPath', '$focusPath')
@@ -114,8 +115,8 @@ export class JsonEditor {
   }
 
   async setup() {
-    let value = undefined
     if (this.isRoot) {
+      let value = undefined
       if (this.dataFormat) {
         value = await this.dataFormat.completions()
       } else if (this.data !== undefined) {
@@ -123,23 +124,55 @@ export class JsonEditor {
       } else {
         assert(false)
       }
-      this.valueRef = {
+      this.valueRef.set({
         key: null,
         value: value,
         type: typeFromValue(value),
-      }
+      })
     }
   }
 
   async ngOnInit() {
     // assert(!(this.value && this.valueRef), 'Use [value] or [valueRef]. Not both.')
 
+    patchSignal(this.valueRef).subscribe((valueRef) => {
+      if (this.visibleKey()) {
+        if (this.valueRef().key.length == 0) {
+          this.focused.set('key')
+        } else {
+          this.focused.set('value')
+        }
+      } else {
+        this.focused.set('value')
+      }
+
+      if (valueRef.childrenValueRefs === undefined) {
+        if (valueRef.type == 'object') {
+          valueRef.childrenValueRefs = signal(Object.entries(valueRef.value)
+            .map(([key, value]) => ({
+              key: key,
+              value: value,
+              type: typeFromValue(value),
+            })))
+        } else if (valueRef.type == 'array') {
+          valueRef.childrenValueRefs = signal(Object.entries(valueRef.value)
+            .map(([key, value]) => ({
+              key: Number(key),
+              value: value,
+              type: typeFromValue(value),
+            })))
+        } else {
+          this.valueText = textFromValue(valueRef.value)
+        }
+      }
+    })
+
     this.setup()
 
     // effect(() => {
     //   const focusPath = this.$focusPath()
     //   if (focusPath && focusPath.length == 1) {
-    //     if (focusPath[0] == this.valueRef.key) {
+    //     if (focusPath[0] == this.valueRef().key) {
     //       this.shortcutService.requestFocus({ soft: false, reason: 'JsonEditor focusPath match' })
     //     }
     //   }
@@ -148,7 +181,7 @@ export class JsonEditor {
     // this.$childFocusPath = computed(() => {
     //   const focusPath = this.$focusPath()
     //   if (focusPath) {
-    //     if (this.valueRef.type == 'object' || this.valueRef.type == 'array') {
+    //     if (this.valueRef().type == 'object' || this.valueRef().type == 'array') {
     //       return focusPath
     //     } else {
     //       return focusPath.slice(1)
@@ -157,81 +190,53 @@ export class JsonEditor {
     //     return null
     //   }
     // })
-
-
-  }
-
-  onValueRefChange() {
-    if (this.visibleKey()) {
-      if (this.valueRef.key.length == 0) {
-        this.focused.set('key')
-      } else {
-        this.focused.set('value')
-      }
-    } else {
-      this.focused.set('value')
-    }
-
-    if (this.valueRef.type == 'object') {
-      this.valueRef.childrenValueRefs = Object.entries(this.valueRef.value).map(([key, value]) => ({
-        key: key,
-        value: value,
-        type: typeFromValue(value),
-      }))
-    } else if (this.valueRef.type == 'array') {
-      this.valueRef.childrenValueRefs = Object.entries(this.valueRef.value).map(([key, value]) => ({
-        key: Number(key),
-        value: value,
-        type: typeFromValue(value),
-      }))
-    } else {
-      this.valueText = textFromValue(this.valueRef.value)
-    }
   }
 
   textChange(text: string) {
     this.valueText = text
-    this.valueRef.value = valueFromText(text)
+    this.valueRef().value = valueFromText(text)
   }
 
   /**
    * Creates a javascript object from the json-editor.
    */
   getValue(): AnyObject | string | null | number {
-    return getValueFromRef(this.valueRef)
+    return getValueFromRef(this.valueRef())
   }
 
   setValue(value: any) {
-    this.valueRef = {
+    this.valueRef.set({
       key: null,
       value: value,
       type: typeFromValue(value),
-    }
+    })
   }
 
   visibleKey() {
-    return this.valueRef.key != null && typeof this.valueRef.key == 'string'
+    return this.valueRef().key != null && typeof this.valueRef().key == 'string'
   }
 
   createNewLine() {
     var newValueRef
-    if (this.valueRef.type == 'object') {
+    if (this.valueRef().type == 'object') {
       newValueRef = { key: '', value: '', type: 'string' }
-    } else if (this.valueRef.type == 'array') {
+    } else if (this.valueRef().type == 'array') {
       newValueRef = { key: null, value: '', type: 'string' }
     }
-    this.valueRef.childrenValueRefs.push(newValueRef)
-    const index = this.list().items().indexOf(newValueRef)
-    assert(index !== -1, 'item not in list')
-    this.list().selectIndex(index)
+    this.valueRef().childrenValueRefs.update(children => {
+      return [...children, newValueRef]
+    })
+    // const index = this.list().items().indexOf(newValueRef)
+    // assert(index !== -1, 'item not in list')
+    setTimeout(() => this.list().selectIndex(this.valueRef().childrenValueRefs().length - 1))
   }
 
   focusJsonPath(jsonPath: JsonPath) {
     assert(jsonPath.length > 0)
 
-    if (this.valueRef.type == 'object' || this.valueRef.type == 'array') {
+    if (this.valueRef().type == 'object' || this.valueRef().type == 'array') {
       const key = jsonPath[0]
-      const index = this.valueRef.childrenValueRefs.findIndex(ref => ref.key == key)
+      const index = this.valueRef().childrenValueRefs().findIndex(ref => ref.key == key)
       if (index == -1) return
       this.list().selectIndex(index)
 
@@ -298,10 +303,10 @@ export class JsonEditor {
   shortcutsForList: Partial<Command>[] = [
     {
       keys: ['tab', 'ctrl+n'],
-      func: () => {
+      func: async () => {
         const length = this.list().items().length
         if (length == 0 || this.list().$selectedIndex() == length - 1) {
-          this.createNewLine()
+          await this.createNewLine()
         } else {
           this.list().selectIndex(this.list().$selectedIndex() + 1)
         }
@@ -326,11 +331,10 @@ export class JsonEditor {
     {
       keys: 'backspace',
       func: () => {
-        if (this.valueRef.childrenValueRefs.length >= 2) {
-          this.valueRef.childrenValueRefs = removeFromArray(
-            this.valueRef.childrenValueRefs,
-            this.list().$selectedValue()
-          )
+        if (this.valueRef().childrenValueRefs.length >= 2) {
+          this.valueRef().childrenValueRefs.update(children => {
+            return children.filter(item => item != this.list().$selectedValue())
+          })
           this.list().selectIndex(this.list().$selectedIndex() - 1)
         }
       },
@@ -340,7 +344,7 @@ export class JsonEditor {
   cond = cond
 
   toString() {
-    const keyValue = json5.stringify(this.valueRef)
+    const keyValue = json5.stringify(this.valueRef())
     return `JsonEditor: ${keyValue}`
   }
 
@@ -383,15 +387,15 @@ export interface ValueRef {
   key?: any
   value: any
   type: string
-  childrenValueRefs?: ValueRef[]
+  childrenValueRefs?: WritableSignal<ValueRef[]>
 }
 
 function getValueFromRef(valueRef: ValueRef) {
   if (valueRef.type == 'object') {
-    const recursedValueRefs = valueRef.childrenValueRefs.map(ref => [ref.key, getValueFromRef(ref)])
+    const recursedValueRefs = valueRef.childrenValueRefs().map(ref => [ref.key, getValueFromRef(ref)])
     return Object.fromEntries(recursedValueRefs)
   } else if (valueRef.type == 'array') {
-    return valueRef.childrenValueRefs.map(vr => getValueFromRef(vr))
+    return valueRef.childrenValueRefs().map(vr => getValueFromRef(vr))
   } else {
     return valueRef.value
   }

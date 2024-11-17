@@ -73,7 +73,7 @@ export type InputSignal2<T> = InputSignal<T> & {
 	subscribe(callback: (value: T) => void): () => void
 }
 
-export function patchInputSignal<T>(input: Signal<T>): InputSignal2<T> {
+export function patchSignal<T>(input: Signal<T>): InputSignal2<T> {
 	const SIGNAL = Object.getOwnPropertySymbols(input).find(symbol => symbol.description == 'SIGNAL')
 	assert(SIGNAL !== undefined)
 

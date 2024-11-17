@@ -13,7 +13,7 @@ export class Test1 {
   @ViewChild(FormEditor) editor: FormEditor
 }
 
-describe('List - ', () => {
+describe('FormEditor - ', () => {
   it('should create', () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     expect(component.editor).toBeTruthy()

@@ -47,7 +47,7 @@ let globalId = 0
     { provide: ShortcutService },
   ],
   standalone: true,
-  imports: [HBox, VBox, StyleDirective, List, ListItem, Json5Pipe],
+  imports: [HBox, VBox, StyleDirective, List, ListItem],
 })
 export class TextInput implements ControlValueAccessor {
   _id = ++globalId
@@ -181,7 +181,7 @@ export class TextInput implements ControlValueAccessor {
   }
 
   toString() {
-    return `TextInput: '${this.text}'`
+    return `TextInput: '${this.text()}'`
   }
 
   // implements ControlValueAccessor, so a form can read/write the value of this input
@@ -231,6 +231,9 @@ export class TextInput implements ControlValueAccessor {
     {
       keys: 'down',
       func: key => {
+        if (this.multiline() == false) {
+          return key
+        }
         let i = this.caretIndex()
         for (; true; i++) {
           if (i >= this.text().length) {
@@ -246,6 +249,9 @@ export class TextInput implements ControlValueAccessor {
     {
       keys: 'up',
       func: key => {
+        if (this.multiline() == false) {
+          return key
+        }
         let i = this.caretIndex()
         for (; true; i--) {
           if (i <= 0) {

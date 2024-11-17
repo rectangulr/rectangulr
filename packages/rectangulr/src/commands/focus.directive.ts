@@ -1,7 +1,8 @@
-import { DestroyRef, Directive, Injector, Input, Self, inject, runInInjectionContext } from '@angular/core'
+import { DestroyRef, Directive, inject, Injector, input } from '@angular/core'
+import { Subject } from 'rxjs'
 import { onChange } from '../utils/reactivity'
 import { registerShortcuts, ShortcutService } from './shortcut.service'
-import { Subject } from 'rxjs'
+import { patchInputSignal } from '../utils/Signal2'
 
 @Directive({
   standalone: true,
@@ -10,12 +11,12 @@ import { Subject } from 'rxjs'
   exportAs: 'focus',
 })
 export class FocusDirective {
-  @Input() focusPropagateUp = true
-  @Input() focusIf = true
-  @Input() focusShortcuts = []
-  @Input() focusFull = false
-  @Input() focusOnInit = true
-  @Input() focusName = null
+  focusPropagateUp = input(true)
+  focusIf = input(true)
+  focusShortcuts = input([])
+  focusFull = input(false)
+  focusOnInit = input(true)
+  focusName = input(null)
   debugDenied = false
 
   injector = inject(Injector)
@@ -27,9 +28,11 @@ export class FocusDirective {
   }
 
   ngOnInit() {
-    this.shortcutService.name = this.focusName
-    this.shortcutService.focusIf = this.focusIf
-    onChange(this, 'focusIf', focusIf => {
+    this.shortcutService.name = this.focusName()
+    this.shortcutService.focusIf = this.focusIf()
+    // onChange(this, 'focusIf',)
+    const focusIf = patchInputSignal(this.focusIf)
+    focusIf.subscribe(focusIf => {
       this.shortcutService.focusIf = focusIf
       if (focusIf) {
         this.shortcutService.requestFocus({ reason: 'FocusDirective focusIf true' })
@@ -38,12 +41,12 @@ export class FocusDirective {
       }
     })
 
-    registerShortcuts(this.focusShortcuts, { shortcutService: this.shortcutService, onDestroy: this.onDestroy })
-    if (this.focusFull) {
+    registerShortcuts(this.focusShortcuts(), { shortcutService: this.shortcutService, onDestroy: this.onDestroy })
+    if (this.focusFull()) {
       registerShortcuts(this.focusFullShortcuts, { shortcutService: this.shortcutService, onDestroy: this.onDestroy })
     }
-    this.shortcutService.focusPropagateUp = this.focusPropagateUp
-    if (this.focusOnInit) {
+    this.shortcutService.focusPropagateUp = this.focusPropagateUp()
+    if (this.focusOnInit()) {
       this.shortcutService.requestFocus({ reason: 'FocusDirective onInit' })
     }
   }

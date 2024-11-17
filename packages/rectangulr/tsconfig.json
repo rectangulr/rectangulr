@@ -1,14 +1,11 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "include": [
-    "src/**/*.ts",
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules/**"
   ],
   "compilerOptions": {
-    // "strict": true,
-    // "noImplicitAny": false,
     "baseUrl": ".",
     "outDir": "./dist",
     "sourceRoot": ".",
@@ -32,9 +29,10 @@
       "dom"
     ],
     "preserveSymlinks": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "skipLibCheck": true
   },
   "angularCompilerOptions": {
-    "strictTemplates ": true,
+    "strictTemplates": true
   }
 }

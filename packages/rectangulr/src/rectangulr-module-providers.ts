@@ -1,16 +1,16 @@
 import { APP_INITIALIZER, ErrorHandler, InjectionToken, Injector, Provider, RendererFactory2, inject, ɵINJECTOR_SCOPE } from "@angular/core"
-import { RectangulrRendererFactory2 } from "./angular-terminal/angular-dom"
 import { global_rgComponent, global_rgLView } from "./angular-terminal/debug"
 import { debugYoga } from "./angular-terminal/debug-yoga"
 import { RectangulrErrorHandler } from "./angular-terminal/error-handler"
 import { global_logs, patchNodeConsole } from "./angular-terminal/logger"
+import { RectangulrRendererFactory2 } from "./angular-terminal/renderer"
 import { ScreenService } from "./angular-terminal/screen-service"
+import { ProcessTerminal } from "./angular-terminal/terminals/processTerminal"
 import { TERMINAL } from "./angular-terminal/terminals/terminal"
 import { voidTerminal } from './angular-terminal/terminals/void'
-import { InjectFunction, assert } from "./utils/utils"
-import { addToGlobalRg } from './utils/addToGlobalRg'
 import { XTermTerminal } from "./angular-terminal/terminals/xtermTerminal"
-import { ProcessTerminal } from "./angular-terminal/terminals/processTerminal"
+import { addToGlobalRg } from './utils/addToGlobalRg'
+import { InjectFunction, assert } from "./utils/utils"
 
 
 // @ts-ignore

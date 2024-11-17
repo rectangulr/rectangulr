@@ -13,6 +13,11 @@ export type Computed2<T> = Signal<T> & {
 
 export function signal2<T>(initialValue: T, options?: CreateSignalOptions<T>): Signal2<T> {
 	const sig = signal(initialValue, options)
+	patchSignal(sig)
+	return sig as Signal2<T>
+}
+
+export function patchSignal<T>(sig: WritableSignal<T>): Signal2<T> {
 	Object.defineProperty(sig, '$', {
 		get() {
 			return sig()
@@ -46,10 +51,11 @@ export function signal2<T>(initialValue: T, options?: CreateSignalOptions<T>): S
 
 	Object.defineProperty(sig, 'subscribe', {
 		get() {
-			return (event: any) => {
-				subscribers.push(event)
+			return (callback: any) => {
+				subscribers.push(callback)
+				callback(sig())
 				return () => {
-					const index = subscribers.indexOf(event)
+					const index = subscribers.indexOf(callback)
 					subscribers.splice(index, 1)
 				}
 			}
@@ -61,6 +67,11 @@ export function signal2<T>(initialValue: T, options?: CreateSignalOptions<T>): S
 
 export function computed2<T>(computation: () => T, options?: CreateComputedOptions<T>): Computed2<T> {
 	const sig = computed(computation, options)
+	patchComputed<T>(sig)
+	return sig as Computed2<T>
+}
+
+function patchComputed<T>(sig: Signal<T>) {
 	Object.defineProperty(sig, '$', {
 		get() {
 			return sig()
@@ -90,10 +101,11 @@ export function patchInputSignal<T>(input: Signal<T>): InputSignal2<T> {
 
 	Object.defineProperty(input, 'subscribe', {
 		get() {
-			return (event: any) => {
-				subscribers.push(event)
+			return (callback: any) => {
+				subscribers.push(callback)
+				callback(input())
 				return () => {
-					const index = subscribers.indexOf(event)
+					const index = subscribers.indexOf(callback)
 					subscribers.splice(index, 1)
 				}
 			}

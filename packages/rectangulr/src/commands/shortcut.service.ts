@@ -1,16 +1,15 @@
-import { DestroyRef, Injectable, OnDestroy, Optional, SkipSelf, inject, signal } from '@angular/core'
+import { DestroyRef, Injectable, Injector, Optional, SkipSelf, afterNextRender, inject, signal } from '@angular/core'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
 import { Element } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
-import { Destroyable } from '../utils/mixins'
+import { addToGlobalRg } from '../utils/addToGlobalRg'
 import { onChange } from '../utils/reactivity'
 import { assert, last, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
-import { addToGlobalRg } from '../utils/addToGlobalRg'
 
 /**
  * Commands are a function with an `id`.
@@ -66,12 +65,12 @@ export class ShortcutService {
   focusIf = true
   debugDenied = false
   logEnabled = false
+  injector = inject(Injector)
 
   constructor(
     @Optional() public screen: ScreenService,
     public logger: Logger,
     @SkipSelf() @Optional() public parent: ShortcutService,
-    // public ngZone: NgZone
   ) {
     if (isRoot(this)) {
       this.rootNode = this
@@ -91,7 +90,10 @@ export class ShortcutService {
     updateTree(this.rootNode)
 
     onChange(this, 'focusedChild', value => {
-      setTimeout(() => updateTree(this.rootNode))
+      updateTree(this.rootNode)
+      // afterNextRender({
+      //   write: () => updateTree(this.rootNode)
+      // }, { injector: this.injector })
     })
 
     onChange(this, 'caretElement', value => {
@@ -407,7 +409,7 @@ export function keyToString(key: Key) {
  */
 export function registerShortcuts(
   commands: Partial<Command>[],
-  options: { shortcutService: ShortcutService, onDestroy: DestroyRef['onDestroy'] } = { shortcutService: null, onDestroy: null }
+  options: { shortcutService: ShortcutService, onDestroy?: DestroyRef['onDestroy'] } = { shortcutService: null, onDestroy: null }
 ) {
   const shortcutService = options.shortcutService ?? inject(ShortcutService)
   const disposables = commands.map(command => {

@@ -1,8 +1,9 @@
-import { Component, QueryList, ViewChild, ViewChildren, signal } from '@angular/core'
-import { discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
+import { Component, QueryList, signal, ViewChild, ViewChildren } from '@angular/core'
+import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing'
 import { BehaviorSubject } from 'rxjs'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
+import { keyboardTest } from "src/utils/tests"
 import { HBox } from '../../1-basics/box'
 import { TextInput } from '../../1-basics/text-input'
 import { List } from './list'
@@ -103,23 +104,25 @@ describe('List - ', () => {
     expect(component.inputs.get(2).text()).toBe('text3')
   })
 
-  it(`should focus the first line of the list`, fakeAsync(() => {
+  it(`should focus the first line of the list`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test3)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: '-' })
     expect(component.inputs.get(0).text()).toBe('text1-')
     expect(component.inputs.get(1).text()).toBe('text2')
     expect(component.inputs.get(2).text()).toBe('text3')
-    discardPeriodicTasks()
   }))
 
   it(`should focus the second line of the list`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test3)
+    shortcuts.logEnabled = true
+    shortcuts.debugDenied = true
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
     sendKeyAndDetectChanges(fixture, shortcuts, { name: '-' })
 
     expect(component.inputs.get(0).text()).toBe('text1')
     expect(component.inputs.get(1).text()).toBe('text2-')
     expect(component.inputs.get(2).text()).toBe('text3')
+    tick()
     discardPeriodicTasks()
   }))
 })
@@ -146,17 +149,14 @@ describe('List - ', () => {
     discardPeriodicTasks()
   }))
 
-  xit(`should work with observables`, fakeAsync(() => {
+  xit(`should work with observables`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test4)
     component.items = new BehaviorSubject([])
     fixture.detectChanges()
     tick()
     expect(component.list.$selectedValue()).toEqual(undefined)
-    debugger
     component.items.next([1, 2, 3])
     // TODO
     expect(component.list.$selectedValue()).toEqual(1)
-    tick()
-    discardPeriodicTasks()
   }))
 })
