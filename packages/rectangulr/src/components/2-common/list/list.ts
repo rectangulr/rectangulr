@@ -5,7 +5,6 @@ import {
   Inject,
   Injector,
   Optional,
-  Output,
   TemplateRef,
   computed,
   contentChild,
@@ -18,7 +17,6 @@ import {
   untracked,
   viewChildren
 } from '@angular/core'
-import { toObservable } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
@@ -30,7 +28,6 @@ import { Command, ShortcutService, registerShortcuts } from '../../../commands/s
 import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { Deferred } from '../../../utils/Deferred'
-import { subscribe } from '../../../utils/reactivity'
 import { patchInputSignal, signal2 } from '../../../utils/Signal2'
 import { VBox } from '../../1-basics/box'
 import { StyleDirective, TemplateStyle } from '../../1-basics/style'
@@ -174,12 +171,13 @@ export class List<T> {
   /**
    * Emits when the selected line changes.
    */
-  @Output('selectedIndex') selectedIndexOutput = toObservable(this.selectedIndex)
+  selectedIndexOutput = output<number | undefined>({ alias: 'selectedIndex' })
 
   /**
    * Emits the currently visible lines of the list.
    */
-  @Output('visibleItems') $$visibleItems = toObservable(this.visibleItems)
+  visibleItemsOutput = output<T[]>({ alias: 'visibleItems' })
+
   deferreds: Deferred<any>[] = []
   previousItems: T[]
 
@@ -198,6 +196,12 @@ export class List<T> {
 
     this.$selectedItem.subscribe(newValue => {
       this.controlValueAccessor.emitChange(newValue)
+    })
+    this.selectedIndex.subscribe(index => {
+      this.selectedIndexOutput.emit(index)
+    })
+    this.visibleItemsOutput.subscribe(items => {
+      this.visibleItemsOutput.emit(items)
     })
     // TODO: unsubscribe
 
