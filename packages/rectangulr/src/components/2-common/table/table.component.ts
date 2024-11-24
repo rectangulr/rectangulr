@@ -9,8 +9,8 @@ import {
   computed,
   contentChild,
   effect,
-  inject,
   input,
+  output,
   signal,
   untracked,
   viewChild
@@ -19,16 +19,14 @@ import { toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
 import _ from 'lodash'
-import { BehaviorSubject, Subject } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { addStyle } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
-import { makeObservable, subscribe } from '../../../utils/reactivity'
 import { computed2, signal2 } from '../../../utils/Signal2'
-import { TODO, filterNulls, inputToSignal } from '../../../utils/utils'
+import { TODO } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { List } from '../list/list'
@@ -131,8 +129,9 @@ export class Table<T> {
   readonly trackByFn = input((index: number, item: T) => item);
   readonly includeKeys = input<string[]>([]);
   readonly excludeKeys = input<string[]>([]);
+
   readonly template2 = contentChild(ListItem, { read: TemplateRef });
-  // @Output('selectedItem') $$selectedItem = new BehaviorSubject<T>(null)
+  readonly selectedItem = output<T | null>();
 
   // $items = signal([])
   $visibleItems = signal([])

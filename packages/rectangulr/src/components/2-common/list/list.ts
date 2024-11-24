@@ -1,20 +1,19 @@
 import { NgTemplateOutlet } from '@angular/common'
 import {
   Component,
-  ContentChild,
   ElementRef,
-  EventEmitter,
   Inject,
   Injector,
-  Input,
   Optional,
   Output,
   TemplateRef,
   computed,
+  contentChild,
   contentChildren,
   effect,
   inject,
   input,
+  output,
   signal,
   untracked,
   viewChildren
@@ -47,7 +46,7 @@ import { ListItem } from './list-item'
   selector: 'list',
   template: `
     <v [s]="{ flexShrink: 0, scrollF: 'y' }">
-      @for (item of $visibleItems(); track trackByFn($index,item)) {
+      @for (item of visibleItems(); track trackByFn()($index,item)) {
         <v
           #elementRef
           (mousedown)="selectVisibleIndex($index)"
@@ -55,11 +54,11 @@ import { ListItem } from './list-item'
           [stv]="{index: $index}"
           >
           <ng-container
-            [ngTemplateOutlet]="template || template2 || defaultTemplate"
+            [ngTemplateOutlet]="template() || template2() || defaultTemplate"
             [ngTemplateOutletContext]="{
               $implicit: item,
               index: $index,
-              selected: eq($index, $selectedIndex)
+              selected: eq($index, selectedIndex)
           }"/>
       </v>
     }
@@ -94,52 +93,52 @@ export class List<T> {
   /**
    * A trackByFn. Same as for *ngFor.
    */
-  @Input() trackByFn = (index: number, item: T) => item
+  readonly trackByFn = input((index: number, item: T) => item)
 
   /**
    * What a line of this list should contain
    * This is an alternative to `template`. You can provide a component instead of a template.
    */
-  @Input() displayComponent: any | undefined = undefined
+  readonly displayComponent = input<any | undefined>(undefined)
 
   /**
    * What a line of this list should contain
    */
-  @Input() template: TemplateRef<any> | undefined
+  readonly template = input<TemplateRef<any> | undefined>(undefined)
 
   /**
    * What item to select when the list is updated
    */
-  @Input() onItemsChangeSelect: 'last' | 'first' | 'same' = 'same'
+  readonly onItemsChangeSelect = input<'last' | 'first' | 'same'>('same')
 
   /**
    * What item to select when the list is created
    */
-  @Input() onInitSelect: 'first' | 'last' = 'first'
+  readonly onInitSelect = input<'first' | 'last'>('first')
 
   /**
    * Should the list add a style to the selected line
    */
-  @Input() styleItem = true
+  readonly styleItem = input(true)
 
   itemStyle: TemplateStyle = (templateVars) => computed(() => {
-    if (templateVars['index']() === this.$selectedIndex()) {
-      return this.style.whiteOnGray
+    if (templateVars['index']() === this.selectedVisibleIndex()) {
+      return this.style().whiteOnGray
     } else {
       return []
     }
   })
 
-  // @Input() focusPath: Signal<JsonPath | null> = signal(null)
+  // readonly focusPath = input<Signal<JsonPath | null>>(signal(null));
 
-  @ContentChild(ListItem, { read: TemplateRef, static: true }) template2: TemplateRef<any> | undefined
+  readonly template2 = contentChild(ListItem, { read: TemplateRef });
 
   // $focusPath = signal(null)
 
-  $selectedIndex = signal2<number | undefined>(undefined)
+  selectedIndex = signal2<number | undefined>(undefined)
 
-  $selectedValue = computed(() => {
-    const index = this.$selectedIndex()
+  selectedValue = computed(() => {
+    const index = this.selectedIndex()
     if (index === undefined) {
       return undefined
     } else {
@@ -148,15 +147,18 @@ export class List<T> {
   })
 
   windowSize = 20
-  $visibleRange = signal({ start: 0, end: this.windowSize })
-  $visibleItems = computed(() => {
-    const visibleRange = this.$visibleRange()
+  visibleRange = signal({ start: 0, end: this.windowSize })
+  visibleItems = computed(() => {
+    const visibleRange = this.visibleRange()
     const items = this.items()
     if (items != null && visibleRange != null) {
       return items.slice(visibleRange.start, visibleRange.end)
     } else {
       return []
     }
+  })
+  selectedVisibleIndex = computed(() => {
+    return this.selectedIndex() - this.visibleRange().start
   })
 
   _displayComponent = undefined
@@ -167,17 +169,17 @@ export class List<T> {
   /**
    * Emits when the selected line changes.
    */
-  @Output('selectedItem') $selectedItem = new EventEmitter<T | null>(false)
+  $selectedItem = output<T | null>({ alias: 'selectedItem' })
 
   /**
    * Emits when the selected line changes.
    */
-  @Output('selectedIndex') selectedIndexOutput = toObservable(this.$selectedIndex)
+  @Output('selectedIndex') selectedIndexOutput = toObservable(this.selectedIndex)
 
   /**
    * Emits the currently visible lines of the list.
    */
-  @Output('visibleItems') $$visibleItems = toObservable(this.$visibleItems)
+  @Output('visibleItems') $$visibleItems = toObservable(this.visibleItems)
   deferreds: Deferred<any>[] = []
   previousItems: T[]
 
@@ -194,9 +196,10 @@ export class List<T> {
     //   this.selectIndex(indexToFocus)
     // })
 
-    subscribe(this, this.$selectedItem, newValue => {
+    this.$selectedItem.subscribe(newValue => {
       this.controlValueAccessor.emitChange(newValue)
     })
+    // TODO: unsubscribe
 
     registerShortcuts(this.shortcuts)
 
@@ -213,19 +216,20 @@ export class List<T> {
 
     const selectNewIndex = (items: T[]) => {
       assert(!_.isNil(items))
-      if (this.onItemsChangeSelect == 'first') {
+      const onItemsChangeSelect = this.onItemsChangeSelect()
+      if (onItemsChangeSelect == 'first') {
         this.selectIndex(0)
-      } else if (this.onItemsChangeSelect == 'last') {
+      } else if (onItemsChangeSelect == 'last') {
         this.selectIndex(items.length - 1)
-      } else if (this.onItemsChangeSelect == 'same') {
-        let index = this.$selectedIndex()
+      } else if (onItemsChangeSelect == 'same') {
+        let index = this.selectedIndex()
         if (_.isNil(index) /* If there's no previous selected item */) {
           this.selectIndex(0)
           return
         }
         // If the selectedValue is an object, we select the value again
         // If its a primitive value, we select the index again
-        const value = this.$selectedValue()
+        const value = this.selectedValue()
         if (value && _.isObject(value)) {
           index = items.indexOf(value)
         }
@@ -238,9 +242,10 @@ export class List<T> {
     }
     const onInitSelect = () => {
       const items = this.items()
-      if (this.onInitSelect == 'first') {
+      const onInitSelectValue = this.onInitSelect()
+      if (onInitSelectValue == 'first') {
         this.selectIndex(0)
-      } else if (this.onInitSelect == 'last') {
+      } else if (onInitSelectValue == 'last') {
         this.selectIndex(items.length - 1)
       }
     }
@@ -259,19 +264,19 @@ export class List<T> {
     assert(!_.isNil(this.items()))
 
     if (!this.items() || this.items().length == 0) {
-      this.$selectedIndex.set(undefined)
+      this.selectedIndex.set(undefined)
     } else {
-      this.$selectedIndex.set(_.clamp(value, 0, this.items().length - 1))
+      this.selectedIndex.set(_.clamp(value, 0, this.items().length - 1))
     }
 
-    this.$selectedItem.emit(this.$selectedValue())
+    this.$selectedItem.emit(this.selectedValue())
 
-    this.$visibleRange.set(
-      rangeCenteredAroundIndex(this.$selectedIndex.$, this.windowSize, this.items().length)
+    this.visibleRange.set(
+      rangeCenteredAroundIndex(this.selectedIndex.$, this.windowSize, this.items().length)
     )
 
     const deferred = new Deferred<boolean>()
-    deferred.value = this.$selectedIndex() === value
+    deferred.value = this.selectedIndex() === value
 
     if (this.items() != this.previousItems) {
       // wait for focusRefs to settle before
@@ -291,17 +296,17 @@ export class List<T> {
   }
 
   selectVisibleIndex(visibleIndex: number) {
-    const index = this.$visibleRange().start + visibleIndex
+    const index = this.visibleRange().start + visibleIndex
     return this.selectIndex(index)
   }
 
   afterViewUpdate() {
     assert(this.focusRefs())
 
-    if (this.$selectedIndex.$ !== undefined) {
+    if (this.selectedIndex.$ !== undefined) {
       // RequestFocus
       if (this.focusRefs().length > 0) {
-        const selectedFocusDirective = this.focusRefs().at(this.$selectedIndex.$)
+        const selectedFocusDirective = this.focusRefs().at(this.selectedVisibleIndex())
         if (!selectedFocusDirective) {
           debugger
         }
@@ -311,9 +316,9 @@ export class List<T> {
 
       // ScrollIntoView
       if (this.elementRefs().length > 0) {
-        assert(this.$selectedIndex.$ !== undefined)
+        assert(this.selectedIndex.$ !== undefined)
         const element: Element = this.elementRefs().at(
-          this.$selectedIndex.$ - this.$visibleRange().start
+          this.selectedVisibleIndex()
         )?.nativeElement
         element?.scrollIntoView({ direction: 'y' })
       }
@@ -321,41 +326,41 @@ export class List<T> {
     this.deferreds.forEach(def => def.resolve(def.value))
   }
 
-  @Input() style = {
+  readonly style = input({
     whiteOnGray: whiteOnGray,
     nullOnNull: { backgroundColor: 'inherit', color: 'inherit' },
-  }
+  })
 
   shortcuts: Partial<Command>[] = [
     {
       keys: 'down',
       func: key => {
-        if (this.$selectedIndex.$ == undefined) return
-        const success = this.selectIndex(this.$selectedIndex.$ + 1)
+        if (this.selectedIndex.$ == undefined) return
+        const success = this.selectIndex(this.selectedIndex.$ + 1)
         if (!success) return key
       },
     },
     {
       keys: 'up',
       func: key => {
-        if (this.$selectedIndex.$ == undefined) return
-        const success = this.selectIndex(this.$selectedIndex.$ - 1)
+        if (this.selectedIndex.$ == undefined) return
+        const success = this.selectIndex(this.selectedIndex.$ - 1)
         if (!success) return key
       },
     },
     {
       keys: 'pgup',
       func: key => {
-        if (this.$selectedIndex.$ == undefined) return
-        const success = this.selectIndex(this.$selectedIndex.$ - this.windowSize)
+        if (this.selectedIndex.$ == undefined) return
+        const success = this.selectIndex(this.selectedIndex.$ - this.windowSize)
         if (!success) return key
       },
     },
     {
       keys: 'pgdown',
       func: key => {
-        if (this.$selectedIndex.$ == undefined) return
-        const success = this.selectIndex(this.$selectedIndex.$ + this.windowSize)
+        if (this.selectedIndex.$ == undefined) return
+        const success = this.selectIndex(this.selectedIndex.$ + this.windowSize)
         if (!success) return key
       },
     },

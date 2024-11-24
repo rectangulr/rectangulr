@@ -22,7 +22,7 @@ describe('FormEditor - ', () => {
   it(`should move down`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
-    expect(component.editor.list.$selectedIndex()).toEqual(1)
+    expect(component.editor.list.selectedIndex()).toEqual(1)
     discardPeriodicTasks()
   }))
 

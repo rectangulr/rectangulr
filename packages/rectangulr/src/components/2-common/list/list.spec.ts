@@ -34,7 +34,7 @@ describe('List - ', () => {
   it(`should move down`, () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     shortcuts.incomingKey({ key: { name: 'down' } })
-    expect(component.list.$selectedIndex()).toEqual(1)
+    expect(component.list.selectedIndex()).toEqual(1)
   })
 
   it(`should move down/up/down`, () => {
@@ -42,13 +42,13 @@ describe('List - ', () => {
     shortcuts.incomingKey({ key: { name: 'down' } })
     shortcuts.incomingKey({ key: { name: 'up' } })
     shortcuts.incomingKey({ key: { name: 'down' } })
-    expect(component.list.$selectedIndex()).toEqual(1)
+    expect(component.list.selectedIndex()).toEqual(1)
   })
 
   it(`should pgdown`, () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     shortcuts.incomingKey({ key: { name: 'pgdown' } })
-    expect(component.list.$selectedIndex()).toEqual(2)
+    expect(component.list.selectedIndex()).toEqual(2)
   })
 })
 
@@ -76,7 +76,7 @@ describe('List - ', () => {
   it(`should focus the first of the list`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test2)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'pgdown' })
-    expect(component.list.$selectedIndex()).toEqual(2)
+    expect(component.list.selectedIndex()).toEqual(2)
     discardPeriodicTasks()
   }))
 })
@@ -141,11 +141,11 @@ describe('List - ', () => {
 
   xit(`should work with signals`, fakeAsync(() => {
     const { fixture, component, shortcuts } = setupTest(Test4)
-    expect(component.list.$selectedValue()).toEqual(undefined)
+    expect(component.list.selectedValue()).toEqual(undefined)
     component.items.set([1, 2, 3])
     fixture.detectChanges()
     tick()
-    expect(component.list.$selectedValue()).toEqual(1)
+    expect(component.list.selectedValue()).toEqual(1)
     discardPeriodicTasks()
   }))
 
@@ -154,9 +154,9 @@ describe('List - ', () => {
     component.items = new BehaviorSubject([])
     fixture.detectChanges()
     tick()
-    expect(component.list.$selectedValue()).toEqual(undefined)
+    expect(component.list.selectedValue()).toEqual(undefined)
     component.items.next([1, 2, 3])
     // TODO
-    expect(component.list.$selectedValue()).toEqual(1)
+    expect(component.list.selectedValue()).toEqual(1)
   }))
 })
