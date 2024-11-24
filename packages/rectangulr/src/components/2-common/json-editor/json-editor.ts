@@ -21,7 +21,7 @@ import { BaseControlValueAccessor } from '../../../utils/base-control-value-acce
 import { DataFormat } from '../../../utils/data-format'
 import { JsonPath } from '../../../utils/jsonPath'
 import { onChange, propToSignal, subscribe } from '../../../utils/reactivity'
-import { patchSignal } from '../../../utils/Signal2'
+import { patchWritableSignal } from '../../../utils/Signal2'
 import { AnyObject, assert, inputToSignal } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
@@ -135,7 +135,7 @@ export class JsonEditor {
   async ngOnInit() {
     // assert(!(this.value && this.valueRef), 'Use [value] or [valueRef]. Not both.')
 
-    patchSignal(this.valueRef).subscribe((valueRef) => {
+    patchWritableSignal(this.valueRef).subscribe((valueRef) => {
       if (this.visibleKey()) {
         if (this.valueRef().key.length == 0) {
           this.focused.set('key')

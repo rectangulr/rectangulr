@@ -389,7 +389,6 @@ export class TermElement extends Node<TermElement> {
       direction = 'xy',
     } = {}
   ) {
-    return
     this.triggerUpdates()
 
     this.rootNode.computeStyles()

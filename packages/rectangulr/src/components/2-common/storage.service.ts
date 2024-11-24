@@ -6,6 +6,8 @@ import os from 'os'
 import { Logger } from '../../angular-terminal/logger'
 import { logError } from '../../utils/utils'
 
+type Path = readonly (string | number)[]
+
 @Injectable({
   providedIn: 'root',
 })
@@ -26,11 +28,11 @@ export class StorageService {
     })
   }
 
-  get(key: any) {
+  get(key: Path) {
     return _.get(this.data, key)
   }
 
-  write(key: readonly (string | number)[], data: any) {
+  write(key: Path, data: any) {
     _.set(this.data, key, data)
     if (this.saveToDisk) {
       fs.writeFileSync(this.filePath, json5.stringify(this.data))

@@ -1,36 +1,38 @@
 import {
   Component,
-  ContentChild,
   ElementRef,
   Injector,
   Input,
   Output,
   Signal,
   TemplateRef,
-  ViewChild,
   computed,
+  contentChild,
   effect,
+  inject,
   input,
   signal,
+  untracked,
+  viewChild
 } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
 import _ from 'lodash'
-import { BehaviorSubject, Observable, Subject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Element } from '../../../angular-terminal/dom-terminal'
+import { addStyle } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { makeObservable, subscribe } from '../../../utils/reactivity'
-import { filterNulls, inputToSignal, TODO } from '../../../utils/utils'
-import { assert } from '../../../utils/Assert'
+import { computed2, signal2 } from '../../../utils/Signal2'
+import { TODO, filterNulls, inputToSignal } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
-import { addStyle } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-import { computed2, signal2 } from '../../../utils/Signal2'
 
 @Component({
   standalone: true,
@@ -103,8 +105,8 @@ interface Column {
     <list
       #list
       [items]="items()"
-      [trackByFn]="trackByFn"
-      [template]="template || template2 || defaultRowTemplate"
+      [trackByFn]="trackByFn()"
+      [template]="template() || template2() || defaultRowTemplate"
       (selectedItem)="$selectedItem.set($event)"
       (visibleItems)="$visibleItems.set($event)"
       [s]="{ hgrow: true}">
@@ -125,14 +127,14 @@ interface Column {
 })
 export class Table<T> {
   items = input.required<T[]>()
-  @Input() template: TemplateRef<any> | undefined
-  @Input() trackByFn = (index: number, item: T) => item
-  @Input() includeKeys: string[] = []
-  @Input() excludeKeys: string[] = []
-  @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any> | undefined
+  readonly template = input<TemplateRef<any> | undefined>(undefined);
+  readonly trackByFn = input((index: number, item: T) => item);
+  readonly includeKeys = input<string[]>([]);
+  readonly excludeKeys = input<string[]>([]);
+  readonly template2 = contentChild(ListItem, { read: TemplateRef });
   // @Output('selectedItem') $$selectedItem = new BehaviorSubject<T>(null)
 
-  $items = signal([])
+  // $items = signal([])
   $visibleItems = signal([])
   $selectedColumnIndex = signal2<number | null>(0)
   $selectedItem = signal<T | null>(null)
@@ -141,18 +143,17 @@ export class Table<T> {
   @Output('visibleItems') $$visibleItems = toObservable(this.$visibleItems)
 
   $columns = computed(() => {
-    return this.computeColumnWidths(this.$items())
+    return this.computeColumnWidths(this.items())
   })
   $selectedColumn = computed2(() => {
-    assert(this.$selectedColumnIndex.$)
+    assert(this.$selectedColumnIndex.$ !== null)
     return this.$columns()[this.$selectedColumnIndex.$]
   })
   $headers = computed(() => {
     return this.computeHeaders(this.$columns(), this.$selectedColumn())
   })
 
-  @ViewChild(List) list!: List<T>
-  $list = new BehaviorSubject<List<T> | null>(null)
+  readonly list = viewChild.required(List);
   controlValueAccessor: ControlValueAccessor = new BaseControlValueAccessor()
 
   constructor(
@@ -161,8 +162,7 @@ export class Table<T> {
     public injector: Injector
   ) {
     addStyle({ scrollF: 'x' })
-    makeObservable(this, 'list', '$list')
-    inputToSignal(this, 'items', '$items')
+    // inputToSignal(this, 'items', '$items')
 
     // Scroll to selected column
     effect(() => {
@@ -185,14 +185,9 @@ export class Table<T> {
 
     registerShortcuts(this.shortcuts)
 
-    subscribe(
-      this,
-      this.$list.pipe(
-        filterNulls,
-        map(list => list.controlValueAccessor)
-      ),
-      newControlValueAccessor => {
-        newControlValueAccessor.value
+    effect(() => {
+      const newControlValueAccessor = this.list().controlValueAccessor
+      untracked(() => {
         newControlValueAccessor.onChangeHandlers.forEach((handler: TODO) =>
           newControlValueAccessor.registerOnChange(handler)
         )
@@ -200,8 +195,8 @@ export class Table<T> {
           newControlValueAccessor.registerOnTouched(handler)
         )
         newControlValueAccessor.setDisabledState(newControlValueAccessor.disabled)
-      }
-    )
+      })
+    })
   }
 
   computeHeaders(columns: Column[], selectedColumn: Column) {
@@ -261,7 +256,7 @@ export class Table<T> {
       keys: 'ctrl+shift+l',
       id: 'resizeColumns',
       func: () => {
-        this.computeColumnWidths(this.$items())
+        this.computeColumnWidths(this.items())
       },
     },
     {

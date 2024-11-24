@@ -89,7 +89,9 @@ export class SearchList<T> {
   matchingItems = toSignal(this.matchingItemsObservable, { initialValue: [] })
   $list = new BehaviorSubject<List<T>>(null)
 
-  constructor(public logger: Logger) {
+  constructor(public logger: Logger) { }
+
+  ngOnInit() {
     const items = patchInputSignal(this.items)
     items.subscribe(items => {
       if (items.length <= 0) {

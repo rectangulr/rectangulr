@@ -13,11 +13,11 @@ export type Computed2<T> = Signal<T> & {
 
 export function signal2<T>(initialValue: T, options?: CreateSignalOptions<T>): Signal2<T> {
 	const sig = signal(initialValue, options)
-	patchSignal(sig)
+	patchWritableSignal(sig)
 	return sig as Signal2<T>
 }
 
-export function patchSignal<T>(sig: WritableSignal<T>): Signal2<T> {
+export function patchWritableSignal<T>(sig: WritableSignal<T>): Signal2<T> {
 	Object.defineProperty(sig, '$', {
 		get() {
 			return sig()
@@ -71,7 +71,7 @@ export function computed2<T>(computation: () => T, options?: CreateComputedOptio
 	return sig as Computed2<T>
 }
 
-function patchComputed<T>(sig: Signal<T>) {
+export function patchComputed<T>(sig: Signal<T>) {
 	Object.defineProperty(sig, '$', {
 		get() {
 			return sig()
