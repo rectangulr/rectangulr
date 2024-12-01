@@ -615,7 +615,7 @@ export class TermScreen extends TermElement {
     } else {
       throw new Error(`handleInput : Unknown input type ${input.type}`)
     }
-    forceRefresh()
+    // forceRefresh()
   }
 
   private dirtyStyleNodes: TermElement[] = []

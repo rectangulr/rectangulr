@@ -157,7 +157,7 @@ export class TermElement extends Node<TermElement> {
 
     this.yogaNode.removeChild(node.yogaNode)
     // yes it's important
-    // this.yogaNode.calculateLayout()
+    this.yogaNode.calculateLayout()
 
     if (this.childNodes.length === 0) {
       // @ts-ignore

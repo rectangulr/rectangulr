@@ -11,6 +11,7 @@ import { StyleDirective } from '../../1-basics/style'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
 import { ViewService } from './view.service'
+import { signal2 } from '../../../utils/Signal2'
 
 @Component({
   standalone: true,
@@ -46,8 +47,8 @@ import { ViewService } from './view.service'
     </h>
 
     <!-- Popup to discover shortcuts -->
-    @if (showCommands) {
-      <shortcuts [shortcutService]="shortcutService" (onClose)="showCommands = false"/>
+    @if (showCommands()) {
+      <shortcuts [shortcutService]="shortcutService" (onClose)="showCommands.$ = false"/>
     }
 
     <!-- Popup to show notifications -->
@@ -56,7 +57,7 @@ import { ViewService } from './view.service'
   imports: [HBox, VBox, FocusDirective, NgComponentOutlet, Notifications, Shortcuts, GrowDirective, StyleDirective],
 })
 export class AppShell {
-  showCommands = false
+  showCommands = signal2(false)
   viewService = inject(ViewService)
   shortcutService = inject(ShortcutService)
   logger = inject(Logger)
@@ -75,7 +76,7 @@ export class AppShell {
   neq = neq
 
   toggleCommands() {
-    this.showCommands = !this.showCommands
+    this.showCommands.$ = !this.showCommands.$
   }
 
   shortcuts: Partial<Command>[] = [
@@ -96,8 +97,8 @@ export class AppShell {
     {
       keys: 'escape',
       func: () => {
-        if (this.showCommands) {
-          this.showCommands = false
+        if (this.showCommands.$) {
+          this.showCommands.$ = false
         }
       },
     },

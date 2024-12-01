@@ -19,7 +19,7 @@ const { RectangulrDynamicTestingModule } = require('./angular-terminal/testing/t
 getTestBed().initTestEnvironment(
   RectangulrDynamicTestingModule,
   platformRectangulrDynamicTesting([
-    // provideExperimentalZonelessChangeDetection()
+    provideExperimentalZonelessChangeDetection()
   ]),
   { teardown: { destroyAfterEach: true } }
 )

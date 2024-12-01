@@ -38,14 +38,14 @@ import { Command, ShortcutService } from './shortcut.service'
     },
   ],
   standalone: true,
-  imports: [GrowDirective, SearchList, ListItem, StyleDirective, VBox],
+  imports: [SearchList, ListItem, StyleDirective, VBox],
 })
 export class Shortcuts {
   @Input() shortcutService: ShortcutService = null
   @Output() onClose = new EventEmitter()
 
   listOfCommands = signal2<Command[]>([])
-  hideCommands = true
+  hideCommands = signal2(true)
   @ViewChild('searchList') list: SearchList<any>
 
   constructor(public isolatedShortcutService: ShortcutService, public logger: Logger) {
@@ -83,7 +83,7 @@ export class Shortcuts {
     let commands: Array<Command> = []
     const focused = focusedShortcutService(this.shortcutService)
     recursiveListCommands(focused, commands)
-    if (this.hideCommands) {
+    if (this.hideCommands()) {
       return commands.filter(c => !c.hidden)
     } else {
       return commands
@@ -116,7 +116,7 @@ export class Shortcuts {
       keys: 'ctrl+h',
       name: 'Toggle Hidden Commands',
       func: () => {
-        this.hideCommands = !this.hideCommands
+        this.hideCommands.$ = !this.hideCommands.$
       },
     },
     {

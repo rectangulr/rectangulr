@@ -8,6 +8,7 @@ import { Logger } from './logger'
 import { ScreenService } from './screen-service'
 import { mergeDeep } from '../utils/mergeDeep'
 import { addToGlobalRg } from '../utils/addToGlobalRg'
+import { assertDebug } from '../utils/utils'
 
 @Injectable({
   providedIn: 'root'
@@ -77,17 +78,17 @@ export class RectangulrRenderer2 implements Renderer2 {
     parent.insertBefore(newChild, refChild)
   }
 
-  removeChild(parent: TermElement, oldChild: any): void {
+  removeChild(renderer: any, rNode: TermElement, isHostElement?: boolean): void {
     // this.logger.log({ message: 'removeChild', parent: parent.id, oldChild: oldChild.id })
-    if (parent) {
-      parent.removeChild(oldChild)
-    }
+    const parent = rNode.parentNode
+    assertDebug(parent)
+    parent.removeChild(rNode)
   }
 
   destroyNode(node: TermElement) {
     // Destroy children first
     for (const child of node.childNodes) {
-      this.removeChild(node, child)
+      this.removeChild(node, child,)
       this.destroyNode(child)
     }
     this.selectRootElement().poolNode(node)
