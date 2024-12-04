@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, Signal, WritableSignal, computed, signal } from '@angular/core'
+import { Directive, ElementRef, Signal, WritableSignal, computed, signal, input } from '@angular/core'
 import { Element } from '../../angular-terminal/dom-terminal'
 import { StyleValue } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { onChange } from '../../utils/reactivity'
@@ -22,14 +22,14 @@ export class StyleDirective {
    * Value: {color: 'red'}
    * Signal: computed(() => ({color: color()}))
    */
-  @Input() s: StyleValueOrSignal | StyleValueOrSignal[] = []
+  readonly s = input<StyleValueOrSignal | StyleValueOrSignal[]>([])
 
   /**
    * Template styles.
    * Used for now to have styles than can react to $index in a @for (template variables).
    * Angular doesnt expose the index as a signal for now.
   */
-  @Input() st: TemplateStyle[] = []
+  readonly st = input<TemplateStyle[]>([])
 
   /**
    * Template style variables : {key: value}
@@ -37,28 +37,29 @@ export class StyleDirective {
    * Passes them to their corresponding signal via key.
    * Example: signals[index].set(3)
    */
-  @Input() stv: { [key: string]: any } = {}
+  readonly stv = input<{ [key: string]: any }>({});
   signals: { [key: string]: WritableSignal<any> } = {}
 
   constructor(public element: ElementRef<Element>) { }
 
   ngOnInit() {
     // Add normal styles
-    if (Array.isArray(this.s)) {
-      for (const style of this.s) {
+    const s = this.s()
+    if (Array.isArray(s)) {
+      for (const style of s) {
         this.element.nativeElement.style.add(style)
       }
     } else {
-      this.element.nativeElement.style.add(this.s)
+      this.element.nativeElement.style.add(s)
     }
 
     // Create template variables signals
-    for (const [key, value] of Object.entries(this.stv)) {
+    for (const [key, value] of Object.entries(this.stv())) {
       this.signals[key] = signal(value)
     }
 
     // Add template styles
-    for (const templateStyle of this.st) {
+    for (const templateStyle of this.st()) {
       const computedStyle = templateStyle(this.signals)
       this.element.nativeElement.style.add(computedStyle)
     }

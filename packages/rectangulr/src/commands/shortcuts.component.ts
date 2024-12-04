@@ -1,9 +1,9 @@
-import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core'
+import { Component, inject, input, output, viewChild } from '@angular/core'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../angular-terminal/logger'
-import { GrowDirective, VBox } from '../components/1-basics/box'
+import { VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
@@ -41,12 +41,12 @@ import { Command, ShortcutService } from './shortcut.service'
   imports: [SearchList, ListItem, StyleDirective, VBox],
 })
 export class Shortcuts {
-  @Input() shortcutService: ShortcutService = null
-  @Output() onClose = new EventEmitter()
+  readonly shortcutService = input<ShortcutService>(null)
+  readonly onClose = output()
 
-  listOfCommands = signal2<Command[]>([])
-  hideCommands = signal2(true)
-  @ViewChild('searchList') list: SearchList<any>
+  readonly listOfCommands = signal2<Command[]>([])
+  readonly hideCommands = signal2(true)
+  readonly list = viewChild<SearchList<any>>('searchList')
 
   constructor(public isolatedShortcutService: ShortcutService, public logger: Logger) {
     addStyle({ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' })
@@ -57,7 +57,7 @@ export class Shortcuts {
 
   ngOnInit() {
     this.listOfCommands.$ = this.listCommands()
-    this.shortcutService.rootNode.before = this.isolatedShortcutService
+    this.shortcutService().rootNode.before = this.isolatedShortcutService
 
     // almost like: registerShortcuts(this.commands)
     const disposables = this.shortcuts.map(command => {
@@ -81,7 +81,7 @@ export class Shortcuts {
     }
 
     let commands: Array<Command> = []
-    const focused = focusedShortcutService(this.shortcutService)
+    const focused = focusedShortcutService(this.shortcutService())
     recursiveListCommands(focused, commands)
     if (this.hideCommands()) {
       return commands.filter(c => !c.hidden)
@@ -94,16 +94,16 @@ export class Shortcuts {
     {
       keys: 'enter',
       func: () => {
-        let command = this.list.selectedItem.value
+        let command = this.list().selectedItem.value
         if (!command) return
-        const focused = focusedShortcutService(this.shortcutService)
+        const focused = focusedShortcutService(this.shortcutService())
         try {
           focused.callCommand({ id: command.id })
         } catch (e) {
           logError(this.logger, `callCommand failed: '${command.id}'\n${e}`)
         }
         this.onClose.emit(null)
-        this.shortcutService.before = null
+        this.shortcutService().before = null
       },
     },
     {

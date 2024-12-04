@@ -1,7 +1,7 @@
 import {
   Component,
   Injector,
-  Input,
+  input,
   model,
   Signal,
   signal,
@@ -21,14 +21,15 @@ import { BaseControlValueAccessor } from '../../../utils/base-control-value-acce
 import { DataFormat } from '../../../utils/data-format'
 import { JsonPath } from '../../../utils/jsonPath'
 import { onChange, propToSignal, subscribe } from '../../../utils/reactivity'
-import { patchWritableSignal } from '../../../utils/Signal2'
-import { AnyObject, assert, inputToSignal } from '../../../utils/utils'
+import { patchWritableSignal, signal2 } from '../../../utils/Signal2'
+import { AnyObject, inputToSignal } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
+import { assert } from '../../../utils/Assert'
 
 @Component({
   selector: 'json-editor',
@@ -48,13 +49,13 @@ import { ListItem } from '../list/list-item'
       @if (valueRef().type == 'object' || valueRef().type == 'array') {
         <list [items]="valueRef().childrenValueRefs?.() ?? []" [focusShortcuts]="shortcutsForList">
           <json-editor
-            *item="let ref; type: valueRef().childrenValueRefs?.()"
+            *item="let ref type: valueRef().childrenValueRefs?.()"
             focus
-            [focusOnInit]="!!focusPath"
+            [focusOnInit]="!!focusPath()"
             [valueRef]="ref"
             [isRoot]="false"
             [focusPath]="$childFocusPath"
-            [s]="cond(!isRoot, { paddingLeft: 2 })"/>
+            [s]="cond(!isRoot(), { paddingLeft: 2 })"/>
         </list>
         <!-- TODO: conditional style -->
       }
@@ -80,21 +81,21 @@ import { ListItem } from '../list/list-item'
   ],
 })
 export class JsonEditor {
-  @Input() data = undefined
-  valueRef = model<ValueRef>({ key: null, value: null, type: 'null' })
-  @Input() dataFormat: DataFormat | undefined = null
-  @Input() path: string[] = []
-  @Input() isRoot = true
-  @Input() focusPath: JsonPath | Signal<JsonPath> | Observable<JsonPath> | undefined = undefined
+  readonly data = input(undefined)
+  readonly valueRef = model<ValueRef>({ key: null, value: null, type: 'null' })
+  readonly dataFormat = input<DataFormat | undefined>(undefined)
+  readonly path = input<string[]>([])
+  readonly isRoot = input(true)
+  readonly focusPath = input<JsonPath | Signal<JsonPath> | Observable<JsonPath> | undefined>(undefined)
 
-  focused = signal<'key' | 'value'>('value')
+  readonly focused = signal<'key' | 'value'>('value')
   valueText: string = ''
   controlValueAccessor = new BaseControlValueAccessor()
-  $focusPath: Signal<JsonPath | null> = signal(null)
-  $childFocusPath: Signal<JsonPath>
+  readonly $focusPath: Signal<JsonPath | null> = signal(null)
+  readonly $childFocusPath = signal2<JsonPath>([])
 
-  list = viewChild(List)
-  jsonEditors = viewChildren(JsonEditor)
+  readonly list = viewChild(List)
+  readonly jsonEditors = viewChildren(JsonEditor)
 
   constructor(
     public shortcutService: ShortcutService,
@@ -108,19 +109,21 @@ export class JsonEditor {
     inputToSignal(this, 'focusPath', '$focusPath')
     propToSignal(this, 'isRoot')
     registerShortcuts(this.shortcuts)
-    if (this.isRoot) {
+    if (this.isRoot()) {
       registerShortcuts(this.rootShortcuts)
       this.shortcutService.requestFocus({ reason: 'JsonEditor onInit' })
     }
   }
 
   async setup() {
-    if (this.isRoot) {
+    if (this.isRoot()) {
       let value = undefined
-      if (this.dataFormat) {
-        value = await this.dataFormat.completions()
-      } else if (this.data !== undefined) {
-        value = this.data
+      const dataFormat = this.dataFormat()
+      const data = this.data()
+      if (dataFormat) {
+        value = await dataFormat.completions()
+      } else if (data !== undefined) {
+        value = data
       } else {
         assert(false)
       }
@@ -217,7 +220,7 @@ export class JsonEditor {
   }
 
   createNewLine() {
-    var newValueRef
+    var newValueRef: ValueRef | undefined = undefined
     if (this.valueRef().type == 'object') {
       newValueRef = { key: '', value: '', type: 'string' }
     } else if (this.valueRef().type == 'array') {

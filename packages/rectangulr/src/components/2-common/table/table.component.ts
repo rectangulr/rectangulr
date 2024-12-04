@@ -2,7 +2,6 @@ import {
   Component,
   ElementRef,
   Injector,
-  Input,
   Output,
   Signal,
   TemplateRef,
@@ -38,7 +37,7 @@ import { ListItem } from '../list/list-item'
   template: `{{ text() }}`,
 })
 export class Row<T extends { [key: string | symbol]: any }> {
-  @Input() data!: T
+  readonly data = input.required<T>();
   text!: Signal<string>
 
   constructor(public table: Table<T>) {
@@ -46,12 +45,13 @@ export class Row<T extends { [key: string | symbol]: any }> {
   }
 
   ngOnInit() {
-    assert(this.data)
+    assert(this.data())
     // assert(typeof this.data == 'object')
     assert(this.table.$columns())
 
     this.text = computed(() => {
-      if (typeof this.data == 'object') {
+      const data = this.data()
+      if (typeof data == 'object') {
         const columns = this.table.$columns()
         const selectedColumn = this.table.$selectedColumn()
         const selectedItem = this.table.$selectedItem()
@@ -60,7 +60,7 @@ export class Row<T extends { [key: string | symbol]: any }> {
 
         columns
           .map(column => {
-            let value = this.data[column.id]
+            let value = this.data()[column.id]
 
             if (typeof value == 'string' || typeof value == 'bigint') {
               value = String(value)
@@ -76,7 +76,7 @@ export class Row<T extends { [key: string | symbol]: any }> {
             return { ...column, string: value.slice(0, column.width).padEnd(column.width) }
           })
           .forEach(column => {
-            if (selectedColumn && column.id == selectedColumn.id && this.data == selectedItem) {
+            if (selectedColumn && column.id == selectedColumn.id && this.data() == selectedItem) {
               line += '>' + column.string + '<|'
             } else {
               line += ' ' + column.string + ' |'
@@ -85,7 +85,7 @@ export class Row<T extends { [key: string | symbol]: any }> {
 
         return line
       } else {
-        return String(this.data)
+        return String(data)
       }
     })
   }
@@ -134,7 +134,7 @@ export class Table<T> {
   readonly selectedItem = output<T | null>();
 
   // $items = signal([])
-  $visibleItems = signal([])
+  $visibleItems = signal<T[]>([])
   $selectedColumnIndex = signal2<number | null>(0)
   $selectedItem = signal<T | null>(null)
 
@@ -193,6 +193,7 @@ export class Table<T> {
         newControlValueAccessor.onTouchHandlers.forEach((handler: TODO) =>
           newControlValueAccessor.registerOnTouched(handler)
         )
+        assert(newControlValueAccessor.setDisabledState)
         newControlValueAccessor.setDisabledState(newControlValueAccessor.disabled)
       })
     })

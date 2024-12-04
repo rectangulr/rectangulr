@@ -1,83 +1,53 @@
-import { Component, Input, Output, ViewChild } from '@angular/core'
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms'
+import { Component, computed, inject, input, Output, viewChild } from '@angular/core'
+import { FormBuilder, FormGroup } from '@angular/forms'
 import * as json5 from 'json5'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'
+import { FocusDirective } from '../../commands/focus.directive'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
-import { State } from '../../utils/reactivity'
 import { longest, mapKeyValue } from '../../utils/utils'
-import { HBox } from '../1-basics/box'
-import { TextInput } from '../1-basics/text-input'
+import { KeyValueEditor } from './KeyValueEditor'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
 import { blackOnWhite } from './styles'
-import { StyleDirective } from '../1-basics/style'
-import { FocusDirective } from '../../commands/focus.directive'
-
-@Component({
-  standalone: true,
-  imports: [HBox, TextInput, ReactiveFormsModule, StyleDirective],
-  selector: 'keyvalue-editor',
-  template: `
-    <v [formGroup]="formGroup" [s]="{ flexDirection: 'row' }">
-      <v [s]="{ width: keyWidth + 1 }" [s]="[blackOnWhite]">{{ keyValue.key }}</v>
-      <text-input [formControlName]="keyValue.key" [text]="keyValue.value"></text-input>
-    </v>
-  `,
-})
-export class KeyValueEditor {
-  @Input() keyValue: { key: string; value: any } = null
-  @Input() keyWidth = 0
-
-  constructor(public shortcutService: ShortcutService, public formGroup: FormGroup) { }
-
-  ngOnInit() {
-    if (!this.keyWidth) {
-      this.keyWidth = this.keyValue.key.length
-    }
-  }
-
-  blackOnWhite = blackOnWhite
-
-  ngOnDestroy() {
-    this.shortcutService.unfocus()
-  }
-}
 
 @Component({
   standalone: true,
   imports: [List, KeyValueEditor, ListItem, FocusDirective],
   selector: 'form-editor',
   template: `
-    <list [items]="keyValues">
+    <list [items]="keyValues()">
       <keyvalue-editor
         *item="let keyValue; type: keyValues"
         focus
         [keyValue]="keyValue"
-        [keyWidth]="longestKey"></keyvalue-editor>
+        [keyWidth]="longestKey()"/>
     </list>
   `,
   providers: [
     {
       provide: FormGroup,
-      useFactory: (objectEditor: FormEditor) => objectEditor.form,
-      deps: [FormEditor],
+      useFactory: () => inject(FormEditor).form(),
     },
   ],
 })
 export class FormEditor {
-  @Input() set object(object) {
-    this._object.value = object
-  }
+  object = input.required()
   @Output() onSubmit = new Subject()
 
-  @ViewChild(List) list: List<any>
+  simpleObject = computed(() => simplifyObject(this.object()))
+  keyValues = computed(() => Object.entries(this.simpleObject())
+    .map(([key, value]) => ({
+      key: key,
+      value: value,
+    }))
+  )
+  longestKey = computed(() => longest(this.keyValues()))
+  form = computed(() => this.fb.group(this.simpleObject()))
 
-  _object: State<any>
-  keyValues: { key: string; value: any }[]
-  longestKey = 0
-  form: FormGroup
+  readonly list = viewChild(List)
+
   keybinds = [
     {
       keys: 'enter',
@@ -93,38 +63,18 @@ export class FormEditor {
     public fb: FormBuilder,
     public shortcutService: ShortcutService
   ) {
-    this._object = new State(null, this.destroy$)
-    this._object.$.subscribe(object => {
-      if (!object) {
-        object = {}
-      }
-      const simpleObject = simplifyObject(object)
-      this.keyValues = Object.entries(simpleObject).map(([key, value]) => ({
-        key: key,
-        value: value,
-      }))
-      this.longestKey = longest(this.keyValues)
-      this.form = this.fb.group(simpleObject)
-    })
-
     registerShortcuts(this.keybinds)
   }
 
   getValue() {
     const value = mapBackToOriginalTypes({
-      formObject: this.form.value,
-      originalObject: this._object.value,
+      formObject: this.form().value,
+      originalObject: this.object()
     })
     return value
   }
 
   blackOnWhite = blackOnWhite
-
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
-  }
 }
 
 // Removes arrays. Transforms values into strings.

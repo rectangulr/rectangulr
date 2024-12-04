@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Inject, Input, Output } from '@angular/core'
+import { Directive, EventEmitter, Inject, Output, input } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
 import { ShortcutService } from '../../commands/shortcut.service'
@@ -11,11 +11,11 @@ abstract class ValueProxy { }
   selector: '[value]',
 })
 export class ValueDirective {
-  @Input() value = undefined
+  readonly value = input(undefined)
   @Output() valueChange = new EventEmitter(true)
 
   // TODO
-  @Input() valueProxy: ValueProxy = null
+  readonly valueProxy = input<ValueProxy>(null)
 
   currentValue = null
 
@@ -31,13 +31,7 @@ export class ValueDirective {
 
   ngOnInit() {
     this.valueAccessors.forEach(accessor => {
-      accessor.writeValue(this.value)
+      accessor.writeValue(this.value())
     })
-  }
-
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
   }
 }

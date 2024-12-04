@@ -1,19 +1,19 @@
-import { Directive, Inject, Input, inject, signal } from '@angular/core'
+import { Directive, Inject, inject, signal, input } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
 import { assert } from '../../utils/utils'
 
-abstract class ValueProxy {}
+abstract class ValueProxy { }
 
 @Directive({
   standalone: true,
   selector: '[signal]',
 })
 export class SignalDirective {
-  @Input() signal = signal(undefined)
+  readonly signal = input(signal(undefined))
 
   // TODO
-  @Input() signalProxy: ValueProxy = null
+  readonly signalProxy = input<ValueProxy>(null);
 
   currentValue = null
   valueAccessors: readonly ControlValueAccessor[]
@@ -24,14 +24,14 @@ export class SignalDirective {
     this.valueAccessors.forEach(accessor => {
       accessor.registerOnChange(value => {
         this.currentValue = value
-        this.signal.set(value)
+        this.signal().set(value)
       })
     })
   }
 
   ngOnInit() {
     this.valueAccessors.forEach(accessor => {
-      accessor.writeValue(this.signal())
+      accessor.writeValue(this.signal()())
     })
   }
 

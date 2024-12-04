@@ -1,13 +1,13 @@
 import {
   Component,
   EventEmitter,
-  Input,
   Output,
   QueryList,
   ViewChild,
   ViewChildren,
   WritableSignal,
-  signal
+  signal,
+  input
 } from '@angular/core'
 import { TestBed, discardPeriodicTasks, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
@@ -62,7 +62,7 @@ describe('ShortcutService Class', () => {
 
 @Component({
   standalone: true,
-  imports: [HBox, FocusDirective],
+  imports: [FocusDirective],
   template: `
     @if (showFirst) {
       <v
@@ -361,7 +361,6 @@ describe('ShortcutService - ', () => {
   template: `something`,
 })
 export class Test6Comp {
-  @Input() value: WritableSignal<number> = null
   condition = true
   spy2: { handler: () => void }
 
@@ -466,17 +465,17 @@ describe('FocusDirective -', () => {
   standalone: true,
   imports: [HBox, List, ListItem, FocusDirective, StyleDirective],
   template: `
-    <h [s]="cond(shortcutService.$isFocused, s.selected)"> {{ data.name }}</h>
+    <h [s]="cond(shortcutService.$isFocused, s.selected)"> {{ data().name }}</h>
     <list
       #list
-      [items]="data?.children"
-      [focusName]="'list-' + data.name"
+      [items]="data()?.children"
+      [focusName]="'list-' + data().name"
       [focusIf]="focused == 'children'"
       (selectedItem)="onSelectedItem($event)"
       [styleItem]="false"
       [s]="{ marginLeft: 1 }">
       <component-data-display
-        *item="let item; type: data.children"
+        *item="let item; type: data().children"
         [data]="item"
         focus
         [focusName]="'component-' + item.name"
@@ -485,7 +484,7 @@ describe('FocusDirective -', () => {
   `,
 })
 class ComponentDataView {
-  @Input() data = { name: 'name', children: [{ name: 'child1', children: [] }] }
+  readonly data = input({ name: 'name', children: [{ name: 'child1', children: [] }] });
   focused: 'self' | 'children' = 'self'
   canExpand = false
   expanded = false
@@ -507,7 +506,7 @@ class ComponentDataView {
   }
 
   ngOnInit() {
-    this.canExpand = !!this.data?.children
+    this.canExpand = !!this.data()?.children
   }
 
   shortcuts: Partial<Command>[] = [

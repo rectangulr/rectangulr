@@ -1,4 +1,4 @@
-import { Directive, Input } from '@angular/core'
+import { Directive, input } from '@angular/core'
 import { Observable } from 'rxjs'
 
 @Directive({
@@ -6,7 +6,7 @@ import { Observable } from 'rxjs'
 	selector: '[treeNode]',
 })
 export class TreeNode<T> {
-	@Input() treeNodeType: T | T[] | Observable<T[]>
+	readonly treeNodeType = input<T | T[] | Observable<T[]>>(undefined)
 
 	static ngTemplateContextGuard<T>(
 		directive: TreeNode<T>,

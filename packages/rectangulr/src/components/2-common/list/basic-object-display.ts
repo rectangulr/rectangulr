@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, inject } from '@angular/core'
+import { Component, computed, forwardRef, inject, input } from '@angular/core'
 import * as json5 from 'json5'
 import { mapKeyValue, stringifyReplacer } from '../../../utils/utils'
 import { GrowDirective, HBox } from '../../1-basics/box'
@@ -9,30 +9,33 @@ import { List } from './list'
   selector: 'basic-object-display',
   template: `<h [s]="{ height: 1 }">{{ text }}</h>`,
   standalone: true,
-  imports: [HBox, GrowDirective, StyleDirective],
+  imports: [HBox, StyleDirective],
 })
 export class BasicObjectDisplay {
-  @Input() data: any
-  @Input() includeKeys: string[]
-  @Input() excludeKeys: string[] = []
+  readonly data = input<any>(undefined);
+  readonly includeKeysInput = input<string[]>(undefined, { alias: 'includeKeys' })
+  includeKeys = computed(() => {
+    return this.includeKeysInput() || Object.keys(this.data() ?? {})
+  })
+  readonly excludeKeys = input<string[]>([])
   text = 'error'
 
   list = inject(forwardRef(() => List))
 
   ngOnInit() {
-    const typeOf = typeof this.data
-    if (this.data == null) {
+    const typeOf = typeof this.data()
+    const data = this.data()
+    if (data == null) {
       this.text = 'null'
     } else if (typeOf == 'string' || typeOf == 'number') {
-      this.text = this.data
+      this.text = data
     } else if (typeOf == 'object') {
-      this.includeKeys = this.includeKeys || Object.keys(this.data)
-      if (this.data.name != undefined) {
-        this.text = this.data.name
+      if (data.name != undefined) {
+        this.text = data.name
       } else {
-        const newObject = mapKeyValue(this.data, (key, value) => {
-          if (this.includeKeys.includes(key)) {
-            if (!this.excludeKeys.includes(key)) {
+        const newObject = mapKeyValue(data, (key, value) => {
+          if (this.includeKeys().includes(key)) {
+            if (!this.excludeKeys().includes(key)) {
               // json can't contain bigint
               if (typeof value == 'bigint') {
                 value = Number(value)

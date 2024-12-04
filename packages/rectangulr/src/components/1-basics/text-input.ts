@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, Output, computed, effect, forwardRef, input, model, untracked } from '@angular/core'
+import { Component, ElementRef, EventEmitter, HostListener, Output, computed, forwardRef, inject, input, model } from '@angular/core'
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as _ from '@s-libs/micro-dash'
@@ -8,14 +8,12 @@ import { addStyle } from '../../angular-terminal/dom-terminal/sources/core/dom/S
 import { Logger } from '../../angular-terminal/logger'
 import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
 import { Completion, CompletionProvider } from '../../utils/CompletionProvider'
-import { signal2 } from '../../utils/Signal2'
-import { onChange } from '../../utils/reactivity'
-import { assert } from '../../utils/utils'
-import { Json5Pipe } from '../2-common/json5.pipe'
+import { patchInputSignal, signal2 } from '../../utils/Signal2'
 import { List } from '../2-common/list/list'
 import { ListItem } from '../2-common/list/list-item'
 import { HBox, VBox } from './box'
 import { StyleDirective } from './style'
+import { assert } from '../../utils/Assert'
 
 
 let globalId = 0
@@ -30,7 +28,7 @@ let globalId = 0
     <h [s]="{ width: 1, height: 1 }"/>
 
     <!-- Completions hover popup -->
-    @if(completionProvider && completions().length > 0) {
+    @if(completionProvider() && completions().length > 0) {
       <v [s]="[{backgroundColor: 'gray', color: 'white', position: 'absolute'}, completionsSelectorPos]">
         <list [items]="completions()" (selectedItem)="completionSelected.set($event)" >
           <h *item="let completion; type: completions">{{ completion.value }}</h>
@@ -52,22 +50,22 @@ let globalId = 0
 export class TextInput implements ControlValueAccessor {
   _id = ++globalId
 
-  @Input({ alias: 'text' }) textInput = ''
-  text = signal2('')
+  readonly textInput = input('', { alias: "text" })
+  readonly text = signal2('')
   @Output() textChange = new EventEmitter<string>()
 
-  multiline = input(false)
-  focusOnInit = input(true)
+  readonly multiline = input(false)
+  readonly focusOnInit = input(true)
 
-  caretIndex = model(0)
-  domElement: Element | undefined = undefined
-  firstTextInput = true
+  readonly caretIndex = model(0)
+  readonly domElement = signal2<Element | undefined>(undefined)
+  readonly firstTextInput = signal2(true)
 
   // Completions
-  @Input() completionProvider: CompletionProvider | undefined = undefined
-  completions = signal2<Completion[]>([])
-  completionSelected = signal2<Completion | undefined>(undefined)
-  completionsSelectorPos = computed(() => {
+  readonly completionProvider = input<CompletionProvider | undefined>(undefined);
+  readonly completions = signal2<Completion[]>([])
+  readonly completionSelected = signal2<Completion | undefined>(undefined)
+  readonly completionsSelectorPos = computed(() => {
     const { x, y } = fromCaretIndexToXY(this.text(), this.caretIndex())
     return { left: x, top: y + 1 }
   })
@@ -79,7 +77,7 @@ export class TextInput implements ControlValueAccessor {
   ) {
     addStyle({ flexDirection: 'row', scrollF: 'x', overflow: 'visible' })
 
-    onChange(this, 'textInput', value => {
+    patchInputSignal(this.textInput).subscribe(value => {
       assert(typeof value == 'string')
 
       if (value != this.text()) {
@@ -134,8 +132,9 @@ export class TextInput implements ControlValueAccessor {
           takeUntilDestroyed(),
         )
         .subscribe(async () => {
-          if (this.completionProvider) {
-            this.completions.$ = (await this.completionProvider.completions({
+          const completionProvider = this.completionProvider()
+          if (completionProvider) {
+            this.completions.$ = (await completionProvider.completions({
               text: this.text(),
               caretIndex: this.caretIndex(),
             }))
@@ -144,6 +143,9 @@ export class TextInput implements ControlValueAccessor {
           }
         })
     }
+
+    inject(ShortcutService).debugDenied = true
+    inject(ShortcutService).logEnabled = true
   }
 
   ngOnInit() {
@@ -163,20 +165,20 @@ export class TextInput implements ControlValueAccessor {
   }
 
   ngAfterViewInit() {
-    this.domElement = this.elementRef.nativeElement
+    this.domElement.$ = this.elementRef.nativeElement
     this.updateCaretPositionAndScroll()
-    this.shortcutService.caretElement = this.domElement
+    this.shortcutService.caretElement = this.domElement()
   }
 
   updateCaretPositionAndScroll() {
-    if (this.domElement) {
+    if (this.domElement()) {
       if (this.multiline()) {
         const { x, y } = fromCaretIndexToXY(this.text(), this.caretIndex())
-        this.domElement.caret = new Point({ x, y })
+        this.domElement().caret = new Point({ x, y })
       } else {
-        this.domElement.caret = new Point({ x: this.caretIndex(), y: 0 })
+        this.domElement().caret = new Point({ x: this.caretIndex(), y: 0 })
       }
-      this.domElement.scrollCellIntoView(this.domElement.caret)
+      this.domElement().scrollCellIntoView(this.domElement().caret)
     }
   }
 
@@ -326,7 +328,7 @@ export class TextInput implements ControlValueAccessor {
       id: 'selectCompletion',
       keys: 'tab',
       func: key => {
-        if (this.completionProvider === undefined) return key
+        if (this.completionProvider() === undefined) return key
         if (!this.completionSelected()) return key
         const completion = this.completionSelected()
         const toBeInserted = completion?.textToInsert ?? completion?.value

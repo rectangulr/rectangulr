@@ -1,9 +1,10 @@
 import {
   Component,
+  computed,
   ContentChild,
   inject,
   input,
-  Input,
+  model,
   Output,
   TemplateRef,
   ViewChild
@@ -17,9 +18,10 @@ import { Logger } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
 import { makeObservable } from '../../utils/reactivity'
 import { patchInputSignal } from '../../utils/Signal2'
-import { GrowDirective, HBox, VBox } from '../1-basics/box'
+import { VBox } from '../1-basics/box'
 import { StyleDirective } from '../1-basics/style'
 import { TextInput } from '../1-basics/text-input'
+import { NotificationsService } from './app-shell/notifications.service'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
 import { borderTop } from './styles'
@@ -28,19 +30,19 @@ import { borderTop } from './styles'
   selector: 'search-list',
   template: `
     <v>
-      @if (searchInputVisible) {
+      @if (searchInputVisible()) {
         <text-input
-          [text]="searchText"
+          [text]="searchText()"
           (textChange)="searchTextChange.next($event)"
-          [focusIf]="focusInputIf"
+          [focusIf]="focusInputIf()"
           [s]="{ backgroundColor: 'gray', color: 'white' }"/>
       }
       <list
         [items]="matchingItems()"
         (selectedItem)="selectedItem.next($event)"
         onItemsChangeSelect="first"
-        [trackByFn]="trackByFn"
-        [template]="template || template2">
+        [trackByFn]="trackByFn()"
+        [template]="template() || template2">
       </list>
     </v>
   `,
@@ -54,28 +56,28 @@ import { borderTop } from './styles'
     },
   ],
   standalone: true,
-  imports: [HBox, VBox, TextInput, FocusDirective, List, GrowDirective, StyleDirective],
+  imports: [VBox, TextInput, FocusDirective, List, StyleDirective],
 })
 export class SearchList<T> {
   items = input.required<T[]>()
   $items = toObservable(this.items)
 
-  @Input() searchText = ''
-  @Input() searchKeys = []
-  @Input() trackByFn = (index, item) => item
-  @Input() searchInputVisible = true
-  @Input() focusInputIf = false
-  @Input() template: TemplateRef<any>
+  readonly searchText = input('')
+  readonly searchKeys = input([])
+  readonly trackByFn = input((index, item) => item)
+  readonly searchInputVisible = input(true)
+  readonly focusInputIf = input(false)
+  readonly template = input<TemplateRef<any>>(undefined)
+
   @ViewChild(List) list: List<T>
   @ContentChild(ListItem, { read: TemplateRef }) template2: TemplateRef<any>
 
-  @Output() searchTextChange = new BehaviorSubject(this.searchText)
+  @Output() searchTextChange = new BehaviorSubject(this.searchText())
   @Output() selectedItem = new BehaviorSubject(null)
 
-  searchEnabled = true
-  searchIndex = new Fuse([], {
-    keys: this.searchKeys,
-  })
+  searchEnabled = model(true)
+  searchIndex = new Fuse([], { keys: this.searchKeys() })
+
   matchingItemsObservable = combineLatest([this.$items, this.searchTextChange]).pipe(
     debounceTime(100),
     map(([items, searchText]) => {
@@ -89,33 +91,32 @@ export class SearchList<T> {
   matchingItems = toSignal(this.matchingItemsObservable, { initialValue: [] })
   $list = new BehaviorSubject<List<T>>(null)
 
+  notificationService = inject(NotificationsService)
+
   constructor(public logger: Logger) { }
 
   ngOnInit() {
     const items = patchInputSignal(this.items)
     items.subscribe(items => {
       if (items.length <= 0) {
-        this.searchEnabled = false
-        this.searchIndex = new Fuse([])
+        this.searchEnabled.set(false)
         return
       }
 
       if (items.length > 20_000) {
-        this.searchEnabled = false
-        this.searchIndex = new Fuse([])
-        this.searchText = 'search disabled. list too long'
+        this.searchEnabled.set(false)
+        this.notificationService.notify({ name: 'search disabled. list too long' })
         return
       }
 
-      this.searchEnabled = true
-      this.searchKeys = []
+      this.searchEnabled.set(true)
       const firstItem = items[0]
       Object.entries(firstItem).forEach(([key, value]) => {
         if (['string', 'number'].includes(typeof value)) {
-          this.searchKeys.push(key)
+          this.searchKeys().push(key)
         }
       })
-      this.searchIndex = new Fuse(items, { keys: this.searchKeys })
+      this.searchIndex = new Fuse(items, { keys: this.searchKeys() })
     })
     // effect(() => {
     //   console.log(this.matchingItems())

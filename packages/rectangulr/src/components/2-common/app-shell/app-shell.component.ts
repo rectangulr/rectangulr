@@ -57,10 +57,11 @@ import { signal2 } from '../../../utils/Signal2'
   imports: [HBox, VBox, FocusDirective, NgComponentOutlet, Notifications, Shortcuts, GrowDirective, StyleDirective],
 })
 export class AppShell {
-  showCommands = signal2(false)
-  viewService = inject(ViewService)
-  shortcutService = inject(ShortcutService)
-  logger = inject(Logger)
+  readonly showCommands = signal2(false)
+
+  readonly viewService = inject(ViewService)
+  readonly shortcutService = inject(ShortcutService)
+  readonly logger = inject(Logger)
 
   constructor() {
     registerShortcuts(this.shortcuts)

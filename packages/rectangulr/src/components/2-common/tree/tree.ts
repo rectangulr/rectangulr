@@ -1,14 +1,13 @@
-import { Component, ContentChild, EventEmitter, Input, Output, TemplateRef, ViewChild, effect, signal } from '@angular/core'
+import { NgTemplateOutlet } from '@angular/common'
+import { Component, ContentChild, EventEmitter, Output, TemplateRef, ViewChild, effect, input } from '@angular/core'
 import { Subject } from 'rxjs'
+import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
-import { HBox } from "../../1-basics/box"
+import { signal2 } from '../../../utils/Signal2'
+import { StyleDirective } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
-import { FocusDirective } from '../../../commands/focus.directive'
-import { Json5Pipe } from "../json5.pipe"
-import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common'
 import { TreeNode } from './tree-node'
-import { StyleDirective } from '../../1-basics/style'
 
 export interface NodeData { name: any, children: any[] }
 
@@ -18,14 +17,14 @@ export interface NodeData { name: any, children: any[] }
 	template: `
 		@if (!multi) {
 		  <ng-container
-		    [ngTemplateOutlet]="nodeTemplate || nodeTemplate2 || defaultTemplate"
+		    [ngTemplateOutlet]="nodeTemplate() || nodeTemplate2 || defaultTemplate"
 		    [ngTemplateOutletContext]="{$implicit: node, selected: shortcutService.$isFocused(), expanded: expanded }"/>
 		  @if (expanded) {
 		    <list
-		      [items]="nodes"
-		      [focusIf]="focused == 'children'"
+		      [items]="nodes()"
+		      [focusIf]="focused() == 'children'"
 		      [styleItem]="false">
-		      <tree *item="let node" focus [nodes]="node.children" [nodeTemplate]="nodeTemplate || nodeTemplate2 || defaultTemplate" [level]="level" [s]="{ marginLeft: 1 }" (selectedItem)="$$selectedItem.emit($event)" />
+		      <tree *item="let node" focus [nodes]="node.children" [nodeTemplate]="nodeTemplate() || nodeTemplate2 || defaultTemplate" [level]="level()" [s]="{ marginLeft: 1 }" (selectedItem)="$$selectedItem.emit($event)" />
 		    </list>
 		  }
 		}
@@ -36,28 +35,27 @@ export interface NodeData { name: any, children: any[] }
 
 		@if (multi) {
 		  <list
-		    [items]="nodes"
-		    [focusIf]="focused == 'children'"
+		    [items]="nodes()"
+		    [focusIf]="focused() == 'children'"
 		    [styleItem]="false">
-		    <tree *item="let node" focus [nodes]="node" [nodeTemplate]="nodeTemplate || nodeTemplate2 || defaultTemplate" [level]="level + 1" (selectedItem)="$$selectedItem.emit($event)" />
+		    <tree *item="let node" focus [nodes]="node" [nodeTemplate]="nodeTemplate() || nodeTemplate2 || defaultTemplate" [level]="level() + 1" (selectedItem)="$$selectedItem.emit($event)" />
 		  </list>
 		}
-		`,
-	imports: [List, ListItem, HBox, FocusDirective, Json5Pipe, NgComponentOutlet, NgTemplateOutlet, StyleDirective]
+	`,
+	imports: [List, ListItem, FocusDirective, NgTemplateOutlet, StyleDirective]
 })
 export class Tree<T> {
-	@Input({ required: true }) nodes: (T & NodeData)[]
-	@Input() level = 0
-	@Input() nodeTemplate: TemplateRef<any> = undefined
+	readonly nodes = input.required<(T & NodeData)[]>();
+	readonly level = input(0);
+	readonly nodeTemplate = input<TemplateRef<any>>(undefined);
+
 	@Output('selectedItem') $$selectedItem = new EventEmitter()
 
-	node: T & NodeData
-	focused: 'self' | 'children' = 'self'
-	canExpand = false
-	expanded = false
-	multi = false
-
-	$selectedItem = signal(null)
+	readonly node = signal2<T & NodeData | null>(null)
+	readonly focused = signal2<'self' | 'children'>('self')
+	readonly canExpand = signal2(false)
+	readonly expanded = signal2(false)
+	readonly multi = signal2(false)
 
 	@ViewChild(List) list: List<any>
 	@ContentChild(TreeNode, { read: TemplateRef, static: true }) nodeTemplate2: TemplateRef<any>
@@ -66,18 +64,19 @@ export class Tree<T> {
 		registerShortcuts(this.shortcuts)
 		effect(() => {
 			if (shortcutService.$isFocused()) {
-				this.$$selectedItem.emit(this.nodes)
+				this.$$selectedItem.emit(this.nodes())
 			}
 		})
 	}
 
 	ngOnInit() {
-		this.multi = Array.isArray(this.nodes)
-		if (Array.isArray(this.nodes)) {
+		this.multi.$ = Array.isArray(this.nodes())
+		const nodes = this.nodes()
+		if (Array.isArray(nodes)) {
 			//
 		} else {
-			this.node = this.nodes
-			this.canExpand = this.node.children && this.node.children.length > 0
+			this.node.$ = nodes
+			this.canExpand.$ = this.node().children && this.node().children.length > 0
 		}
 	}
 
@@ -85,11 +84,11 @@ export class Tree<T> {
 		{
 			keys: 'left',
 			func: key => {
-				if (this.focused == 'children') {
-					this.focused = 'self'
+				if (this.focused() == 'children') {
+					this.focused.$ = 'self'
 				} else {
 					if (this.expanded) {
-						this.expanded = false
+						this.expanded.$ = false
 					} else {
 						return key
 					}
@@ -101,13 +100,13 @@ export class Tree<T> {
 			func: key => {
 				if (!this.canExpand) return key
 
-				if (this.focused == 'self') {
+				if (this.focused() == 'self') {
 					if (!this.expanded) {
-						this.expanded = true
+						this.expanded.$ = true
 					} else {
-						this.focused = 'children'
+						this.focused.$ = 'children'
 					}
-				} else if (this.focused == 'children') {
+				} else if (this.focused() == 'children') {
 					return key
 				}
 			},
@@ -115,9 +114,9 @@ export class Tree<T> {
 		{
 			keys: 'up',
 			func: key => {
-				if (this.focused == 'children') {
-					this.focused = 'self'
-				} else if (this.focused == 'self') {
+				if (this.focused() == 'children') {
+					this.focused.$ = 'self'
+				} else if (this.focused() == 'self') {
 					return key
 				}
 			},
@@ -125,13 +124,13 @@ export class Tree<T> {
 		{
 			keys: 'down',
 			func: key => {
-				if (this.focused == 'self') {
+				if (this.focused() == 'self') {
 					if (this.expanded) {
-						this.focused = 'children'
+						this.focused.$ = 'children'
 					} else {
 						return key
 					}
-				} else if (this.focused == 'children') {
+				} else if (this.focused() == 'children') {
 					return key
 				}
 			},

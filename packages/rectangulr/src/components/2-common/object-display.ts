@@ -1,5 +1,5 @@
 
-import { Component, Input, Signal, computed, effect, signal } from '@angular/core'
+import { Component, Signal, computed, effect, signal, input } from '@angular/core'
 import { Observable } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'
 import { KeyValue } from '../../utils/interfaces'
@@ -25,10 +25,10 @@ import { StyleDirective } from '../1-basics/style'
       </h>
     </list>
   `,
-  imports: [GrowDirective, HBox, VBox, List, ListItem, StyleDirective]
+  imports: [HBox, List, ListItem, StyleDirective]
 })
 export class ObjectDisplay<T> {
-  @Input() object: T | Observable<T> | Signal<T>
+  readonly object = input<T | Observable<T> | Signal<T>>(undefined);
   $object = signal({})
   $keyValues = computed(() => {
     const object = this.$object() || {}
