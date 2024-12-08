@@ -55,7 +55,7 @@ export function removeLastMatch(array, item) {
   return array
 }
 
-export function remove(array, item) {
+export function remove<T>(array: Array<T>, item: T) {
   _.remove(array, i => i == item)
   return array
 }

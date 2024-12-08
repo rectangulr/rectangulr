@@ -5,12 +5,12 @@ import {
   QueryList,
   ViewChild,
   ViewChildren,
-  WritableSignal,
-  signal,
-  input
+  input,
+  signal
 } from '@angular/core'
 import { TestBed, discardPeriodicTasks, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
+import { keyboardTest } from "src/utils/tests"
 import { cond } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Logger } from '../angular-terminal/logger'
 import { HBox, VBox } from '../components/1-basics/box'
@@ -18,10 +18,11 @@ import { StyleDirective } from '../components/1-basics/style'
 import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
+import { signal2 } from '../utils/Signal2'
 import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
-import { keyboardTest } from "src/utils/tests"
-import { FocusDirective } from './focus.directive'
+import { FocusDebugDirective, FocusDirective } from './focus.directive'
 import { Command, ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
+import { removeLastMatch } from '../utils/utils'
 
 describe('ShortcutService Class', () => {
   let shortcuts: ShortcutService
@@ -62,25 +63,29 @@ describe('ShortcutService Class', () => {
 
 @Component({
   standalone: true,
-  imports: [FocusDirective],
+  imports: [FocusDirective, FocusDebugDirective],
   template: `
-    @if (showFirst) {
+    @if (showFirst()) {
       <v
         #first
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></v>
+        [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"
+        focusDebug
+      ></v>
     }
-    @if (showSecond) {
+    @if (showSecond()) {
       <v
         #second
-      [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></v>
+        [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"
+        focusDebug
+        ></v>
     }
     `,
-  providers: [ShortcutService],
+  providers: [ShortcutService, FocusDirective, FocusDebugDirective],
 })
 export class Test1 {
   constructor(public shortcutService: ShortcutService) { }
-  showFirst = true
-  showSecond = true
+  showFirst = signal(true)
+  showSecond = signal(true)
 
   @ViewChild('first', { read: ShortcutService }) first: ShortcutService
   @ViewChild('second', { read: ShortcutService }) second: ShortcutService
@@ -93,13 +98,13 @@ export class Test1 {
   }
 }
 
-describe('ShortcutService ngIf - ', () => {
+describe('ShortcutService @if - ', () => {
   it('should setup ok', async () => {
     const { fixture, component, shortcuts } = setupTest(Test1)
     expect(component.first).toBeTruthy()
     expect(component.second).toBeTruthy()
     expect(component.shortcutService).toBeTruthy()
-    expect(Object.values(shortcuts.shortcuts).length).toEqual(0)
+    expect(Object.values(shortcuts.shortcuts()).length).toEqual(0)
   })
 
   it('should focus first box', () => {
@@ -107,7 +112,7 @@ describe('ShortcutService ngIf - ', () => {
     expect(getFocusedNode(shortcuts)).toBe(component.first)
   })
 
-  it(`should focus according to ngIfs`, keyboardTest(() => {
+  it(`should focus according to @if`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test1)
 
     spyOn(component, 'firstFunc')
@@ -123,28 +128,31 @@ describe('ShortcutService ngIf - ', () => {
     }
 
     log('ctrl+r')
+    debugger
     sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(0)
 
-    component.showFirst = false
+    component.showFirst.set(false)
     log('tick')
     tick()
 
     log('detectChanges')
+    debugger
     fixture.detectChanges()
 
     log('tick')
     tick()
 
     log('ctrl+r')
+    debugger
     sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
 
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
 
     log('showFirst true')
-    component.showFirst = true
+    component.showFirst.set(true)
     // logZone()
 
     log('tick')
@@ -162,6 +170,7 @@ describe('ShortcutService ngIf - ', () => {
     // logZone()
 
     log('ctrl+r')
+    debugger
     sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
 
     log('expect')
@@ -178,16 +187,16 @@ describe('ShortcutService ngIf - ', () => {
   imports: [FocusDirective],
   template: `
     <v
-      [focusIf]="focused == 'first'"
+      [focusIf]="focused() == 'first'"
       [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></v>
     <v
-      [focusIf]="focused == 'second'"
+      [focusIf]="focused() == 'second'"
       [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></v>
   `,
   providers: [ShortcutService],
 })
 export class Test2 {
-  focused: 'first' | 'second' = 'first'
+  focused = signal2<'first' | 'second'>('first')
 
   constructor(public shortcutService: ShortcutService) { }
 
@@ -210,13 +219,13 @@ describe('ShortcutService FocusIf - ', () => {
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(0)
 
-    component.focused = 'second'
+    component.focused.$ = 'second'
     fixture.detectChanges()
     sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(1)
 
-    component.focused = 'first'
+    component.focused.$ = 'first'
     fixture.detectChanges()
     sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(2)
@@ -227,10 +236,10 @@ describe('ShortcutService FocusIf - ', () => {
 //
 
 @Component({
+  template: `<v [focusShortcuts]="shortcuts">`,
+  providers: [ShortcutService],
   standalone: true,
   imports: [VBox, FocusDirective],
-  template: ` <v [focusShortcuts]="shortcuts"></v> `,
-  providers: [ShortcutService],
 })
 export class Test3 {
   focused: 'first' | 'second' = 'first'
@@ -267,10 +276,10 @@ describe('ShortcutService - ', () => {
   standalone: true,
   selector: 'shortcut-test-4',
   imports: [FocusDirective, TextInput],
-  template: ` <text-input [focusIf]="condition"></text-input> `,
+  template: `<text-input [focusIf]="condition()"/>`,
 })
 export class Test4 {
-  condition = true
+  condition = signal2(true)
   constructor(public shortcutService: ShortcutService) { }
   @ViewChild(TextInput) input: TextInput
 }
@@ -281,18 +290,18 @@ describe('ShortcutService - ', () => {
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.text()).toEqual('a')
-    discardPeriodicTasks()
+
   }))
 
   it(`shouldn't focus the text-input`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test4)
 
-    component.condition = false
+    component.condition.$ = false
     fixture.detectChanges()
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.text()).toEqual('')
-    discardPeriodicTasks()
+
   }))
 })
 
@@ -325,7 +334,7 @@ describe('ShortcutService - ', () => {
     expect(component.input.get(0).text()).withContext('input0').toEqual('a')
     expect(component.input.get(1).text()).withContext('input1').toEqual('')
     expect(component.input.get(2).text()).withContext('input2').toEqual('')
-    discardPeriodicTasks()
+
   }))
 
   it('focuses the 2nd nested input', keyboardTest(() => {
@@ -336,7 +345,7 @@ describe('ShortcutService - ', () => {
     expect(component.input.get(0).text()).withContext('input0').toEqual('')
     expect(component.input.get(1).text()).withContext('input1').toEqual('a')
     expect(component.input.get(2).text()).withContext('input2').toEqual('')
-    discardPeriodicTasks()
+
   }))
 
   it('focuses the 3rd nested input', keyboardTest(() => {
@@ -351,7 +360,7 @@ describe('ShortcutService - ', () => {
     expect(component.input.get(0).text()).withContext('input0').toEqual('c')
     expect(component.input.get(1).text()).withContext('input1').toEqual('a')
     expect(component.input.get(2).text()).withContext('input2').toEqual('b')
-    discardPeriodicTasks()
+
   }))
 })
 
@@ -404,11 +413,6 @@ export class Test6 {
     ])
   }
 
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
-  }
 }
 
 describe('ShortcutService -', () => {
@@ -429,7 +433,6 @@ describe('ShortcutService -', () => {
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.spy1.handler).toHaveBeenCalledTimes(2)
-    discardPeriodicTasks()
   }))
 })
 
@@ -456,7 +459,6 @@ describe('FocusDirective -', () => {
     expect(component.parentShortcutService._id).not.toEqual(component.childShortcutService._id)
     expect(component.shortcutService._id).not.toEqual(component.childShortcutService._id)
     expect(component.shortcutService._id).not.toEqual(component.parentShortcutService._id)
-    discardPeriodicTasks()
   }))
 })
 
@@ -465,7 +467,7 @@ describe('FocusDirective -', () => {
   standalone: true,
   imports: [HBox, List, ListItem, FocusDirective, StyleDirective],
   template: `
-    <h [s]="cond(shortcutService.$isFocused, s.selected)"> {{ data().name }}</h>
+    <h [s]="cond(shortcutService.isFocused(), s.selected)"> {{ data().name }}</h>
     <list
       #list
       [items]="data()?.children"
@@ -588,6 +590,12 @@ describe('ComponentDataView -', () => {
     expect(component.listShortcutService._id).toEqual(component.list.shortcutService._id)
 
     expect(component.shortcutService._id).not.toEqual(component.listShortcutService._id)
-    discardPeriodicTasks()
   }))
+})
+
+describe('removeLastMatch - ', () => {
+  it('removes the last shortcut', () => {
+    const res = removeLastMatch(['left', 'left',], 'left')
+    expect(res).toEqual(['left'])
+  })
 })

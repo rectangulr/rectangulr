@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Signal, WritableSignal, computed, signal, input } from '@angular/core'
+import { Directive, ElementRef, input, Input, Signal, signal, WritableSignal } from '@angular/core'
 import { Element } from '../../angular-terminal/dom-terminal'
 import { StyleValue } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { onChange } from '../../utils/reactivity'
@@ -37,7 +37,8 @@ export class StyleDirective {
    * Passes them to their corresponding signal via key.
    * Example: signals[index].set(3)
    */
-  readonly stv = input<{ [key: string]: any }>({});
+  // TODO: breaks if made into a signal
+  @Input() stv: { [key: string]: any } = {}
   signals: { [key: string]: WritableSignal<any> } = {}
 
   constructor(public element: ElementRef<Element>) { }
@@ -54,7 +55,7 @@ export class StyleDirective {
     }
 
     // Create template variables signals
-    for (const [key, value] of Object.entries(this.stv())) {
+    for (const [key, value] of Object.entries(this.stv)) {
       this.signals[key] = signal(value)
     }
 

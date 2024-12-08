@@ -1,4 +1,4 @@
-import { DestroyRef, Directive, inject, Injector, input } from '@angular/core'
+import { Component, DestroyRef, Directive, inject, Injector, input } from '@angular/core'
 import { Subject } from 'rxjs'
 import { onChange } from '../utils/reactivity'
 import { registerShortcuts, ShortcutService } from './shortcut.service'
@@ -17,7 +17,6 @@ export class FocusDirective {
   focusFull = input(false)
   focusOnInit = input(true)
   focusName = input(null)
-  debugDenied = false
 
   injector = inject(Injector)
   shortcutService = inject(ShortcutService, { self: true })
@@ -25,15 +24,16 @@ export class FocusDirective {
   onDestroy = f => this.destroyRef.onDestroy(f)
 
   constructor() {
+    debugger
   }
 
   ngOnInit() {
     this.shortcutService.name = this.focusName()
-    this.shortcutService.focusIf = this.focusIf()
+    this.shortcutService.focusIf.$ = this.focusIf()
     // onChange(this, 'focusIf',)
     const focusIf = patchInputSignal(this.focusIf)
     focusIf.subscribe(focusIf => {
-      this.shortcutService.focusIf = focusIf
+      this.shortcutService.focusIf.$ = focusIf
       if (focusIf) {
         this.shortcutService.requestFocus({ reason: 'FocusDirective focusIf true' })
       } else {
@@ -45,7 +45,7 @@ export class FocusDirective {
     if (this.focusFull()) {
       registerShortcuts(this.focusFullShortcuts, { shortcutService: this.shortcutService, onDestroy: this.onDestroy })
     }
-    this.shortcutService.focusPropagateUp = this.focusPropagateUp()
+    this.shortcutService.focusPropagateUp.$ = this.focusPropagateUp()
     if (this.focusOnInit()) {
       this.shortcutService.requestFocus({ reason: 'FocusDirective onInit' })
     }
@@ -71,6 +71,6 @@ export class FocusDirective {
 })
 export class FocusDebugDirective {
   constructor(public shortcutService: ShortcutService) {
-    this.shortcutService.debugDenied = true
+    this.shortcutService.debugDenied.$ = true
   }
 }

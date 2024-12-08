@@ -6,12 +6,7 @@ import { ShortcutService } from './shortcut.service'
   standalone: true,
   selector: '[detachedCommandService]',
   providers: [
-    {
-      provide: ShortcutService,
-      useFactory: () => {
-        return new ShortcutService(null, inject(Logger), null)
-      },
-    },
+    { provide: ShortcutService },
   ],
 })
 export class DetachedCommandServiceDirective {

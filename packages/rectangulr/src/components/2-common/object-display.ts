@@ -1,5 +1,5 @@
 
-import { Component, Signal, computed, effect, signal, input } from '@angular/core'
+import { Component, Signal, computed, effect, signal, input, inject } from '@angular/core'
 import { Observable } from 'rxjs'
 import { Logger } from '../../angular-terminal/logger'
 import { KeyValue } from '../../utils/interfaces'
@@ -14,10 +14,10 @@ import { StyleDirective } from '../1-basics/style'
   standalone: true,
   selector: 'object-display',
   template: `
-    <list [items]="$keyValues()">
-      <h *item="let keyValue; type: $keyValues()">
-      <h
-          [s]="{ flexShrink: 0, width: $longestKey() + 1, vgrow: true }"
+    <list [items]="keyValues()">
+      <h *item="let keyValue; type: keyValues()">
+        <h
+          [s]="{ flexShrink: 0, width: longestKey() + 1, vgrow: true }"
           [s]="[s.blackOnWhite]"
           >{{ keyValue.key }}</h
         >
@@ -28,10 +28,10 @@ import { StyleDirective } from '../1-basics/style'
   imports: [HBox, List, ListItem, StyleDirective]
 })
 export class ObjectDisplay<T> {
-  readonly object = input<T | Observable<T> | Signal<T>>(undefined);
-  $object = signal({})
-  $keyValues = computed(() => {
-    const object = this.$object() || {}
+  readonly object = input<T | Observable<T> | Signal<T>>(undefined)
+
+  keyValues = computed(() => {
+    const object = this.object() || {}
     return Object.entries(object).map(([key, value]) => {
       if (typeof value == 'string') {
         return { key, value }
@@ -40,12 +40,12 @@ export class ObjectDisplay<T> {
       }
     })
   })
-  $longestKey = computed(() => longest(this.$keyValues()))
+
+  longestKey = computed(() => longest(this.keyValues()))
+
   trackByFn = (index, keyValue: KeyValue) => keyValue.key
 
-  constructor(public logger: Logger) {
-    inputToSignal(this, 'object', '$object')
-  }
+  logger = inject(Logger)
 
   s = {
     blackOnWhite: blackOnWhite,

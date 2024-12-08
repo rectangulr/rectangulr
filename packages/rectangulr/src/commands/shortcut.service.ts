@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, Injector, Optional, SkipSelf, afterNextRender, inject, signal } from '@angular/core'
+import { DestroyRef, Injectable, Injector, Optional, SkipSelf, inject } from '@angular/core'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
@@ -6,8 +6,9 @@ import { Element } from '../angular-terminal/dom-terminal'
 import { Logger } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
 import { addToGlobalRg } from '../utils/addToGlobalRg'
-import { onChange } from '../utils/reactivity'
-import { assert, last, remove, removeLastMatch } from '../utils/utils'
+import { assert } from '../utils/Assert'
+import { patchInputSignal, signal2 } from '../utils/Signal2'
+import { last, remove, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
 
@@ -39,43 +40,43 @@ export class ShortcutService {
    * This allows components to declare the same `id` without conflict, the latest command is used.
    * When the second component is destroyed the first command can be restored.
    */
-  $commands = signal<{ [id: string]: Command[] }>({})
+  readonly commands = signal2<{ [id: string]: Command[] }>({})
 
   /**
    * A shortcut links a key (ex: ctrl+r) with a command id (ex: reload)
    */
-  shortcuts: { [keys: string]: string[] } = {}
+  readonly shortcuts = signal2<{ [keys: string]: string[] }>({})
 
-  focusStack: ShortcutService[] = []
-  focusedChild: ShortcutService = null
-  children: ShortcutService[] = []
-  components = []
-  rootNode: ShortcutService = null
+  readonly focusStack = signal2<ShortcutService[]>([])
+  readonly focusedChild = signal2<ShortcutService>(null)
+  readonly children = signal2<ShortcutService[]>([])
+  readonly components = signal2([])
+  readonly rootNode = signal2<ShortcutService>(null)
 
-  receivedCaretRequestRecently = false
-  askedForFocusThisTick: { child: ShortcutService; source: ShortcutService; reason: string }[] = []
-  caretElement: Element = null
+  readonly receivedCaretRequestRecently = signal2(false)
+  readonly askedForFocusThisTick = signal2<{ child: ShortcutService; source: ShortcutService; reason: string }[]>([])
+  readonly caretElement = signal2<Element>(null)
 
-  $isFocused = signal(false)
-  $isInFocusPath = signal(false)
+  readonly isFocused = signal2(false)
+  readonly isInFocusPath = signal2(false)
 
-  before: ShortcutService = null
+  readonly before = signal2<ShortcutService | undefined>(undefined)
 
-  focusPropagateUp = true
-  focusIf = true
-  debugDenied = false
-  logEnabled = false
+  readonly focusPropagateUp = signal2(true)
+  readonly focusIf = signal2(true)
+  readonly debugDenied = signal2(false)
+  readonly logEnabled = signal2(false)
+
   injector = inject(Injector)
+  screen = inject(ScreenService, { optional: true })
+  logger = inject(Logger)
+  parent = inject(ShortcutService, { skipSelf: true, optional: true })
 
-  constructor(
-    @Optional() public screen: ScreenService,
-    public logger: Logger,
-    @SkipSelf() @Optional() public parent: ShortcutService,
-  ) {
+  constructor() {
     if (isRoot(this)) {
-      this.rootNode = this
-      this.$isFocused.set(false)
-      this.$isInFocusPath.set(true)
+      this.rootNode.$ = this
+      this.isFocused.$ = false
+      this.isInFocusPath.$ = true
       this.screen?.termScreen.addEventListener('keypress', key => this.incomingKey(key))
       // this.screen?.termScreen.addEventListener('data', data => {
       //   for (const key of data.buffer) {
@@ -83,44 +84,40 @@ export class ShortcutService {
       //   }
       // })
     } else {
-      this.rootNode = this.parent.rootNode
+      this.rootNode.$ = this.parent.rootNode()
       this.parent.childCreated(this)
     }
 
-    updateTree(this.rootNode)
-
-    onChange(this, 'focusedChild', value => {
-      updateTree(this.rootNode)
-      // afterNextRender({
-      //   write: () => updateTree(this.rootNode)
-      // }, { injector: this.injector })
+    updateTree(this.rootNode())
+    this.focusedChild.subscribe(() => {
+      updateTree(this.rootNode())
     })
 
-    onChange(this, 'caretElement', value => {
-      const rootNode = this.rootNode
+    this.caretElement.subscribe(value => {
+      const rootNode: ShortcutService = this.rootNode()
       forFocusedChild(rootNode, child => {
         if (rootNode.screen) {
-          rootNode.screen.termScreen.activeElement = child.caretElement
+          rootNode.screen.termScreen.activeElement = child.caretElement()
         }
       })
     })
 
     // subscribe(this, this.ngZone.onStable, () => {
     //   this.receivedFocusThisTick = 0
-    //   // this.logEnabled && this.logger.log(`reset receivedFocusThisTick to ${this.receivedFocusThisTick}`)
+    //   // this.logEnabled() && this.logger.log(`reset receivedFocusThisTick to ${this.receivedFocusThisTick}`)
     // })
   }
 
   incomingKey(keyEvent) {
     let key = keyEvent.key as unknown as Key
-    // this.logEnabled && this.logger.log(`key: ${keyToString(key)}`)
-    if (this.before) {
-      key = this.before.propagateKeypress(key)
+    // this.logEnabled() && this.logger.log(`key: ${keyToString(key)}`)
+    if (this.before()) {
+      key = this.before().propagateKeypress(key)
     }
     if (key) {
       const unhandledKeypress = this.propagateKeypress(key)
       if (unhandledKeypress) {
-        this.logEnabled && this.logger.log(`unhandled keypress: ${keyToString(unhandledKeypress)}`)
+        this.logEnabled() && this.logger.log(`unhandled keypress: ${keyToString(unhandledKeypress)}`)
         // @ts-ignore
         // ngDevMode &&
         //   assert(false, { message: 'unhandled key', focused: getFocusedNode(this.rootNode) })
@@ -129,16 +126,16 @@ export class ShortcutService {
   }
 
   private propagateKeypress(keypress): Key {
-    if (this.focusedChild) {
-      // const focusStack = `focusStack: [${this.focusStack.map(child => 'child').join(',')}]`
+    if (this.focusedChild()) {
+      // const focusStack = `focusStack: [${this.focusStack().map(child => 'child').join(',')}]`
       // const components = `components: [${this.components.map(c => c.constructor.name).join(',')}]`
-      // const handlers = Object.keys(this.shortcuts)
+      // const handlers = Object.keys(this.shortcuts())
       //   .filter(value => value.length > 0)
       //   .join(',')
       // const handlersString = `handlers: [${handlers}]`
-      // this.logEnabled && this.logger.log(`${padding(this)}${components}, ${handlers}, ${focusStack}`)
+      // this.logEnabled() && this.logger.log(`${padding(this)}${components}, ${handlers}, ${focusStack}`)
 
-      const unhandledKeypress = this.focusedChild.propagateKeypress(keypress)
+      const unhandledKeypress = this.focusedChild().propagateKeypress(keypress)
       if (unhandledKeypress) {
         return this.handleKeypress(unhandledKeypress)
       }
@@ -150,7 +147,7 @@ export class ShortcutService {
   private handleKeypress(keypress): Key {
     // Keybind
     const key = keyToString(keypress)
-    const commandIds = this.shortcuts[key]
+    const commandIds = this.shortcuts()[key]
     let unhandled = keypress
     if (commandIds) {
       for (let i = commandIds.length - 1; i >= 0; i--) {
@@ -163,7 +160,7 @@ export class ShortcutService {
     }
 
     if (unhandled) {
-      const elseIds = this.shortcuts['else']
+      const elseIds = this.shortcuts()['else']
       if (elseIds) {
         for (let i = elseIds.length - 1; i >= 0; i--) {
           const id = elseIds[i]
@@ -193,7 +190,7 @@ export class ShortcutService {
   registerCommand(_command: Partial<Command>): Disposable {
     const command = sanitizeCommand(_command)
 
-    this.$commands.update(commands => {
+    this.commands.update(commands => {
       const array = commands[command.id] ?? []
       return { ...commands, [command.id]: [...array, command] }
       // if (command.id == 'down' && commands[command.id].length > 1) debugger
@@ -201,8 +198,11 @@ export class ShortcutService {
     })
 
     for (const key of command.keys) {
-      this.shortcuts[key] ??= []
-      this.shortcuts[key].push(command.id)
+      this.shortcuts.update(shortcuts => {
+        shortcuts[key] ??= []
+        shortcuts[key].push(command.id)
+        return { ...shortcuts }
+      })
     }
 
     return new Disposable(() => {
@@ -211,7 +211,7 @@ export class ShortcutService {
   }
 
   private removeCommand(command: Command) {
-    this.$commands.update(commands => {
+    this.commands.update(commands => {
       const array = commands[command.id]
       if (array) {
         removeLastMatch(array, command)
@@ -219,8 +219,9 @@ export class ShortcutService {
       return { ...commands }
     })
     for (const keys of command.keys) {
-      removeLastMatch(this.shortcuts[keys], command.id)
+      removeLastMatch(this.shortcuts()[keys], command.id)
     }
+    this.shortcuts.update(shortcuts => ({ ...shortcuts }))
   }
 
   callCommand(arg: { id: string; keys?: string; args?: any[] }) {
@@ -231,7 +232,7 @@ export class ShortcutService {
   }
 
   findCommand(id: string) {
-    const command = retrieveLast(this.$commands(), id)
+    const command = retrieveLast(this.commands(), id)
     if (command) {
       return command
     } else {
@@ -258,47 +259,50 @@ export class ShortcutService {
     // To be able to call focus() without arguments
     if (!args.child) {
       this.parent?.requestFocus({ ...args, child: this, source: this })
-      this.logEnabled && this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
+      this.logEnabled() && this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
       return
     }
 
-    if (!args.child.focusIf) {
-      this.logEnabled && this.logger.log(`denied - ${args.child} - focusIf`)
-      if (this.debugDenied) { debugger }
+    if (!args.child.focusIf()) {
+      this.logEnabled() && this.logger.log(`denied - ${args.child} - focusIf`)
+      if (this.debugDenied()) { debugger }
       return
     }
 
-    if (this.askedForFocusThisTick.find(item => item.child === args.child)) {
-      this.logEnabled && this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
-      if (this.debugDenied) { debugger }
+    if (this.askedForFocusThisTick().find(item => item.child === args.child)) {
+      this.logEnabled() && this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
+      if (this.debugDenied()) { debugger }
       return
     }
 
-    _.remove(this.focusStack, i => i == args.child)
-    let index = this.focusStack.length
-    if (args.soft) index -= this.askedForFocusThisTick.length
-    index = _.clamp(index, 0, this.focusStack.length)
-    const stackBefore = this.focusStack.map(i => i._id).join(',')
-    this.focusStack.splice(index, 0, args.child)
-    const stackAfter = this.focusStack.map(i => i._id).join(',')
-    this.logEnabled && this.logger.log(`${stringifyPathToNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
+    _.remove(this.focusStack(), i => i == args.child)
+    let index = this.focusStack().length
+    if (args.soft) index -= this.askedForFocusThisTick().length
+    index = _.clamp(index, 0, this.focusStack().length)
+    const stackBefore = this.focusStack().map(i => i._id).join(',')
+    this.focusStack.update(value => {
+      value.splice(index, 0, args.child)
+      return [...value]
+    })
+    const stackAfter = this.focusStack().map(i => i._id).join(',')
+    this.logEnabled() && this.logger.log(`${stringifyPathToNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
 
-    this.askedForFocusThisTick.push({ child: args.child, reason: args.reason, source: args.source })
-    this.focusedChild = _.last(this.focusStack)
-    assert(this.focusedChild, 'should focus a child')
+    this.askedForFocusThisTick.update(value => [...value, { child: args.child, reason: args.reason, source: args.source }])
+    this.focusedChild.$ = _.last(this.focusStack())
+    assert(this.focusedChild(), 'should focus a child')
     // log('received')
 
-    this.logEnabled && this.logger.log('setTimeout')
+    this.logEnabled() && this.logger.log('setTimeout')
     setTimeout(() => {
-      this.askedForFocusThisTick = []
-      this.logEnabled && this.logger.log(`focused end of tick: ${stringifyPathToLeaf(this)}`)
+      this.askedForFocusThisTick.$ = []
+      this.logEnabled() && this.logger.log(`focused end of tick: ${stringifyPathToLeaf(this)}`)
     })
 
-    if (this.focusPropagateUp) {
+    if (this.focusPropagateUp()) {
       this.parent?.requestFocus({ ...args, child: this })
     } else {
-      // log('!focusPropagateUp')
-      if (this.debugDenied) { debugger }
+      // log('!focusPropagateUp()')
+      if (this.debugDenied()) { debugger }
       return
     }
   }
@@ -313,8 +317,8 @@ export class ShortcutService {
       return this.parent?.unfocus(this)
     }
 
-    remove(this.focusStack, child)
-    this.focusedChild = _.last(this.focusStack)
+    this.focusStack.update(stack => stack.filter(i => i != child))
+    this.focusedChild.$ = _.last(this.focusStack())
   }
 
   /**
@@ -334,15 +338,15 @@ export class ShortcutService {
    * Called by children to signal their creation.
    */
   private childCreated(child: ShortcutService) {
-    this.children.push(child)
+    this.children.update(value => [...value, child])
   }
 
   /**
    * Called by children to signal their destruction.
    */
   private childDestroyed(child: ShortcutService) {
-    remove(this.focusStack, child)
-    remove(this.children, child)
+    this.focusStack.update(stack => stack.filter(i => i != child))
+    this.children.update(c => c.filter(i => i != child))
   }
 
   toString() {
@@ -443,7 +447,7 @@ export function registerShortcuts(
 
 function forEachChild(shortcutService: ShortcutService, func: (child: ShortcutService) => void) {
   func(shortcutService)
-  shortcutService.children.forEach(child => {
+  shortcutService.children().forEach(child => {
     forEachChild(child, func)
   })
 }
@@ -453,22 +457,22 @@ function forEachChildInFocusPath(
   func: (child: ShortcutService) => void
 ) {
   func(shortcutService)
-  if (shortcutService.focusedChild) {
-    forEachChildInFocusPath(shortcutService.focusedChild, func)
+  if (shortcutService.focusedChild()) {
+    forEachChildInFocusPath(shortcutService.focusedChild(), func)
   }
 }
 
 function forFocusedChild(shortcutService: ShortcutService, func: (child: ShortcutService) => void) {
-  if (shortcutService.focusedChild) {
-    forFocusedChild(shortcutService.focusedChild, func)
+  if (shortcutService.focusedChild()) {
+    forFocusedChild(shortcutService.focusedChild(), func)
   } else {
     func(shortcutService)
   }
 }
 
 export function getFocusedNode(shortcutService: ShortcutService): ShortcutService {
-  if (shortcutService.focusedChild) {
-    return getFocusedNode(shortcutService.focusedChild)
+  if (shortcutService.focusedChild()) {
+    return getFocusedNode(shortcutService.focusedChild())
   } else {
     return shortcutService
   }
@@ -478,18 +482,18 @@ function updateTree(rootNode: ShortcutService) {
   if (!isRoot(rootNode)) throw new Error('should only be called on the keybind root')
 
   forEachChild(rootNode, child => {
-    child.$isFocused.set(false)
-    child.$isInFocusPath.set(false)
+    child.isFocused.set(false)
+    child.isInFocusPath.set(false)
   })
 
   forEachChildInFocusPath(rootNode, child => {
-    child.$isInFocusPath.set(true)
+    child.isInFocusPath.set(true)
   })
 
   forFocusedChild(rootNode, child => {
-    child.$isFocused.set(true)
+    child.isFocused.set(true)
     if (rootNode.screen) {
-      rootNode.screen.termScreen.activeElement = child.caretElement
+      rootNode.screen.termScreen.activeElement = child.caretElement()
     }
   })
 
@@ -523,10 +527,10 @@ class SimplifiedShortcutService {
   constructor(shortcutService: ShortcutService) {
     this.ref = shortcutService
     this._id = shortcutService._id
-    this.children = shortcutService.children
-    this.shortcuts = shortcutService.shortcuts
-    this.focusedChild = shortcutService.focusedChild
-    this.commands = shortcutService.$commands()
+    this.children = shortcutService.children()
+    this.shortcuts = shortcutService.shortcuts()
+    this.focusedChild = shortcutService.focusedChild()
+    this.commands = shortcutService.commands()
   }
 
   get parent() {
@@ -572,7 +576,7 @@ function stringifyComponent(component: any) {
 }
 
 function stringifyNode(shortcutService: ShortcutService) {
-  let componentNames = Object.values(shortcutService.$commands())
+  let componentNames = Object.values(shortcutService.commands())
     .map(commands => _.last(commands))
     .filter(c => !!c && c.context)
     .map(command => stringifyComponent(command.context))
@@ -585,13 +589,13 @@ function stringifyNode(shortcutService: ShortcutService) {
 
 function stringifyPathToNode(node: ShortcutService) {
   const nodes = []
-  let currentNode = node.rootNode
+  let currentNode: ShortcutService = node.rootNode()
   while (true) {
     nodes.push(currentNode)
     if (currentNode == node) {
       break
     } else {
-      currentNode = currentNode.focusedChild
+      currentNode = currentNode.focusedChild()
       if (!currentNode) break
     }
   }
@@ -600,10 +604,10 @@ function stringifyPathToNode(node: ShortcutService) {
 
 function stringifyPathToLeaf(node: ShortcutService) {
   const nodes = []
-  let currentNode = node.rootNode
+  let currentNode: ShortcutService = node.rootNode()
   while (currentNode) {
     nodes.push(currentNode)
-    currentNode = currentNode.focusedChild
+    currentNode = currentNode.focusedChild()
   }
   return nodes.map(node => stringifyNode(node)).join(' -> ')
 }

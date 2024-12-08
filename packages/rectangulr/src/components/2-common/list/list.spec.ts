@@ -77,13 +77,13 @@ describe('List - ', () => {
     const { fixture, component, shortcuts } = setupTest(Test2)
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'pgdown' })
     expect(component.list.selectedIndex()).toEqual(2)
-    discardPeriodicTasks()
+
   }))
 })
 
 @Component({
   standalone: true,
-  imports: [List, HBox, ListItem, TextInput, FocusDirective],
+  imports: [List, ListItem, TextInput, FocusDirective],
   template: `
     <list [items]="items">
       <text-input focus *item="let value" [text]="value"></text-input>
@@ -112,18 +112,16 @@ describe('List - ', () => {
     expect(component.inputs.get(2).text()).toBe('text3')
   }))
 
-  it(`should focus the second line of the list`, fakeAsync(() => {
+  it(`should focus the second line of the list`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test3)
-    shortcuts.logEnabled = true
-    shortcuts.debugDenied = true
+    shortcuts.logEnabled.$ = true
+    shortcuts.debugDenied.$ = true
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
     sendKeyAndDetectChanges(fixture, shortcuts, { name: '-' })
 
     expect(component.inputs.get(0).text()).toBe('text1')
     expect(component.inputs.get(1).text()).toBe('text2-')
     expect(component.inputs.get(2).text()).toBe('text3')
-    tick()
-    discardPeriodicTasks()
   }))
 })
 
@@ -146,7 +144,7 @@ describe('List - ', () => {
     fixture.detectChanges()
     tick()
     expect(component.list.selectedValue()).toEqual(1)
-    discardPeriodicTasks()
+
   }))
 
   xit(`should work with observables`, keyboardTest(() => {

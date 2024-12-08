@@ -32,9 +32,6 @@ import { Command, ShortcutService } from './shortcut.service'
     {
       // This creates a ShortcutService to store separately the shortcuts of this component.
       provide: ShortcutService,
-      useFactory: () => {
-        return new ShortcutService(null, inject(Logger), null)
-      },
     },
   ],
   standalone: true,
@@ -57,7 +54,7 @@ export class Shortcuts {
 
   ngOnInit() {
     this.listOfCommands.$ = this.listCommands()
-    this.shortcutService().rootNode.before = this.isolatedShortcutService
+    this.shortcutService().rootNode().before.$ = this.isolatedShortcutService
 
     // almost like: registerShortcuts(this.commands)
     const disposables = this.shortcuts.map(command => {
@@ -71,7 +68,7 @@ export class Shortcuts {
 
   private listCommands(): Command[] {
     function recursiveListCommands(shortcutService: ShortcutService, result: Array<Command>) {
-      const commands = Object.values(shortcutService.$commands())
+      const commands = Object.values(shortcutService.commands())
         .map(commands => _.last(commands))
         .filter(c => c)
       result.push(...commands)
@@ -103,7 +100,7 @@ export class Shortcuts {
           logError(this.logger, `callCommand failed: '${command.id}'\n${e}`)
         }
         this.onClose.emit(null)
-        this.shortcutService().before = null
+        this.shortcutService().before.$ = null
       },
     },
     {
@@ -136,10 +133,10 @@ function focusedShortcutService(rootShortcutService: ShortcutService) {
   let shortcutService = rootShortcutService
   let i = 0
   while (true) {
-    if (shortcutService.focusedChild == null) {
+    if (shortcutService.focusedChild() == null) {
       return shortcutService
     } else {
-      shortcutService = shortcutService.focusedChild
+      shortcutService = shortcutService.focusedChild()
     }
     assert(i < 100, 'infinite loop ?')
   }

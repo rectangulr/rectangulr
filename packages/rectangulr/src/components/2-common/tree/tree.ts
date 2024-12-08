@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, ContentChild, EventEmitter, Output, TemplateRef, ViewChild, effect, input } from '@angular/core'
+import { Component, EventEmitter, Output, TemplateRef, effect, input, viewChild, contentChild } from '@angular/core'
 import { Subject } from 'rxjs'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
@@ -15,16 +15,16 @@ export interface NodeData { name: any, children: any[] }
 	selector: 'tree',
 	standalone: true,
 	template: `
-		@if (!multi) {
+		@if (!multi()) {
 		  <ng-container
-		    [ngTemplateOutlet]="nodeTemplate() || nodeTemplate2 || defaultTemplate"
-		    [ngTemplateOutletContext]="{$implicit: node, selected: shortcutService.$isFocused(), expanded: expanded }"/>
+		    [ngTemplateOutlet]="nodeTemplate() || nodeTemplate2() || defaultTemplate"
+		    [ngTemplateOutletContext]="{$implicit: node, selected: shortcutService.isFocused(), expanded: expanded }"/>
 		  @if (expanded) {
 		    <list
 		      [items]="nodes()"
 		      [focusIf]="focused() == 'children'"
 		      [styleItem]="false">
-		      <tree *item="let node" focus [nodes]="node.children" [nodeTemplate]="nodeTemplate() || nodeTemplate2 || defaultTemplate" [level]="level()" [s]="{ marginLeft: 1 }" (selectedItem)="$$selectedItem.emit($event)" />
+		      <tree *item="let node" focus [nodes]="node.children" [nodeTemplate]="nodeTemplate() || nodeTemplate2() || defaultTemplate" [level]="level()" [s]="{ marginLeft: 1 }" (selectedItem)="$$selectedItem.emit($event)" />
 		    </list>
 		  }
 		}
@@ -33,21 +33,21 @@ export interface NodeData { name: any, children: any[] }
 		  {{item.name}}
 		</ng-template>
 
-		@if (multi) {
+		@if (multi()) {
 		  <list
 		    [items]="nodes()"
 		    [focusIf]="focused() == 'children'"
 		    [styleItem]="false">
-		    <tree *item="let node" focus [nodes]="node" [nodeTemplate]="nodeTemplate() || nodeTemplate2 || defaultTemplate" [level]="level() + 1" (selectedItem)="$$selectedItem.emit($event)" />
+		    <tree *item="let node" focus [nodes]="node" [nodeTemplate]="nodeTemplate() || nodeTemplate2() || defaultTemplate" [level]="level() + 1" (selectedItem)="$$selectedItem.emit($event)" />
 		  </list>
 		}
 	`,
 	imports: [List, ListItem, FocusDirective, NgTemplateOutlet, StyleDirective]
 })
 export class Tree<T> {
-	readonly nodes = input.required<(T & NodeData)[]>();
-	readonly level = input(0);
-	readonly nodeTemplate = input<TemplateRef<any>>(undefined);
+	readonly nodes = input.required<(T & NodeData)[]>()
+	readonly level = input(0)
+	readonly nodeTemplate = input<TemplateRef<any>>(undefined)
 
 	@Output('selectedItem') $$selectedItem = new EventEmitter()
 
@@ -57,13 +57,13 @@ export class Tree<T> {
 	readonly expanded = signal2(false)
 	readonly multi = signal2(false)
 
-	@ViewChild(List) list: List<any>
-	@ContentChild(TreeNode, { read: TemplateRef, static: true }) nodeTemplate2: TemplateRef<any>
+	readonly list = viewChild(List)
+	readonly nodeTemplate2 = contentChild(TreeNode, { read: TemplateRef })
 
 	constructor(public shortcutService: ShortcutService) {
 		registerShortcuts(this.shortcuts)
 		effect(() => {
-			if (shortcutService.$isFocused()) {
+			if (shortcutService.isFocused()) {
 				this.$$selectedItem.emit(this.nodes())
 			}
 		})
@@ -148,6 +148,4 @@ export class Tree<T> {
 	s = {
 		selected: { backgroundColor: 'gray' },
 	}
-
-	destroy$ = new Subject(); ngOnDestroy() { this.destroy$.next(null); this.destroy$.complete() }
 }

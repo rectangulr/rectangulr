@@ -57,8 +57,8 @@ import { ListItem } from './list-item'
               index: $index,
               selected: eq($index, selectedIndex)
           }"/>
-      </v>
-    }
+        </v>
+      }
     </v>
 
     <ng-template #defaultTemplate let-item let-selected>
@@ -72,12 +72,7 @@ import { ListItem } from './list-item'
       multi: true,
     },
   ],
-  imports: [
-    NgTemplateOutlet,
-    BasicObjectDisplay,
-    VBox,
-    StyleDirective
-  ],
+  imports: [NgTemplateOutlet, BasicObjectDisplay, VBox, StyleDirective],
   standalone: true,
 })
 export class List<T> {
@@ -118,11 +113,11 @@ export class List<T> {
    */
   readonly styleItem = input(true)
 
-  itemStyle: TemplateStyle = (templateVars) => computed(() => {
+  itemStyle = (templateVars) => computed(() => {
     if (templateVars['index']() === this.selectedVisibleIndex()) {
       return this.style().whiteOnGray
     } else {
-      return []
+      return {}
     }
   })
 

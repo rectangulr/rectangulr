@@ -144,8 +144,8 @@ export class TextInput implements ControlValueAccessor {
         })
     }
 
-    inject(ShortcutService).debugDenied = true
-    inject(ShortcutService).logEnabled = true
+    inject(ShortcutService).debugDenied.$ = true
+    inject(ShortcutService).logEnabled.$ = true
   }
 
   ngOnInit() {
@@ -167,7 +167,7 @@ export class TextInput implements ControlValueAccessor {
   ngAfterViewInit() {
     this.domElement.$ = this.elementRef.nativeElement
     this.updateCaretPositionAndScroll()
-    this.shortcutService.caretElement = this.domElement()
+    this.shortcutService.caretElement.$ = this.domElement()
   }
 
   updateCaretPositionAndScroll() {
