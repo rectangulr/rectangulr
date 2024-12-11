@@ -114,8 +114,8 @@ describe('List - ', () => {
 
   it(`should focus the second line of the list`, keyboardTest(() => {
     const { fixture, component, shortcuts } = setupTest(Test3)
-    shortcuts.logEnabled.$ = true
-    shortcuts.debugDenied.$ = true
+    shortcuts.logEnabled = true
+    shortcuts.debugDenied = true
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'down' })
     sendKeyAndDetectChanges(fixture, shortcuts, { name: '-' })
 

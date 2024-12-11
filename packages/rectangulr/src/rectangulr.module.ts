@@ -7,7 +7,8 @@ import {
   SkipSelf
 } from '@angular/core'
 import { DetachedCommandServiceDirective } from './commands/commands-detach'
-import { FocusDebugDirective, FocusDirective } from './commands/focus.directive'
+import { FocusDirective } from './commands/focus.directive'
+import { FocusDebugDirective } from './commands/FocusDebug.directive'
 import { Shortcuts } from './commands/shortcuts.component'
 import { GrowDirective, HBox, HGrowDirective, VBox, VGrowDirective } from './components/1-basics/box'
 import { StyleDirective, } from './components/1-basics/style'

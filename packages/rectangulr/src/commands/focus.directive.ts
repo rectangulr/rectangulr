@@ -3,6 +3,7 @@ import { Subject } from 'rxjs'
 import { onChange } from '../utils/reactivity'
 import { registerShortcuts, ShortcutService } from './shortcut.service'
 import { patchInputSignal } from '../utils/Signal2'
+import { initial } from 'lodash'
 
 @Directive({
   standalone: true,
@@ -23,10 +24,6 @@ export class FocusDirective {
   destroyRef = inject(DestroyRef)
   onDestroy = f => this.destroyRef.onDestroy(f)
 
-  constructor() {
-    debugger
-  }
-
   ngOnInit() {
     this.shortcutService.name = this.focusName()
     this.shortcutService.focusIf.$ = this.focusIf()
@@ -39,7 +36,7 @@ export class FocusDirective {
       } else {
         this.shortcutService.unfocus()
       }
-    })
+    }, { initial: false })
 
     registerShortcuts(this.focusShortcuts(), { shortcutService: this.shortcutService, onDestroy: this.onDestroy })
     if (this.focusFull()) {
@@ -62,15 +59,5 @@ export class FocusDirective {
   ngOnDestroy() {
     this.destroy$.next(null)
     this.destroy$.complete()
-  }
-}
-
-@Directive({
-  standalone: true,
-  selector: '[focusDebug]',
-})
-export class FocusDebugDirective {
-  constructor(public shortcutService: ShortcutService) {
-    this.shortcutService.debugDenied.$ = true
   }
 }

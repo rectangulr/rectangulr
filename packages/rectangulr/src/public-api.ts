@@ -15,7 +15,9 @@ export { RectangulrDynamicTestingModule } from './angular-terminal/testing/testi
 
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
 export { Shortcuts } from './commands/shortcuts.component'
-export { FocusDirective, FocusDebugDirective } from './commands/focus.directive'
+export { FocusDirective } from './commands/focus.directive'
+export { FocusDebugDirective } from './commands/FocusDebug.directive'
+export { FocusDebugChildrenDirective } from './commands/FocusDebugChildren.directive'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
 export {
   HBox,

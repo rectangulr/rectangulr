@@ -9,6 +9,7 @@ import { ListItem } from '../list/list-item'
 import { ObjectDisplay } from "../object-display"
 import { FocusDirective } from '../../../commands/focus.directive'
 import { ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { signal2 } from '../../../utils/Signal2'
 
 class NullLogger {
   log(thing) { }
@@ -23,7 +24,7 @@ class NullLogger {
       <list [items]="logs()" [s]="{ width: '50%' }" (selectedItem)="$selectedLog.set($event)">
         <div *item="let item">{{item | json5}}</div>
       </list>
-      <v [focusIf]="focused == 'right'" [s]="[s.rightPane]">
+      <v [focusIf]="focused() == 'right'" [s]="[s.rightPane]">
         <object-display [object]="$selectedLog() || {}" />
       </v>
     </h>
@@ -34,7 +35,7 @@ class NullLogger {
 export class Logs {
   logs = this.logger.$logs
   $selectedLog = signal(null)
-  focused: 'left' | 'right' = 'left'
+  focused = signal2<'left' | 'right'>('left')
 
   constructor(@SkipSelf() public logger: Logger, public shortcutService: ShortcutService) {
     registerShortcuts(this.shortcuts)
@@ -44,8 +45,8 @@ export class Logs {
     {
       keys: 'shift+right',
       func: key => {
-        if (this.focused == 'left') {
-          this.focused = 'right'
+        if (this.focused() == 'left') {
+          this.focused.$ = 'right'
         } else {
           return key
         }
@@ -54,8 +55,8 @@ export class Logs {
     {
       keys: 'shift+left',
       func: key => {
-        if (this.focused == 'right') {
-          this.focused = 'left'
+        if (this.focused() == 'right') {
+          this.focused.$ = 'left'
         } else {
           return key
         }

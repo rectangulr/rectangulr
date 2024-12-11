@@ -21,7 +21,7 @@ import { BaseControlValueAccessor } from '../../../utils/base-control-value-acce
 import { DataFormat } from '../../../utils/data-format'
 import { JsonPath } from '../../../utils/jsonPath'
 import { onChange, propToSignal, subscribe } from '../../../utils/reactivity'
-import { patchWritableSignal, signal2 } from '../../../utils/Signal2'
+import { patchInputSignal, patchWritableSignal, signal2 } from '../../../utils/Signal2'
 import { AnyObject, inputToSignal } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
@@ -35,22 +35,23 @@ import { assert } from '../../../utils/Assert'
   selector: 'json-editor',
   template: `
     @if (visibleKey()) {
-      <h [focusIf]="focused() == 'key'" [s]="{ flexShrink: 0 }">
+      <h focusName="key" [focusIf]="focused() == 'key'" [s]="{ flexShrink: 0 }">
         <text-input [(text)]="valueRef().key"/>:
       </h>
     }
 
-    <ng-container [focusIf]="focused() == 'value'">
+    <ng-container focusName="value" [focusIf]="focused() == 'value'">
       @if (['string', 'number', 'boolean', 'null'].includes(valueRef().type)) {
         <text-input
           [text]="valueText"
           (textChange)="textChange($event)"/>
       }
       @if (valueRef().type == 'object' || valueRef().type == 'array') {
-        <list [items]="valueRef().childrenValueRefs?.() ?? []" [focusShortcuts]="shortcutsForList">
+        <list [items]="valueRef().childrenValueRefs?.() ?? []" [focusShortcuts]="shortcutsForList" focusName="list">
           <json-editor
-            *item="let ref type: valueRef().childrenValueRefs?.()"
+            *item="let ref; type: valueRef().childrenValueRefs?.()"
             focus
+            focusName="JsonEditor"
             [focusOnInit]="!!focusPath()"
             [valueRef]="ref"
             [isRoot]="false"
@@ -91,7 +92,6 @@ export class JsonEditor {
   readonly focused = signal<'key' | 'value'>('value')
   valueText: string = ''
   controlValueAccessor = new BaseControlValueAccessor()
-  readonly $focusPath: Signal<JsonPath | null> = signal(null)
   readonly $childFocusPath = signal2<JsonPath>([])
 
   readonly list = viewChild(List)
@@ -104,14 +104,9 @@ export class JsonEditor {
     public injector: Injector
   ) {
     addStyle({ flexDirection: 'row' })
-    onChange(this, 'dataFormat', dataFormat => { this.setup() })
-    onChange(this, 'data', data => { this.setup() })
-    inputToSignal(this, 'focusPath', '$focusPath')
-    propToSignal(this, 'isRoot')
-    registerShortcuts(this.shortcuts)
+    registerShortcuts(this.shortcuts, { context: { name: 'JsonEditor', ref: this } })
     if (this.isRoot()) {
-      registerShortcuts(this.rootShortcuts)
-      this.shortcutService.requestFocus({ reason: 'JsonEditor onInit' })
+      registerShortcuts(this.rootShortcuts, { context: { name: 'JsonEditor.root', ref: this } })
     }
   }
 
@@ -136,7 +131,8 @@ export class JsonEditor {
   }
 
   async ngOnInit() {
-    // assert(!(this.value && this.valueRef), 'Use [value] or [valueRef]. Not both.')
+    patchInputSignal(this.dataFormat).subscribe(dataFormat => { this.setup() })
+    patchInputSignal(this.data).subscribe(data => { this.setup() })
 
     patchWritableSignal(this.valueRef).subscribe((valueRef) => {
       if (this.visibleKey()) {
@@ -170,7 +166,9 @@ export class JsonEditor {
       }
     })
 
-    this.setup()
+    if (this.isRoot()) {
+      this.shortcutService.requestFocus({ reason: 'JsonEditor onInit' })
+    }
 
     // effect(() => {
     //   const focusPath = this.$focusPath()
@@ -287,7 +285,6 @@ export class JsonEditor {
   rootShortcuts: Partial<Command>[] = [
     {
       id: 'openInTextEditor',
-      context: this,
       func: () => {
         assert(this.externalTextEditor, 'No available externalTextEditor')
         const text = json5.stringify(this.getValue(), null, 2)

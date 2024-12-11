@@ -1,4 +1,4 @@
-import { Component, inject, input, output, viewChild } from '@angular/core'
+import { Component, input, output, viewChild } from '@angular/core'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
@@ -7,11 +7,11 @@ import { VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
-import { onChange } from '../utils/reactivity'
 import { signal2 } from '../utils/Signal2'
-import { assert, logError } from '../utils/utils'
+import { logError } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Command, ShortcutService } from './shortcut.service'
+import { assert } from '../utils/Assert'
 
 /**
  * Popup to discover commands.
@@ -47,18 +47,17 @@ export class Shortcuts {
 
   constructor(public isolatedShortcutService: ShortcutService, public logger: Logger) {
     addStyle({ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' })
-    onChange(this, 'hideCommands', hideCommands => {
-      this.listOfCommands.$ = this.listCommands()
-    })
   }
 
   ngOnInit() {
-    this.listOfCommands.$ = this.listCommands()
+    this.hideCommands.subscribe(hideCommands => {
+      this.listOfCommands.$ = this.listCommands()
+    })
     this.shortcutService().rootNode().before.$ = this.isolatedShortcutService
 
     // almost like: registerShortcuts(this.commands)
     const disposables = this.shortcuts.map(command => {
-      return this.isolatedShortcutService.registerCommand({ ...command, context: this })
+      return this.isolatedShortcutService.registerCommand({ ...command, context: { name: 'Shortcuts', ref: this } })
     })
 
     this.destroy$.subscribe(() => {

@@ -20,7 +20,8 @@ import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
 import { signal2 } from '../utils/Signal2'
 import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
-import { FocusDebugDirective, FocusDirective } from './focus.directive'
+import { FocusDirective } from './focus.directive'
+import { FocusDebugDirective } from './FocusDebug.directive'
 import { Command, ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
 import { removeLastMatch } from '../utils/utils'
 
@@ -128,7 +129,6 @@ describe('ShortcutService @if - ', () => {
     }
 
     log('ctrl+r')
-    debugger
     sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
     expect(component.secondFunc).toHaveBeenCalledTimes(0)
@@ -138,14 +138,12 @@ describe('ShortcutService @if - ', () => {
     tick()
 
     log('detectChanges')
-    debugger
     fixture.detectChanges()
 
     log('tick')
     tick()
 
     log('ctrl+r')
-    debugger
     sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
 
     expect(component.firstFunc).toHaveBeenCalledTimes(1)
@@ -170,7 +168,6 @@ describe('ShortcutService @if - ', () => {
     // logZone()
 
     log('ctrl+r')
-    debugger
     sendKeyAndDetectChanges(fixture, shortcuts, { ctrl: true, name: 'r' })
 
     log('expect')

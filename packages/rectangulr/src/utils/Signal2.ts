@@ -1,5 +1,6 @@
 import { CreateComputedOptions, CreateSignalOptions, InputSignal, Signal, WritableSignal, computed, signal } from '@angular/core'
 import { assert } from './Assert'
+import { initial } from 'lodash'
 
 export type Signal2<T> = WritableSignal<T> & {
 	get $(): T,
@@ -81,7 +82,7 @@ export function patchComputed<T>(sig: Signal<T>) {
 }
 
 export type InputSignal2<T> = InputSignal<T> & {
-	subscribe(callback: (value: T) => void): () => void
+	subscribe(callback: (value: T) => void, options?: { initial: boolean }): () => void
 }
 
 export function patchInputSignal<T>(input: Signal<T>): InputSignal2<T> {
@@ -101,9 +102,12 @@ export function patchInputSignal<T>(input: Signal<T>): InputSignal2<T> {
 
 	Object.defineProperty(input, 'subscribe', {
 		get() {
-			return (callback: any) => {
+			return (callback: (value: T) => void, options?: { initial: boolean }) => {
+				const options2 = { initial: true, ...options }
 				subscribers.push(callback)
-				callback(input())
+				if (options2.initial) {
+					callback(input())
+				}
 				return () => {
 					const index = subscribers.indexOf(callback)
 					subscribers.splice(index, 1)
