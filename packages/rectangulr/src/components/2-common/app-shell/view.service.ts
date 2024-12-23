@@ -3,8 +3,8 @@ import { AnyObject, assert } from '../../../utils/utils'
 
 export const VIEWS = new InjectionToken<View[]>('Views')
 
-export function provideViews(view: View): StaticProvider {
-  return { provide: VIEWS, useValue: view, multi: true }
+export function provideView(view: View & { tags?: string[] }): StaticProvider {
+  return { provide: VIEWS, useValue: { tags: [], ...view }, multi: true }
 }
 
 /**
@@ -65,5 +65,5 @@ export class ViewService {
 export class View {
   name: string
   component: any
-  tags: (string | AnyObject)[]
+  tags?: (string | AnyObject)[]
 }

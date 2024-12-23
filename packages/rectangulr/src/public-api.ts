@@ -4,7 +4,7 @@
 
 // Basics
 export { Element, Event, TermScreen } from './angular-terminal/dom-terminal/'
-export { LOGGER as LOGGER } from './angular-terminal/logger'
+export { LOGGER, Logger } from './angular-terminal/logger'
 
 // Platform
 export { platformRectangulr, bootstrapApplication } from './angular-terminal/platform'
@@ -35,7 +35,7 @@ export {
   INJECT_NOTIFICATIONS_SERVICE,
   NotificationsService,
 } from './components/2-common/app-shell/notifications.service'
-export { View, ViewService } from './components/2-common/app-shell/view.service'
+export { View, ViewService, provideView } from './components/2-common/app-shell/view.service'
 export { ConfigLoader } from './components/2-common/config-loader'
 export { FormEditor } from './components/2-common/form-editor'
 export { KeyValueEditor } from './components/2-common/KeyValueEditor'

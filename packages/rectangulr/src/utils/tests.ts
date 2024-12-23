@@ -31,7 +31,7 @@ export function sendKeyAndDetectChanges(
   TestBed.flushEffects()
   tick()
 
-  // TestBed.inject(Logger).log('tick')
+  // TestBed.inject(LOGGER).log('tick')
   shortcuts.incomingKey({ key: key })
 
   fixture?.detectChanges()
