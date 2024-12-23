@@ -1,16 +1,18 @@
-import { Injectable } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import * as fs from 'fs'
 import * as json5 from 'json5'
-import { Logger } from '../../angular-terminal/logger'
+import { LOGGER } from '../../angular-terminal/logger'
 
 @Injectable({
   providedIn: 'root',
 })
 export class ConfigLoader {
+  logger = inject(LOGGER)
+
   fileName = 'config.json'
   config?: any = {}
 
-  constructor(public logger: Logger) {
+  constructor() {
     let jsonData = null
     try {
       jsonData = fs.readFileSync(this.fileName, { encoding: 'utf-8' })

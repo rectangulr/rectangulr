@@ -1,17 +1,17 @@
-import { Component, input, output, viewChild } from '@angular/core'
+import { Component, inject, input, output, viewChild } from '@angular/core'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-import { Logger } from '../angular-terminal/logger'
+import { LOGGER } from '../angular-terminal/logger'
 import { VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
+import { assert } from '../utils/Assert'
 import { signal2 } from '../utils/Signal2'
 import { logError } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Command, ShortcutService } from './shortcut.service'
-import { assert } from '../utils/Assert'
 
 /**
  * Popup to discover commands.
@@ -45,7 +45,10 @@ export class Shortcuts {
   readonly hideCommands = signal2(true)
   readonly list = viewChild<SearchList<any>>('searchList')
 
-  constructor(public isolatedShortcutService: ShortcutService, public logger: Logger) {
+  isolatedShortcutService = inject(ShortcutService)
+  logger = inject(LOGGER)
+
+  constructor() {
     addStyle({ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' })
   }
 

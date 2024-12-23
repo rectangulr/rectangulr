@@ -5,9 +5,8 @@ import { cursor, feature, screen, style } from '../../../../../term-strings/core
 import { Key } from '../../../../../term-strings/parse'
 import { Parser, Production } from '../../../../../term-strings/parse/parser/Parser'
 import { sequences } from '../../../../../term-strings/parse/sequences'
-import { forceRefresh } from '../../../../../utils/reactivity'
 import { assert } from '../../../../../utils/utils'
-import { Logger } from '../../../../logger'
+import { LOGGER } from '../../../../logger'
 import { TERMINAL } from '../../../../terminals/terminal'
 import { Event, Point, Rect } from '../../core'
 import { TermElement } from '../../core/dom/Element'
@@ -20,7 +19,7 @@ import { ElementPool } from './element-pool'
 })
 export class TermScreen extends TermElement {
   terminal = inject(TERMINAL)
-  logger = inject(Logger)
+  logger = inject(LOGGER)
   elementPool = inject(ElementPool)
   ngZone = inject(NgZone)
 

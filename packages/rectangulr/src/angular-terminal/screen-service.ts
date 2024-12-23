@@ -1,7 +1,7 @@
-import { Inject, Injectable, Injector, inject } from '@angular/core'
+import { Injectable, inject } from '@angular/core'
 import { TermScreen } from './dom-terminal'
-import { Logger } from './logger'
-import { TERMINAL, Terminal } from './terminals/terminal'
+import { LOGGER } from './logger'
+import { TERMINAL } from './terminals/terminal'
 
 /**
  * The bridge between Angular and @manaflair/mylittledom
@@ -11,8 +11,8 @@ import { TERMINAL, Terminal } from './terminals/terminal'
 })
 export class ScreenService {
   terminal = inject(TERMINAL)
-  logger = inject(Logger)
   termScreen = inject(TermScreen)
+  logger = inject(LOGGER)
 
   constructor() {
     this.attachScreen()

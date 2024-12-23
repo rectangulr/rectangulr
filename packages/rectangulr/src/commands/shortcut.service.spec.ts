@@ -1,18 +1,9 @@
-import {
-  Component,
-  EventEmitter,
-  Output,
-  QueryList,
-  ViewChild,
-  ViewChildren,
-  input,
-  signal
-} from '@angular/core'
+import { Component, EventEmitter, Output, QueryList, ViewChild, ViewChildren, input, signal, inject } from '@angular/core'
 import { TestBed, discardPeriodicTasks, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
 import { keyboardTest } from "src/utils/tests"
 import { cond } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-import { Logger } from '../angular-terminal/logger'
+import { LOGGER } from '../angular-terminal/logger'
 import { HBox, VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
 import { TextInput } from '../components/1-basics/text-input'
@@ -21,7 +12,6 @@ import { ListItem } from '../components/2-common/list/list-item'
 import { signal2 } from '../utils/Signal2'
 import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
 import { FocusDirective } from './focus.directive'
-import { FocusDebugDirective } from './FocusDebug.directive'
 import { Command, ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
 import { removeLastMatch } from '../utils/utils'
 
@@ -64,27 +54,26 @@ describe('ShortcutService Class', () => {
 
 @Component({
   standalone: true,
-  imports: [FocusDirective, FocusDebugDirective],
+  imports: [VBox, FocusDirective],
   template: `
     @if (showFirst()) {
       <v
         #first
         [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"
-        focusDebug
       ></v>
     }
     @if (showSecond()) {
       <v
         #second
         [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"
-        focusDebug
         ></v>
     }
     `,
-  providers: [ShortcutService, FocusDirective, FocusDebugDirective],
+  providers: [ShortcutService],
 })
 export class Test1 {
-  constructor(public shortcutService: ShortcutService) { }
+  shortcutService = inject(ShortcutService)
+
   showFirst = signal(true)
   showSecond = signal(true)
 
@@ -121,11 +110,11 @@ describe('ShortcutService @if - ', () => {
 
     function logZone() {
       // @ts-ignore
-      TestBed.inject(Logger).log(Zone.current._zoneDelegate._taskCounts)
+      TestBed.inject(LOGGER).log(Zone.current._zoneDelegate._taskCounts)
     }
 
     function log(thing) {
-      TestBed.inject(Logger).log(thing)
+      TestBed.inject(LOGGER).log(thing)
     }
 
     log('ctrl+r')
@@ -193,9 +182,9 @@ describe('ShortcutService @if - ', () => {
   providers: [ShortcutService],
 })
 export class Test2 {
-  focused = signal2<'first' | 'second'>('first')
+  shortcutService = inject(ShortcutService)
 
-  constructor(public shortcutService: ShortcutService) { }
+  focused = signal2<'first' | 'second'>('first')
 
   firstFunc() { }
   secondFunc() { }
@@ -239,6 +228,8 @@ describe('ShortcutService FocusIf - ', () => {
   imports: [VBox, FocusDirective],
 })
 export class Test3 {
+  shortcutService = inject(ShortcutService)
+
   focused: 'first' | 'second' = 'first'
   callsMethod = methodName => {
     return () => this[methodName]()
@@ -247,8 +238,6 @@ export class Test3 {
     { keys: 'ctrl+r', func: this.callsMethod('firstFunc') },
     { keys: 'ctrl+r', func: this.callsMethod('secondFunc') },
   ]
-
-  constructor(public shortcutService: ShortcutService) { }
 
   firstFunc() { }
   secondFunc() { }
@@ -276,8 +265,9 @@ describe('ShortcutService - ', () => {
   template: `<text-input [focusIf]="condition()"/>`,
 })
 export class Test4 {
+  shortcutService = inject(ShortcutService)
+
   condition = signal2(true)
-  constructor(public shortcutService: ShortcutService) { }
   @ViewChild(TextInput) input: TextInput
 }
 
@@ -316,10 +306,11 @@ describe('ShortcutService - ', () => {
   `,
 })
 export class Test5 {
+  shortcutService = inject(ShortcutService)
+
   condition = true
   items = [1, 2, 3]
   noop = () => { }
-  constructor(public shortcutService: ShortcutService) { }
   @ViewChildren(TextInput) input: QueryList<TextInput>
 }
 
@@ -367,10 +358,12 @@ describe('ShortcutService - ', () => {
   template: `something`,
 })
 export class Test6Comp {
+  shortcutService = inject(ShortcutService)
+
   condition = true
   spy2: { handler: () => void }
 
-  constructor(public shortcutService: ShortcutService) {
+  constructor() {
     this.spy2 = { handler: () => { } }
     spyOn(this.spy2, 'handler')
     registerShortcuts([
@@ -394,11 +387,13 @@ export class Test6Comp {
   template: ` @if (visible) {<Test6Comp />}`,
 })
 export class Test6 {
+  shortcutService = inject(ShortcutService)
+
   visible = false
   @ViewChild(Test6Comp) child: Test6Comp
   spy1: { handler: () => void }
 
-  constructor(public shortcutService: ShortcutService) {
+  constructor() {
     this.spy1 = { handler: () => { } }
     spyOn(this.spy1, 'handler')
     registerShortcuts([
@@ -443,9 +438,10 @@ describe('ShortcutService -', () => {
   providers: [ShortcutService]
 })
 export class Test7 {
+  shortcutService = inject(ShortcutService)
+
   @ViewChild('parent', { read: ShortcutService }) parentShortcutService: ShortcutService
   @ViewChild('child', { read: ShortcutService }) childShortcutService: ShortcutService
-  constructor(public shortcutService: ShortcutService) { }
 }
 
 
@@ -483,6 +479,8 @@ describe('FocusDirective -', () => {
   `,
 })
 class ComponentDataView {
+  shortcutService = inject(ShortcutService)
+
   readonly data = input({ name: 'name', children: [{ name: 'child1', children: [] }] });
   focused: 'self' | 'children' = 'self'
   canExpand = false
@@ -500,7 +498,7 @@ class ComponentDataView {
   @ViewChild('list') list: List<any>
   @ViewChild('list', { read: ShortcutService }) listShortcutService: ShortcutService
 
-  constructor(public shortcutService: ShortcutService) {
+  constructor() {
     registerShortcuts(this.shortcuts)
   }
 

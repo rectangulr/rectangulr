@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
 import { Element } from '../angular-terminal/dom-terminal'
-import { Logger } from '../angular-terminal/logger'
+import { LOGGER } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
 import { addToGlobalRg } from '../utils/addToGlobalRg'
 import { assert } from '../utils/Assert'
@@ -12,7 +12,7 @@ import { last, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
 import { logFocus } from "./symbols"
-import { string } from 'zod'
+import { LogPointService } from '../utils/LogPoint'
 
 /**
  * Commands are a function with an `id`.
@@ -66,14 +66,15 @@ export class ShortcutService {
 
   readonly focusPropagateUp = signal2(true)
   readonly focusIf = signal2(true)
-  debugDenied: boolean = false
-  logEnabled: boolean = inject(logFocus, { optional: true }) ?? false
 
   injector = inject(Injector)
   screen = inject(ScreenService, { optional: true })
-  logger = inject(Logger)
+  logger = inject(LOGGER)
   parent = inject(ShortcutService, { skipSelf: true, optional: true })
-  reason: string
+  reason: string = undefined
+  private timeout: any
+
+  lp = inject(LogPointService)
 
   constructor() {
     if (isRoot(this)) {
@@ -107,21 +108,20 @@ export class ShortcutService {
 
     // subscribe(this, this.ngZone.onStable, () => {
     //   this.receivedFocusThisTick = 0
-    //   // this.logEnabled && this.logger.log(`reset receivedFocusThisTick to ${this.receivedFocusThisTick}`)
+    //   // this.lp.point(`reset receivedFocusThisTick to ${this.receivedFocusThisTick}`)
     // })
   }
 
   incomingKey(keyEvent) {
     let key = keyEvent.key as unknown as Key
-    // this.logEnabled && this.logger.log(`key: ${keyToString(key)}`)
+    // this.lp.point(`key: ${keyToString(key)}`)
     if (this.before()) {
       key = this.before().propagateKeypress(key)
     }
     if (key) {
       const unhandledKeypress = this.propagateKeypress(key)
       if (unhandledKeypress) {
-        this.logEnabled && this.logger.log(`unhandled keypress: ${keyToString(unhandledKeypress)}`)
-        // @ts-ignore
+        this.lp.logPoint('IncomingKey.UnhandledKeypress', keyToString(unhandledKeypress))
         // ngDevMode &&
         //   assert(false, { message: 'unhandled key', focused: getFocusedNode(this.rootNode) })
       }
@@ -136,7 +136,7 @@ export class ShortcutService {
       //   .filter(value => value.length > 0)
       //   .join(',')
       // const handlersString = `handlers: [${handlers}]`
-      // this.logEnabled && this.logger.log(`${padding(this)}${components}, ${handlers}, ${focusStack}`)
+      // this.lp.point(`${padding(this)}${components}, ${handlers}, ${focusStack}`)
 
       const unhandledKeypress = this.focusedChild().propagateKeypress(keypress)
       if (unhandledKeypress) {
@@ -259,55 +259,68 @@ export class ShortcutService {
 
     // To be able to call focus() without arguments
     if (!args.child) {
-      const success = this.parent?.requestFocus({ ...args, child: this, source: this })
-      if (success) {
-        // this.logEnabled && this.logger.log(`focused: ${stringifyPathToLeaf(this)}`)
-        this.reason = args.reason
+      if (!this.parent) {
+        return true
+      } else {
+        const success = this.parent.requestFocus({ ...args, child: this, source: this })
+        if (success) {
+          // this.lp.point(`focused: ${stringifyPathToLeaf(this)}`)
+          this.reason = args.reason
+        }
+        return success
       }
-      return success
     }
 
     if (!args.child.focusIf()) {
-      this.logEnabled && this.logger.log(`denied - ${args.child} - focusIf`)
-      if (this.debugDenied) { debugger }
-      return
+      this.lp.logPoint('RequestFocus.Denied.FocusIf', { child: args.child })
+      return false
     }
 
     if (this.askedForFocusThisTick().find(item => item.child === args.child)) {
-      this.logEnabled && this.logger.log(`denied - ${args.child} - askedForFocusThisTick`)
-      if (this.debugDenied) { debugger }
-      return
+      this.lp.logPoint('RequestFocus.Denied.askedForFocusThisTick', { child: args.child })
+      return false
     }
 
-    this.focusStack.update(value => value.filter(i => i != args.child))
-    let index = this.focusStack().length
-    if (args.soft) index -= this.askedForFocusThisTick().length
-    index = _.clamp(index, 0, this.focusStack().length)
-    const stackBefore = this.focusStack().map(i => i._id).join(',')
-    this.focusStack.update(value => {
-      value.splice(index, 0, args.child)
-      return [...value]
-    })
-    const stackAfter = this.focusStack().map(i => i._id).join(',')
-    this.logEnabled && this.logger.log(`partial focus (${args.reason}): ${stringifyPathToNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
+    if (this.focusedChild() == args.child) {
+      this.lp.logPoint(`already focused - ${args.child}`)
+      this.lp.logPoint('RequestFocus.Denied.AlreadyFocused', { child: args.child })
+    } else {
+      this.focusStack.update(value => value.filter(i => i != args.child))
+      let index = this.focusStack().length
+      if (args.soft) index -= this.askedForFocusThisTick().length
+      index = _.clamp(index, 0, this.focusStack().length)
+      const stackBefore = this.focusStack().map(i => i._id).join(',')
+      this.focusStack.update(value => {
+        value.splice(index, 0, args.child)
+        return [...value]
+      })
+      const stackAfter = this.focusStack().map(i => i._id).join(',')
+      this.lp.logPoint(`partial focus (${args.reason}): ${stringifyPathToFocusedNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
 
-    this.askedForFocusThisTick.update(value => [...value, { child: args.child, reason: args.reason, source: args.source }])
-    this.focusedChild.$ = _.last(this.focusStack())
-    assert(this.focusedChild(), 'should focus a child')
-    // log('received')
+      this.askedForFocusThisTick.update(value => [...value, { child: args.child, reason: args.reason, source: args.source }])
+      this.focusedChild.$ = _.last(this.focusStack())
+      assert(this.focusedChild(), 'should focus a child')
+      // log('received')
 
-    this.logEnabled && this.logger.log('setTimeout')
-    setTimeout(() => {
-      this.askedForFocusThisTick.$ = []
-      this.logEnabled && this.logger.log(`focused after setTimeout: ${stringifyPathToLeaf(this)}`)
-    })
+      // this.lp.point('setTimeout')
+      if (this.timeout === undefined) {
+        this.timeout = setTimeout(() => {
+          this.askedForFocusThisTick.$ = []
+          this.lp.logPoint(`focused after setTimeout: ${stringifyPathToFocusedNode(this)}`)
+          this.timeout = undefined
+        })
+      }
+    }
 
     if (this.focusPropagateUp()) {
-      this.parent?.requestFocus({ ...args, child: this })
-      return true
+      if (this.parent) {
+        return this.parent.requestFocus({ ...args, child: this })
+      } else {
+        return true
+      }
     } else {
       // log('!focusPropagateUp()')
-      if (this.debugDenied) { debugger }
+      this.lp.logPoint('RequestFocus.Denied')
       return false
     }
   }
@@ -556,7 +569,7 @@ class SimplifiedShortcutService {
   }
 
   toString() {
-    return stringifyPathToNode(this.ref)
+    return stringifyPathToFocusedNode(this.ref)
   }
 }
 
@@ -609,26 +622,22 @@ function stringifyNode(shortcutService: ShortcutService) {
 }
 
 function stringifyPathToNode(node: ShortcutService) {
+  // Walk up the parents from the node
   const nodes = []
-  let currentNode: ShortcutService = node.rootNode()
-  while (true) {
-    if (currentNode == node) {
-      break
-    } else {
-      currentNode = currentNode.focusedChild()
-      if (!currentNode) break
-    }
-    nodes.push(currentNode)
+  let currentNode: ShortcutService = node
+  while (currentNode) {
+    nodes.unshift(stringifyNode(currentNode))
+    currentNode = currentNode.parent
   }
-  return nodes.map(node => stringifyNode(node)).join(' -> ')
+  return nodes.join(' -> ')
 }
 
-function stringifyPathToLeaf(node: ShortcutService) {
+function stringifyPathToFocusedNode(node: ShortcutService) {
   const nodes = []
-  let currentNode: ShortcutService = node.rootNode()
-  while (currentNode) {
-    nodes.push(currentNode)
-    currentNode = currentNode.focusedChild()
+  let current = node.rootNode()
+  while (current) {
+    nodes.push(stringifyNode(current))
+    current = current.focusedChild()
   }
-  return nodes.map(node => stringifyNode(node)).join(' -> ')
+  return nodes.join(' -> ')
 }

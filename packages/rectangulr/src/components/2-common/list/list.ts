@@ -22,7 +22,7 @@ import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-import { Logger } from '../../../angular-terminal/logger'
+import { LOGGER } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { assert } from '../../../utils/Assert'
@@ -176,11 +176,12 @@ export class List<T> {
   deferreds: Deferred<any>[] = []
   previousItems: T[]
 
+  shortcutService = inject(ShortcutService)
+  logger = inject(LOGGER)
+  // itemComponentInjected = inject('itemComponent', {optional: true})
+  injector = inject(Injector)
+
   constructor(
-    public shortcutService: ShortcutService,
-    @Inject('itemComponent') @Optional() public itemComponentInjected: any,
-    public logger: Logger,
-    public injector: Injector
   ) {
     // inputToSignal(this, 'focusPath', '$focusPath')
 
@@ -211,7 +212,7 @@ export class List<T> {
 
   ngOnInit() {
     // The way the item is displayed can be customized via an Input, and Injected value, or defaults to a basic json stringify
-    this._displayComponent = this.itemComponentInjected
+    // this._displayComponent = this.itemComponentInjected
 
     const selectNewIndex = (items: T[]) => {
       assert(!_.isNil(items))

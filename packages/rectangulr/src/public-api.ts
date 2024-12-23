@@ -4,7 +4,7 @@
 
 // Basics
 export { Element, Event, TermScreen } from './angular-terminal/dom-terminal/'
-export { Logger } from './angular-terminal/logger'
+export { LOGGER as LOGGER } from './angular-terminal/logger'
 
 // Platform
 export { platformRectangulr, bootstrapApplication } from './angular-terminal/platform'
@@ -16,8 +16,6 @@ export { RectangulrDynamicTestingModule } from './angular-terminal/testing/testi
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
 export { Shortcuts } from './commands/shortcuts.component'
 export { FocusDirective } from './commands/focus.directive'
-export { FocusDebugDirective } from './commands/FocusDebug.directive'
-export { FocusDebugChildrenDirective } from './commands/FocusDebugChildren.directive'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
 export {
   HBox,

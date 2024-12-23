@@ -2,7 +2,7 @@ import { Injector, ProviderToken, effect, inject, isSignal } from '@angular/core
 import _ from 'lodash'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
-import { Logger } from '../angular-terminal/logger'
+import { Logger, LOGGER } from '../angular-terminal/logger'
 import { onChange, subscribe } from './reactivity'
 
 export type TODO = any

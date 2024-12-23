@@ -1,14 +1,7 @@
 import { CommonModule } from '@angular/common'
-import {
-  ApplicationModule,
-  Inject,
-  NgModule,
-  Optional,
-  SkipSelf
-} from '@angular/core'
+import { ApplicationModule, NgModule, inject } from '@angular/core'
 import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { FocusDirective } from './commands/focus.directive'
-import { FocusDebugDirective } from './commands/FocusDebug.directive'
 import { Shortcuts } from './commands/shortcuts.component'
 import { GrowDirective, HBox, HGrowDirective, VBox, VGrowDirective } from './components/1-basics/box'
 import { StyleDirective, } from './components/1-basics/style'
@@ -54,7 +47,6 @@ const TEMPLATE_COMPONENTS = [
   Row,
   StyleDirective,
   FocusDirective,
-  FocusDebugDirective,
   DetachedCommandServiceDirective,
   KeyValueEditor,
   Shortcuts,
@@ -76,12 +68,9 @@ const TEMPLATE_COMPONENTS = [
   exports: [CommonModule, ApplicationModule, ...TEMPLATE_COMPONENTS],
 })
 export class RectangulrModule {
-  constructor(
-    @Optional()
-    @SkipSelf()
-    @Inject(RECTANGULR_MODULE_PROVIDERS_MARKER)
-    providersAlreadyPresent: boolean | null
-  ) {
+  constructor() {
+    const providersAlreadyPresent = inject(RECTANGULR_MODULE_PROVIDERS_MARKER, { optional: true, skipSelf: true })
+
     if (NG_DEV_MODE && providersAlreadyPresent) {
       throw new Error(
         `Providers from the \`RectangulrModule\` have already been loaded. If you need access ` +

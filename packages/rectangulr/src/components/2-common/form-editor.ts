@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup } from '@angular/forms'
 import * as json5 from 'json5'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
-import { Logger } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { longest, mapKeyValue } from '../../utils/utils'
@@ -11,6 +10,7 @@ import { KeyValueEditor } from './KeyValueEditor'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
 import { blackOnWhite } from './styles'
+import { LOGGER } from '../../angular-terminal/logger'
 
 @Component({
   standalone: true,
@@ -33,6 +33,9 @@ import { blackOnWhite } from './styles'
   ],
 })
 export class FormEditor {
+  fb = inject(FormBuilder)
+  shortcutService = inject(ShortcutService)
+
   object = input.required()
   @Output() onSubmit = new Subject()
 
@@ -58,11 +61,9 @@ export class FormEditor {
     },
   ]
 
-  constructor(
-    public logger: Logger,
-    public fb: FormBuilder,
-    public shortcutService: ShortcutService
-  ) {
+  logger = inject(LOGGER)
+
+  constructor() {
     registerShortcuts(this.keybinds)
   }
 

@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, EventEmitter, Output, TemplateRef, effect, input, viewChild, contentChild } from '@angular/core'
+import { Component, EventEmitter, Output, TemplateRef, effect, input, viewChild, contentChild, inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
@@ -45,6 +45,8 @@ export interface NodeData { name: any, children: any[] }
 	imports: [List, ListItem, FocusDirective, NgTemplateOutlet, StyleDirective]
 })
 export class Tree<T> {
+	shortcutService = inject(ShortcutService)
+
 	readonly nodes = input.required<(T & NodeData)[]>()
 	readonly level = input(0)
 	readonly nodeTemplate = input<TemplateRef<any>>(undefined)
@@ -60,7 +62,9 @@ export class Tree<T> {
 	readonly list = viewChild(List)
 	readonly nodeTemplate2 = contentChild(TreeNode, { read: TemplateRef })
 
-	constructor(public shortcutService: ShortcutService) {
+	constructor() {
+		const shortcutService = this.shortcutService
+
 		registerShortcuts(this.shortcuts)
 		effect(() => {
 			if (shortcutService.isFocused()) {

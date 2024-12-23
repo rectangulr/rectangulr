@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core'
+import * as _ from '@s-libs/micro-dash'
 import fs from 'fs'
 import json5 from 'json5'
-import * as _ from '@s-libs/micro-dash'
 import os from 'os'
-import { Logger } from '../../angular-terminal/logger'
+import { LOGGER } from '../../angular-terminal/logger'
 import { logError } from '../../utils/utils'
 
 type Path = readonly (string | number)[]
@@ -16,7 +16,7 @@ export class StorageService {
   data: any = {}
   saveToDisk = true
 
-  logger = inject(Logger)
+  logger = inject(LOGGER)
 
   constructor() {
     fs.readFile(this.filePath, { encoding: 'utf-8' }, (err, jsonData) => {

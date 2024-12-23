@@ -1,4 +1,4 @@
-import { Directive, ElementRef } from '@angular/core'
+import { Directive, ElementRef, inject } from '@angular/core'
 import { Element } from '../../angular-terminal/dom-terminal/sources/core/index'
 
 /**
@@ -15,7 +15,8 @@ import { Element } from '../../angular-terminal/dom-terminal/sources/core/index'
   selector: 'h',
 })
 export class HBox {
-  constructor(public elementRef: ElementRef<Element>) { }
+  elementRef = inject<ElementRef<Element>>(ElementRef);
+
 
   ngOnInit() {
     this.elementRef.nativeElement.style.add({ flexDirection: 'row' })
@@ -33,7 +34,8 @@ export class HBox {
   selector: 'v',
 })
 export class VBox {
-  constructor(public elementRef: ElementRef<Element>) { }
+  elementRef = inject<ElementRef<Element>>(ElementRef);
+
 
   ngOnInit() {
     this.elementRef.nativeElement.style.add({ flexDirection: 'column' })
@@ -48,7 +50,8 @@ export class VBox {
   selector: '[grow]',
 })
 export class GrowDirective {
-  constructor(public elementRef: ElementRef<Element>) { }
+  elementRef = inject<ElementRef<Element>>(ElementRef);
+
 
   ngOnInit() {
     this.elementRef.nativeElement.style.add({ vgrow: true, hgrow: true })
@@ -64,7 +67,8 @@ export class GrowDirective {
   selector: '[hgrow]',
 })
 export class HGrowDirective {
-  constructor(public elementRef: ElementRef<Element>) { }
+  elementRef = inject<ElementRef<Element>>(ElementRef);
+
 
   ngOnInit() {
     this.elementRef.nativeElement.style.add({ hgrow: true })
@@ -80,7 +84,8 @@ export class HGrowDirective {
   selector: '[vgrow]',
 })
 export class VGrowDirective {
-  constructor(public elementRef: ElementRef<Element>) { }
+  elementRef = inject<ElementRef<Element>>(ElementRef);
+
 
   ngOnInit() {
     this.elementRef.nativeElement.style.add({ vgrow: true })

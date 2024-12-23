@@ -1,19 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  Injector,
-  Output,
-  Signal,
-  TemplateRef,
-  computed,
-  contentChild,
-  effect,
-  input,
-  output,
-  signal,
-  untracked,
-  viewChild
-} from '@angular/core'
+import { Component, ElementRef, Injector, Output, Signal, TemplateRef, computed, contentChild, effect, input, output, signal, untracked, viewChild, inject } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
@@ -37,10 +22,12 @@ import { ListItem } from '../list/list-item'
   template: `{{ text() }}`,
 })
 export class Row<T extends { [key: string | symbol]: any }> {
+  table = inject<Table<T>>(Table);
+
   readonly data = input.required<T>();
   text!: Signal<string>
 
-  constructor(public table: Table<T>) {
+  constructor() {
     addStyle({ height: 1 })
   }
 
@@ -124,6 +111,10 @@ interface Column {
   ],
 })
 export class Table<T> {
+  shortcutService = inject(ShortcutService)
+  elementRef = inject<ElementRef<Element>>(ElementRef)
+  injector = inject(Injector)
+
   items = input.required<T[]>()
   readonly template = input<TemplateRef<any> | undefined>(undefined);
   readonly trackByFn = input((index: number, item: T) => item);
@@ -155,11 +146,9 @@ export class Table<T> {
   readonly list = viewChild.required(List);
   controlValueAccessor: ControlValueAccessor = new BaseControlValueAccessor()
 
-  constructor(
-    public shortcutService: ShortcutService,
-    public elementRef: ElementRef<Element>,
-    public injector: Injector
-  ) {
+  constructor() {
+    const elementRef = this.elementRef
+
     addStyle({ scrollF: 'x' })
     // inputToSignal(this, 'items', '$items')
 

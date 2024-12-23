@@ -1,7 +1,7 @@
 
 import { Component, Signal, computed, effect, signal, input, inject } from '@angular/core'
 import { Observable } from 'rxjs'
-import { Logger } from '../../angular-terminal/logger'
+import { LOGGER } from '../../angular-terminal/logger'
 import { KeyValue } from '../../utils/interfaces'
 import { inputToSignal, longest } from '../../utils/utils'
 import { GrowDirective, HBox, VBox } from '../1-basics/box'
@@ -45,7 +45,7 @@ export class ObjectDisplay<T> {
 
   trackByFn = (index, keyValue: KeyValue) => keyValue.key
 
-  logger = inject(Logger)
+  logger = inject(LOGGER)
 
   s = {
     blackOnWhite: blackOnWhite,

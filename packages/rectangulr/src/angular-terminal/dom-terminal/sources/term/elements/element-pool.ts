@@ -1,6 +1,6 @@
-import { Injectable, Injector, runInInjectionContext } from "@angular/core"
+import { Injectable, Injector, runInInjectionContext, inject } from "@angular/core"
 import { assert } from "../../../../../utils/utils"
-import { Logger } from "../../../../logger"
+import { LOGGER } from "../../../../logger"
 import { TermElement } from '../../core/dom/Element'
 import { TermText2 } from "./TermText2"
 
@@ -13,12 +13,15 @@ type ElementConstructor = typeof TermElement
 	providedIn: 'root'
 })
 export class ElementPool {
+	injector = inject(Injector)
+	logger = inject(LOGGER)
+
 	enabled = false
 	elementClasses: ElementConstructor[] = [TermElement, TermText2]
 	elementClassesByName = new Map<string, ElementConstructor>()
 	elementPools = new Map<ElementConstructor, TermElement[]>()
 
-	constructor(public injector: Injector, public logger: Logger) {
+	constructor() {
 		this.elementClassesByName = new Map()
 		this.elementPools = new Map()
 		this.elementClasses.forEach(el => {

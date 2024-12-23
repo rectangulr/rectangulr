@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Inject, Output, input } from '@angular/core'
+import { Directive, EventEmitter, Output, input, inject } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
 import { ShortcutService } from '../../commands/shortcut.service'
@@ -11,6 +11,8 @@ abstract class ValueProxy { }
   selector: '[value]',
 })
 export class ValueDirective {
+  valueAccessors = inject(NG_VALUE_ACCESSOR)
+
   readonly value = input(undefined)
   @Output() valueChange = new EventEmitter(true)
 
@@ -19,7 +21,9 @@ export class ValueDirective {
 
   currentValue = null
 
-  constructor(@Inject(NG_VALUE_ACCESSOR) public valueAccessors: ControlValueAccessor[]) {
+  constructor() {
+    const valueAccessors = this.valueAccessors
+
     assert(valueAccessors)
     valueAccessors.forEach(accessor => {
       accessor.registerOnChange(value => {

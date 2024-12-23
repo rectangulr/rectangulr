@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, Inject, Optional, Output } from '@angular/core'
+import { Directive, EventEmitter, Output, inject } from '@angular/core'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Subject } from 'rxjs'
 import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
@@ -8,14 +8,14 @@ import { Command, ShortcutService, registerShortcuts } from '../../commands/shor
   selector: '[onEnter]',
 })
 export class OnEnterDirective {
+  valueAccessors = inject(NG_VALUE_ACCESSOR, { optional: true })
+  shortcutService = inject(ShortcutService)
+
   @Output() onEnter = new EventEmitter()
 
   currentValue = undefined
 
-  constructor(
-    @Optional() @Inject(NG_VALUE_ACCESSOR) public valueAccessors: ControlValueAccessor[],
-    public shortcutService: ShortcutService
-  ) {
+  constructor() {
     if (this.valueAccessors) {
       this.valueAccessors.forEach(accessor => {
         accessor.registerOnChange(value => {

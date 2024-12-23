@@ -1,10 +1,12 @@
-import { ErrorHandler, Injectable } from '@angular/core'
-import { Logger } from './logger'
+import { ErrorHandler, Injectable, inject } from '@angular/core'
+import { LOGGER } from './logger'
 import { ScreenService } from './screen-service'
 
 @Injectable()
 export class RectangulrErrorHandler implements ErrorHandler {
-  constructor(public screen: ScreenService, public logger: Logger) { }
+  screen = inject(ScreenService)
+  logger = inject(LOGGER)
+
 
   handleError(error: Error): void {
     // Log

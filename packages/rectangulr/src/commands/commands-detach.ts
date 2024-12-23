@@ -1,5 +1,5 @@
 import { Directive, EventEmitter, inject, NgZone, Output } from '@angular/core'
-import { Logger } from '../angular-terminal/logger'
+import { LOGGER } from '../angular-terminal/logger'
 import { ShortcutService } from './shortcut.service'
 
 @Directive({
@@ -12,7 +12,9 @@ import { ShortcutService } from './shortcut.service'
 export class DetachedCommandServiceDirective {
   @Output() detachedCommandService = new EventEmitter()
 
-  constructor(detachedCommandService: ShortcutService) {
+  constructor() {
+    const detachedCommandService = inject(ShortcutService)
+
     this.detachedCommandService.emit(detachedCommandService)
   }
 }

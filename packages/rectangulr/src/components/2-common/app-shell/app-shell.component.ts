@@ -2,7 +2,7 @@ import { NgComponentOutlet } from '@angular/common'
 import { Component, inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { cond, eq, neq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-import { Logger } from '../../../angular-terminal/logger'
+import { LOGGER } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { Shortcuts } from '../../../commands/shortcuts.component'
@@ -52,7 +52,7 @@ import { signal2 } from '../../../utils/Signal2'
     }
 
     <!-- Popup to show notifications -->
-    <notifications/>
+    <notifications [focusOnInit]="false"/>
   `,
   imports: [HBox, VBox, FocusDirective, NgComponentOutlet, Notifications, Shortcuts, GrowDirective, StyleDirective],
 })
@@ -61,7 +61,6 @@ export class AppShell {
 
   readonly viewService = inject(ViewService)
   readonly shortcutService = inject(ShortcutService)
-  readonly logger = inject(Logger)
 
   constructor() {
     registerShortcuts(this.shortcuts)

@@ -9,10 +9,19 @@ export const LOG_FILE = new InjectionToken<string>('LOG_FILE', {
   factory: () => os.tmpdir() + '/log.json'
 })
 
-@Injectable({
+export interface Logger {
+  log(thing: any): void
+}
+
+export const LOGGER = new InjectionToken<Logger>('InjectLogger', {
   providedIn: 'root',
+  factory: () => inject(FileLogger),
 })
-export class Logger {
+
+@Injectable({
+  providedIn: 'root'
+})
+export class FileLogger implements Logger {
   $logs = signal<any[]>([])
   $onLog = new Subject<any>()
   logFile = null
@@ -23,7 +32,7 @@ export class Logger {
     }
   }
 
-  log(thing) {
+  log(thing: any) {
     // String or Object
     let logObject = null
     if (['string', 'number', 'null'].includes(typeof thing)) {
@@ -87,7 +96,7 @@ function createConsoleLog(arg: { logger: Logger; level: string }) {
  * This patches the console.* functions to write to a file instead.
  */
 export function patchNodeConsole(inject: InjectFunction) {
-  const logger = inject(Logger)
+  const logger = inject(FileLogger)
   const logFile = inject(LOG_FILE)
 
   // Save original
@@ -130,6 +139,6 @@ export function stringify(thing: any) {
 
 export const global_logs = function () {
   const inject: InjectFunction = globalThis.rg.inject
-  const logger = inject(Logger)
+  const logger = inject(FileLogger)
   return logger.$logs().slice(-100)
 }

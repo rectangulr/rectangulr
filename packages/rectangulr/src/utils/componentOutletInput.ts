@@ -1,5 +1,5 @@
 import { NgComponentOutlet } from '@angular/common'
-import { Directive, Host, input } from '@angular/core'
+import { Directive, input, inject } from '@angular/core'
 import { assert } from './utils'
 
 @Directive({
@@ -7,10 +7,12 @@ import { assert } from './utils'
   selector: '[ngComponentOutlet][inputs]',
 })
 export class ComponentOutletInputs {
+  private componentOutlet = inject(NgComponentOutlet, { host: true })
+
   readonly inputs = input<{ [prop: string]: any } | undefined>(undefined)
   componentRef: any
 
-  constructor(@Host() private componentOutlet: NgComponentOutlet) {
+  constructor() {
     this.componentRef = (this.componentOutlet as any)._componentRef
     assert(this.componentRef)
 

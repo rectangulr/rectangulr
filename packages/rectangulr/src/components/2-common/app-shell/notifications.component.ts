@@ -1,5 +1,5 @@
 
-import { Component, ElementRef } from '@angular/core'
+import { Component, ElementRef, inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { subscribe } from '../../../utils/reactivity'
 import { signal2 } from '../../../utils/Signal2'
@@ -26,9 +26,12 @@ import { Notification, NotificationsService } from './notifications.service'
   imports: [VBox, HBox, ObjectDisplay, StyleDirective],
 })
 export class Notifications {
+  notificationsService = inject(NotificationsService)
+  elementRef = inject(ElementRef)
+
   notification = signal2<Notification | null>(null)
 
-  constructor(public notificationsService: NotificationsService, public elementRef: ElementRef) {
+  constructor() {
     this.elementRef.nativeElement.style.add({
       position: 'absolute',
       bottom: 1,
@@ -39,7 +42,7 @@ export class Notifications {
       borderColor: 'white'
     })
 
-    subscribe(this, notificationsService.$onNotification, async notification => {
+    subscribe(this, this.notificationsService.$onNotification, async notification => {
       this.notification.$ = notification
       await timeout(4000)
       this.notification.$ = null

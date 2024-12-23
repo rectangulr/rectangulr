@@ -1,14 +1,12 @@
-import { Component, DestroyRef, Directive, inject, Injector, input } from '@angular/core'
-import { Subject } from 'rxjs'
-import { onChange } from '../utils/reactivity'
-import { registerShortcuts, ShortcutService } from './shortcut.service'
+import { DestroyRef, Directive, inject, Injector, input } from '@angular/core'
 import { patchInputSignal } from '../utils/Signal2'
-import { initial } from 'lodash'
+import { registerShortcuts, ShortcutService } from './shortcut.service'
+import { LogPointService } from '../utils/LogPoint'
 
 @Directive({
   standalone: true,
   selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts], [focusFull], [focusOnInit], [focusName]',
-  providers: [ShortcutService],
+  providers: [ShortcutService, { provide: LogPointService }],
   exportAs: 'focus',
 })
 export class FocusDirective {
@@ -27,7 +25,6 @@ export class FocusDirective {
   ngOnInit() {
     this.shortcutService.name = this.focusName()
     this.shortcutService.focusIf.$ = this.focusIf()
-    // onChange(this, 'focusIf',)
     const focusIf = patchInputSignal(this.focusIf)
     focusIf.subscribe(focusIf => {
       this.shortcutService.focusIf.$ = focusIf
@@ -38,9 +35,17 @@ export class FocusDirective {
       }
     }, { initial: false })
 
-    registerShortcuts(this.focusShortcuts(), { shortcutService: this.shortcutService, onDestroy: this.onDestroy })
+    registerShortcuts(this.focusShortcuts(), {
+      shortcutService: this.shortcutService,
+      onDestroy: this.onDestroy,
+      context: { name: 'FocusDirective', ref: this }
+    })
     if (this.focusFull()) {
-      registerShortcuts(this.focusFullShortcuts, { shortcutService: this.shortcutService, onDestroy: this.onDestroy })
+      registerShortcuts(this.focusFullShortcuts, {
+        shortcutService: this.shortcutService,
+        onDestroy: this.onDestroy,
+        context: { name: 'FocusDirective', ref: this }
+      })
     }
     this.shortcutService.focusPropagateUp.$ = this.focusPropagateUp()
     if (this.focusOnInit()) {
@@ -54,10 +59,4 @@ export class FocusDirective {
       func: () => { },
     },
   ]
-
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
-  }
 }

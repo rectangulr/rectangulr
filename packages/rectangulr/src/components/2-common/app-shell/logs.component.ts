@@ -1,15 +1,15 @@
-import { Component, ElementRef, SkipSelf, inject, signal } from '@angular/core'
+import { Component, inject, signal } from '@angular/core'
 import { Subject } from 'rxjs'
-import { Logger } from '../../../angular-terminal/logger'
+import { FileLogger } from '../../../angular-terminal/logger'
+import { FocusDirective } from '../../../commands/focus.directive'
+import { ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { signal2 } from '../../../utils/Signal2'
 import { GrowDirective, HBox, VBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { Json5Pipe } from '../json5.pipe'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 import { ObjectDisplay } from "../object-display"
-import { FocusDirective } from '../../../commands/focus.directive'
-import { ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
-import { signal2 } from '../../../utils/Signal2'
 
 class NullLogger {
   log(thing) { }
@@ -33,11 +33,14 @@ class NullLogger {
   imports: [HBox, VBox, List, ListItem, StyleDirective, Json5Pipe, ObjectDisplay, FocusDirective, GrowDirective]
 })
 export class Logs {
+  logger = inject(FileLogger, { skipSelf: true })
+  shortcutService = inject(ShortcutService)
+
   logs = this.logger.$logs
   $selectedLog = signal(null)
   focused = signal2<'left' | 'right'>('left')
 
-  constructor(@SkipSelf() public logger: Logger, public shortcutService: ShortcutService) {
+  constructor() {
     registerShortcuts(this.shortcuts)
   }
 

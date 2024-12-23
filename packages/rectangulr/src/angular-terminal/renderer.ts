@@ -4,7 +4,7 @@ import * as json5 from 'json5'
 import { TermScreen } from './dom-terminal'
 import { TermElement } from './dom-terminal/sources/core/dom/Element'
 import { ElementPool } from './dom-terminal/sources/term/elements/element-pool'
-import { Logger } from './logger'
+import { LOGGER } from './logger'
 import { ScreenService } from './screen-service'
 import { mergeDeep } from '../utils/mergeDeep'
 import { addToGlobalRg } from '../utils/addToGlobalRg'
@@ -14,9 +14,11 @@ import { assertDebug } from '../utils/utils'
   providedIn: 'root'
 })
 export class RectangulrRendererFactory2 implements RendererFactory2 {
+  private screen = inject(ScreenService)
+
   protected renderer: Renderer2
 
-  constructor(private screen: ScreenService) {
+  constructor() {
     this.renderer = inject(RectangulrRenderer2)
   }
 
@@ -35,10 +37,11 @@ export class RectangulrRendererFactory2 implements RendererFactory2 {
   providedIn: 'root'
 })
 export class RectangulrRenderer2 implements Renderer2 {
-  readonly data: { [p: string]: any }
-  logger = inject(Logger)
+  screenService = inject(ScreenService)
+  elementPool = inject(ElementPool)
 
-  constructor(public screenService: ScreenService, public elementPool: ElementPool) { }
+  readonly data: { [p: string]: any }
+  logger = inject(LOGGER)
 
   destroy(): void { }
 

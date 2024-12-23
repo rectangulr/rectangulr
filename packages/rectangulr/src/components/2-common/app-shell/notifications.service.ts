@@ -1,15 +1,19 @@
-import { Injectable, InjectionToken } from '@angular/core'
+import { Injectable, InjectionToken, inject } from '@angular/core'
 import { Subject } from 'rxjs'
-import { Logger } from '../../../angular-terminal/logger'
+import { FileLogger, LOGGER } from '../../../angular-terminal/logger'
 import { subscribe } from '../../../utils/reactivity'
 
 @Injectable({
   providedIn: 'root',
 })
 export class NotificationsService {
+  logger = inject(FileLogger)
+
   $onNotification = new Subject<Notification>()
 
-  constructor(public logger: Logger) {
+  constructor() {
+    const logger = this.logger
+
     subscribe(this, logger.$onLog, thing => {
       if (thing.level == 'error') {
         this.notify(thing)

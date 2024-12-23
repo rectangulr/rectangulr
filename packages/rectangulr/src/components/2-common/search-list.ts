@@ -14,7 +14,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import Fuse from 'fuse.js'
 import { BehaviorSubject, combineLatest } from 'rxjs'
 import { debounceTime, map } from 'rxjs/operators'
-import { Logger } from '../../angular-terminal/logger'
+import { LOGGER } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
 import { makeObservable } from '../../utils/reactivity'
 import { patchInputSignal } from '../../utils/Signal2'
@@ -93,7 +93,7 @@ export class SearchList<T> {
 
   notificationService = inject(NotificationsService)
 
-  constructor(public logger: Logger) { }
+  logger = inject(LOGGER)
 
   ngOnInit() {
     const items = patchInputSignal(this.items)

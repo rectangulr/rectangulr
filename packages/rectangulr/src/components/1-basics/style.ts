@@ -1,4 +1,4 @@
-import { Directive, ElementRef, input, Input, Signal, signal, WritableSignal } from '@angular/core'
+import { Directive, ElementRef, input, Input, Signal, signal, WritableSignal, inject } from '@angular/core'
 import { Element } from '../../angular-terminal/dom-terminal'
 import { StyleValue } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { onChange } from '../../utils/reactivity'
@@ -15,6 +15,8 @@ type StyleValueOrSignal = StyleValue | Signal<StyleValue>
   selector: '[s],[st],[stv]',
 })
 export class StyleDirective {
+  element = inject<ElementRef<Element>>(ElementRef);
+
   /**
    * Styles, one or multiple, to be applied in order.
    * Prefer putting signals at the end to simplify recomputing the aggregate style.
@@ -40,8 +42,6 @@ export class StyleDirective {
   // TODO: breaks if made into a signal
   @Input() stv: { [key: string]: any } = {}
   signals: { [key: string]: WritableSignal<any> } = {}
-
-  constructor(public element: ElementRef<Element>) { }
 
   ngOnInit() {
     // Add normal styles

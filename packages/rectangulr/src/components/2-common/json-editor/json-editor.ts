@@ -1,5 +1,6 @@
 import {
   Component,
+  inject,
   Injector,
   input,
   model,
@@ -14,22 +15,22 @@ import json5 from 'json5'
 import _ from 'lodash'
 import { Observable, Subject } from 'rxjs'
 import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-import { Logger } from '../../../angular-terminal/logger'
+import { LOGGER } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
+import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { DataFormat } from '../../../utils/data-format'
 import { JsonPath } from '../../../utils/jsonPath'
-import { onChange, propToSignal, subscribe } from '../../../utils/reactivity'
+import { subscribe } from '../../../utils/reactivity'
 import { patchInputSignal, patchWritableSignal, signal2 } from '../../../utils/Signal2'
-import { AnyObject, inputToSignal } from '../../../utils/utils'
+import { AnyObject } from '../../../utils/utils'
 import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
-import { assert } from '../../../utils/Assert'
 
 @Component({
   selector: 'json-editor',
@@ -43,6 +44,7 @@ import { assert } from '../../../utils/Assert'
     <ng-container focusName="value" [focusIf]="focused() == 'value'">
       @if (['string', 'number', 'boolean', 'null'].includes(valueRef().type)) {
         <text-input
+          focusName="text-input"
           [text]="valueText"
           (textChange)="textChange($event)"/>
       }
@@ -97,11 +99,12 @@ export class JsonEditor {
   readonly list = viewChild(List)
   readonly jsonEditors = viewChildren(JsonEditor)
 
+  shortcutService = inject(ShortcutService)
+  logger = inject(LOGGER)
+  externalTextEditor = inject(ExternalTextEditor)
+  injector = inject(Injector)
+
   constructor(
-    public shortcutService: ShortcutService,
-    public logger: Logger,
-    public externalTextEditor: ExternalTextEditor,
-    public injector: Injector
   ) {
     addStyle({ flexDirection: 'row' })
     registerShortcuts(this.shortcuts, { context: { name: 'JsonEditor', ref: this } })

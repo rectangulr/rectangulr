@@ -1,5 +1,11 @@
-import { Inject, Injectable, Signal, WritableSignal, computed, signal } from '@angular/core'
+import { computed, inject, Injectable, InjectionToken, Signal, signal, StaticProvider, WritableSignal } from '@angular/core'
 import { AnyObject, assert } from '../../../utils/utils'
+
+export const VIEWS = new InjectionToken<View[]>('Views')
+
+export function provideViews(view: View): StaticProvider {
+  return { provide: VIEWS, useValue: view, multi: true }
+}
 
 /**
  * A service for switching to another view.
@@ -8,6 +14,8 @@ import { AnyObject, assert } from '../../../utils/utils'
   providedIn: 'root',
 })
 export class ViewService {
+  injectedViews = inject(VIEWS)
+
   /**
    * All the views that the service can find from providers.
    */
@@ -23,8 +31,8 @@ export class ViewService {
    */
   currentTab: WritableSignal<View>
 
-  constructor(@Inject(View) public injectedViews: View[]) {
-    this.views = signal(injectedViews.map(view => ({ tags: [], ...view })))
+  constructor() {
+    this.views = signal(this.injectedViews.map(view => ({ tags: [], ...view })))
     this.currentTab = signal(this.views().find(v => !v.tags.includes('hidden')))
     this.visibleViews = computed(() => {
       const visibleViews = this.views().filter(v => !v.tags.includes('hidden'))
@@ -54,7 +62,7 @@ export class ViewService {
   }
 }
 
-export abstract class View {
+export class View {
   name: string
   component: any
   tags: (string | AnyObject)[]

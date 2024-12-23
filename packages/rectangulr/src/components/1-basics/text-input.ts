@@ -5,7 +5,7 @@ import * as _ from '@s-libs/micro-dash'
 import { combineLatestWith, debounceTime } from 'rxjs/operators'
 import { Element, Point } from '../../angular-terminal/dom-terminal'
 import { addStyle } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-import { Logger } from '../../angular-terminal/logger'
+import { LOGGER } from '../../angular-terminal/logger'
 import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
 import { Completion, CompletionProvider } from '../../utils/CompletionProvider'
 import { patchInputSignal, signal2 } from '../../utils/Signal2'
@@ -70,11 +70,11 @@ export class TextInput implements ControlValueAccessor {
     return { left: x, top: y + 1 }
   })
 
-  constructor(
-    public shortcutService: ShortcutService,
-    public elementRef: ElementRef<Element>,
-    public logger: Logger
-  ) {
+  shortcutService = inject(ShortcutService)
+  elementRef = inject(ElementRef<Element>)
+  logger = inject(LOGGER)
+
+  constructor() {
     addStyle({ flexDirection: 'row', scrollF: 'x', overflow: 'visible' })
 
     patchInputSignal(this.textInput).subscribe(value => {
