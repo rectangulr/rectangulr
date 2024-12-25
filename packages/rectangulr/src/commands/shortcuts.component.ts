@@ -41,14 +41,16 @@ export class Shortcuts {
   readonly shortcutService = input<ShortcutService>(null)
   readonly onClose = output()
 
+  isolatedShortcutService = inject(ShortcutService)
+  logger = inject(LOGGER)
+
   readonly listOfCommands = signal2<Command[]>([])
   readonly hideCommands = signal2(true)
   readonly list = viewChild<SearchList<any>>('searchList')
 
-  isolatedShortcutService = inject(ShortcutService)
-  logger = inject(LOGGER)
-
   constructor() {
+    // Isolate the isolatedShortcutService
+    this.isolatedShortcutService.parent = undefined
     addStyle({ position: 'absolute', top: 0, left: '25%', width: '50%', maxHeight: '100%' })
   }
 

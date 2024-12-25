@@ -228,6 +228,7 @@ export class ShortcutService {
   callCommand(arg: { id: string; keys?: string; args?: any[] }) {
     const { id, keys, args } = arg
     const command = this.findCommand(id)
+    this.lp.logPoint('callCommand', { id })
     let res = command.func(keys)
     return res
   }
