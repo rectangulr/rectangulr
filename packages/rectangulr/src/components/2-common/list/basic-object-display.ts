@@ -1,7 +1,7 @@
 import { Component, computed, forwardRef, inject, input } from '@angular/core'
 import * as json5 from 'json5'
+import { H } from '../../../components/1-basics/h'
 import { mapKeyValue, stringifyReplacer } from '../../../utils/utils'
-import { GrowDirective, HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { List } from './list'
 
@@ -9,7 +9,7 @@ import { List } from './list'
   selector: 'basic-object-display',
   template: `<h [s]="{ height: 1 }">{{ text }}</h>`,
   standalone: true,
-  imports: [HBox, StyleDirective],
+  imports: [H, StyleDirective],
 })
 export class BasicObjectDisplay {
   readonly data = input<any>(undefined);

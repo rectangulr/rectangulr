@@ -2,6 +2,7 @@ import { Type } from '@angular/core'
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
 import { Key } from '../commands/keypress-parser'
 import { ShortcutService } from '../commands/shortcut.service'
+import { TermElement as Element } from '../angular-terminal/dom-terminal/sources/core/dom/Element'
 
 export function setupTest<T>(componentClass: Type<T>) {
   TestBed.resetTestingModule()
@@ -45,4 +46,12 @@ export function keyboardTest(func: () => void) {
     tick()
     discardPeriodicTasks()
   })
+}
+
+export function renderToString(comp: any) {
+  const fixture = TestBed.createComponent(comp)
+  const el: Element = fixture.elementRef.nativeElement
+  fixture.detectChanges()
+  // el.triggerUpdates()
+  return el.rootNode.renderToString()
 }

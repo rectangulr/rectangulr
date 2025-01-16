@@ -1,10 +1,11 @@
 import cliTruncate from 'cli-truncate'
 import widestLine from 'widest-line'
 import wrapAnsi from 'wrap-ansi'
-import { AnyObject, assert } from '../../../../../utils/utils'
+import { LogPointService } from '../../../../../logs/LogPointService'
 import { onChange } from '../../../../../utils/reactivity'
-import { flags } from '../../core/dom/flags'
+import { AnyObject, assert } from '../../../../../utils/utils'
 import { TermElement } from "../../core/dom/Element"
+import { flags } from '../../core/dom/flags'
 
 export class TermText2 extends TermElement {
   static elementName = 'text'
@@ -21,6 +22,8 @@ export class TermText2 extends TermElement {
 
   dirtyTextLayout = false
 
+  lp?: LogPointService = undefined
+
   constructor() {
     super()
 
@@ -30,6 +33,7 @@ export class TermText2 extends TermElement {
     })
 
     onChange(this, 'textContent', () => {
+      this.lp?.logPoint('TextContentChanged', { textContent: this.textContent })
       this.setDirtyTextLayout()
     })
   }
@@ -39,6 +43,7 @@ export class TermText2 extends TermElement {
     this.queueDirtyRect()
     this.yogaNode.markDirty()
     this.dirtyTextLayout = true
+    this.lp?.logPoint('DirtyTextLayout')
   }
 
   setLayoutConfig(configuration: AnyObject) {
@@ -62,6 +67,7 @@ export class TermText2 extends TermElement {
     // this.setDirtyLayoutFlag()
     // this.queueDirtyRect()
     this.dirtyTextLayout = false
+    this.lp?.logPoint('TermText.ComputeLayout', { dimensions: this.internalDimensions })
   }
 
   getLine(y: number) {

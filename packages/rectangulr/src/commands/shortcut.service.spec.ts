@@ -1,16 +1,17 @@
 import { Component, EventEmitter, Output, QueryList, ViewChild, ViewChildren, input, signal, inject } from '@angular/core'
 import { TestBed, discardPeriodicTasks, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
-import { keyboardTest } from "src/utils/tests"
+import { keyboardTest } from "../tests/utils"
 import { cond } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../angular-terminal/logger'
-import { HBox, VBox } from '../components/1-basics/box'
+import { H } from '../components/1-basics/h'
+import { V } from '../components/1-basics/v'
 import { StyleDirective } from '../components/1-basics/style'
 import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
 import { signal2 } from '../utils/Signal2'
-import { sendKeyAndDetectChanges, setupTest } from '../utils/tests'
+import { sendKeyAndDetectChanges, setupTest } from '../tests/utils'
 import { FocusDirective } from './focus.directive'
 import { Command, ShortcutService, getFocusedNode, registerShortcuts } from './shortcut.service'
 import { removeLastMatch } from '../utils/utils'
@@ -54,7 +55,7 @@ describe('ShortcutService Class', () => {
 
 @Component({
   standalone: true,
-  imports: [VBox, FocusDirective],
+  imports: [V, FocusDirective],
   template: `
     @if (showFirst()) {
       <v
@@ -225,7 +226,7 @@ describe('ShortcutService FocusIf - ', () => {
   template: `<v [focusShortcuts]="shortcuts">`,
   providers: [ShortcutService],
   standalone: true,
-  imports: [VBox, FocusDirective],
+  imports: [V, FocusDirective],
 })
 export class Test3 {
   shortcutService = inject(ShortcutService)
@@ -430,7 +431,7 @@ describe('ShortcutService -', () => {
 
 @Component({
   standalone: true,
-  imports: [HBox, FocusDirective],
+  imports: [H, FocusDirective],
   template: `<h #parent focus>
     <h #child focus></h>
   </h>
@@ -458,7 +459,7 @@ describe('FocusDirective -', () => {
 @Component({
   selector: 'component-data-display',
   standalone: true,
-  imports: [HBox, List, ListItem, FocusDirective, StyleDirective],
+  imports: [H, List, ListItem, FocusDirective, StyleDirective],
   template: `
     <h [s]="cond(shortcutService.isFocused(), s.selected)"> {{ data().name }}</h>
     <list

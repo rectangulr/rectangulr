@@ -208,21 +208,22 @@ export class Node<T extends Node<T>> {
     this[name] = initial
   }
 
-  traverse(fn: (el: T, depth) => void, { depth = Infinity, currentDepth = 0 } = {}) {
-    if (currentDepth >= depth) return
-
-    fn(this as unknown as T, currentDepth)
-
-    for (let child of this.childNodes) {
-      child.traverse(fn, { depth, currentDepth: currentDepth + 1 })
-    }
-  }
+  traverse = (fn: (el: T, depth) => void, { depth = Infinity, currentDepth = 0 } = {}) => traverse(this, fn)
 
   inspect() {
     return this.toString()
   }
 }
 
+export function traverse<T extends Node<T>>(node: Node<T>, fn: (el: T, depth) => void, { depth = Infinity, currentDepth = 0 } = {}) {
+  if (currentDepth >= depth) return
+
+  fn(node as unknown as T, currentDepth)
+
+  for (let child of node.childNodes) {
+    child.traverse(fn, { depth, currentDepth: currentDepth + 1 })
+  }
+}
 
 function wouldContainItself(node, parentNode) {
   if (node === parentNode) return true

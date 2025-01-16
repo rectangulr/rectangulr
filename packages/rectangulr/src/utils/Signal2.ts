@@ -1,6 +1,6 @@
 import { CreateComputedOptions, CreateSignalOptions, InputSignal, Signal, WritableSignal, computed, signal } from '@angular/core'
 import { assert } from './Assert'
-import { initial } from 'lodash'
+import { initial } from 'lodash-es'
 
 export type Signal2<T> = WritableSignal<T> & {
 	get $(): T,

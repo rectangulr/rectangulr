@@ -1,17 +1,17 @@
 import { NgComponentOutlet } from '@angular/common'
 import { Component, inject } from '@angular/core'
-import { Subject } from 'rxjs'
+import { GrowDirective } from '../../../components/1-basics/grow.directive'
+import { H } from '../../../components/1-basics/h'
+import { V } from '../../../components/1-basics/v'
 import { cond, eq, neq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
-import { LOGGER } from '../../../angular-terminal/logger'
+import { CommandPicker } from '../../../commands/command-picker.component'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
-import { Shortcuts } from '../../../commands/shortcuts.component'
-import { GrowDirective, HBox, VBox } from '../../1-basics/box'
+import { signal2 } from '../../../utils/Signal2'
 import { StyleDirective } from '../../1-basics/style'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
 import { ViewService } from './view.service'
-import { signal2 } from '../../../utils/Signal2'
 
 @Component({
   standalone: true,
@@ -46,15 +46,15 @@ import { signal2 } from '../../../utils/Signal2'
       <h [s]="{ flexShrink: 0 }" (mousedown)="toggleCommands()">Help: alt+p</h>
     </h>
 
-    <!-- Popup to discover shortcuts -->
+    <!-- Popup to discover commands -->
     @if (showCommands()) {
-      <shortcuts [shortcutService]="shortcutService" (onClose)="showCommands.$ = false"/>
+      <command-picker [shortcutService]="shortcutService" (onClose)="showCommands.$ = false"/>
     }
 
     <!-- Popup to show notifications -->
     <notifications [focusOnInit]="false"/>
   `,
-  imports: [HBox, VBox, FocusDirective, NgComponentOutlet, Notifications, Shortcuts, GrowDirective, StyleDirective],
+  imports: [H, V, FocusDirective, NgComponentOutlet, Notifications, CommandPicker, GrowDirective, StyleDirective],
 })
 export class AppShell {
   readonly showCommands = signal2(false)

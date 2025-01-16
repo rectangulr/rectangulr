@@ -12,8 +12,8 @@ require('zone.js/node')
 require('zone.js/plugins/zone-testing')
 
 const { getTestBed } = require('@angular/core/testing')
-const { platformRectangulrDynamicTesting } = require('./angular-terminal/testing/platform-testing')
-const { RectangulrDynamicTestingModule } = require('./angular-terminal/testing/testing.module')
+const { platformRectangulrDynamicTesting } = require('./angular-terminal/testing/src/platform-testing')
+const { RectangulrDynamicTestingModule } = require('./angular-terminal/testing/src/testing.module')
 
 // First, initialize the Angular testing environment.
 getTestBed().initTestEnvironment(
@@ -40,6 +40,9 @@ require('./utils/derived.spec')
 require('./angular-terminal/dom-terminal/yoga.spec')
 require('./angular-terminal/dom-terminal/dom.spec')
 require('./angular-terminal/dom-terminal/style.spec')
+
+require('./logs/LogPointService.spec')
+require('./tests/bug-text-input-resize.spec')
 
 // require('./angular-terminal/dom-terminal/sources/core/dom/Node.spec')
 // require('./angular-terminal/dom-terminal/sources/core/dom/Element.spec')

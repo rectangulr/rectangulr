@@ -1,12 +1,12 @@
 import { DestroyRef, Directive, inject, Injector, input } from '@angular/core'
 import { patchInputSignal } from '../utils/Signal2'
 import { registerShortcuts, ShortcutService } from './shortcut.service'
-import { LogPointService } from '../utils/LogPoint'
+import { LogPointService } from '../logs/LogPointService'
 
 @Directive({
   standalone: true,
   selector: '[focus], [focusIf], [focusPropagateUp], [focusShortcuts], [focusFull], [focusOnInit], [focusName]',
-  providers: [ShortcutService, { provide: LogPointService }],
+  providers: [ShortcutService, LogPointService],
   exportAs: 'focus',
 })
 export class FocusDirective {

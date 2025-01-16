@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { style } from 'term-strings'
-import _ from 'lodash'
+import _ from 'lodash-es'
 
 import { Element } from './Element'
 

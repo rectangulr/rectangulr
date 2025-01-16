@@ -4,7 +4,9 @@ import { Observable } from 'rxjs'
 import { LOGGER } from '../../angular-terminal/logger'
 import { KeyValue } from '../../utils/interfaces'
 import { inputToSignal, longest } from '../../utils/utils'
-import { GrowDirective, HBox, VBox } from '../1-basics/box'
+import { H } from '../1-basics/h'
+import { V } from '../1-basics/v'
+import { GrowDirective } from '../1-basics/grow.directive'
 import { List } from "./list/list"
 import { blackOnWhite } from './styles'
 import { ListItem } from './list/list-item'
@@ -25,7 +27,7 @@ import { StyleDirective } from '../1-basics/style'
       </h>
     </list>
   `,
-  imports: [HBox, List, ListItem, StyleDirective]
+  imports: [H, List, ListItem, StyleDirective]
 })
 export class ObjectDisplay<T> {
   readonly object = input<T | Observable<T> | Signal<T>>(undefined)

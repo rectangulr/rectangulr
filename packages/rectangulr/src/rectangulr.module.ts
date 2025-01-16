@@ -2,8 +2,12 @@ import { CommonModule } from '@angular/common'
 import { ApplicationModule, NgModule, inject } from '@angular/core'
 import { DetachedCommandServiceDirective } from './commands/commands-detach'
 import { FocusDirective } from './commands/focus.directive'
-import { Shortcuts } from './commands/shortcuts.component'
-import { GrowDirective, HBox, HGrowDirective, VBox, VGrowDirective } from './components/1-basics/box'
+import { CommandPicker } from './commands/command-picker.component'
+import { H } from './components/1-basics/h'
+import { V } from './components/1-basics/v'
+import { VGrowDirective } from './components/1-basics/vgrow.directive'
+import { HGrowDirective } from './components/1-basics/hgrow.directive'
+import { GrowDirective } from './components/1-basics/grow.directive'
 import { StyleDirective, } from './components/1-basics/style'
 import { TextInput } from './components/1-basics/text-input'
 import { AppShell } from './components/2-common/app-shell/app-shell.component'
@@ -28,8 +32,8 @@ import { NG_DEV_MODE, RECTANGULR_MODULE_PROVIDERS, RECTANGULR_MODULE_PROVIDERS_M
 import { ComponentOutletInputs } from './utils/componentOutletInput'
 
 const TEMPLATE_COMPONENTS = [
-  HBox,
-  VBox,
+  H,
+  V,
   HGrowDirective,
   VGrowDirective,
   GrowDirective,
@@ -49,7 +53,7 @@ const TEMPLATE_COMPONENTS = [
   FocusDirective,
   DetachedCommandServiceDirective,
   KeyValueEditor,
-  Shortcuts,
+  CommandPicker,
   AppShell,
   Notifications,
   Json5Pipe,

@@ -14,7 +14,7 @@ import { BackgroundClip, Color, Position, } from "./StyleHelpers"
 import { flags } from './flags'
 
 const yogaConfig = Yoga.Config.create() as TYoga.Config
-yogaConfig.setPointScaleFactor(2)
+// yogaConfig.setPointScaleFactor(2)
 
 const cleanNode = Yoga.Node.createWithConfig(yogaConfig)
 

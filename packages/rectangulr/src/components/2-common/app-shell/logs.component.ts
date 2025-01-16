@@ -4,7 +4,9 @@ import { FileLogger } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { signal2 } from '../../../utils/Signal2'
-import { GrowDirective, HBox, VBox } from '../../1-basics/box'
+import { H } from '../../../components/1-basics/h'
+import { V } from '../../../components/1-basics/v'
+import { GrowDirective } from '../../../components/1-basics/grow.directive'
 import { StyleDirective } from '../../1-basics/style'
 import { Json5Pipe } from '../json5.pipe'
 import { List } from '../list/list'
@@ -30,7 +32,7 @@ class NullLogger {
     </h>
   `,
   standalone: true,
-  imports: [HBox, VBox, List, ListItem, StyleDirective, Json5Pipe, ObjectDisplay, FocusDirective, GrowDirective]
+  imports: [H, V, List, ListItem, StyleDirective, Json5Pipe, ObjectDisplay, FocusDirective, GrowDirective]
 })
 export class Logs {
   logger = inject(FileLogger, { skipSelf: true })

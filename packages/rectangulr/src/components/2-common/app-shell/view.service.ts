@@ -1,6 +1,12 @@
 import { computed, inject, Injectable, InjectionToken, Signal, signal, StaticProvider, WritableSignal } from '@angular/core'
 import { AnyObject, assert } from '../../../utils/utils'
 
+export class View {
+  name: string
+  component: any
+  tags?: (string | AnyObject)[]
+}
+
 export const VIEWS = new InjectionToken<View[]>('Views')
 
 export function provideView(view: View & { tags?: string[] }): StaticProvider {
@@ -60,10 +66,4 @@ export class ViewService {
     assert(this.visibleViews()[newIndex])
     this.currentTab.set(this.visibleViews()[newIndex])
   }
-}
-
-export class View {
-  name: string
-  component: any
-  tags?: (string | AnyObject)[]
 }

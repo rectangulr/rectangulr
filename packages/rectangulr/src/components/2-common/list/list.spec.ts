@@ -1,10 +1,9 @@
 import { Component, QueryList, signal, ViewChild, ViewChildren } from '@angular/core'
-import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing'
+import { fakeAsync, tick } from '@angular/core/testing'
 import { BehaviorSubject } from 'rxjs'
 import { FocusDirective } from '../../../commands/focus.directive'
-import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
-import { keyboardTest } from "src/utils/tests"
-import { HBox } from '../../1-basics/box'
+import { H } from '../../../components/1-basics/h'
+import { keyboardTest, sendKeyAndDetectChanges, setupTest } from '../../../tests/utils'
 import { TextInput } from '../../1-basics/text-input'
 import { List } from './list'
 import { ListItem } from './list-item'
@@ -54,7 +53,7 @@ describe('List - ', () => {
 
 @Component({
   standalone: true,
-  imports: [List, HBox, ListItem],
+  imports: [List, H, ListItem],
   template: `<list [items]="items">
     <h *item="let value">item: {{ value }}</h>
   </list> `,

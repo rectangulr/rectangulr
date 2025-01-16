@@ -1,8 +1,8 @@
 import { ApplicationInitStatus, COMPILER_OPTIONS, NgModule } from '@angular/core'
 import { TestComponentRenderer } from '@angular/core/testing'
-import { RECTANGULR_MODULE_PROVIDERS } from '../../rectangulr-module-providers'
-import { TERMINAL } from '../terminals/terminal'
-import { voidTerminal } from '../terminals/void'
+import { RECTANGULR_MODULE_PROVIDERS } from '../../../rectangulr-module-providers'
+import { TERMINAL } from '../../terminals/terminal'
+import { voidTerminal } from '../../terminals/void'
 
 class EmptyTestComponentRenderer implements TestComponentRenderer {
   insertRootElement(rootElementId: string): void { }

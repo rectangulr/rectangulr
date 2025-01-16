@@ -3,7 +3,8 @@ import { Component, ElementRef, inject } from '@angular/core'
 import { Subject } from 'rxjs'
 import { subscribe } from '../../../utils/reactivity'
 import { signal2 } from '../../../utils/Signal2'
-import { HBox, VBox } from '../../1-basics/box'
+import { H } from '../../../components/1-basics/h'
+import { V } from '../../../components/1-basics/v'
 import { StyleDirective } from '../../1-basics/style'
 import { ObjectDisplay } from '../object-display'
 import { Notification, NotificationsService } from './notifications.service'
@@ -23,7 +24,7 @@ import { Notification, NotificationsService } from './notifications.service'
       </v>
     }
     `,
-  imports: [VBox, HBox, ObjectDisplay, StyleDirective],
+  imports: [V, H, ObjectDisplay, StyleDirective],
 })
 export class Notifications {
   notificationsService = inject(NotificationsService)
@@ -42,17 +43,11 @@ export class Notifications {
       borderColor: 'white'
     })
 
-    subscribe(this, this.notificationsService.$onNotification, async notification => {
+    subscribe(null, this.notificationsService.$onNotification, async notification => {
       this.notification.$ = notification
       await timeout(4000)
       this.notification.$ = null
     })
-  }
-
-  destroy$ = new Subject()
-  ngOnDestroy() {
-    this.destroy$.next(null)
-    this.destroy$.complete()
   }
 }
 

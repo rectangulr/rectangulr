@@ -1,5 +1,5 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core'
-import _ from 'lodash'
+import { isBoolean, isEmpty } from '@s-libs/micro-dash'
 import z from 'zod'
 import { cursor, feature, screen, style } from '../../../../../term-strings/core'
 import { Key } from '../../../../../term-strings/parse'
@@ -77,7 +77,7 @@ export class TermScreen extends TermElement {
     // this.addShortcutListener(`C-c`, (e: any) => this.terminate(), { capture: true })
 
     this.setPropertyTrigger(`debugPaintRects`, false, {
-      validate: value => _.isBoolean(value),
+      validate: value => isBoolean(value),
       trigger: value => {
         this.queueDirtyRect()
       },
@@ -415,14 +415,20 @@ export class TermScreen extends TermElement {
     this.requestUpdates()
   }
 
-  renderScreenImpl(dirtyRects = [this.elementClipRect]) {
-    let shouldWriteToScreen = false
-    let buffer = cursor.hidden
+  renderScreenImpl(dirtyRects: Rect[] = [this.elementClipRect]) {
+    const buffer = this.renderToString(dirtyRects)
+    if (buffer.length > 0) {
+      this.writeToTerminal(cursor.hidden + buffer)
+    }
+  }
+
+  renderToString(dirtyRects: Rect[] = [this.elementClipRect]) {
+    let buffer = ""
 
     let debugColor = DEBUG_COLORS[currentDebugColorIndex]
     currentDebugColorIndex = (currentDebugColorIndex + 1) % DEBUG_COLORS.length
 
-    while (!_.isEmpty(dirtyRects)) {
+    while (!isEmpty(dirtyRects)) {
       let dirtyRect = dirtyRects.shift()
 
       for (let element of this.renderList) {
@@ -445,7 +451,6 @@ export class TermScreen extends TermElement {
 
           buffer += cursor.moveTo({ x: intersection.x, y: intersection.y + y })
           buffer += line
-          shouldWriteToScreen = true
         }
 
         break
@@ -487,14 +492,11 @@ export class TermScreen extends TermElement {
         if (isInsideOf(this.activeElement, visibleElement)) {
           buffer += cursor.moveTo({ x, y })
           buffer += cursor.normal
-          shouldWriteToScreen = true
         }
       }
     }
 
-    if (shouldWriteToScreen) {
-      this.writeToTerminal(buffer)
-    }
+    return buffer
   }
 
   writeToTerminal(text: string) {
@@ -620,7 +622,7 @@ export class TermScreen extends TermElement {
   private dirtyStyleNodes: TermElement[] = []
 
   queueDirtyStyle(element: TermElement): boolean {
-    if (element.style.wasQueued) return
+    if (element.style.wasQueued) return false
 
     this.dirtyStyleNodes.push(element)
     element.style.wasQueued = true

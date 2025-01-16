@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { EasyStyle } from './EasyStyle'
 import { Ruleset } from './Ruleset'
 import { styles } from './styleProperties'

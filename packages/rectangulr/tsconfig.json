@@ -26,13 +26,12 @@
     ],
     "lib": [
       "es2019",
-      "dom"
     ],
     "preserveSymlinks": true,
     "useDefineForClassFields": false,
     "skipLibCheck": true
   },
   "angularCompilerOptions": {
-    "strictTemplates": true
+    "strictTemplates": true,
   }
 }

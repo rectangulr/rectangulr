@@ -1,17 +1,17 @@
-import { Component, ElementRef, Injector, Output, Signal, TemplateRef, computed, contentChild, effect, input, output, signal, untracked, viewChild, inject } from '@angular/core'
+import { Component, ElementRef, Injector, Output, Signal, TemplateRef, computed, contentChild, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { addStyle } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { H } from '../../../components/1-basics/h'
 import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { computed2, signal2 } from '../../../utils/Signal2'
 import { TODO } from '../../../utils/utils'
-import { HBox } from '../../1-basics/box'
 import { StyleDirective } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
@@ -101,7 +101,7 @@ interface Column {
     </ng-template>
   `,
   standalone: true,
-  imports: [HBox, List, Row, ListItem, StyleDirective],
+  imports: [H, List, Row, ListItem, StyleDirective],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

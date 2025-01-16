@@ -1,5 +1,5 @@
 import { DestroyRef, Injectable, Injector, inject } from '@angular/core'
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
 import { Element } from '../angular-terminal/dom-terminal'
@@ -12,7 +12,7 @@ import { last, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
 import { logFocus } from "./symbols"
-import { LogPointService } from '../utils/LogPoint'
+import { LogPointService } from '../logs/LogPointService'
 
 /**
  * Commands are a function with an `id`.
@@ -283,7 +283,7 @@ export class ShortcutService {
     }
 
     if (this.focusedChild() == args.child) {
-      this.lp.logPoint(`already focused - ${args.child}`)
+      // this.lp.logPoint(`already focused - ${args.child}`)
       this.lp.logPoint('RequestFocus.Denied.AlreadyFocused', { child: args.child })
     } else {
       this.focusStack.update(value => value.filter(i => i != args.child))
@@ -296,7 +296,7 @@ export class ShortcutService {
         return [...value]
       })
       const stackAfter = this.focusStack().map(i => i._id).join(',')
-      this.lp.logPoint(`partial focus (${args.reason}): ${stringifyPathToFocusedNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
+      this.lp.logPoint('RequestFocus.PartialFocus', `partial focus (${args.reason}): ${stringifyPathToFocusedNode(this)} : [${stackBefore}] ->  [${stackAfter}]`)
 
       this.askedForFocusThisTick.update(value => [...value, { child: args.child, reason: args.reason, source: args.source }])
       this.focusedChild.$ = _.last(this.focusStack())
@@ -307,7 +307,7 @@ export class ShortcutService {
       if (this.timeout === undefined) {
         this.timeout = setTimeout(() => {
           this.askedForFocusThisTick.$ = []
-          this.lp.logPoint(`focused after setTimeout: ${stringifyPathToFocusedNode(this)}`)
+          this.lp.logPoint('RequestFocus.AfterSetTimeout', `focused after setTimeout: ${stringifyPathToFocusedNode(this)}`)
           this.timeout = undefined
         })
       }

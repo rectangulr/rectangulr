@@ -1,10 +1,10 @@
 import { Component, inject, input, output, viewChild } from '@angular/core'
-import * as _ from 'lodash'
+import { last } from '@s-libs/micro-dash'
 import { Subject } from 'rxjs'
 import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../angular-terminal/logger'
-import { VBox } from '../components/1-basics/box'
 import { StyleDirective } from '../components/1-basics/style'
+import { V } from '../components/1-basics/v'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
 import { assert } from '../utils/Assert'
@@ -14,10 +14,10 @@ import { Disposable } from './disposable'
 import { Command, ShortcutService } from './shortcut.service'
 
 /**
- * Popup to discover commands.
+ * Popup to discover commands and pick one.
  */
 @Component({
-  selector: 'shortcuts',
+  selector: 'command-picker',
   template: `
     <search-list
       #searchList
@@ -35,9 +35,9 @@ import { Command, ShortcutService } from './shortcut.service'
     },
   ],
   standalone: true,
-  imports: [SearchList, ListItem, StyleDirective, VBox],
+  imports: [SearchList, ListItem, StyleDirective, V],
 })
-export class Shortcuts {
+export class CommandPicker {
   readonly shortcutService = input<ShortcutService>(null)
   readonly onClose = output()
 
@@ -73,7 +73,7 @@ export class Shortcuts {
   private listCommands(): Command[] {
     function recursiveListCommands(shortcutService: ShortcutService, result: Array<Command>) {
       const commands = Object.values(shortcutService.commands())
-        .map(commands => _.last(commands))
+        .map(commands => last(commands))
         .filter(c => c)
       result.push(...commands)
       if (shortcutService.parent) {

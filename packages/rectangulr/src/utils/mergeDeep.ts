@@ -1,4 +1,4 @@
-import _ from "lodash"
+import _ from "lodash-es"
 
 export function mergeDeep(object, other) {
 	function customizer(objValue, srcValue) {

@@ -1,5 +1,11 @@
+import { inject, InjectionToken } from '@angular/core'
 import { Terminal } from './terminal'
 
+
+export const TERMINAL_SIZE = new InjectionToken('TERMINAL_SIZE', {
+	providedIn: 'root',
+	factory: () => ({ width: 150, height: 40 }),
+})
 
 export const voidTerminal: Terminal = {
 	inputs: {
@@ -9,7 +15,7 @@ export const voidTerminal: Terminal = {
 	},
 	screen: {
 		write: text => true,
-		size: () => ({ width: 150, height: 40 }),
+		size: () => (inject(TERMINAL_SIZE)),
 		on: (event, func) => { },
 	},
 }

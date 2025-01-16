@@ -10,26 +10,26 @@ export { LOGGER, Logger } from './angular-terminal/logger'
 export { platformRectangulr, bootstrapApplication } from './angular-terminal/platform'
 
 // Testing
-export { platformRectangulrDynamicTesting } from './angular-terminal/testing/platform-testing'
-export { RectangulrDynamicTestingModule } from './angular-terminal/testing/testing.module'
+export { platformRectangulrDynamicTesting } from './angular-terminal/testing/src/platform-testing'
+export { RectangulrDynamicTestingModule } from './angular-terminal/testing/src/testing.module'
 
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
-export { Shortcuts } from './commands/shortcuts.component'
+export { CommandPicker as Shortcuts } from './commands/command-picker.component'
 export { FocusDirective } from './commands/focus.directive'
 export { Command, registerShortcuts, ShortcutService } from './commands/shortcut.service'
-export {
-  HBox,
-  VBox,
-  HGrowDirective,
-  VGrowDirective,
-  GrowDirective,
-} from './components/1-basics/box'
+export { H } from './components/1-basics/h'
+export { V } from './components/1-basics/v'
+export { HGrowDirective } from './components/1-basics/hgrow.directive'
+export { VGrowDirective } from './components/1-basics/vgrow.directive'
+export { GrowDirective } from './components/1-basics/grow.directive'
 export { StyleDirective } from './components/1-basics/style'
+export { TAGS, TagsDirective } from './logs/Tags'
 export type { StyleValue } from './angular-terminal/dom-terminal/sources/core/dom/StyleHandler.ts'
 export { cond, eq, neq, addStyle } from './angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 export { TextInput } from './components/1-basics/text-input'
 export { AppShell } from './components/2-common/app-shell/app-shell.component'
 export { Logs } from './components/2-common/app-shell/logs.component'
+export { DomLogDirective } from './logs/DomLog.directive'
 export { Notifications } from './components/2-common/app-shell/notifications.component'
 export {
   INJECT_NOTIFICATIONS_SERVICE,
@@ -49,6 +49,7 @@ export { BasicObjectDisplay } from './components/2-common/list/basic-object-disp
 
 // Common
 export { OnEnterDirective } from './components/2-common/on-enter.directive'
+export { ScrollDirective } from './components/2-common/scroll.directive'
 export { ValueDirective } from './components/2-common/value.directive'
 export { SignalDirective } from './components/2-common/signal.directive'
 export { ObjectDisplay } from './components/2-common/object-display'

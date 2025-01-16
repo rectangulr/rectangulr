@@ -1,8 +1,10 @@
 import { Component, ElementRef, ViewChild } from '@angular/core'
 import * as Yoga from 'typeflex'
-import { GrowDirective, HBox, VBox } from '../../components/1-basics/box'
+import { H } from '../../components/1-basics/h'
+import { V } from '../../components/1-basics/v'
+import { GrowDirective } from '../../components/1-basics/grow.directive'
 import { StyleDirective } from '../../components/1-basics/style'
-import { setupTest } from '../../utils/tests'
+import { setupTest } from '../../tests/utils'
 import { Element } from './sources'
 
 describe('DOM - ', () => {
@@ -14,7 +16,7 @@ describe('DOM - ', () => {
         </v>
       `,
       standalone: true,
-      imports: [HBox, VBox, GrowDirective, StyleDirective],
+      imports: [H, V, GrowDirective, StyleDirective],
     })
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
@@ -35,7 +37,7 @@ describe('DOM - ', () => {
   it('text should stretch the parent', async () => {
     @Component({
       standalone: true,
-      imports: [GrowDirective, VBox, HBox],
+      imports: [GrowDirective, V, H],
       template: ` <h #parent>aaaaaaaaaa</h> `,
     })
     class Test {
@@ -52,7 +54,7 @@ describe('DOM - ', () => {
   it('<v>', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, VBox, GrowDirective, StyleDirective],
+      imports: [H, V, GrowDirective, StyleDirective],
       template: `
         <v #parent [s]="{ width: 20 }">
           <h #child1>Test</h>
@@ -84,7 +86,7 @@ describe('DOM - ', () => {
   it('v hgrow', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, VBox, GrowDirective, StyleDirective],
+      imports: [H, V, GrowDirective, StyleDirective],
       template: `
         <v #parent [s]="{ width: 20 }">
           <h #child1 [s]="{ hgrow: true }">Test</h>
@@ -116,7 +118,7 @@ describe('DOM - ', () => {
   it('hbox vgrow', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, VBox, StyleDirective],
+      imports: [H, V, StyleDirective],
       template: `
         <h #parent [s]="{ height: 20 }">
           <h #child1 [s]="{ vgrow: true }">Test</h>
@@ -152,7 +154,7 @@ describe('DOM - ', () => {
   it('h grow', async () => {
     @Component({
       standalone: true,
-      imports: [HBox, VBox, StyleDirective, GrowDirective],
+      imports: [H, V, StyleDirective, GrowDirective],
       template: `
         <h #parent [s]="{ height: 20, width: 20 }">
           <h grow #child1></h>

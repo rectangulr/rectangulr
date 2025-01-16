@@ -1,5 +1,5 @@
 import { Injector, ProviderToken, effect, inject, isSignal } from '@angular/core'
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
 import { Logger, LOGGER } from '../angular-terminal/logger'

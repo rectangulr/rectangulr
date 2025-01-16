@@ -18,7 +18,7 @@ import { LOGGER } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
 import { makeObservable } from '../../utils/reactivity'
 import { patchInputSignal } from '../../utils/Signal2'
-import { VBox } from '../1-basics/box'
+import { V } from '../1-basics/v'
 import { StyleDirective } from '../1-basics/style'
 import { TextInput } from '../1-basics/text-input'
 import { NotificationsService } from './app-shell/notifications.service'
@@ -56,7 +56,7 @@ import { borderTop } from './styles'
     },
   ],
   standalone: true,
-  imports: [VBox, TextInput, FocusDirective, List, StyleDirective],
+  imports: [V, TextInput, FocusDirective, List, StyleDirective],
 })
 export class SearchList<T> {
   items = input.required<T[]>()

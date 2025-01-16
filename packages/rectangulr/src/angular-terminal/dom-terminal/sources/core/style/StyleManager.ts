@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { autobind } from 'core-decorators'
-import _ from 'lodash'
+import _ from 'lodash-es'
 
 import { getSpecificity } from './tools/getSpecificity'
 import { parsePropertyValue } from './tools/parsePropertyValue'

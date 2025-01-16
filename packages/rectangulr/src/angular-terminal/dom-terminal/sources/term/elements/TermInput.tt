@@ -1,5 +1,5 @@
 // @ts-nocheck
-import _ from 'lodash'
+import _ from 'lodash-es'
 import TextBuffer from 'text-buffer'
 
 import { StyleManager, makeRuleset } from '../../core'

@@ -11,7 +11,8 @@ import { Completion, CompletionProvider } from '../../utils/CompletionProvider'
 import { patchInputSignal, signal2 } from '../../utils/Signal2'
 import { List } from '../2-common/list/list'
 import { ListItem } from '../2-common/list/list-item'
-import { HBox, VBox } from './box'
+import { H } from './h'
+import { V } from './v'
 import { StyleDirective } from './style'
 import { assert } from '../../utils/Assert'
 
@@ -45,7 +46,7 @@ let globalId = 0
     { provide: ShortcutService },
   ],
   standalone: true,
-  imports: [HBox, VBox, StyleDirective, List, ListItem],
+  imports: [H, V, StyleDirective, List, ListItem],
 })
 export class TextInput implements ControlValueAccessor {
   _id = ++globalId
@@ -262,6 +263,26 @@ export class TextInput implements ControlValueAccessor {
           }
         }
       },
+    },
+    {
+      keys: 'pgup',
+      func: key => {
+        if (this.multiline()) {
+          this.setCaret(0)
+        } else {
+          return key
+        }
+      }
+    },
+    {
+      keys: 'pgdown',
+      func: key => {
+        if (this.multiline()) {
+          this.setCaret(this.text().length)
+        } else {
+          return key
+        }
+      }
     },
     {
       keys: 'home',

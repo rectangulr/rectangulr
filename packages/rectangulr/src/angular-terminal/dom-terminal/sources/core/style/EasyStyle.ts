@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _ from 'lodash-es'
 
 import { parsePropertyValue } from './tools/parsePropertyValue'
 import { parseSelector } from './tools/parseSelector'

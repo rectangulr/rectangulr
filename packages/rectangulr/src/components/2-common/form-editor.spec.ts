@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core'
-import { keyboardTest, sendKeyAndDetectChanges, setupTest } from '../../utils/tests'
+import { keyboardTest, sendKeyAndDetectChanges, setupTest } from '../../tests/utils'
 import { FormEditor } from './form-editor'
 import { discardPeriodicTasks, fakeAsync } from '@angular/core/testing'
 

@@ -1,4 +1,4 @@
-import * as Yoga from 'typeflex'
+import { Node } from 'typeflex'
 
 function diff(a, b) {
 	if (typeof a == 'object') {
@@ -18,7 +18,7 @@ function diff(a, b) {
 	}
 }
 
-export function debugYoga(node: any, cleanNode = Yoga.Node.create().node) {
+export function debugYoga(node: any, cleanNode = Node.create().node) {
 
 	if ('node' in node) return debugYoga(node.node, cleanNode)
 

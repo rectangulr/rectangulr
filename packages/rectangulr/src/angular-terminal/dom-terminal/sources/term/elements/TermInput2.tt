@@ -1,5 +1,5 @@
 // @ts-nocheck
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { TermText2 } from './TermText2'
 
 export class TermInput2 extends TermText2 {

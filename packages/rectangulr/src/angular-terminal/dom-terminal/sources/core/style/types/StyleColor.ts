@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { style } from '../../../../../../term-strings/core'
 
 export class StyleColor {

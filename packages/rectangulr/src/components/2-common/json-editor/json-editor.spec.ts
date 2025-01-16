@@ -1,8 +1,8 @@
 import { Component, ViewChild } from '@angular/core'
-import { keyboardTest } from "src/utils/tests"
+import { keyboardTest } from "../../../tests/utils"
 import { FocusDirective } from '../../../commands/focus.directive'
-import { sendKeyAndDetectChanges, setupTest } from '../../../utils/tests'
-import { HBox } from '../../1-basics/box'
+import { sendKeyAndDetectChanges, setupTest } from '../../../tests/utils'
+import { H } from '../../../components/1-basics/h'
 import { JsonEditor } from './json-editor'
 
 describe('JsonEditor - ', () => {
@@ -10,7 +10,7 @@ describe('JsonEditor - ', () => {
   it(`should edit a string`, keyboardTest(() => {
     @Component({
       standalone: true,
-      imports: [HBox, FocusDirective, JsonEditor],
+      imports: [H, FocusDirective, JsonEditor],
       template: `<json-editor data="string"/>`,
     })
     class Test {
@@ -24,7 +24,7 @@ describe('JsonEditor - ', () => {
 
   @Component({
     standalone: true,
-    imports: [HBox, FocusDirective, JsonEditor],
+    imports: [H, FocusDirective, JsonEditor],
     template: `<json-editor [data]="{ test: 'a' }"/>`,
   })
   class Test2 {
@@ -59,7 +59,7 @@ describe('JsonEditor - ', () => {
   it(`should edit a number`, keyboardTest(() => {
     @Component({
       standalone: true,
-      imports: [HBox, FocusDirective, JsonEditor],
+      imports: [H, FocusDirective, JsonEditor],
       template: `<json-editor [data]="1"/>`,
     })
     class Test3 {
@@ -75,7 +75,7 @@ describe('JsonEditor - ', () => {
     @Component({
       standalone: true,
       selector: 'test-json-editor-4',
-      imports: [HBox, FocusDirective, JsonEditor],
+      imports: [H, FocusDirective, JsonEditor],
       template: `
         <json-editor [data]="{ key1: 'value1', key2: 'value2', key3: 'value3' }"/>
       `,

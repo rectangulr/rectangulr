@@ -12,7 +12,7 @@ import {
 } from '@angular/core'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { Observable, Subject } from 'rxjs'
 import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../../../angular-terminal/logger'
@@ -25,12 +25,13 @@ import { JsonPath } from '../../../utils/jsonPath'
 import { subscribe } from '../../../utils/reactivity'
 import { patchInputSignal, patchWritableSignal, signal2 } from '../../../utils/Signal2'
 import { AnyObject } from '../../../utils/utils'
-import { HBox } from '../../1-basics/box'
+import { H } from '../../../components/1-basics/h'
 import { StyleDirective } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
+import { LogPointService } from '../../../logs/LogPointService'
 
 @Component({
   selector: 'json-editor',
@@ -66,7 +67,7 @@ import { ListItem } from '../list/list-item'
     `,
   standalone: true,
   imports: [
-    HBox,
+    H,
     TextInput,
     List,
     ListItem,
@@ -103,6 +104,7 @@ export class JsonEditor {
   logger = inject(LOGGER)
   externalTextEditor = inject(ExternalTextEditor)
   injector = inject(Injector)
+  lp = inject(LogPointService)
 
   constructor(
   ) {
@@ -125,6 +127,7 @@ export class JsonEditor {
       } else {
         assert(false)
       }
+      this.lp.logPoint('NewValue.Data', { value })
       this.valueRef.set({
         key: null,
         value: value,

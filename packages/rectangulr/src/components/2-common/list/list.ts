@@ -2,9 +2,7 @@ import { NgTemplateOutlet } from '@angular/common'
 import {
   Component,
   ElementRef,
-  Inject,
   Injector,
-  Optional,
   TemplateRef,
   computed,
   contentChild,
@@ -18,19 +16,19 @@ import {
   viewChildren
 } from '@angular/core'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
-import * as _ from 'lodash'
+import { clamp, clone, isNil, isObject } from 'lodash-es'
 import { Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { V } from '../../../components/1-basics/v'
 import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { Deferred } from '../../../utils/Deferred'
 import { patchInputSignal, signal2 } from '../../../utils/Signal2'
-import { VBox } from '../../1-basics/box'
-import { StyleDirective, TemplateStyle } from '../../1-basics/style'
+import { StyleDirective } from '../../1-basics/style'
 import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
@@ -72,7 +70,7 @@ import { ListItem } from './list-item'
       multi: true,
     },
   ],
-  imports: [NgTemplateOutlet, BasicObjectDisplay, VBox, StyleDirective],
+  imports: [NgTemplateOutlet, BasicObjectDisplay, V, StyleDirective],
   standalone: true,
 })
 export class List<T> {
@@ -215,7 +213,7 @@ export class List<T> {
     // this._displayComponent = this.itemComponentInjected
 
     const selectNewIndex = (items: T[]) => {
-      assert(!_.isNil(items))
+      assert(!isNil(items))
       const onItemsChangeSelect = this.onItemsChangeSelect()
       if (onItemsChangeSelect == 'first') {
         this.selectIndex(0)
@@ -223,14 +221,14 @@ export class List<T> {
         this.selectIndex(items.length - 1)
       } else if (onItemsChangeSelect == 'same') {
         let index = this.selectedIndex()
-        if (_.isNil(index) /* If there's no previous selected item */) {
+        if (isNil(index) /* If there's no previous selected item */) {
           this.selectIndex(0)
           return
         }
         // If the selectedValue is an object, we select the value again
         // If its a primitive value, we select the index again
         const value = this.selectedValue()
-        if (value && _.isObject(value)) {
+        if (value && isObject(value)) {
           index = items.indexOf(value)
         }
         if (index != -1) {
@@ -261,12 +259,12 @@ export class List<T> {
    * @returns Returns false if the index got clamped, or if there's no items in the list
    */
   selectIndex(value: number): Promise<boolean> {
-    assert(!_.isNil(this.items()))
+    assert(!isNil(this.items()))
 
     if (!this.items() || this.items().length == 0) {
       this.selectedIndex.set(undefined)
     } else {
-      this.selectedIndex.set(_.clamp(value, 0, this.items().length - 1))
+      this.selectedIndex.set(clamp(value, 0, this.items().length - 1))
     }
 
     this.$selectedItem.emit(this.selectedValue())
@@ -408,7 +406,7 @@ export function selectItem(list: List<any>, item: any) {
 }
 
 function clampRange(range: { start: number; end: number }, min: number, max: number) {
-  let newRange = _.clone(range)
+  let newRange = clone(range)
   if (newRange.start < min) newRange.start = min
   if (newRange.end > max) newRange.end = max
   return newRange

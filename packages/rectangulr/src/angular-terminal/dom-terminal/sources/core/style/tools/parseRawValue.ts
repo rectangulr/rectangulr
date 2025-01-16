@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _ from 'lodash-es'
 
 export function parseRawValue(rawValue, parser) {
   if (parser instanceof Map) {

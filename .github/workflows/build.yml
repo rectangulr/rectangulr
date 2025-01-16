@@ -68,11 +68,6 @@ jobs:
 
       # packages/starter
 
-      - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr ../buildr
-        working-directory: ./packages/smoke-test
-      # - name: "Package: Starter"
-      #   run: npm i --include=dev
-      #   working-directory: ./packages/starter
       - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr
         working-directory: ./packages/starter
       - run: npm run build

@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, Output, viewChild } from '@angular/core'
 import { FormBuilder, FormGroup } from '@angular/forms'
 import * as json5 from 'json5'
-import _ from 'lodash'
+import _ from 'lodash-es'
 import { Subject } from 'rxjs'
 import { FocusDirective } from '../../commands/focus.directive'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
