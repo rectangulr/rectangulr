@@ -1,5 +1,5 @@
 import { DestroyRef, Injectable, Injector, inject } from '@angular/core'
-import _ from 'lodash-es'
+import * as _ from 'lodash-es'
 import { Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
 import { Element } from '../angular-terminal/dom-terminal'

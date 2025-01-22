@@ -1,5 +1,5 @@
 import { Signal } from '@angular/core'
-import _ from 'lodash-es'
+import * as _ from 'lodash-es'
 import * as Yoga from 'typeflex'
 import { TermElement } from '../dom/Element'
 import { StyleHandler, StyleValue, } from '../dom/StyleHandler'

@@ -2,7 +2,7 @@ import { Component, ElementRef, Injector, Output, Signal, TemplateRef, computed,
 import { toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as json5 from 'json5'
-import _ from 'lodash-es'
+import * as _ from 'lodash-es'
 import { Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'
 import { addStyle } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'

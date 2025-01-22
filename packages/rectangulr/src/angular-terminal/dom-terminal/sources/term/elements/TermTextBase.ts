@@ -1,6 +1,6 @@
 // @ts-nocheck
 import * as TL from '@manaflair/text-layout'
-import _ from 'lodash-es'
+import * as _ from 'lodash-es'
 import TextBuffer from 'text-buffer'
 import { Event, findAncestorByPredicate, makeRuleset, Point, StyleManager } from '../../core'
 import { Element } from './Element'

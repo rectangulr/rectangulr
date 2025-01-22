@@ -1,4 +1,4 @@
-import _ from 'lodash-es'
+import * as _ from 'lodash-es'
 
 export function percentile(array, value) {
   const originalLength = array.length

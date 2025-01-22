@@ -1,6 +1,6 @@
 // @ts-nocheck
 import cliTruncate from 'cli-truncate'
-import _ from 'lodash-es'
+import * as _ from 'lodash-es'
 import widestLine from 'widest-line'
 import wrapAnsi from 'wrap-ansi'
 import { assert } from '../../../../../utils/utils'

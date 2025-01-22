@@ -1,20 +1,18 @@
 import { CommonModule } from '@angular/common'
 import { Component, inject, signal } from '@angular/core'
-import { Command, GrowDirective, H, V, HGrowDirective, List, ListItem, NotificationsService, StyleDirective, TextInput, derived, registerShortcuts } from '@rectangulr/rectangulr'
+import { Command, GrowDirective, H, List, NotificationsService, StyleDirective, TextInput, V, VGrowDirective, derived, registerShortcuts } from '@rectangulr/rectangulr'
 import * as _ from '@s-libs/micro-dash'
 import { signal2 } from '../utils/Signal2'
 
 @Component({
   template: `
-      <v grow>
-        <h [s]="s.title">Todo App</h>
-        <text-input [(text)]="selectedTodo" />
-        <list [items]="items()" (selectedIndex)="selectedIndex.set($event)"/>
-      </v>
+      <h [s]="s.title">Todo App</h>
+      <text-input [(text)]="selectedTodo" />
+      <list [items]="items()" (selectedIndex)="selectedIndex.set($event)"/>
   `,
-  hostDirectives: [GrowDirective],
+  hostDirectives: [GrowDirective, VGrowDirective],
   standalone: true,
-  imports: [CommonModule, H, V, GrowDirective, List, StyleDirective, TextInput],
+  imports: [H, List, StyleDirective, TextInput],
 })
 export class AppComponent {
   notificationService = inject(NotificationsService)

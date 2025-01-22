@@ -1,5 +1,4 @@
-import _ from 'lodash-es'
-
+import * as _ from 'lodash-es'
 import { styles } from './styleProperties'
 
 export function EasyComputedStyle(computed, base = Object.create(null)) {

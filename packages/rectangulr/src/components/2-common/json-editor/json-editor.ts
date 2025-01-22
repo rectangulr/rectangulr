@@ -12,7 +12,7 @@ import {
 } from '@angular/core'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
-import _ from 'lodash-es'
+import * as _ from 'lodash-es'
 import { Observable, Subject } from 'rxjs'
 import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../../../angular-terminal/logger'
