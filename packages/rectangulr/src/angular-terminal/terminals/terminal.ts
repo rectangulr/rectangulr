@@ -36,6 +36,7 @@ export interface TerminalScreen {
 }
 
 export interface Terminal {
+  name: string
   inputs: TerminalInputs,
   screen: TerminalScreen
 }

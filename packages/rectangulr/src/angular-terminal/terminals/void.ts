@@ -7,7 +7,8 @@ export const TERMINAL_SIZE = new InjectionToken('TERMINAL_SIZE', {
 	factory: () => ({ width: 150, height: 40 }),
 })
 
-export const voidTerminal: Terminal = {
+export const VoidTerminal: Terminal = {
+	name: 'VoidTerminal',
 	inputs: {
 		send: (input) => { },
 		on: (event, func) => { },

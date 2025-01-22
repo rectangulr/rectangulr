@@ -6,6 +6,7 @@ import { Terminal } from './terminal'
 
 
 export class XTermTerminal implements Terminal {
+	name = 'XTermTerminal'
 	inputs
 	screen
 	queue: Queue<Input>

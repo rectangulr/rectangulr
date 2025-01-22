@@ -5,6 +5,7 @@ import { Terminal, TerminalInputs, TerminalScreen } from './terminal'
 
 
 export class ProcessTerminal implements Terminal {
+	name = 'ProcessTerminal'
 	inputs: TerminalInputs
 	screen: TerminalScreen
 
