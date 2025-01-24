@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core'
+import { Component, ElementRef, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core'
 import * as Yoga from 'typeflex'
 import { H } from '../../components/1-basics/h'
 import { V } from '../../components/1-basics/v'

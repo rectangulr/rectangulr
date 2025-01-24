@@ -22,7 +22,6 @@
     "types": [
       "node",
       "jasmine",
-      "webpack-env"
     ],
     "lib": [
       "es2019",

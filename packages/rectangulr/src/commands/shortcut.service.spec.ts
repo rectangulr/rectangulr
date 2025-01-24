@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, QueryList, ViewChild, ViewChildren, input, signal, inject } from '@angular/core'
+import { Component, EventEmitter, Output, QueryList, ViewChild, ViewChildren, input, signal, inject, NO_ERRORS_SCHEMA } from '@angular/core'
 import { TestBed, discardPeriodicTasks, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
 import { keyboardTest } from "../tests/utils"
@@ -21,7 +21,9 @@ describe('ShortcutService Class', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule()
-    TestBed.configureTestingModule({})
+    TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA],
+    })
     shortcuts = TestBed.inject(ShortcutService)
   })
 
@@ -278,7 +280,6 @@ describe('ShortcutService - ', () => {
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.text()).toEqual('a')
-
   }))
 
   it(`shouldn't focus the text-input`, keyboardTest(() => {
@@ -289,7 +290,6 @@ describe('ShortcutService - ', () => {
 
     sendKeyAndDetectChanges(fixture, shortcuts, { name: 'a' })
     expect(component.input.text()).toEqual('')
-
   }))
 })
 

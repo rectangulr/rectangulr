@@ -23,8 +23,8 @@
         "test": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
-            "main": "src/test.ts",
-            "tsConfig": "tsconfig.json",
+            "main": "src/tests/test.ts",
+            "tsConfig": "tsconfig.spec.json",
             "outputPath": "dist-test",
             "customWebpackConfig": {
               "path": "./webpack.config.js"

@@ -9,9 +9,9 @@ export { LOGGER, Logger } from './angular-terminal/logger'
 // Platform
 export { platformRectangulr, bootstrapApplication } from './angular-terminal/platform'
 
-// Testing
-export { platformRectangulrDynamicTesting } from './angular-terminal/testing/src/platform-testing'
-export { RectangulrDynamicTestingModule } from './angular-terminal/testing/src/testing.module'
+// // Testing
+// export { platformRectangulrDynamicTesting } from './angular-terminal/testing/src/platform-testing'
+// export { RectangulrDynamicTestingModule } from './angular-terminal/testing/src/testing.module'
 
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
 export { CommandPicker as Shortcuts } from './commands/command-picker.component'
@@ -80,5 +80,13 @@ declare global {
 }
 
 if (!('RECTANGULR_TARGET' in globalThis)) {
-  globalThis['RECTANGULR_TARGET'] = 'web'
+  globalThis['RECTANGULR_TARGET'] = 'node'
 }
+
+
+// PRIVATE
+export { INTERNAL_RECTANGULR_PLATFORM_PROVIDERS as ɵINTERNAL_RECTANGULR_PLATFORM_PROVIDERS } from './angular-terminal/platform'
+export { Node as ɵNode } from './angular-terminal/dom-terminal'
+export { RECTANGULR_MODULE_PROVIDERS as ɵRECTANGULR_MODULE_PROVIDERS } from './rectangulr-module-providers'
+export { TERMINAL as ɵTERMINAL } from './angular-terminal/terminals/terminal'
+export { VoidTerminal as ɵvoidTerminal } from './angular-terminal/terminals/void'

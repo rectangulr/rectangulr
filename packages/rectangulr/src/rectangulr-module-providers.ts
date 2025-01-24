@@ -7,7 +7,7 @@ import { RectangulrRendererFactory2 } from "./angular-terminal/renderer"
 import { ScreenService } from "./angular-terminal/screen-service"
 import { ProcessTerminal } from "./angular-terminal/terminals/processTerminal"
 import { TERMINAL } from "./angular-terminal/terminals/terminal"
-import { voidTerminal } from './angular-terminal/terminals/void'
+import { VoidTerminal } from './angular-terminal/terminals/void'
 import { XTermTerminal } from "./angular-terminal/terminals/xtermTerminal"
 import { addToGlobalRg } from './utils/addToGlobalRg'
 import { InjectFunction, assert } from "./utils/utils"
@@ -37,7 +37,7 @@ export const RECTANGULR_MODULE_PROVIDERS: Provider[] = [
 				assert(term, `RECTANGULR_TARGET == 'web', but no xterm was found on globalThis`)
 				return new XTermTerminal(term)
 			} else {
-				return voidTerminal
+				return VoidTerminal
 			}
 		}
 	},

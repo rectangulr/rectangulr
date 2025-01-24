@@ -1,4 +1,4 @@
-import { signal, isSignal } from '@angular/core'
+import { isSignal, signal } from '@angular/core'
 import { derived } from './reactivity'
 
 describe('derived signals - ', () => {

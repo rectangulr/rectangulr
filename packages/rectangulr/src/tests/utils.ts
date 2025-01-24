@@ -1,4 +1,4 @@
-import { Type } from '@angular/core'
+import { NO_ERRORS_SCHEMA, Type } from '@angular/core'
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
 import { Key } from '../commands/keypress-parser'
 import { ShortcutService } from '../commands/shortcut.service'
@@ -8,6 +8,7 @@ export function setupTest<T>(componentClass: Type<T>) {
   TestBed.resetTestingModule()
   TestBed.configureTestingModule({
     providers: [ShortcutService],
+    schemas: [NO_ERRORS_SCHEMA]
   })
 
   const fixture: ComponentFixture<T> = TestBed.createComponent(componentClass)

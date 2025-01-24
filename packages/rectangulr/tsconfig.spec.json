@@ -2,9 +2,10 @@
 {
   "extends": "./tsconfig.json",
   "files": [
-    "src/test.ts"
+    "src/tests/test.ts",
   ],
   "include": [
-    "src/**/*.spec.ts",
+    "src/**/*.ts",
+    "testing/**/*.ts"
   ]
 }

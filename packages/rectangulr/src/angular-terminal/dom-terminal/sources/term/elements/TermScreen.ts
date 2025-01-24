@@ -184,7 +184,7 @@ export class TermScreen extends TermElement {
 
     // If we can operate in raw mode, we do
     if (RECTANGULR_TARGET == 'node') {
-      this.terminal.inputs.setRawMode(true)
+      this.terminal.inputs.setRawMode?.(true)
     }
 
     // Enter the alternate screen
