@@ -84,8 +84,8 @@ interface Column {
 }
 
 @Component({
-  selector: 'table',
-  template: `
+    selector: 'table',
+    template: `
     <h [s]="s.header">{{ $headers() }}</h>
     <list
       #list
@@ -100,15 +100,14 @@ interface Column {
       <row [data]="item" [s]="{ flexShrink: 0 }"></row>
     </ng-template>
   `,
-  standalone: true,
-  imports: [H, List, Row, ListItem, StyleDirective],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useFactory: (table: Table<any>) => table.controlValueAccessor,
-      deps: [Table],
-    },
-  ],
+    imports: [H, List, Row, ListItem, StyleDirective],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useFactory: (table: Table<any>) => table.controlValueAccessor,
+            deps: [Table],
+        },
+    ]
 })
 export class Table<T> {
   shortcutService = inject(ShortcutService)

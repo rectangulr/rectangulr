@@ -110,12 +110,11 @@ describe('Style - ', () => {
 
 	it('component with computed signal layer', fakeAsync(() => {
 		@Component({
-			standalone: true,
-			imports: [H, V, StyleDirective, GrowDirective],
-			template: `
+    imports: [H, V, StyleDirective, GrowDirective],
+    template: `
 				<h #parent [s]="[cond(eq(value, true), {width: 3})]"></h>
 			`
-		})
+})
 		class Test {
 			@ViewChild('parent') parent: ElementRef<Element>
 			cond = cond
@@ -144,14 +143,13 @@ describe('Style - ', () => {
 
 	it('component with inherited computed signal style', fakeAsync(() => {
 		@Component({
-			standalone: true,
-			imports: [H, V, StyleDirective, GrowDirective],
-			template: `
+    imports: [H, V, StyleDirective, GrowDirective],
+    template: `
 				<h #parent [s]="[cond(eq(value, true), {color: 'red'})]">
 					<h #child></h>
 				</h>
 			`
-		})
+})
 		class Test {
 			@ViewChild('parent') parent: ElementRef<Element>
 			@ViewChild('child') child: ElementRef<Element>

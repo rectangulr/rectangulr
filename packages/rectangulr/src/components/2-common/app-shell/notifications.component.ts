@@ -10,9 +10,8 @@ import { ObjectDisplay } from '../object-display'
 import { Notification, NotificationsService } from './notifications.service'
 
 @Component({
-  standalone: true,
-  selector: 'notifications',
-  template: `
+    selector: 'notifications',
+    template: `
     @if (notification()) {
       <v
         [s]="{ display: notification ? 'flex' : 'none', border: 'rounded', hgrow: true }">
@@ -24,7 +23,7 @@ import { Notification, NotificationsService } from './notifications.service'
       </v>
     }
     `,
-  imports: [V, H, ObjectDisplay, StyleDirective],
+    imports: [V, H, ObjectDisplay, StyleDirective]
 })
 export class Notifications {
   notificationsService = inject(NotificationsService)

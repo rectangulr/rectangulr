@@ -13,9 +13,8 @@ import { ListItem } from './list/list-item'
 import { StyleDirective } from '../1-basics/style'
 
 @Component({
-  standalone: true,
-  selector: 'object-display',
-  template: `
+    selector: 'object-display',
+    template: `
     <list [items]="keyValues()">
       <h *item="let keyValue; type: keyValues()">
         <h
@@ -27,7 +26,7 @@ import { StyleDirective } from '../1-basics/style'
       </h>
     </list>
   `,
-  imports: [H, List, ListItem, StyleDirective]
+    imports: [H, List, ListItem, StyleDirective]
 })
 export class ObjectDisplay<T> {
   readonly object = input<T | Observable<T> | Signal<T>>(undefined)

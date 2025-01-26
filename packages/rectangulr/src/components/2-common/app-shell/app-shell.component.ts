@@ -14,11 +14,10 @@ import { Notifications } from './notifications.component'
 import { ViewService } from './view.service'
 
 @Component({
-  standalone: true,
-  selector: 'app-shell',
-  hostDirectives: [GrowDirective],
-  host: { 's': '{width: "100%", height: "100%"}' },
-  template: `
+    selector: 'app-shell',
+    hostDirectives: [GrowDirective],
+    host: { 's': '{width: "100%", height: "100%"}' },
+    template: `
     <!-- Display the currentTab. The others are styled 'display: none'. -->
     @for (view of viewService.views(); track view) {
       <v
@@ -54,7 +53,7 @@ import { ViewService } from './view.service'
     <!-- Popup to show notifications -->
     <notifications [focusOnInit]="false"/>
   `,
-  imports: [H, V, FocusDirective, NgComponentOutlet, Notifications, CommandPicker, GrowDirective, StyleDirective],
+    imports: [H, V, FocusDirective, NgComponentOutlet, Notifications, CommandPicker, GrowDirective, StyleDirective]
 })
 export class AppShell {
   readonly showCommands = signal2(false)

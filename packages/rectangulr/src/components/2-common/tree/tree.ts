@@ -12,9 +12,8 @@ import { TreeNode } from './tree-node'
 export interface NodeData { name: any, children: any[] }
 
 @Component({
-	selector: 'tree',
-	standalone: true,
-	template: `
+    selector: 'tree',
+    template: `
 		@if (!multi()) {
 		  <ng-container
 		    [ngTemplateOutlet]="nodeTemplate() || nodeTemplate2() || defaultTemplate"
@@ -42,7 +41,7 @@ export interface NodeData { name: any, children: any[] }
 		  </list>
 		}
 	`,
-	imports: [List, ListItem, FocusDirective, NgTemplateOutlet, StyleDirective]
+    imports: [List, ListItem, FocusDirective, NgTemplateOutlet, StyleDirective]
 })
 export class Tree<T> {
 	shortcutService = inject(ShortcutService)

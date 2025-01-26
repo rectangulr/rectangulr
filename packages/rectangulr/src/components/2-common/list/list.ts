@@ -38,8 +38,8 @@ import { ListItem } from './list-item'
  * Go up and down with the keyboard.
  */
 @Component({
-  selector: 'list',
-  template: `
+    selector: 'list',
+    template: `
     <v [s]="{ flexShrink: 0, scrollF: 'y' }">
       @for (item of visibleItems(); track trackByFn()($index,item)) {
         <v
@@ -63,15 +63,14 @@ import { ListItem } from './list-item'
       <basic-object-display [data]="item" />
     </ng-template>
     `,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useFactory: () => inject(List).controlValueAccessor,
-      multi: true,
-    },
-  ],
-  imports: [NgTemplateOutlet, BasicObjectDisplay, V, StyleDirective],
-  standalone: true,
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useFactory: () => inject(List).controlValueAccessor,
+            multi: true,
+        },
+    ],
+    imports: [NgTemplateOutlet, BasicObjectDisplay, V, StyleDirective]
 })
 export class List<T> {
   /**

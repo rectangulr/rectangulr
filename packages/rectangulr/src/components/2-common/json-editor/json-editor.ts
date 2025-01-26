@@ -34,8 +34,8 @@ import { ListItem } from '../list/list-item'
 import { LogPointService } from '../../../logs/LogPointService'
 
 @Component({
-  selector: 'json-editor',
-  template: `
+    selector: 'json-editor',
+    template: `
     @if (visibleKey()) {
       <h focusName="key" [focusIf]="focused() == 'key'" [s]="{ flexShrink: 0 }">
         <text-input [(text)]="valueRef().key"/>:
@@ -65,24 +65,23 @@ import { LogPointService } from '../../../logs/LogPointService'
       }
     </ng-container>
     `,
-  standalone: true,
-  imports: [
-    H,
-    TextInput,
-    List,
-    ListItem,
-    FocusDirective,
-    StyleDirective
-  ],
-  providers: [
-    ShortcutService,
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useFactory: (json: JsonEditor) => json.controlValueAccessor,
-      deps: [JsonEditor],
-      multi: true,
-    },
-  ],
+    imports: [
+        H,
+        TextInput,
+        List,
+        ListItem,
+        FocusDirective,
+        StyleDirective
+    ],
+    providers: [
+        ShortcutService,
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useFactory: (json: JsonEditor) => json.controlValueAccessor,
+            deps: [JsonEditor],
+            multi: true,
+        },
+    ]
 })
 export class JsonEditor {
   readonly data = input(undefined)

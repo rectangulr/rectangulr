@@ -20,8 +20,8 @@ import { assert } from '../../utils/Assert'
 let globalId = 0
 
 @Component({
-  selector: 'text-input',
-  template: `
+    selector: 'text-input',
+    template: `
     <!-- The text to edit -->
     <h>{{ text() }}</h>
 
@@ -37,16 +37,15 @@ let globalId = 0
       </v>
     }
   `,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => TextInput),
-      multi: true,
-    },
-    { provide: ShortcutService },
-  ],
-  standalone: true,
-  imports: [H, V, StyleDirective, List, ListItem],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => TextInput),
+            multi: true,
+        },
+        { provide: ShortcutService },
+    ],
+    imports: [H, V, StyleDirective, List, ListItem]
 })
 export class TextInput implements ControlValueAccessor {
   _id = ++globalId

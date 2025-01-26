@@ -45,15 +45,14 @@ it('should match logpoints through component tags', () => {
 	}
 
 	@Component({
-		selector: 'test-parent',
-		template: '<test-child/>',
-		providers: [
-			LogPointService,
-			{ provide: TAGS, useValue: ['parent-tag'] }
-		],
-		imports: [TestChildComponent],
-		standalone: true,
-	})
+    selector: 'test-parent',
+    template: '<test-child/>',
+    providers: [
+        LogPointService,
+        { provide: TAGS, useValue: ['parent-tag'] }
+    ],
+    imports: [TestChildComponent]
+})
 	class TestParentComponent { }
 
 	const fixture = TestBed.createComponent(TestParentComponent)
@@ -103,14 +102,13 @@ it('should match logpoints through component + logPoint()', () => {
 
 it('should log some dom activity when [domLog] directive is attached', () => {
 	@Component({
-		template: '<h domLog>{{text()}}</h>',
-		providers: [
-			LogPointService,
-			{ provide: TAGS, useValue: ['test-tag'] }
-		],
-		standalone: true,
-		imports: [H, DomLogDirective],
-	})
+    template: '<h domLog>{{text()}}</h>',
+    providers: [
+        LogPointService,
+        { provide: TAGS, useValue: ['test-tag'] }
+    ],
+    imports: [H, DomLogDirective]
+})
 	class TestComponent {
 		text = signal('aaa')
 	}

@@ -17,8 +17,8 @@ import { Command, ShortcutService } from './shortcut.service'
  * Popup to discover commands and pick one.
  */
 @Component({
-  selector: 'command-picker',
-  template: `
+    selector: 'command-picker',
+    template: `
     <search-list
       #searchList
       [items]="listOfCommands()"
@@ -28,14 +28,13 @@ import { Command, ShortcutService } from './shortcut.service'
       </v>
     </search-list>
   `,
-  providers: [
-    {
-      // This creates a ShortcutService to store separately the shortcuts of this component.
-      provide: ShortcutService,
-    },
-  ],
-  standalone: true,
-  imports: [SearchList, ListItem, StyleDirective, V],
+    providers: [
+        {
+            // This creates a ShortcutService to store separately the shortcuts of this component.
+            provide: ShortcutService,
+        },
+    ],
+    imports: [SearchList, ListItem, StyleDirective, V]
 })
 export class CommandPicker {
   readonly shortcutService = input<ShortcutService>(null)

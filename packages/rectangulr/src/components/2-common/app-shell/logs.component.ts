@@ -18,9 +18,9 @@ class NullLogger {
 }
 
 @Component({
-  selector: 'logs',
-  hostDirectives: [GrowDirective],
-  template: `
+    selector: 'logs',
+    hostDirectives: [GrowDirective],
+    template: `
     <h [s]="[s.blackOnWhite, { hgrow: true }]">Logs</h>
     <h grow>
       <list [items]="logs()" [s]="{ width: '50%' }" (selectedItem)="$selectedLog.set($event)">
@@ -31,8 +31,7 @@ class NullLogger {
       </v>
     </h>
   `,
-  standalone: true,
-  imports: [H, V, List, ListItem, StyleDirective, Json5Pipe, ObjectDisplay, FocusDirective, GrowDirective]
+    imports: [H, V, List, ListItem, StyleDirective, Json5Pipe, ObjectDisplay, FocusDirective, GrowDirective]
 })
 export class Logs {
   logger = inject(FileLogger, { skipSelf: true })

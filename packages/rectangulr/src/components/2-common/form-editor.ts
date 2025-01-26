@@ -13,10 +13,9 @@ import { blackOnWhite } from './styles'
 import { LOGGER } from '../../angular-terminal/logger'
 
 @Component({
-  standalone: true,
-  imports: [List, KeyValueEditor, ListItem, FocusDirective],
-  selector: 'form-editor',
-  template: `
+    imports: [List, KeyValueEditor, ListItem, FocusDirective],
+    selector: 'form-editor',
+    template: `
     <list [items]="keyValues()">
       <keyvalue-editor
         *item="let keyValue; type: keyValues"
@@ -25,12 +24,12 @@ import { LOGGER } from '../../angular-terminal/logger'
         [keyWidth]="longestKey()"/>
     </list>
   `,
-  providers: [
-    {
-      provide: FormGroup,
-      useFactory: () => inject(FormEditor).form(),
-    },
-  ],
+    providers: [
+        {
+            provide: FormGroup,
+            useFactory: () => inject(FormEditor).form(),
+        },
+    ]
 })
 export class FormEditor {
   fb = inject(FormBuilder)

@@ -56,9 +56,8 @@ describe('ShortcutService Class', () => {
 //
 
 @Component({
-  standalone: true,
-  imports: [V, FocusDirective],
-  template: `
+    imports: [V, FocusDirective],
+    template: `
     @if (showFirst()) {
       <v
         #first
@@ -72,7 +71,7 @@ describe('ShortcutService Class', () => {
         ></v>
     }
     `,
-  providers: [ShortcutService],
+    providers: [ShortcutService]
 })
 export class Test1 {
   shortcutService = inject(ShortcutService)
@@ -172,9 +171,8 @@ describe('ShortcutService @if - ', () => {
 //
 
 @Component({
-  standalone: true,
-  imports: [FocusDirective],
-  template: `
+    imports: [FocusDirective],
+    template: `
     <v
       [focusIf]="focused() == 'first'"
       [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('firstFunc') }]"></v>
@@ -182,7 +180,7 @@ describe('ShortcutService @if - ', () => {
       [focusIf]="focused() == 'second'"
       [focusShortcuts]="[{ keys: 'ctrl+r', func: callsMethod('secondFunc') }]"></v>
   `,
-  providers: [ShortcutService],
+    providers: [ShortcutService]
 })
 export class Test2 {
   shortcutService = inject(ShortcutService)
@@ -225,10 +223,9 @@ describe('ShortcutService FocusIf - ', () => {
 //
 
 @Component({
-  template: `<v [focusShortcuts]="shortcuts">`,
-  providers: [ShortcutService],
-  standalone: true,
-  imports: [V, FocusDirective],
+    template: `<v [focusShortcuts]="shortcuts">`,
+    providers: [ShortcutService],
+    imports: [V, FocusDirective]
 })
 export class Test3 {
   shortcutService = inject(ShortcutService)
@@ -262,10 +259,9 @@ describe('ShortcutService - ', () => {
 //
 
 @Component({
-  standalone: true,
-  selector: 'shortcut-test-4',
-  imports: [FocusDirective, TextInput],
-  template: `<text-input [focusIf]="condition()"/>`,
+    selector: 'shortcut-test-4',
+    imports: [FocusDirective, TextInput],
+    template: `<text-input [focusIf]="condition()"/>`
 })
 export class Test4 {
   shortcutService = inject(ShortcutService)
@@ -296,15 +292,14 @@ describe('ShortcutService - ', () => {
 //
 
 @Component({
-  standalone: true,
-  imports: [TextInput, List, ListItem, FocusDirective],
-  template: `
+    imports: [TextInput, List, ListItem, FocusDirective],
+    template: `
     <list [items]="items">
       <v *item focus>
         <text-input [text]=""></text-input>
       </v>
     </list>
-  `,
+  `
 })
 export class Test5 {
   shortcutService = inject(ShortcutService)
@@ -383,9 +378,8 @@ export class Test6Comp {
 }
 
 @Component({
-  standalone: true,
-  imports: [Test6Comp],
-  template: ` @if (visible) {<Test6Comp />}`,
+    imports: [Test6Comp],
+    template: ` @if (visible) {<Test6Comp />}`
 })
 export class Test6 {
   shortcutService = inject(ShortcutService)
@@ -430,13 +424,12 @@ describe('ShortcutService -', () => {
 })
 
 @Component({
-  standalone: true,
-  imports: [H, FocusDirective],
-  template: `<h #parent focus>
+    imports: [H, FocusDirective],
+    template: `<h #parent focus>
     <h #child focus></h>
   </h>
   `,
-  providers: [ShortcutService]
+    providers: [ShortcutService]
 })
 export class Test7 {
   shortcutService = inject(ShortcutService)
@@ -457,10 +450,9 @@ describe('FocusDirective -', () => {
 })
 
 @Component({
-  selector: 'component-data-display',
-  standalone: true,
-  imports: [H, List, ListItem, FocusDirective, StyleDirective],
-  template: `
+    selector: 'component-data-display',
+    imports: [H, List, ListItem, FocusDirective, StyleDirective],
+    template: `
     <h [s]="cond(shortcutService.isFocused(), s.selected)"> {{ data().name }}</h>
     <list
       #list
@@ -477,7 +469,7 @@ describe('FocusDirective -', () => {
         [focusName]="'component-' + item.name"
         (selectedItem)="onSelectedItem($event)"/>
     </list>
-  `,
+  `
 })
 class ComponentDataView {
   shortcutService = inject(ShortcutService)

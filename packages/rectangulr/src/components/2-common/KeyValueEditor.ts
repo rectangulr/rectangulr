@@ -7,15 +7,14 @@ import { ShortcutService } from "../../commands/shortcut.service"
 
 
 @Component({
-	selector: 'keyvalue-editor',
-	template: `
+    selector: 'keyvalue-editor',
+    template: `
     <v [formGroup]="formGroup" [s]="{ flexDirection: 'row' }">
       <v [s]="{ width: keyWidth() + 1 }" [s]="[blackOnWhite]">{{ keyValue().key }}</v>
       <text-input [formControlName]="keyValue().key" [text]="keyValue().value"/>
     </v>
     `,
-	standalone: true,
-	imports: [TextInput, ReactiveFormsModule, StyleDirective],
+    imports: [TextInput, ReactiveFormsModule, StyleDirective]
 })
 export class KeyValueEditor {
 	readonly keyValue = input<{

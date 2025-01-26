@@ -14,10 +14,9 @@ import { ProcessTerminal } from "../angular-terminal/terminals/processTerminal"
 
 it('TermText2 - should resize when the content changes', () => {
 	@Component({
-		template: '<h>{{text()}}</h>',
-		standalone: true,
-		imports: [H],
-	})
+    template: '<h>{{text()}}</h>',
+    imports: [H]
+})
 	class TestComponent {
 		text = signal('aaa')
 		h = viewChild(H, { read: ElementRef })
@@ -36,15 +35,14 @@ it('TermText2 - should resize when the content changes', () => {
 
 it('TermText2 - should resize when the content changes (in a flexbox)', () => {
 	@Component({
-		template: `
+    template: `
 			<v grow [s]="{maxHeight: 5}">
 				<h>{{text()}}</h>
 				<h [s]="{vgrow: true}">{{text()}}</h>
 			</v>
 		`,
-		standalone: true,
-		imports: [H, V, StyleDirective],
-	})
+    imports: [H, V, StyleDirective]
+})
 	class TestComponent {
 		text = signal('aaa')
 		h = viewChild(H, { read: ElementRef })
@@ -63,7 +61,7 @@ it('TermText2 - should resize when the content changes (in a flexbox)', () => {
 
 it('TermText2 - scroll', () => {
 	@Component({
-		template: `
+    template: `
 			<v [s]="{maxHeight: 8}">
 				<v scroll>
 					<h [s]="{flexShrink: 0}">{{text()}}</h>
@@ -71,9 +69,8 @@ it('TermText2 - scroll', () => {
 				</v>
 			</v>
 		`,
-		standalone: true,
-		imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective],
-	})
+    imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective]
+})
 	class TestComponent {
 		text = signal("bbbb\nbbbb\nbbbb\nbbbb\nbbbb\n")
 		h = viewChild(H, { read: ElementRef })
@@ -90,13 +87,12 @@ it('TermText2 - scroll', () => {
 
 it('snapshot', () => {
 	@Component({
-		template: `
+    template: `
 			<h>aaaa</h>
 			<h>bbbb</h>
 		`,
-		standalone: true,
-		imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective],
-	})
+    imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective]
+})
 	class TestComponent { }
 
 	// globalThis['RECTANGULR_TARGET'] = 'node'

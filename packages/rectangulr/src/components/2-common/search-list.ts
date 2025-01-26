@@ -27,8 +27,8 @@ import { ListItem } from './list/list-item'
 import { borderTop } from './styles'
 
 @Component({
-  selector: 'search-list',
-  template: `
+    selector: 'search-list',
+    template: `
     <v>
       @if (searchInputVisible()) {
         <text-input
@@ -46,17 +46,16 @@ import { borderTop } from './styles'
       </list>
     </v>
   `,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useFactory: () => {
-        const searchList = inject(SearchList)
-        return searchList.$list
-      },
-    },
-  ],
-  standalone: true,
-  imports: [V, TextInput, FocusDirective, List, StyleDirective],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useFactory: () => {
+                const searchList = inject(SearchList);
+                return searchList.$list;
+            },
+        },
+    ],
+    imports: [V, TextInput, FocusDirective, List, StyleDirective]
 })
 export class SearchList<T> {
   items = input.required<T[]>()

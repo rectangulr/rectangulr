@@ -10,14 +10,13 @@ import { Element } from './sources'
 describe('DOM - ', () => {
   it('child should be bigger than parent', () => {
     @Component({
-      template: `
+    template: `
         <v #parent [s]="{ width: 5 }">
           <h #child [s]="{ flexShrink: 0, alignSelf: 'flexStart' }">aaaaaaaaaa</h>
         </v>
       `,
-      standalone: true,
-      imports: [H, V, GrowDirective, StyleDirective],
-    })
+    imports: [H, V, GrowDirective, StyleDirective]
+})
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
       @ViewChild('child') child: ElementRef<Element>
@@ -36,10 +35,9 @@ describe('DOM - ', () => {
 
   it('text should stretch the parent', async () => {
     @Component({
-      standalone: true,
-      imports: [GrowDirective, V, H],
-      template: ` <h #parent>aaaaaaaaaa</h> `,
-    })
+    imports: [GrowDirective, V, H],
+    template: ` <h #parent>aaaaaaaaaa</h> `
+})
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
     }
@@ -53,15 +51,14 @@ describe('DOM - ', () => {
 
   it('<v>', async () => {
     @Component({
-      standalone: true,
-      imports: [H, V, GrowDirective, StyleDirective],
-      template: `
+    imports: [H, V, GrowDirective, StyleDirective],
+    template: `
         <v #parent [s]="{ width: 20 }">
           <h #child1>Test</h>
           <h #child2>Test2</h>
         </v>
-      `,
-    })
+      `
+})
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
       @ViewChild('child1') child1: ElementRef<Element>
@@ -85,15 +82,14 @@ describe('DOM - ', () => {
 
   it('v hgrow', async () => {
     @Component({
-      standalone: true,
-      imports: [H, V, GrowDirective, StyleDirective],
-      template: `
+    imports: [H, V, GrowDirective, StyleDirective],
+    template: `
         <v #parent [s]="{ width: 20 }">
           <h #child1 [s]="{ hgrow: true }">Test</h>
           <h #child2 [s]="{ hgrow: true }">Test2</h>
         </v>
-      `,
-    })
+      `
+})
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
       @ViewChild('child1') child1: ElementRef<Element>
@@ -117,15 +113,14 @@ describe('DOM - ', () => {
 
   it('hbox vgrow', async () => {
     @Component({
-      standalone: true,
-      imports: [H, V, StyleDirective],
-      template: `
+    imports: [H, V, StyleDirective],
+    template: `
         <h #parent [s]="{ height: 20 }">
           <h #child1 [s]="{ vgrow: true }">Test</h>
           <h #child2 [s]="{ vgrow: true }">Test2</h>
         </h>
-      `,
-    })
+      `
+})
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
       @ViewChild('child1') child1: ElementRef<Element>
@@ -153,14 +148,13 @@ describe('DOM - ', () => {
 
   it('h grow', async () => {
     @Component({
-      standalone: true,
-      imports: [H, V, StyleDirective, GrowDirective],
-      template: `
+    imports: [H, V, StyleDirective, GrowDirective],
+    template: `
         <h #parent [s]="{ height: 20, width: 20 }">
           <h grow #child1></h>
         </h>
-      `,
-    })
+      `
+})
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
       @ViewChild('child1') child1: ElementRef<Element>

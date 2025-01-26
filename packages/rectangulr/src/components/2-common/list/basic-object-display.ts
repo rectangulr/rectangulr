@@ -8,8 +8,7 @@ import { List } from './list'
 @Component({
   selector: 'basic-object-display',
   template: `<h [s]="{ height: 1 }">{{ text }}</h>`,
-  standalone: true,
-  imports: [H, StyleDirective],
+  imports: [H, StyleDirective]
 })
 export class BasicObjectDisplay {
   readonly data = input<any>(undefined);

@@ -4,9 +4,8 @@ import { FormEditor } from './form-editor'
 import { discardPeriodicTasks, fakeAsync } from '@angular/core/testing'
 
 @Component({
-  standalone: true,
-  imports: [FormEditor],
-  template: `<form-editor [object]="object"/>`,
+    imports: [FormEditor],
+    template: `<form-editor [object]="object"/>`
 })
 export class Test1 {
   object = { name: 'James', age: 25 }

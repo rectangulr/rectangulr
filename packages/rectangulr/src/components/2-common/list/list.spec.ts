@@ -9,9 +9,8 @@ import { List } from './list'
 import { ListItem } from './list-item'
 
 @Component({
-  standalone: true,
-  imports: [List],
-  template: `<list [items]="items"></list> `,
+    imports: [List],
+    template: `<list [items]="items"></list> `
 })
 export class Test1 {
   items = [1, 2, 3]
@@ -52,11 +51,10 @@ describe('List - ', () => {
 })
 
 @Component({
-  standalone: true,
-  imports: [List, H, ListItem],
-  template: `<list [items]="items">
+    imports: [List, H, ListItem],
+    template: `<list [items]="items">
     <h *item="let value">item: {{ value }}</h>
-  </list> `,
+  </list> `
 })
 export class Test2 {
   items = [1, 2, 3]
@@ -81,13 +79,12 @@ describe('List - ', () => {
 })
 
 @Component({
-  standalone: true,
-  imports: [List, ListItem, TextInput, FocusDirective],
-  template: `
+    imports: [List, ListItem, TextInput, FocusDirective],
+    template: `
     <list [items]="items">
       <text-input focus *item="let value" [text]="value"></text-input>
     </list>
-  `,
+  `
 })
 export class Test3 {
   items = ['text1', 'text2', 'text3']
@@ -124,11 +121,10 @@ describe('List - ', () => {
 
 describe('List - ', () => {
   @Component({
-    standalone: true,
     selector: 'test-list-4',
     imports: [List],
-    template: `<list [items]="items"></list> `,
-  })
+    template: `<list [items]="items"></list> `
+})
   class Test4 {
     items = signal([]) as any
     @ViewChild(List) list: List<any>
