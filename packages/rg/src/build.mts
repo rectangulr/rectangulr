@@ -1,6 +1,3 @@
-#!/usr/bin/env -S tsx
-// #!/usr/bin/env -S node --experimental-strip-types
-
 import * as esbuild from 'esbuild'
 import { angularPlugin, rebuildNotifyPlugin } from './esbuildPlugins.ts'
 import { checkOptions, opt } from './options.ts'
