@@ -1,6 +1,5 @@
-import { CommonModule } from '@angular/common'
 import { Component, inject, signal } from '@angular/core'
-import { Command, GrowDirective, H, List, NotificationsService, StyleDirective, TextInput, V, VGrowDirective, derived, registerShortcuts } from '@rectangulr/rectangulr'
+import { Command, GrowDirective, H, List, NotificationsService, StyleDirective, TextInput, VGrowDirective, derived, registerShortcuts } from '@rectangulr/rectangulr'
 import * as _ from '@s-libs/micro-dash'
 import { signal2 } from '../utils/Signal2'
 
@@ -10,7 +9,7 @@ import { signal2 } from '../utils/Signal2'
       <text-input [(text)]="selectedTodo" />
       <list [items]="items()" (selectedIndex)="selectedIndex.set($event)"/>
   `,
-  hostDirectives: [GrowDirective, VGrowDirective],
+  hostDirectives: [GrowDirective],
   standalone: true,
   imports: [H, List, StyleDirective, TextInput],
 })

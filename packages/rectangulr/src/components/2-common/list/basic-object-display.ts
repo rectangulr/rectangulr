@@ -1,5 +1,5 @@
 import { Component, computed, forwardRef, inject, input } from '@angular/core'
-import * as json5 from 'json5'
+import json5 from 'json5'
 import { H } from '../../../components/1-basics/h'
 import { mapKeyValue, stringifyReplacer } from '../../../utils/utils'
 import { StyleDirective } from '../../1-basics/style'

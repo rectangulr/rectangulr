@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, Output, viewChild } from '@angular/core'
 import { FormBuilder, FormGroup } from '@angular/forms'
-import * as json5 from 'json5'
+import json5 from 'json5'
 import * as _ from 'lodash-es'
 import { Subject } from 'rxjs'
 import { FocusDirective } from '../../commands/focus.directive'

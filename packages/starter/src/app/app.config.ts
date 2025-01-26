@@ -1,10 +1,10 @@
-import { ApplicationConfig } from '@angular/core'
-import { View } from '@rectangulr/rectangulr'
+import { ApplicationConfig, provideExperimentalZonelessChangeDetection } from '@angular/core'
+import { provideView, View } from '@rectangulr/rectangulr'
 import { AppComponent } from './app.component'
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    { provide: View, useValue: { name: 'App', component: AppComponent }, multi: true },
-    // provideExperimentalZonelessChangeDetection(),
+    provideView({ name: 'App', component: AppComponent }),
+    provideExperimentalZonelessChangeDetection(),
   ]
 }

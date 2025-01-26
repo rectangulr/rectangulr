@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core'
 import * as fs from 'fs'
-import * as json5 from 'json5'
+import json5 from 'json5'
 import { LOGGER } from '../../angular-terminal/logger'
 
 @Injectable({

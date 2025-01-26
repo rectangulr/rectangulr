@@ -1,7 +1,7 @@
 import { Component, ElementRef, Injector, Output, Signal, TemplateRef, computed, contentChild, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core'
 import { toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
-import * as json5 from 'json5'
+import json5 from 'json5'
 import * as _ from 'lodash-es'
 import { Subject } from 'rxjs'
 import { Element } from '../../../angular-terminal/dom-terminal'

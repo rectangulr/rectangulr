@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from "@angular/core"
-import * as json5 from 'json5'
+import json5 from 'json5'
 import { Logger, LOGGER } from "../angular-terminal/logger"
 import { signal2 } from "../utils/Signal2"
 import { LogName, Match, MatchType, Selector } from "./LogPointTypes"

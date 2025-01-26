@@ -1,0 +1,19 @@
+{
+  "name": "@rectangulr/rg",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Rectangulr command-line tools",
+  "bin": {
+    "rg": "./src/build.mts"
+  },
+  "keywords": [],
+  "author": "David Marshall",
+  "license": "MIT",
+  "devDependencies": {
+    "@angular/build": "^19.1.4",
+    "@types/node": "^22.10.10",
+    "esbuild": "^0.24.2",
+    "tsx": "^4.19.2",
+    "zx": "^8.3.0"
+  }
+}
