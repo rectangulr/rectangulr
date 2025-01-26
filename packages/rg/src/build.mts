@@ -4,6 +4,7 @@
 import * as esbuild from 'esbuild'
 import { angularPlugin, rebuildNotifyPlugin } from './esbuildPlugins.ts'
 import { checkOptions, opt } from './options.ts'
+import json5 from 'json5'
 
 main()
 async function main() {
@@ -21,13 +22,14 @@ async function main() {
 	}
 	console.log(`\n  Enabled plugins: ${enabledPlugins.map(p => p.name).join(', ')}`)
 
+	const customEsbuildOptions = json5.parse(opt('customEsbuild'))
 	const ctx = await esbuild.context({
 		entryPoints: opt('_'),
 		outdir: opt('o'),
-		outExtension: { '.js': '.cjs' },
+		outExtension: { '.js': '.mjs' },
 		mainFields: ['module', 'browser', 'main'],
 		bundle: true,
-		treeShaking: false,
+		treeShaking: true,
 		minify: false,
 		logLevel: 'info',
 		metafile: opt('meta'),
@@ -38,15 +40,15 @@ async function main() {
 		// target: 'node18',
 
 		// external: nodeBuiltins,
-		// format: 'esm',
+		format: 'esm',
 		define: {
-			'process.env.NODE_ENV': '"production"',
-			// 'ngDevMode': 'false'
+			'ngDevMode': 'false'
 		},
 
 		plugins: [
 			...enabledPlugins,
-		]
+		],
+		...customEsbuildOptions
 	})
 
 	if (opt('watch')) {

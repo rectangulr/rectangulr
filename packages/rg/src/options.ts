@@ -9,8 +9,10 @@ export const opts = {
 	'tsconfig': { id: 'tsconfig', description: 'Tsconfig path', default: 'tsconfig.json' },
 	'meta': { id: 'meta', description: 'Enable esbuild bundle size analyzer', default: false },
 	'watch': { id: 'watch', description: 'Watch mode', default: false },
+	'dev': { id: 'dev', description: 'Development mode', default: false },
 	'sourcemap': { id: 'sourcemap', description: 'Enable sourcemaps', default: false },
 	'help': { id: 'help', description: 'Print the options', default: false },
+	'customEsbuild': { id: 'customEsbuild', description: 'Custom esbuild options', default: '{}' },
 }
 
 export function opt(name: keyof typeof opts) {
