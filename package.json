@@ -3,13 +3,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/rectangulr/rectangulr.git"
-  },
-  "workspaces": [
-    "packages/rg",
-    "packages/rectangulr/dist",
-    "packages/buildr",
-    "packages/explorer",
-    "packages/starter",
-    "packages/smoke-test"
-  ]
+  }
 }
