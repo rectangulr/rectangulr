@@ -32,43 +32,46 @@ jobs:
 
       # Install / Build
 
-      - name: "Package: Rectangulr"
-        run: npm ci --include=dev
-        working-directory: ./packages/rectangulr
-      - run: bash dev/checks-source.sh
-        working-directory: ./packages/rectangulr
-      - run: npm run build
-        working-directory: ./packages/rectangulr
-      - run: bash dev/checks-build.sh
-        working-directory: ./packages/rectangulr
-      - run: npm run test
-        working-directory: ./packages/rectangulr
+      - name: "Rectangulr CI"
+        run: "npm i tsx zx && npx tsx ci.mts"
+
+      # - name: "Package: Rectangulr"
+      #   run: npm ci --include=dev
+      #   working-directory: ./packages/rectangulr
+      # - run: bash dev/checks-source.sh
+      #   working-directory: ./packages/rectangulr
+      # - run: npm run build
+      #   working-directory: ./packages/rectangulr
+      # - run: bash dev/checks-build.sh
+      #   working-directory: ./packages/rectangulr
+      # - run: npm run test
+      #   working-directory: ./packages/rectangulr
 
       # packages/buildr
 
-      - name: "Package: Buildr"
-        run: npm i --include=dev
-        working-directory: ./packages/buildr
-      - run: npm run build
-        working-directory: ./packages/buildr
-      - run: npm run test
-        working-directory: ./packages/buildr
+      # - name: "Package: Buildr"
+      #   run: npm i --include=dev
+      #   working-directory: ./packages/buildr
+      # - run: npm run build
+      #   working-directory: ./packages/buildr
+      # - run: npm run test
+      #   working-directory: ./packages/buildr
 
       # packages/smoke-test
 
-      - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr ../buildr
-        working-directory: ./packages/smoke-test
-      # - name: "Package: Smoke Test"
-      #   run: npm i --include=dev
+      # - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr ../buildr
       #   working-directory: ./packages/smoke-test
-      - run: npm run build
-        working-directory: ./packages/smoke-test
-      - run: npm run test
-        working-directory: ./packages/smoke-test
+      # # - name: "Package: Smoke Test"
+      # #   run: npm i --include=dev
+      # #   working-directory: ./packages/smoke-test
+      # - run: npm run build
+      #   working-directory: ./packages/smoke-test
+      # - run: npm run test
+      #   working-directory: ./packages/smoke-test
 
       # packages/starter
 
-      - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr
-        working-directory: ./packages/starter
-      - run: npm run build
-        working-directory: ./packages/starter
+      # - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr
+      #   working-directory: ./packages/starter
+      # - run: npm run build
+      #   working-directory: ./packages/starter

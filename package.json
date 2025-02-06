@@ -3,5 +3,18 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/rectangulr/rectangulr.git"
+  },
+  "private": true,
+  "workspaces": [
+    "packages/rectangulr",
+    "packages/rg",
+    "packages/smoke-test",
+    "packages/starter",
+    "packages/explorer"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "tsx": "^4.19.2",
+    "zx": "^8.3.2"
   }
 }

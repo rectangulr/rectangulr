@@ -1,10 +1,9 @@
 require('@angular/compiler')
 const { provideExperimentalZonelessChangeDetection } = require('@angular/core')
 const Jasmine = require('jasmine')
-const jasmineCore = require('node_modules/jasmine-core/lib/jasmine-core/jasmine.js')
-jasmineCore.boot = require('node_modules/jasmine-core/lib/jasmine-core/node_boot.js')
+const jasmineCore = require('jasmine-core/lib/jasmine-core/jasmine.js')
+jasmineCore.boot = require('jasmine-core/lib/jasmine-core/node_boot.js')
 const j = new Jasmine({
-  // @ts-ignore
   jasmineCore: jasmineCore,
 })
 
@@ -46,6 +45,7 @@ require('../angular-terminal/dom-terminal/style.spec')
 
 require('../logs/LogPointService.spec')
 require('../tests/bug-text-input-resize.spec')
+require('../tasks/tasks.spec')
 
 // require('../angular-terminal/dom-terminal/sources/core/dom/Node.spec')
 // require('../angular-terminal/dom-terminal/sources/core/dom/Element.spec')

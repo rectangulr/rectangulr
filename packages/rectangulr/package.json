@@ -59,7 +59,7 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "@angular-builders/custom-webpack": "^18.0.0",
+    "@angular-builders/custom-webpack": "^19.0.0",
     "@angular-devkit/architect": "^0.1901.4",
     "@angular-devkit/build-angular": "^19.1.4",
     "@angular/cli": "^19.1.4",
@@ -81,6 +81,7 @@
     "expect": "^29.7.0",
     "fuse.js": "^6.4.6",
     "jasmine": "^4.5.0",
+    "jasmine-core": "^4.6.0",
     "json5": "^2.2.0",
     "ng-packagr": "^19.1.1",
     "publish-if-not-exists": "^1.1.0",

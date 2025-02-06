@@ -10,7 +10,7 @@
 			"request": "attach",
 			"smartStep": false,
 			"skipFiles": [
-				// "<node_internals>/**"
+				"<node_internals>/**"
 			],
 			"type": "node",
 			"continueOnAttach": true,

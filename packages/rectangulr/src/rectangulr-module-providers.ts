@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ErrorHandler, InjectionToken, Injector, Provider, RendererFactory2, inject, ɵINJECTOR_SCOPE } from "@angular/core"
+import { APP_INITIALIZER, ErrorHandler, InjectionToken, Injector, Provider, RendererFactory2, inject, ɵINJECTOR_SCOPE, provideExperimentalZonelessChangeDetection, EnvironmentProviders } from "@angular/core"
 import { global_rgComponent, global_rgLView } from "./angular-terminal/debug"
 import { debugYoga } from "./angular-terminal/debug-yoga"
 import { RectangulrErrorHandler } from "./angular-terminal/error-handler"
@@ -20,7 +20,8 @@ export const RECTANGULR_MODULE_PROVIDERS_MARKER = new InjectionToken(
 	NG_DEV_MODE ? 'RectangulrModule Providers Marker' : ''
 )
 
-export const RECTANGULR_MODULE_PROVIDERS: Provider[] = [
+export const RECTANGULR_MODULE_PROVIDERS: (Provider | EnvironmentProviders)[] = [
+	provideExperimentalZonelessChangeDetection(),
 	{ provide: ɵINJECTOR_SCOPE, useValue: 'root' },
 	{ provide: ErrorHandler, useClass: RectangulrErrorHandler },
 	{ provide: RendererFactory2, useClass: RectangulrRendererFactory2 },

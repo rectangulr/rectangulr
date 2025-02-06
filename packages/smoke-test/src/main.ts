@@ -1,9 +1,9 @@
+import '@angular/compiler'
 import { Component, inject } from '@angular/core'
 import { TermScreen, bootstrapApplication } from '@rectangulr/rectangulr'
 
 @Component({
 	template: 'main',
-	standalone: true,
 })
 class Main {
 	screen = inject(TermScreen)
@@ -15,3 +15,4 @@ class Main {
 }
 
 bootstrapApplication(Main)
+	.catch((err) => console.error(err))

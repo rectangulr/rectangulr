@@ -4,17 +4,28 @@
   "type": "module",
   "description": "Rectangulr command-line tools",
   "bin": {
-    "rg": "rg.js"
+    "rg": "bin/rg.js"
   },
   "keywords": [],
   "author": "David Marshall",
-  "license": "MIT",
-  "devDependencies": {
-    "@angular/build": "^19.1.4",
-    "@types/node": "^22.10.10",
-    "esbuild": "^0.24.2",
-    "json5": "^2.2.3",
+  "license": "UNLICENSED",
+  "dependencies": {
     "tsx": "^4.19.2",
+    "esbuild": "^0.24.2",
     "zx": "^8.3.0"
-  }
+  },
+  "peerDependencies": {
+    "@angular/build": "^19.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rectangulr/rectangulr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rectangulr/rectangulr/issues"
+  },
+  "homepage": "https://github.com/rectangulr/rectangulr#readme"
 }

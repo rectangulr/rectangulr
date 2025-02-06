@@ -1,65 +1,84 @@
 import * as esbuild from 'esbuild'
-import { angularPlugin, rebuildNotifyPlugin } from './esbuildPlugins.ts'
-import { checkOptions, opt } from './options.ts'
-import json5 from 'json5'
+import { angularPlugin, rebuildNotifyPlugin } from './esbuildPlugins'
+import { checkOptions, opt } from './options'
 
 main()
 async function main() {
-	const optionsRes = checkOptions()
-	if (optionsRes == 'help') process.exit(0)
-	if (optionsRes == 'error') process.exit(1)
 
-	const enabledPlugins = []
-	enabledPlugins.push(rebuildNotifyPlugin({
-		outDir: opt('o'),
-		printMetaFile: opt('meta')
-	}))
-	if (opt('aot')) {
-		enabledPlugins.push(angularPlugin({ tsconfig: opt('tsconfig') }))
+	/**
+	 * Command-line options
+	 */
+	{
+		const optionsRes = checkOptions()
+		if (optionsRes == 'help') process.exit(0)
+		if (optionsRes == 'error') process.exit(1)
 	}
-	console.log(`\n  Enabled plugins: ${enabledPlugins.map(p => p.name).join(', ')}`)
 
-	const customEsbuildOptions = json5.parse(opt('customEsbuild'))
-	const ctx = await esbuild.context({
-		entryPoints: opt('_'),
-		outdir: opt('o'),
-		outExtension: { '.js': '.mjs' },
-		mainFields: ['module', 'browser', 'main'],
-		bundle: true,
-		treeShaking: true,
-		minify: false,
-		logLevel: 'info',
-		metafile: opt('meta'),
-		sourcemap: opt('sourcemap'),
-		legalComments: 'none',
+	/**
+	 * Esbuild Plugins
+	 */
+	let enabledPlugins: esbuild.Plugin[] = []
+	{
+		enabledPlugins.push(rebuildNotifyPlugin({
+			outDir: opt('o'),
+			printMetaFile: opt('meta')
+		}))
+		if (opt('aot')) {
+			enabledPlugins.push(angularPlugin({ tsconfig: opt('tsconfig') }))
+		}
+		console.log(`\n  Enabled plugins: ${enabledPlugins.map(p => p.name).join(', ')}`)
+	}
 
-		platform: 'node',
-		// target: 'node18',
+	/**
+	 * Esbuild context
+	 */
+	let ctx: esbuild.BuildContext
+	{
+		ctx = await esbuild.context({
+			entryPoints: opt('_'),
+			outdir: opt('o'),
+			outExtension: { '.js': '.mjs' },
+			mainFields: ['module', 'browser', 'main'],
+			bundle: true,
+			treeShaking: true,
+			minify: false,
+			logLevel: 'info',
+			metafile: opt('meta'),
+			sourcemap: opt('sourcemap') ? 'linked' : false,
+			legalComments: 'none',
 
-		// external: nodeBuiltins,
-		format: 'esm',
-		define: {
-			'ngDevMode': 'false'
-		},
+			platform: 'node',
+			// target: 'node18',
 
-		plugins: [
-			...enabledPlugins,
-		],
-		...customEsbuildOptions
-	})
+			// external: nodeBuiltins,
+			format: 'esm',
+			define: {
+				'ngDevMode': 'false'
+			},
 
-	if (opt('watch')) {
-		await ctx.watch()
-	} else {
-		const res = await ctx.rebuild()
-		if (res.errors.length) {
-			console.error('Build failed with errors:')
-			for (const err of res.errors) {
-				console.error(err)
-			}
-			process.exit(1)
+			plugins: [
+				...enabledPlugins,
+			],
+		})
+	}
+
+	/**
+	 * Start build
+	 */
+	{
+		if (opt('watch')) {
+			await ctx.watch()
 		} else {
-			process.exit(0)
+			const res = await ctx.rebuild()
+			if (res.errors.length) {
+				console.error('Build failed with errors:')
+				for (const err of res.errors) {
+					console.error(err)
+				}
+				process.exit(1)
+			} else {
+				process.exit(0)
+			}
 		}
 	}
 }

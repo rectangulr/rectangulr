@@ -1,12 +1,12 @@
-import _ from "lodash-es"
+import { isArray, mergeWith } from "lodash-es"
 
 export function mergeDeep(object, other) {
 	function customizer(objValue, srcValue) {
-		if (_.isArray(objValue)) {
+		if (isArray(objValue)) {
 			return objValue.concat(srcValue)
 		}
 	}
 
-	return _.mergeWith(object, other, customizer)
+	return mergeWith(object, other, customizer)
 }
 
