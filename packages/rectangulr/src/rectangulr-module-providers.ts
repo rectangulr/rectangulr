@@ -1,16 +1,14 @@
-import { APP_INITIALIZER, ErrorHandler, InjectionToken, Injector, Provider, RendererFactory2, inject, ɵINJECTOR_SCOPE, provideExperimentalZonelessChangeDetection, EnvironmentProviders } from "@angular/core"
+import { APP_INITIALIZER, EnvironmentProviders, ErrorHandler, inject, InjectionToken, Injector, provideExperimentalZonelessChangeDetection, Provider, RendererFactory2, ɵINJECTOR_SCOPE } from "@angular/core"
 import { global_rgComponent, global_rgLView } from "./angular-terminal/debug"
 import { debugYoga } from "./angular-terminal/debug-yoga"
 import { RectangulrErrorHandler } from "./angular-terminal/error-handler"
-import { global_logs, patchNodeConsole } from "./angular-terminal/logger"
+import { global_logs, patchNodeConsole, REDIRECT_CONSOLE_LOG } from "./angular-terminal/logger"
 import { RectangulrRendererFactory2 } from "./angular-terminal/renderer"
 import { ScreenService } from "./angular-terminal/screen-service"
-import { ProcessTerminal } from "./angular-terminal/terminals/processTerminal"
-import { TERMINAL } from "./angular-terminal/terminals/terminal"
-import { VoidTerminal } from './angular-terminal/terminals/void'
-import { XTermTerminal } from "./angular-terminal/terminals/xtermTerminal"
+import { ProcessTerminal } from "./angular-terminal/terminals/ProcessTerminal"
+import { TERMINAL } from "./angular-terminal/terminals/Terminal"
 import { addToGlobalRg } from './utils/addToGlobalRg'
-import { InjectFunction, assert } from "./utils/utils"
+import { InjectFunction } from "./utils/utils"
 
 
 // @ts-ignore
@@ -27,21 +25,7 @@ export const RECTANGULR_MODULE_PROVIDERS: (Provider | EnvironmentProviders)[] = 
 	{ provide: RendererFactory2, useClass: RectangulrRendererFactory2 },
 	NG_DEV_MODE ? { provide: RECTANGULR_MODULE_PROVIDERS_MARKER, useValue: true } : [],
 	{ provide: ScreenService, useClass: ScreenService },
-	{
-		provide: TERMINAL, useFactory: () => {
-			if (RECTANGULR_TARGET == 'node') {
-				return new ProcessTerminal(process)
-			} else if (RECTANGULR_TARGET == 'web') {
-				// TODO remove global var ?
-				// implement rectangulr startup args
-				const term = globalThis['xterm']
-				assert(term, `RECTANGULR_TARGET == 'web', but no xterm was found on globalThis`)
-				return new XTermTerminal(term)
-			} else {
-				return VoidTerminal
-			}
-		}
-	},
+	{ provide: TERMINAL, useFactory: () => { return new ProcessTerminal(process) } },
 	{
 		provide: APP_INITIALIZER,
 		useFactory: () => {
@@ -65,7 +49,7 @@ export const RECTANGULR_MODULE_PROVIDERS: (Provider | EnvironmentProviders)[] = 
 					debugYoga: debugYoga,
 				})
 
-				if (RECTANGULR_TARGET == 'node' && !('TEST' in globalThis)) {
+				if (RECTANGULR_TARGET == 'node' && inject(REDIRECT_CONSOLE_LOG)) {
 					patchNodeConsole(globalInject)
 				}
 			}

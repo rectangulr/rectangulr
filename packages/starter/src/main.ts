@@ -1,6 +1,16 @@
 import '@angular/compiler'
-import { AppShell, bootstrapApplication } from '@rectangulr/rectangulr'
-import { appConfig } from './app/app.config'
+import { AppShell, bootstrapApplication, provideView, provideXtermJs } from '@rectangulr/rectangulr'
+import { AppComponent } from './app/app.component'
 
-bootstrapApplication(AppShell, appConfig)
-  .catch((err) => console.error(err))
+if (RECTANGULR_TARGET == 'node') {
+  main()
+}
+
+export function main(args: { xterm?: any } = {}) {
+  bootstrapApplication(AppShell, {
+    providers: [
+      RECTANGULR_TARGET == 'web' ? provideXtermJs(args.xterm) : [],
+      provideView({ name: 'App', component: AppComponent }),
+    ]
+  }).catch((err) => console.error(err))
+}

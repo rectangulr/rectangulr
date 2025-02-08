@@ -4,21 +4,22 @@
   "type": "module",
   "description": "Rectangulr command-line tools",
   "bin": {
-    "rg": "bin/rg.js"
+    "rg": "rg.js"
   },
   "keywords": [],
   "author": "David Marshall",
   "license": "UNLICENSED",
   "dependencies": {
-    "tsx": "^4.19.2",
     "esbuild": "^0.24.2",
+    "tsx": "^4.19.2",
     "zx": "^8.3.0"
   },
   "peerDependencies": {
     "@angular/build": "^19.1.5"
   },
   "devDependencies": {
-    "@types/node": "^22.10.10"
+    "@types/node": "^22.10.10",
+    "json5": "^2.2.3"
   },
   "repository": {
     "type": "git",

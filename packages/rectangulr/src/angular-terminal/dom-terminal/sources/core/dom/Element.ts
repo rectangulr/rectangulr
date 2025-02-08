@@ -2,9 +2,8 @@ import { Injector, inject } from "@angular/core"
 import * as _ from "@s-libs/micro-dash"
 import * as Yoga from 'typeflex'
 import { style } from '../../../../../term-strings/core'
-import { assert } from "../../../../../utils/utils"
+import { assert, assertDebug } from "../../../../../utils/utils"
 import type * as TYoga from '../../../yoga-types/index'
-import { TermScreen } from "../../term"
 import { Event } from '../misc/Event'
 import { Point } from '../misc/Point'
 import { Rect } from '../misc/Rect'
@@ -571,7 +570,7 @@ export class TermElement extends Node<TermElement> {
     // The default implementation doesn't do anything; triggerUpdates has to be called manually.
     // However, it is expected that renderer will override this function and call triggerUpdates themselves.
     // Note that calling triggerUpdates synchronously isn't advised: the requestUpdates function might get called multiple times in the same execution list.
-    // For this reason, prefer using setImmediate, requestAnimationFrame, or setTimeout in order to schedule an update later on.
+    // For this reason, prefer using requestAnimationFrame, or setTimeout in order to schedule an update later on.
   }
 
   triggerUpdates({ maxDepth = 5 } = {}) {
@@ -648,7 +647,7 @@ export class TermElement extends Node<TermElement> {
         this.elementRect.width = Math.round(this.yogaNode.getComputedWidth())
         this.elementRect.height = Math.round(this.yogaNode.getComputedHeight())
 
-        assert(this.elementRect.width < 9007199254740000)
+        assertDebug(this.elementRect.width < 9007199254740000)
         // assert(this.elementRect.x % 1 == 0)
         // assert(this.elementRect.y % 1 == 0)
         // assert(this.elementRect.width % 1 == 0)

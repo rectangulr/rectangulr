@@ -3,7 +3,8 @@ import { argv } from 'zx'
 export type Option = { id: string, description: string, default: any }
 
 export const opts = {
-	'_': { id: '_', description: 'Input files', default: ['src/main.ts'], },
+
+	'i': { id: 'i', description: 'Input files', default: ['src/main.ts'], },
 	'o': { id: 'o', description: 'Output directory', default: 'dist' },
 	'aot': { id: 'aot', description: `Enable Angular aot plugin`, default: false },
 	'tsconfig': { id: 'tsconfig', description: 'Tsconfig path', default: 'tsconfig.json' },
@@ -13,16 +14,12 @@ export const opts = {
 	'sourcemap': { id: 'sourcemap', description: 'Enable sourcemaps', default: false },
 	'help': { id: 'help', description: 'Print the options', default: false },
 	'customEsbuild': { id: 'customEsbuild', description: 'Custom esbuild options', default: '{}' },
+	'target': { id: 'target', description: 'Target platform: (web/node)', default: 'node' },
+	'printOptions': { id: 'printOptions', description: 'Print esbuild options and exit', default: false },
 }
 
 export function opt(name: keyof typeof opts) {
-	if (name == '_') {
-		if (argv['_'].length == 0) {
-			return opts[name].default
-		}
-	} else {
-		return argv[name] || opts[name].default
-	}
+	return argv[name] || opts[name].default
 }
 
 export function checkOptions(): 'error' | 'ok' | 'help' {
@@ -34,7 +31,7 @@ export function checkOptions(): 'error' | 'ok' | 'help' {
 		return 'help'
 	}
 
-	const unknownOptions = Object.keys(argv).filter(key => !(key in opts))
+	const unknownOptions = Object.keys(argv).filter(key => !(key in opts) && key != '_')
 	if (unknownOptions.length > 0) {
 		console.error('Unknown options:', unknownOptions.join(', '))
 		return 'error'

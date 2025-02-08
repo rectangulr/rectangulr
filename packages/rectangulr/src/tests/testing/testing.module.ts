@@ -1,7 +1,7 @@
 import { ApplicationInitStatus, COMPILER_OPTIONS, NgModule, NO_ERRORS_SCHEMA } from '@angular/core'
 import { TestComponentRenderer } from '@angular/core/testing'
-import { TERMINAL } from '../../angular-terminal/terminals/terminal'
-import { VoidTerminal } from '../../angular-terminal/terminals/void'
+import { TERMINAL } from '../../angular-terminal/terminals/Terminal'
+import { VoidTerminal } from '../../angular-terminal/terminals/VoidTerminal'
 import { RECTANGULR_MODULE_PROVIDERS } from '../../rectangulr-module-providers'
 
 class EmptyTestComponentRenderer implements TestComponentRenderer {

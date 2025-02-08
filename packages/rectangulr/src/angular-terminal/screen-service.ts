@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core'
 import { TermScreen } from './dom-terminal'
 import { LOGGER } from './logger'
-import { TERMINAL } from './terminals/terminal'
+import { TERMINAL } from './terminals/Terminal'
 
 /**
  * The bridge between Angular and @manaflair/mylittledom

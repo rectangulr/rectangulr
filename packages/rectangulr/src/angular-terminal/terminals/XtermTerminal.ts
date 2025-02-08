@@ -2,7 +2,10 @@ import type { Terminal as XtermRef } from "xterm"
 import { EventDispatch } from "../../utils/event-handler"
 import { Disposable, Queue } from "../../utils/queue"
 import { Input } from "../dom-terminal/sources/term/elements/TermScreen"
-import { Terminal } from './terminal'
+import { TERMINAL, Terminal } from './Terminal'
+import { StaticProvider } from "@angular/core"
+import { TODO } from "../../utils/utils"
+
 
 
 export class XTermTerminal implements Terminal {
@@ -66,6 +69,16 @@ export class XTermTerminal implements Terminal {
 	}
 }
 
+
+export function provideXtermJs(xterm: XtermRef): StaticProvider {
+	return {
+		provide: TERMINAL, useFactory: () => {
+			return new XTermTerminal(xterm)
+		}
+	}
+}
+
+
 export function mapDomKey(key: string): string {
 	key = key.toLowerCase()
 	if (key == 'arrowleft') return 'left'
@@ -74,3 +87,4 @@ export function mapDomKey(key: string): string {
 	if (key == 'arrowup') return 'up'
 	return key
 }
+

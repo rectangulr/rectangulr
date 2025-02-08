@@ -31,5 +31,7 @@
   },
   "angularCompilerOptions": {
     "strictTemplates": true,
+    // standalone
+    "strictStandalone": true
   }
 }

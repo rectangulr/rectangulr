@@ -2,24 +2,14 @@ import * as _ from 'lodash-es'
 import { style } from '../../../../../../term-strings/core'
 
 export class StyleColor {
-  name: any
 
-  constructor(name) {
-    this.name = name
+  constructor(public value) { }
 
-    Reflect.defineProperty(this, `front`, {
-      get: _.memoize(() => style.color.front(this.name)),
-      enumerable: false,
-    })
-
-    Reflect.defineProperty(this, `back`, {
-      get: _.memoize(() => style.color.back(this.name)),
-      enumerable: false,
-    })
-  }
+  front = style.color.front(this.value)
+  back = style.color.back(this.value)
 
   serialize() {
-    return this.name
+    return this.value
   }
 
   inspect() {

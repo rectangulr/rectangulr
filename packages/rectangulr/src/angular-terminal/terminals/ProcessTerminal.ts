@@ -1,7 +1,7 @@
 import { streamToObservable } from '../../term-strings/parse/getCursorPosition'
 import { Queue } from '../../utils/queue'
 import { Input } from '../dom-terminal/sources/term/elements/TermScreen'
-import { Terminal, TerminalInputs, TerminalScreen } from './terminal'
+import { Terminal, TerminalInputs, TerminalScreen } from './Terminal'
 
 
 export class ProcessTerminal implements Terminal {
@@ -40,7 +40,11 @@ export class ProcessTerminal implements Terminal {
 				this.process.stdout.write(text)
 			}
 			size = () => {
-				return { width: this.process.stdout.columns, height: this.process.stdout.rows }
+				if (this.process.stdout.columns) {
+					return { width: this.process.stdout.columns, height: this.process.stdout.rows }
+				} else {
+					return { width: 80, height: 25 }
+				}
 			}
 			on = (event, func) => { return this.process.stdout.on(event, func) }
 		}(process)

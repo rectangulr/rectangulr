@@ -1,5 +1,5 @@
 import { inject, InjectionToken } from '@angular/core'
-import { Terminal } from './terminal'
+import { Terminal } from './Terminal'
 
 
 export const TERMINAL_SIZE = new InjectionToken('TERMINAL_SIZE', {

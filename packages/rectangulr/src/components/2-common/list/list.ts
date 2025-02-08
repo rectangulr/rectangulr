@@ -29,7 +29,6 @@ import { BaseControlValueAccessor } from '../../../utils/base-control-value-acce
 import { Deferred } from '../../../utils/Deferred'
 import { patchInputSignal, signal2 } from '../../../utils/Signal2'
 import { StyleDirective } from '../../1-basics/style'
-import { whiteOnGray } from '../styles'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
 
@@ -38,8 +37,8 @@ import { ListItem } from './list-item'
  * Go up and down with the keyboard.
  */
 @Component({
-    selector: 'list',
-    template: `
+  selector: 'list',
+  template: `
     <v [s]="{ flexShrink: 0, scrollF: 'y' }">
       @for (item of visibleItems(); track trackByFn()($index,item)) {
         <v
@@ -63,14 +62,15 @@ import { ListItem } from './list-item'
       <basic-object-display [data]="item" />
     </ng-template>
     `,
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useFactory: () => inject(List).controlValueAccessor,
-            multi: true,
-        },
-    ],
-    imports: [NgTemplateOutlet, BasicObjectDisplay, V, StyleDirective]
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useFactory: () => inject(List).controlValueAccessor,
+      multi: true,
+    },
+  ],
+  standalone: true,
+  imports: [NgTemplateOutlet, BasicObjectDisplay, V, StyleDirective]
 })
 export class List<T> {
   /**
@@ -112,7 +112,7 @@ export class List<T> {
 
   itemStyle = (templateVars) => computed(() => {
     if (templateVars['index']() === this.selectedVisibleIndex()) {
-      return this.style().whiteOnGray
+      return this.S().listItem
     } else {
       return {}
     }
@@ -323,9 +323,8 @@ export class List<T> {
     this.deferreds.forEach(def => def.resolve(def.value))
   }
 
-  readonly style = input({
-    whiteOnGray: whiteOnGray,
-    nullOnNull: { backgroundColor: 'inherit', color: 'inherit' },
+  readonly S = input({
+    listItem: { backgroundColor: 'dimgray', color: 'white' },
   })
 
   shortcuts: Partial<Command>[] = [

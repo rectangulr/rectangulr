@@ -35,7 +35,7 @@ export class StyleHandler {
 				maybeComputeds.forEach(layer => this.add(layer))
 				return
 			}
-		} 
+		}
 
 		this.layers.push(layer)
 		this.dirtyLayer()
@@ -184,7 +184,6 @@ function assertNoInherit(obj) {
 		assert(value !== 'inherit')
 	}
 }
-
 
 function assertNoUndefined(obj) {
 	for (const [key, value] of Object.entries(obj)) {

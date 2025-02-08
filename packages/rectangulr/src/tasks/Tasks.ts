@@ -57,7 +57,7 @@ export class Tasks {
 		}
 	}
 
-	private resetTimeouts() {
+	resetTimeouts() {
 		for (const group of Object.values(this.groups)) {
 			if (group.debounce > 0 && group.tasks.length > 0) {
 				clearTimeout(group.timeoutHandle)

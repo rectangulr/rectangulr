@@ -25,7 +25,6 @@ export class RectangulrErrorHandler implements ErrorHandler {
   // screen = inject(ScreenService)
   logger = inject(LOGGER)
 
-
   handleError(error: Error): void {
     // Log
     this.logger.log(error)

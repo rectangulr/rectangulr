@@ -9,10 +9,6 @@ export { LOGGER, Logger } from './angular-terminal/logger'
 // Platform
 export { platformRectangulr, bootstrapApplication } from './angular-terminal/platform'
 
-// // Testing
-// export { platformRectangulrDynamicTesting } from './angular-terminal/testing/src/platform-testing'
-// export { RectangulrDynamicTestingModule } from './angular-terminal/testing/src/testing.module'
-
 export { DetachedCommandServiceDirective } from './commands/commands-detach'
 export { CommandPicker as Shortcuts } from './commands/command-picker.component'
 export { FocusDirective } from './commands/focus.directive'
@@ -60,6 +56,9 @@ export { ComponentOutletInputs } from './utils/componentOutletInput'
 export { KeyValue } from './utils/interfaces'
 export { StorageService } from './components/2-common/storage.service'
 
+export { Tasks } from './tasks/Tasks'
+export { provideXtermJs } from './angular-terminal/terminals/XtermTerminal'
+
 // Utils
 export {
   forceRefresh,
@@ -75,18 +74,12 @@ export {
 } from './utils/reactivity'
 export { DataFormat, CheckReturn, Completion } from './utils/data-format'
 
-declare global {
-  var RECTANGULR_TARGET: 'web' | 'node' | (string & {})
-}
-
-if (!('RECTANGULR_TARGET' in globalThis)) {
-  globalThis['RECTANGULR_TARGET'] = 'node'
-}
-
+export * as globals from './globals'
 
 // PRIVATE
 export { INTERNAL_RECTANGULR_PLATFORM_PROVIDERS as ɵINTERNAL_RECTANGULR_PLATFORM_PROVIDERS } from './angular-terminal/platform'
 export { Node as ɵNode } from './angular-terminal/dom-terminal'
 export { RECTANGULR_MODULE_PROVIDERS as ɵRECTANGULR_MODULE_PROVIDERS } from './rectangulr-module-providers'
-export { TERMINAL as ɵTERMINAL } from './angular-terminal/terminals/terminal'
-export { VoidTerminal as ɵvoidTerminal } from './angular-terminal/terminals/void'
+export { TERMINAL as ɵTERMINAL } from './angular-terminal/terminals/Terminal'
+export { VoidTerminal as ɵvoidTerminal } from './angular-terminal/terminals/VoidTerminal'
+export { signal2 as ɵsignal2, computed2 as ɵcomputed2 } from './utils/Signal2'

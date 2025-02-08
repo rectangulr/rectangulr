@@ -142,3 +142,8 @@ export const global_logs = function () {
   const logger = inject(FileLogger)
   return logger.$logs().slice(-100)
 }
+
+export const REDIRECT_CONSOLE_LOG = new InjectionToken<boolean>('REDIRECT_CONSOLE_LOG', {
+  providedIn: 'root',
+  factory: () => true
+})

@@ -1,1 +1,0 @@
-npm link @rectangulr/rg ./private/rectangulr/

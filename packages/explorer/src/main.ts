@@ -1,6 +1,6 @@
-import '@angular/compiler'
-import { Component, computed, effect, inject, input, resource, viewChild } from '@angular/core'
-import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, FocusDirective, GrowDirective, H, List, ListItem, Logs, provideView, registerShortcuts, ScrollDirective, ɵsignal2 as signal2, StyleDirective, Tasks, TermScreen } from '@rectangulr/rectangulr'
+// import '@angular/compiler'
+import { Component, computed, inject, input, resource, viewChild } from '@angular/core'
+import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, FocusDirective, GrowDirective, H, List, ListItem, Logs, provideView, registerShortcuts, ScrollDirective, ɵsignal2 as signal2, StyleDirective, Tasks } from '@rectangulr/rectangulr'
 import { Dirent, Stats } from 'fs'
 import fs from 'fs/promises'
 
@@ -43,14 +43,14 @@ export class Main {
 	selectedFileContent = signal2('')
 
 	constructor() {
-		effect(() => {
-			const file = this.selectedFile()
+		this.selectedFile.subscribe(file => {
 			if (!file) return
 			const path = this.selectedFilePath()
-			this.tasks.queue({
+
+			this.tasks.queueOnce({
+				name: 'preview',
 				debounce: Tasks.work,
 				func: async () => {
-					await this.tasks.waitForGroup(Tasks.work)
 					const stat = await fs.stat(path)
 					this.selectedFileContent.$ = await filePreview(file, path, stat)
 				}
@@ -101,9 +101,3 @@ bootstrapApplication(AppShell, {
 		provideView({ name: 'Logs', component: Logs, tags: ['hidden'] }),
 	]
 }).catch((err) => console.error(err))
-
-function assert(condition: any, message?: string): asserts condition {
-	if (!condition) {
-		throw new Error(message)
-	}
-}

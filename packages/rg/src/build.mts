@@ -1,17 +1,17 @@
 import * as esbuild from 'esbuild'
 import { angularPlugin, rebuildNotifyPlugin } from './esbuildPlugins'
 import { checkOptions, opt } from './options'
+import json5 from 'json5'
 
 main()
 async function main() {
-
 	/**
 	 * Command-line options
 	 */
 	{
-		const optionsRes = checkOptions()
-		if (optionsRes == 'help') process.exit(0)
-		if (optionsRes == 'error') process.exit(1)
+		const res = checkOptions()
+		if (res == 'help') process.exit(0)
+		if (res == 'error') process.exit(1)
 	}
 
 	/**
@@ -30,12 +30,13 @@ async function main() {
 	}
 
 	/**
-	 * Esbuild context
+	 * Esbuild build options
 	 */
-	let ctx: esbuild.BuildContext
+	let buildOptions: esbuild.BuildOptions
+	let buildCtx: esbuild.BuildContext
 	{
-		ctx = await esbuild.context({
-			entryPoints: opt('_'),
+		buildOptions = {
+			entryPoints: opt('i'),
 			outdir: opt('o'),
 			outExtension: { '.js': '.mjs' },
 			mainFields: ['module', 'browser', 'main'],
@@ -46,20 +47,50 @@ async function main() {
 			metafile: opt('meta'),
 			sourcemap: opt('sourcemap') ? 'linked' : false,
 			legalComments: 'none',
-
 			platform: 'node',
-			// target: 'node18',
-
-			// external: nodeBuiltins,
 			format: 'esm',
 			define: {
 				'ngDevMode': 'false'
 			},
-
 			plugins: [
 				...enabledPlugins,
 			],
-		})
+		}
+		if (opt('dev')) {
+			buildOptions = {
+				...buildOptions,
+				define: { ...buildOptions.define, 'ngDevMode': 'ngDevMode' },
+			}
+		}
+		if (opt('target') == 'web') {
+			buildOptions = {
+				...buildOptions,
+				// platform: 'browser',
+				outdir: 'dist-web',
+				define: {
+					...buildOptions.define,
+					'RECTANGULR_TARGET': '"web"',
+					'process': JSON.stringify({
+						env: {
+							TERM: 'xterm-256color',
+						}
+					}, null, 2),
+				},
+			}
+		}
+		if (opt('customEsbuild')) {
+			buildOptions = {
+				...buildOptions,
+				...json5.parse(opt('customEsbuild')),
+			}
+		}
+
+		if (opt('printOptions')) {
+			console.log(buildOptions)
+			process.exit(0)
+		}
+
+		buildCtx = await esbuild.context(buildOptions)
 	}
 
 	/**
@@ -67,9 +98,9 @@ async function main() {
 	 */
 	{
 		if (opt('watch')) {
-			await ctx.watch()
+			await buildCtx.watch()
 		} else {
-			const res = await ctx.rebuild()
+			const res = await buildCtx.rebuild()
 			if (res.errors.length) {
 				console.error('Build failed with errors:')
 				for (const err of res.errors) {

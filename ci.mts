@@ -14,3 +14,7 @@ await $`cd packages/buildr &&
 await $`cd packages/smoke-test &&
  npm i &&
  npx tsx dev/ci.mts`
+
+await $`cd packages/starter &&
+npm i &&
+npx tsx dev/ci.mts`

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Rectangulr Starter</title>
+  <base href="./" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+  <style>
+    body {
+      background-color: #9d9d9d;
+
+      .xterm .xterm-viewport {
+        overflow-y: hidden;
+      }
+    }
+
+  </style>
+  <!--
+  <script type="importmap">
+  {
+    "imports": {
+      "fs": "./empty.js",
+      "os": "./empty.js",
+      "child_process": "./empty.js"
+    }
+  }
+  </script> -->
+
+</head>
+
+
+<body style="margin: auto; width: 800px">
+  <app-root></app-root>
+</body>
+
+<script type="module">
+  import { Terminal } from 'https://cdn.jsdelivr.net/npm/xterm@5.3.0/+esm'
+
+  const term = new Terminal({
+    fontSize: 16,
+    fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
+    theme: {
+      foreground: '#d2d2d2',
+      background: '#2b2b2b',
+      cursor: '#adadad',
+    },
+  })
+  term.open(document.querySelector('app-root'))
+
+  const rg = await import('./main.mjs')
+  rg.main({ xterm: term })
+</script>
+
+</html>

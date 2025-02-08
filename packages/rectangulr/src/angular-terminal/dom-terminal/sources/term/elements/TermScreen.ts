@@ -1,13 +1,14 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core'
 import { isBoolean, isEmpty } from '@s-libs/micro-dash'
 import z from 'zod'
+import { Tasks } from '../../../../../tasks/Tasks'
 import { cursor, feature, screen, style } from '../../../../../term-strings/core'
 import { Key } from '../../../../../term-strings/parse'
 import { Parser, Production } from '../../../../../term-strings/parse/parser/Parser'
 import { sequences } from '../../../../../term-strings/parse/sequences'
 import { assert } from '../../../../../utils/utils'
 import { LOGGER } from '../../../../logger'
-import { TERMINAL } from '../../../../terminals/terminal'
+import { TERMINAL } from '../../../../terminals/Terminal'
 import { Event, Point, Rect } from '../../core'
 import { TermElement } from '../../core/dom/Element'
 import { isInsideOf } from '../../core/dom/Node'
@@ -22,6 +23,7 @@ export class TermScreen extends TermElement {
   logger = inject(LOGGER)
   elementPool = inject(ElementPool)
   ngZone = inject(NgZone)
+  tasks = inject(Tasks)
 
   /** We keep track of whether the screen is fully setup or not (has stdin/stdout) */
   ready = false
@@ -85,14 +87,11 @@ export class TermScreen extends TermElement {
   }
 
   requestUpdates() {
-    if (this.updateTimer) return
-
-    this.updateTimer = setTimeout(() => {
-      if (!this.ready) return
-
-      this.updateTimer = null
-      this.renderScreen()
-    }, 0)
+    this.tasks.queue({
+      func: () => { this.renderScreen() },
+      debounce: Tasks.UI,
+      name: 'rg.renderScreen',
+    })
   }
 
   triggerUpdates({ maxDepth = 5 } = {}) {

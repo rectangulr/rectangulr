@@ -7,5 +7,3 @@ export const borderBottom = {
   backgroundClip: 'contentBox',
 }
 export const borderTop = { borderTopCharacter: '-', backgroundClip: 'contentBox' }
-
-// export const hidden = { display: null };
