@@ -18,6 +18,7 @@
     "@angular/build": "^19.1.5"
   },
   "devDependencies": {
+    "@s-libs/micro-dash": "^18.0.0",
     "@types/node": "^22.10.10",
     "json5": "^2.2.3"
   },

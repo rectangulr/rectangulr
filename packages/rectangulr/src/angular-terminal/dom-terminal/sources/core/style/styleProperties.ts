@@ -439,7 +439,7 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   },
 
   flex: {
-    func: (style, [flexGrow = 1, flexShrink = 1, flexBasis = 0]) => ({
+    func: (style, [flexGrow = 1, flexShrink = 0, flexBasis = 0]) => ({
       flexGrow,
       flexShrink,
       flexBasis,
@@ -506,11 +506,11 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
       if (value) {
         if (value == 'x' || value == 'xy') {
           // node.yogaNode.setMaxWidth(Number.MAX_SAFE_INTEGER)
-          return { maxWidth: Number.MAX_SAFE_INTEGER, scroll: value }
+          return { maxWidth: '100%', scroll: value, flexShrink: 0 }
         }
         if (value == 'y' || value == 'xy') {
           // node.yogaNode.setMaxHeight(Number.MAX_SAFE_INTEGER)
-          return { maxHeight: Number.MAX_SAFE_INTEGER, scroll: value }
+          return { maxHeight: '100%', scroll: value, flexShrink: 0 }
         }
       } else {
         return {}

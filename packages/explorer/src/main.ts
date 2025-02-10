@@ -1,6 +1,5 @@
-// import '@angular/compiler'
 import { Component, computed, inject, input, resource, viewChild } from '@angular/core'
-import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, FocusDirective, GrowDirective, H, List, ListItem, Logs, provideView, registerShortcuts, ScrollDirective, ɵsignal2 as signal2, StyleDirective, Tasks } from '@rectangulr/rectangulr'
+import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, FocusDirective, GrowDirective, H, List, ListItem, Logs, provideView, registerShortcuts, ScrollDirective, ɵsignal2 as signal2, StyleDirective, Tasks, VGrowDirective } from '@rectangulr/rectangulr'
 import { Dirent, Stats } from 'fs'
 import fs from 'fs/promises'
 
@@ -16,14 +15,14 @@ import fs from 'fs/promises'
 					>{{file.isDirectory() ? '>' : ' '}}{{file.name}}
 				</h>
 			</list>
-			<h [s]="{width: '50%', borderLeftCharacter: '|', vgrow: true}" focus scroll
+			<h scroll focus [s]="{width: '50%', borderLeftCharacter: '|'}"
 				>{{selectedFileContent()}}
 			</h>
 		</h>
 	`,
 	hostDirectives: [GrowDirective],
 	standalone: true,
-	imports: [H, List, ListItem, StyleDirective, FocusDirective, ScrollDirective, GrowDirective]
+	imports: [H, List, ListItem, StyleDirective, FocusDirective, ScrollDirective, GrowDirective, VGrowDirective]
 })
 export class Main {
 	tasks = inject(Tasks)
@@ -95,9 +94,5 @@ export class Main {
 	})
 }
 
-bootstrapApplication(AppShell, {
-	providers: [
-		provideView({ name: 'Files', component: Main }),
-		provideView({ name: 'Logs', component: Logs, tags: ['hidden'] }),
-	]
-}).catch((err) => console.error(err))
+bootstrapApplication(Main)
+	.catch((err) => console.error(err))

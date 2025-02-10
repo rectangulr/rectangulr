@@ -5,7 +5,7 @@
   "main": "dist/main.mjs",
   "scripts": {
     "start": "node dist/main.mjs",
-    "build": "rg",
+    "build": "rg --prod",
     "dev": "rg --watch --sourcemap"
   },
   "author": "David Marshall",

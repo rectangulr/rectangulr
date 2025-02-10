@@ -1,4 +1,7 @@
-e
+- CSS differences
+	- flexShrink 0
+	- defaults to vertical
+	- vgrow/hgrow
 
 - bundle size
 	- angular.json -> "statsJson": true,

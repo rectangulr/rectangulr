@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node dist/main.mjs",
-    "build": "rg --aot",
+    "build": "rg --prod",
     "dev": "rg --watch --sourcemap",
     "test": "node dist/main.mjs"
   },

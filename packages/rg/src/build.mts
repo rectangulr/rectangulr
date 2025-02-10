@@ -1,7 +1,12 @@
+import { merge } from '@s-libs/micro-dash'
 import * as esbuild from 'esbuild'
-import { angularPlugin, rebuildNotifyPlugin } from './esbuildPlugins'
-import { checkOptions, opt } from './options'
 import json5 from 'json5'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { angularPlugin as angularCompilerPlugin, rebuildNotifyPlugin } from './esbuildPlugins'
+import { checkOptions, opt } from './options'
+
+const scriptDir = dirname(fileURLToPath(import.meta.url)) + '/'
 
 main()
 async function main() {
@@ -17,58 +22,66 @@ async function main() {
 	/**
 	 * Esbuild Plugins
 	 */
-	let enabledPlugins: esbuild.Plugin[] = []
-	{
-		enabledPlugins.push(rebuildNotifyPlugin({
+	let entryPoints: string[] = (opt('i') as string).split(',')
+	let plugins: esbuild.Plugin[] = [
+		rebuildNotifyPlugin({
+			entryPoints: entryPoints,
 			outDir: opt('o'),
 			printMetaFile: opt('meta')
-		}))
-		if (opt('aot')) {
-			enabledPlugins.push(angularPlugin({ tsconfig: opt('tsconfig') }))
-		}
-		console.log(`\n  Enabled plugins: ${enabledPlugins.map(p => p.name).join(', ')}`)
-	}
+		})
+	]
 
 	/**
 	 * Esbuild build options
 	 */
-	let buildOptions: esbuild.BuildOptions
-	let buildCtx: esbuild.BuildContext
+	let esbuildOptions: esbuild.BuildOptions = {}
+	let esbuildCtx: esbuild.BuildContext
+	let watch = false
+	let compiler = false
 	{
-		buildOptions = {
-			entryPoints: opt('i'),
+		mergeOptions(esbuildOptions, {
+			entryPoints: entryPoints,
 			outdir: opt('o'),
 			outExtension: { '.js': '.mjs' },
 			mainFields: ['module', 'browser', 'main'],
 			bundle: true,
 			treeShaking: true,
 			minify: false,
-			logLevel: 'info',
-			metafile: opt('meta'),
-			sourcemap: opt('sourcemap') ? 'linked' : false,
-			legalComments: 'none',
 			platform: 'node',
+			sourcemap: false,
 			format: 'esm',
-			define: {
-				'ngDevMode': 'false'
-			},
-			plugins: [
-				...enabledPlugins,
+			inject: [
+				scriptDir + '../files/inject-require.js',
 			],
+		})
+
+		if (opt('prod')) {
+			mergeOptions(esbuildOptions, {
+				define: { 'ngDevMode': 'false' },
+				sourcemap: false,
+			})
+			watch = false
+			compiler = false
 		}
-		if (opt('dev')) {
-			buildOptions = {
-				...buildOptions,
-				define: { ...buildOptions.define, 'ngDevMode': 'ngDevMode' },
-			}
+
+		const dev = !opt('prod')
+		if (dev) {
+			mergeOptions(esbuildOptions, {
+				define: {
+					'ngDevMode': 'ngDevMode'
+				},
+				sourcemap: 'linked',
+				metafile: opt('meta'),
+			})
+			watch = true
+			compiler = true
 		}
+
 		if (opt('target') == 'web') {
-			buildOptions = {
-				...buildOptions,
+			mergeOptions(esbuildOptions, {
 				// platform: 'browser',
 				outdir: 'dist-web',
 				define: {
-					...buildOptions.define,
 					'RECTANGULR_TARGET': '"web"',
 					'process': JSON.stringify({
 						env: {
@@ -76,31 +89,53 @@ async function main() {
 						}
 					}, null, 2),
 				},
-			}
-		}
-		if (opt('customEsbuild')) {
-			buildOptions = {
-				...buildOptions,
-				...json5.parse(opt('customEsbuild')),
-			}
+			})
 		}
 
-		if (opt('printOptions')) {
-			console.log(buildOptions)
+		opt('sourcemap') ?? mergeOptions(esbuildOptions, {
+			sourcemap: opt('sourcemap'),
+		})
+
+		if (opt('compiler') !== undefined) {
+			compiler = opt('compiler')
+		}
+		if (compiler) {
+			mergeOptions(esbuildOptions, {
+				inject: [
+					...esbuildOptions.inject ?? [],
+					scriptDir + '../files/inject-compiler.js',
+				]
+			})
+		} else {
+			plugins.push(
+				angularCompilerPlugin({ tsconfig: opt('tsconfig') }))
+		}
+
+		if (opt('customEsbuild')) {
+			mergeOptions(esbuildOptions, {
+				...json5.parse(opt('customEsbuild')),
+			})
+		}
+
+		mergeOptions(esbuildOptions, { plugins })
+
+		if (opt('print')) {
+			console.log(esbuildOptions)
+			console.log({ watch, compiler, plugins })
 			process.exit(0)
 		}
 
-		buildCtx = await esbuild.context(buildOptions)
+		esbuildCtx = await esbuild.context(esbuildOptions)
 	}
 
 	/**
 	 * Start build
 	 */
 	{
-		if (opt('watch')) {
-			await buildCtx.watch()
+		if (watch) {
+			await esbuildCtx.watch()
 		} else {
-			const res = await buildCtx.rebuild()
+			const res = await esbuildCtx.rebuild()
 			if (res.errors.length) {
 				console.error('Build failed with errors:')
 				for (const err of res.errors) {
@@ -112,4 +147,8 @@ async function main() {
 			}
 		}
 	}
+}
+
+function mergeOptions(options: esbuild.BuildOptions, newOptions: esbuild.BuildOptions) {
+	merge(options, newOptions)
 }

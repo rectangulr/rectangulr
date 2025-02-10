@@ -1,21 +1,18 @@
 import { Component, ElementRef, signal, viewChild } from "@angular/core"
 import { TestBed } from "@angular/core/testing"
-import fs from 'fs'
 import { GrowDirective } from '../components/1-basics/grow.directive'
 import { H } from '../components/1-basics/h'
 import { StyleDirective } from "../components/1-basics/style"
 import { V } from '../components/1-basics/v'
 import { VGrowDirective } from "../components/1-basics/vgrow.directive"
 import { ScrollDirective } from "../components/2-common/scroll.directive"
-import { renderToString } from "./utils"
+import { expectSnapshot } from "./expectSnapshot"
 import { bootstrapApplication } from "../angular-terminal/platform"
-import { TERMINAL } from "../angular-terminal/terminals/Terminal"
-import { ProcessTerminal } from "../angular-terminal/terminals/ProcessTerminal"
 
 it('TermText2 - should resize when the content changes', () => {
 	@Component({
-		template: '<h>{{text()}}</h>',
-		imports: [H]
+		template: '<h [s]="{flexShrink: 1}">{{text()}}</h>',
+		imports: [H, StyleDirective]
 	})
 	class TestComponent {
 		text = signal('aaa')
@@ -36,7 +33,7 @@ it('TermText2 - should resize when the content changes', () => {
 it('TermText2 - should resize when the content changes (in a flexbox)', () => {
 	@Component({
 		template: `
-			<v grow [s]="{maxHeight: 5}">
+			<v [s]="{maxHeight: 5}">
 				<h>{{text()}}</h>
 				<h [s]="{vgrow: true}">{{text()}}</h>
 			</v>
@@ -95,28 +92,25 @@ it('snapshot', () => {
 	})
 	class TestComponent { }
 
-	// globalThis['RECTANGULR_TARGET'] = 'node'
-	// bootstrapApplication(TestComponent, {
-	// 	providers: [
-	// 		{ provide: TERMINAL, useFactory: () => new ProcessTerminal(process) }
-	// 	]
-	// })
 	expectSnapshot('snapshot', TestComponent)
 })
 
-function expectSnapshot(name, comp) {
-	let loaded = ''
-	try {
-		loaded = fs.readFileSync(`./src/tests/snapshots/${name}.txt`).toString()
-	} catch (error) {
-	}
-	const buffer = renderToString(comp)
-	if (loaded != buffer) {
-		if (process.env['UPDATE_SNAPSHOTS']) {
-			console.log('Updating snapshot', name)
-			fs.writeFileSync(`./src/tests/snapshots/${name}.txt`, buffer)
-		} else {
-			fs.writeFileSync(`./src/tests/error-snapshots/${name}.txt`, buffer)
+xit('text too big for screen / container', () => {
+	@Component({
+		template: `
+			<h>bbbb</h>
+			<!-- <h>{{text}}</h> -->
+		`,
+		imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective]
+	})
+	class TestComponent {
+		text = 'aaaa\n'.repeat(100)
+		constructor() {
+			debugger
 		}
 	}
-}
+
+	// expectSnapshot('snapshot', TestComponent)
+	bootstrapApplication(TestComponent)
+		.catch(e => console.error(e))
+})

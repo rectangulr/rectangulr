@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "rg",
-    "dev": "rg --watch --dev",
+    "build": "rg --prod",
+    "dev": "rg",
     "start": "node dist/main.mjs",
     "web": "rg --target=web",
     "serve": "live-server dist"

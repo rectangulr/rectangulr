@@ -12,7 +12,7 @@ export function angularPlugin(args: { tsconfig: string }) {
 	}, {} as any)
 }
 
-export function rebuildNotifyPlugin(args: { outDir: string, printMetaFile: boolean }): Plugin {
+export function rebuildNotifyPlugin(args: { entryPoints: string[], outDir: string, printMetaFile: boolean }): Plugin {
 	return {
 		name: 'rebuild-notify',
 		setup(build) {
@@ -21,6 +21,7 @@ export function rebuildNotifyPlugin(args: { outDir: string, printMetaFile: boole
 					console.error('Build failed:', result.errors)
 				} else {
 					console.log(`Build succeeded: ${args.outDir}`)
+					console.log(`Watching ${args.entryPoints}...`)
 					if (args.printMetaFile) {
 						assert(result.metafile)
 						const meta = await esbuild.analyzeMetafile(result.metafile)
