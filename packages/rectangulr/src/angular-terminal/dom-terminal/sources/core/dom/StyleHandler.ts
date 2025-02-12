@@ -346,7 +346,7 @@ export function ifEq(value1, value2, style) {
 }
 
 export function ifNeq(value1, value2, style) {
-	return cond(eq(value1, value2), style)
+	return cond(neq(value1, value2), style)
 }
 
 

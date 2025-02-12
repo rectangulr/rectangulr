@@ -53,6 +53,7 @@ import { ViewService } from './view.service'
     <!-- Popup to show notifications -->
     <notifications [focusOnInit]="false"/>
   `,
+  standalone: true,
   imports: [H, V, FocusDirective, NgComponentOutlet, Notifications, CommandPicker, Grow, Style]
 })
 export class AppShell {
