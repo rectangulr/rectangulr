@@ -341,6 +341,15 @@ export function neq(value1, value2) {
 	return () => unwrapIfFunction(value1) != unwrapIfFunction(value2)
 }
 
+export function ifEq(value1, value2, style) {
+	return cond(eq(value1, value2), style)
+}
+
+export function ifNeq(value1, value2, style) {
+	return cond(eq(value1, value2), style)
+}
+
+
 export function addStyle(layer: Layer) {
 	const elementRef = inject(ElementRef)
 	elementRef.nativeElement.style.add(layer)

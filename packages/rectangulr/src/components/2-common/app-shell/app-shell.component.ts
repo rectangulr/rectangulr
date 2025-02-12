@@ -1,12 +1,12 @@
 import { NgComponentOutlet } from '@angular/common'
 import { Component, inject } from '@angular/core'
-import { GrowDirective } from '../../../components/1-basics/grow.directive'
-import { H } from '../../../components/1-basics/h'
-import { V } from '../../../components/1-basics/v'
-import { cond, eq, neq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { ifEq, ifNeq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { CommandPicker } from '../../../commands/command-picker.component'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
+import { GrowDirective } from '../../../components/1-basics/grow.directive'
+import { H } from '../../../components/1-basics/h'
+import { V } from '../../../components/1-basics/v'
 import { signal2 } from '../../../utils/Signal2'
 import { Style } from '../../1-basics/style'
 import { blackOnWhite, whiteOnGray } from '../styles'
@@ -24,7 +24,7 @@ import { ViewService } from './view.service'
         [focusPropagateUp]="false"
         [focusIf]="view == this.viewService.currentTab()"
         grow
-        [s]="[cond(neq(view, this.viewService.currentTab), {display: 'none', flexShrink: 1})]">
+        [s]="ifNeq(view, this.viewService.currentTab, {display: 'none', flexShrink: 1})">
         <ng-container [ngComponentOutlet]="view.component"/>
       </v>
     }
@@ -36,7 +36,7 @@ import { ViewService } from './view.service'
     <h [s]="{ hgrow: true, backgroundColor: 'grey' }">
       @for (view of viewService.visibleViews(); track view) {
         <h
-          [s]="[{ paddingLeft: 1, paddingRight: 1, flexShrink: 0 }, cond(eq(view, this.viewService.currentTab), s.blackOnWhite)]"
+          [s]="[{ paddingLeft: 1, paddingRight: 1, flexShrink: 0 }, ifEq(view, this.viewService.currentTab, s.blackOnWhite)]"
           (mousedown)="viewService.switchTo(view.name)"
           >{{ view.name }}
         </h>
@@ -70,9 +70,8 @@ export class AppShell {
     whiteOnGray: whiteOnGray,
   }
 
-  cond = cond
-  eq = eq
-  neq = neq
+  ifEq = ifEq
+  ifNeq = ifNeq
 
   toggleCommands() {
     this.showCommands.$ = !this.showCommands.$

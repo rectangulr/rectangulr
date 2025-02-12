@@ -6,7 +6,7 @@ import { Style } from '../../components/1-basics/style'
 import { V } from '../../components/1-basics/v'
 import { setupTest } from '../../tests/utils'
 import { Element, TermScreen, TermText2 } from './sources'
-import { StyleHandler, StyleValue, diff } from './sources/core/dom/StyleHandler'
+import { StyleHandler, StyleValue, diff, ifEq } from './sources/core/dom/StyleHandler'
 
 function setup() {
 	let screen: TermScreen
@@ -156,13 +156,12 @@ describe('Style - ', () => {
 		@Component({
 			imports: [H, V, Style, GrowDirective],
 			template: `
-				<h #parent [s]="[cond(eq(value, true), {width: 3})]"></h>
+				<h #parent [s]="ifEq(value, true, {width: 3})"></h>
 			`
 		})
 		class Test {
 			@ViewChild('parent') parent: ElementRef<Element>
-			cond = cond
-			eq = eq
+			ifEq = ifEq
 			value = signal(true)
 		}
 
@@ -189,7 +188,7 @@ describe('Style - ', () => {
 		@Component({
 			imports: [H, V, Style, GrowDirective],
 			template: `
-				<h #parent [s]="[cond(eq(value, true), {color: 'red'})]">
+				<h #parent [s]="ifEq(value, true, {color: 'red'})">
 					<h #child></h>
 				</h>
 			`
@@ -197,9 +196,8 @@ describe('Style - ', () => {
 		class Test {
 			@ViewChild('parent') parent: ElementRef<Element>
 			@ViewChild('child') child: ElementRef<Element>
-			cond = cond
-			eq = eq
 			value = signal(false)
+			ifEq = ifEq
 		}
 
 		const { fixture, component, shortcuts } = setupTest(Test)
