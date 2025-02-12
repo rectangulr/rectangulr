@@ -4,7 +4,7 @@ import { By } from "@angular/platform-browser"
 import { LOGGER } from "../angular-terminal/logger"
 import { LogPointService } from "./LogPointService"
 import { TAGS } from "./Tags"
-import { DomLogDirective } from "./DomLog.directive"
+import { DomLog } from "./DomLog.directive"
 import { H } from "../components/1-basics/h"
 
 const mockLogger = { log: jasmine.createSpy('log') }
@@ -45,14 +45,14 @@ it('should match logpoints through component tags', () => {
 	}
 
 	@Component({
-    selector: 'test-parent',
-    template: '<test-child/>',
-    providers: [
-        LogPointService,
-        { provide: TAGS, useValue: ['parent-tag'] }
-    ],
-    imports: [TestChildComponent]
-})
+		selector: 'test-parent',
+		template: '<test-child/>',
+		providers: [
+			LogPointService,
+			{ provide: TAGS, useValue: ['parent-tag'] }
+		],
+		imports: [TestChildComponent]
+	})
 	class TestParentComponent { }
 
 	const fixture = TestBed.createComponent(TestParentComponent)
@@ -102,13 +102,13 @@ it('should match logpoints through component + logPoint()', () => {
 
 it('should log some dom activity when [domLog] directive is attached', () => {
 	@Component({
-    template: '<h domLog>{{text()}}</h>',
-    providers: [
-        LogPointService,
-        { provide: TAGS, useValue: ['test-tag'] }
-    ],
-    imports: [H, DomLogDirective]
-})
+		template: '<h domLog>{{text()}}</h>',
+		providers: [
+			LogPointService,
+			{ provide: TAGS, useValue: ['test-tag'] }
+		],
+		imports: [H, DomLog]
+	})
 	class TestComponent {
 		text = signal('aaa')
 	}

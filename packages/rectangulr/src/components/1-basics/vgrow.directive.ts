@@ -10,7 +10,7 @@ import { TermElement as Element } from '../../angular-terminal/dom-terminal/sour
 	standalone: true,
 	selector: '[vgrow]',
 })
-export class VGrowDirective {
+export class VGrow {
 	elementRef = inject<ElementRef<Element>>(ElementRef);
 
 	ngOnInit() {

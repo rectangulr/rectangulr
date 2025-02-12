@@ -7,7 +7,7 @@ import { LogPointService } from './LogPointService'
 	selector: '[domLog]',
 	standalone: true,
 })
-export class DomLogDirective {
+export class DomLog {
 	protected element = inject(ElementRef<Element>).nativeElement
 	protected logPointService = inject(LogPointService)
 

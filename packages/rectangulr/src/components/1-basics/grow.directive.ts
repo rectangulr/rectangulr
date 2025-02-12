@@ -9,7 +9,7 @@ import { TermElement as Element } from '../../angular-terminal/dom-terminal/sour
 	standalone: true,
 	selector: '[grow]',
 })
-export class GrowDirective {
+export class Grow {
 	elementRef = inject<ElementRef<Element>>(ElementRef);
 
 	ngOnInit() {

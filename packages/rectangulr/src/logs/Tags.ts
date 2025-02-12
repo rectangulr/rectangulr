@@ -15,7 +15,7 @@ export class TagsService {
 	],
 	standalone: true,
 })
-export class TagsDirective {
+export class Tags {
 	readonly tags = input.required<string[]>()
 	tagsService = inject(TagsService)
 

@@ -1,6 +1,6 @@
 import { Component, ElementRef, Signal, ViewChild, computed, signal } from '@angular/core'
 import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing'
-import { GrowDirective } from '../../components/1-basics/grow.directive'
+import { Grow } from '../../components/1-basics/grow.directive'
 import { H } from '../../components/1-basics/h'
 import { Style } from '../../components/1-basics/style'
 import { V } from '../../components/1-basics/v'
@@ -154,7 +154,7 @@ describe('Style - ', () => {
 
 	it('component with computed signal layer', fakeAsync(() => {
 		@Component({
-			imports: [H, V, Style, GrowDirective],
+			imports: [H, V, Style, Grow],
 			template: `
 				<h #parent [s]="ifEq(value, true, {width: 3})"></h>
 			`
@@ -186,7 +186,7 @@ describe('Style - ', () => {
 
 	it('component with inherited computed signal style', fakeAsync(() => {
 		@Component({
-			imports: [H, V, Style, GrowDirective],
+			imports: [H, V, Style, Grow],
 			template: `
 				<h #parent [s]="ifEq(value, true, {color: 'red'})">
 					<h #child></h>

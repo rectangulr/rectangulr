@@ -10,7 +10,7 @@ import { TermElement as Element } from '../../angular-terminal/dom-terminal/sour
 	standalone: true,
 	selector: '[hgrow]',
 })
-export class HGrowDirective {
+export class HGrow {
 	elementRef = inject<ElementRef<Element>>(ElementRef);
 
 	ngOnInit() {

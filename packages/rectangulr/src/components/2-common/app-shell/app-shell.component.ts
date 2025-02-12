@@ -4,7 +4,7 @@ import { ifEq, ifNeq } from '../../../angular-terminal/dom-terminal/sources/core
 import { CommandPicker } from '../../../commands/command-picker.component'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
-import { GrowDirective } from '../../../components/1-basics/grow.directive'
+import { Grow } from '../../../components/1-basics/grow.directive'
 import { H } from '../../../components/1-basics/h'
 import { V } from '../../../components/1-basics/v'
 import { signal2 } from '../../../utils/Signal2'
@@ -15,7 +15,7 @@ import { ViewService } from './view.service'
 
 @Component({
   selector: 'app-shell',
-  hostDirectives: [GrowDirective],
+  hostDirectives: [Grow],
   host: { 's': '{width: "100%", height: "100%"}' },
   template: `
     <!-- Display the currentTab. The others are styled 'display: none'. -->
@@ -53,7 +53,7 @@ import { ViewService } from './view.service'
     <!-- Popup to show notifications -->
     <notifications [focusOnInit]="false"/>
   `,
-  imports: [H, V, FocusDirective, NgComponentOutlet, Notifications, CommandPicker, GrowDirective, Style]
+  imports: [H, V, FocusDirective, NgComponentOutlet, Notifications, CommandPicker, Grow, Style]
 })
 export class AppShell {
   readonly showCommands = signal2(false)

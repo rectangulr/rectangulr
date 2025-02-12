@@ -2,7 +2,7 @@ import { Component, ElementRef, NO_ERRORS_SCHEMA, ViewChild } from '@angular/cor
 import * as Yoga from 'typeflex'
 import { H } from '../../components/1-basics/h'
 import { V } from '../../components/1-basics/v'
-import { GrowDirective } from '../../components/1-basics/grow.directive'
+import { Grow } from '../../components/1-basics/grow.directive'
 import { Style } from '../../components/1-basics/style'
 import { setupTest } from '../../tests/utils'
 import { Element } from './sources'
@@ -15,7 +15,7 @@ describe('DOM - ', () => {
           <h #child [s]="{ flexShrink: 0, alignSelf: 'flexStart' }">aaaaaaaaaa</h>
         </v>
       `,
-      imports: [H, V, GrowDirective, Style]
+      imports: [H, V, Grow, Style]
     })
     class Test {
       @ViewChild('parent') parent: ElementRef<Element>
@@ -35,7 +35,7 @@ describe('DOM - ', () => {
 
   it('text should stretch the parent', async () => {
     @Component({
-      imports: [GrowDirective, V, H],
+      imports: [Grow, V, H],
       template: ` <h #parent>aaaaaaaaaa</h> `
     })
     class Test {
@@ -51,7 +51,7 @@ describe('DOM - ', () => {
 
   it('<v>', async () => {
     @Component({
-      imports: [H, V, GrowDirective, Style],
+      imports: [H, V, Grow, Style],
       template: `
         <v #parent [s]="{ width: 20 }">
           <h #child1>Test</h>
@@ -82,7 +82,7 @@ describe('DOM - ', () => {
 
   it('v hgrow', async () => {
     @Component({
-      imports: [H, V, GrowDirective, Style],
+      imports: [H, V, Grow, Style],
       template: `
         <v #parent [s]="{ width: 20 }">
           <h #child1 [s]="{ hgrow: true }">Test</h>
@@ -148,7 +148,7 @@ describe('DOM - ', () => {
 
   it('h grow', async () => {
     @Component({
-      imports: [H, V, Style, GrowDirective],
+      imports: [H, V, Style, Grow],
       template: `
         <h #parent [s]="{ height: 20, width: 20 }">
           <h grow #child1></h>

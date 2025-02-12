@@ -10,7 +10,7 @@ import { Mouse } from '../../term-strings/parse'
 	providers: [LogPointService],
 	standalone: true,
 })
-export class ScrollDirective {
+export class Scroll {
 	private lp = inject(LogPointService)
 	private element = inject<ElementRef<RgElement & Element>>(ElementRef).nativeElement
 

@@ -1,5 +1,8 @@
 import { Component, ElementRef, inject } from "@angular/core"
-import { Element, GrowDirective, H, HGrowDirective, ScrollDirective, StyleDirective, V, VGrowDirective, addStyle, bootstrapApplication } from "@rectangulr/rectangulr"
+import { Element, H, HGrow, Scroll, V, bootstrapApplication } from "@rectangulr/rectangulr"
+import { Grow } from "../components/1-basics/grow.directive"
+import { Style } from "../components/1-basics/style"
+import { VGrow } from "../components/1-basics/vgrow.directive"
 
 
 @Component({
@@ -12,7 +15,7 @@ import { Element, GrowDirective, H, HGrowDirective, ScrollDirective, StyleDirect
 		<h [s]="{ vgrow: true }"/>
 		<h hgrow [s]="S.title">footer</h>
 	`,
-	imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective, HGrowDirective]
+	imports: [H, V, Style, Scroll, Grow, VGrow, HGrow]
 })
 class TestComponent {
 	text = Array.from({ length: 30 }, (_, i) => i + 1).join('\n')

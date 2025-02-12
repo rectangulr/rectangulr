@@ -5,9 +5,9 @@ import { FocusDirective } from './commands/focus.directive'
 import { CommandPicker } from './commands/command-picker.component'
 import { H } from './components/1-basics/h'
 import { V } from './components/1-basics/v'
-import { VGrowDirective } from './components/1-basics/vgrow.directive'
-import { HGrowDirective } from './components/1-basics/hgrow.directive'
-import { GrowDirective } from './components/1-basics/grow.directive'
+import { VGrow } from './components/1-basics/vgrow.directive'
+import { HGrow } from './components/1-basics/hgrow.directive'
+import { Grow } from './components/1-basics/grow.directive'
 import { Style, } from './components/1-basics/style'
 import { TextInput } from './components/1-basics/text-input'
 import { AppShell } from './components/2-common/app-shell/app-shell.component'
@@ -34,9 +34,9 @@ import { ComponentOutletInputs } from './utils/componentOutletInput'
 const TEMPLATE_COMPONENTS = [
   H,
   V,
-  HGrowDirective,
-  VGrowDirective,
-  GrowDirective,
+  HGrow,
+  VGrow,
+  Grow,
   List,
   ListItem,
   Tree,

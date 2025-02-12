@@ -6,7 +6,7 @@ import { ShortcutService, registerShortcuts } from '../../../commands/shortcut.s
 import { signal2 } from '../../../utils/Signal2'
 import { H } from '../../../components/1-basics/h'
 import { V } from '../../../components/1-basics/v'
-import { GrowDirective } from '../../../components/1-basics/grow.directive'
+import { Grow } from '../../../components/1-basics/grow.directive'
 import { Style } from '../../1-basics/style'
 import { Json5Pipe } from '../json5.pipe'
 import { List } from '../list/list'
@@ -19,7 +19,7 @@ class NullLogger {
 
 @Component({
   selector: 'logs',
-  hostDirectives: [GrowDirective],
+  hostDirectives: [Grow],
   template: `
     <h [s]="[s.blackOnWhite, { hgrow: true }]">Logs</h>
     <h grow>
@@ -31,7 +31,7 @@ class NullLogger {
       </v>
     </h>
   `,
-  imports: [H, V, List, ListItem, Style, Json5Pipe, ObjectDisplay, FocusDirective, GrowDirective]
+  imports: [H, V, List, ListItem, Style, Json5Pipe, ObjectDisplay, FocusDirective, Grow]
 })
 export class Logs {
   logger = inject(FileLogger, { skipSelf: true })

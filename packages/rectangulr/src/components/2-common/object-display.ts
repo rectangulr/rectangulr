@@ -6,7 +6,7 @@ import { KeyValue } from '../../utils/interfaces'
 import { inputToSignal, longest } from '../../utils/utils'
 import { H } from '../1-basics/h'
 import { V } from '../1-basics/v'
-import { GrowDirective } from '../1-basics/grow.directive'
+import { Grow } from '../1-basics/grow.directive'
 import { List } from "./list/list"
 import { blackOnWhite } from './styles'
 import { ListItem } from './list/list-item'

@@ -1,5 +1,4 @@
-import { Directive, EventEmitter, inject, NgZone, Output } from '@angular/core'
-import { LOGGER } from '../angular-terminal/logger'
+import { Directive, EventEmitter, inject, Output } from '@angular/core'
 import { ShortcutService } from './shortcut.service'
 
 @Directive({

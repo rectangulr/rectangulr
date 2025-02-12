@@ -1,11 +1,11 @@
 import { Component, ElementRef, signal, viewChild } from "@angular/core"
 import { TestBed } from "@angular/core/testing"
-import { GrowDirective } from '../components/1-basics/grow.directive'
+import { Grow } from '../components/1-basics/grow.directive'
 import { H } from '../components/1-basics/h'
 import { Style } from "../components/1-basics/style"
 import { V } from '../components/1-basics/v'
-import { VGrowDirective } from "../components/1-basics/vgrow.directive"
-import { ScrollDirective } from "../components/2-common/scroll.directive"
+import { VGrow } from "../components/1-basics/vgrow.directive"
+import { Scroll } from "../components/2-common/scroll.directive"
 import { expectSnapshot } from "./expectSnapshot"
 import { bootstrapApplication } from "../angular-terminal/platform"
 
@@ -66,12 +66,12 @@ it('TermText2 - scroll', () => {
 				</v>
 			</v>
 		`,
-		imports: [H, V, Style, ScrollDirective, GrowDirective, VGrowDirective]
+		imports: [H, V, Style, Scroll, Grow, VGrow]
 	})
 	class TestComponent {
 		text = signal("bbbb\nbbbb\nbbbb\nbbbb\nbbbb\n")
 		h = viewChild(H, { read: ElementRef })
-		scroll = viewChild(ScrollDirective, { read: ElementRef })
+		scroll = viewChild(Scroll, { read: ElementRef })
 	}
 
 	const fixture = TestBed.createComponent(TestComponent)
@@ -88,7 +88,7 @@ it('snapshot', () => {
 			<h>aaaa</h>
 			<h>bbbb</h>
 		`,
-		imports: [H, V, Style, ScrollDirective, GrowDirective, VGrowDirective]
+		imports: [H, V, Style, Scroll, Grow, VGrow]
 	})
 	class TestComponent { }
 
@@ -101,7 +101,7 @@ xit('text too big for screen / container', () => {
 			<h>bbbb</h>
 			<!-- <h>{{text}}</h> -->
 		`,
-		imports: [H, V, Style, ScrollDirective, GrowDirective, VGrowDirective]
+		imports: [H, V, Style, Scroll, Grow, VGrow]
 	})
 	class TestComponent {
 		text = 'aaaa\n'.repeat(100)

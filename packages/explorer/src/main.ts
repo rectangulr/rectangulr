@@ -1,11 +1,11 @@
-import { Component, computed, inject, input, resource, viewChild } from '@angular/core'
-import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, DomLogDirective, FocusDirective, GrowDirective, H, List, ListItem, Logs, provideView, registerShortcuts, ScrollDirective, ɵsignal2 as signal2, StyleDirective, Tasks, TermScreen, VGrowDirective } from '@rectangulr/rectangulr'
+import { Component, computed, inject, resource, viewChild } from '@angular/core'
+import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, FocusDirective, Grow, H, List, ListItem, Logs, provideView, registerShortcuts, Scroll, ɵsignal2 as signal2, Style, Tasks } from '@rectangulr/rectangulr'
 import { Dirent, Stats } from 'fs'
 import fs from 'fs/promises'
 
 @Component({
 	template: `
-		<h [s]="S().title">Explorer: {{dir()}}</h>
+		<h [s]="S.title">Explorer: {{dir()}}</h>
 		<h grow>
 			<list [items]="files()"
 				  (selectedItem)="selectedFile.$ = $event"
@@ -20,9 +20,9 @@ import fs from 'fs/promises'
 			</h>
 		</h>
 	`,
-	hostDirectives: [GrowDirective],
+	hostDirectives: [Grow],
 	standalone: true,
-	imports: [H, List, ListItem, StyleDirective, FocusDirective, ScrollDirective, GrowDirective, VGrowDirective, DomLogDirective]
+	imports: [H, List, ListItem, Style, FocusDirective, Scroll, Grow]
 })
 export class Main {
 	tasks = inject(Tasks)
@@ -89,10 +89,10 @@ export class Main {
 		}
 	]
 
-	S = input({
+	S = {
 		title: { backgroundColor: 'white', color: 'black', hgrow: true },
 		// file: (f: Dirent) => f.isDirectory() ? { backgroundColor: 'grey' } : {}
-	})
+	}
 }
 
 bootstrapApplication(AppShell, {

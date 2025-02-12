@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core'
-import { Command, GrowDirective, H, List, NotificationsService, StyleDirective, TextInput, VGrowDirective, derived, registerShortcuts } from '@rectangulr/rectangulr'
+import { Command, Grow, H, List, NotificationsService, Style, TextInput, VGrow, derived, registerShortcuts } from '@rectangulr/rectangulr'
 import * as _ from '@s-libs/micro-dash'
 import { signal2 } from '../utils/Signal2'
 
@@ -9,9 +9,9 @@ import { signal2 } from '../utils/Signal2'
       <text-input [(text)]="selectedTodo" />
       <list [items]="items()" (selectedIndex)="selectedIndex.set($event)"/>
   `,
-  hostDirectives: [GrowDirective],
+  hostDirectives: [Grow],
   standalone: true,
-  imports: [H, List, StyleDirective, TextInput],
+  imports: [H, List, Style, TextInput],
 })
 export class AppComponent {
   notificationService = inject(NotificationsService)
