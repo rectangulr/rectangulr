@@ -423,6 +423,8 @@ export let styles: { [key: string]: StyleProperty } = {
 }
 
 export interface ComputedStyle {
+  /** The name of the computed style. */
+  name: string,
   /** A list of style keys that this computed style depdends on. */
   inKeys?: string[]
   /** A list of style keys that this computed style will produce. */
@@ -432,6 +434,7 @@ export interface ComputedStyle {
 
 export const computedStyles: { [name: string]: ComputedStyle } = {
   margin: {
+    name: 'margin',
     func: (
       style,
       [marginTop, marginRight = marginTop, marginBottom = marginTop, marginLeft = marginRight]
@@ -439,7 +442,8 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   },
 
   flex: {
-    func: (style, [flexGrow = 1, flexShrink = 0, flexBasis = 0]) => ({
+    name: 'flex',
+    func: (style, [flexGrow = 1, flexShrink = 1, flexBasis = 0]) => ({
       flexGrow,
       flexShrink,
       flexBasis,
@@ -447,6 +451,7 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   },
 
   border: {
+    name: 'border',
     func: (style, value) => {
       const [
         borderTopLeftCharacter,
@@ -472,6 +477,7 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   },
 
   padding: {
+    name: 'padding',
     func: (
       style,
       [
@@ -484,6 +490,7 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   },
 
   background: {
+    name: 'background',
     func: (
       style,
       [
@@ -494,23 +501,24 @@ export const computedStyles: { [name: string]: ComputedStyle } = {
   },
 
   hgrow: {
+    name: 'hgrow',
     func: (style, value) => grow(style, value, 'horizontal'),
   },
 
   vgrow: {
+    name: 'vgrow',
     func: (style, value) => grow(style, value, 'vertical'),
   },
 
   scrollF: {
+    name: 'scrollF',
     func: (style, value) => {
       if (value) {
         if (value == 'x' || value == 'xy') {
-          // node.yogaNode.setMaxWidth(Number.MAX_SAFE_INTEGER)
-          return { maxWidth: '100%', scroll: value, flexShrink: 0 }
+          return { maxWidth: '100%', scroll: value }
         }
         if (value == 'y' || value == 'xy') {
-          // node.yogaNode.setMaxHeight(Number.MAX_SAFE_INTEGER)
-          return { maxHeight: '100%', scroll: value, flexShrink: 0 }
+          return { maxHeight: '100%', scroll: value }
         }
       } else {
         return {}
@@ -543,18 +551,14 @@ function grow(
   assert(parentDirection)
   if (parentDirection == 'row') {
     if (direction == 'vertical') {
-      // style.element.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
       return { alignSelf: 'stretch' }
     } else {
-      // node.yogaNode.setFlexGrow(1)
       return { flexGrow: 1 }
     }
   } else if (parentDirection == 'column') {
     if (direction == 'horizontal') {
-      // node.yogaNode.setAlignSelf(Yoga.ALIGN_STRETCH)
       return { alignSelf: 'stretch' }
     } else {
-      // node.yogaNode.setFlexGrow(1)
       return { flexGrow: 1 }
     }
   }

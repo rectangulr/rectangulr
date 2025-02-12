@@ -30,6 +30,7 @@ export class TermText2 extends TermElement {
     this.style.add({
       minHeight: 1,
       flexDirection: 'row',
+      flexShrink: 0,
     })
 
     onChange(this, 'textContent', () => {

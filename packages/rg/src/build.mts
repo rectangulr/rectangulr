@@ -62,10 +62,7 @@ async function main() {
 			})
 			watch = false
 			compiler = false
-		}
-
-		const dev = !opt('prod')
-		if (dev) {
+		} else {
 			mergeOptions(esbuildOptions, {
 				define: {
 					'ngDevMode': 'ngDevMode'
@@ -90,11 +87,17 @@ async function main() {
 					}, null, 2),
 				},
 			})
+		} else if (opt('target') == 'node') {
+			mergeOptions(esbuildOptions, {
+
+			})
 		}
 
-		opt('sourcemap') ?? mergeOptions(esbuildOptions, {
-			sourcemap: opt('sourcemap'),
-		})
+		if (opt('sourcemap') !== undefined) {
+			mergeOptions(esbuildOptions, {
+				sourcemap: opt('sourcemap'),
+			})
+		}
 
 		if (opt('compiler') !== undefined) {
 			compiler = opt('compiler')

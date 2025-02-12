@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, resource, viewChild } from '@angular/core'
-import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, FocusDirective, GrowDirective, H, List, ListItem, Logs, provideView, registerShortcuts, ScrollDirective, ɵsignal2 as signal2, StyleDirective, Tasks, VGrowDirective } from '@rectangulr/rectangulr'
+import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, DomLogDirective, FocusDirective, GrowDirective, H, List, ListItem, Logs, provideView, registerShortcuts, ScrollDirective, ɵsignal2 as signal2, StyleDirective, Tasks, TermScreen, VGrowDirective } from '@rectangulr/rectangulr'
 import { Dirent, Stats } from 'fs'
 import fs from 'fs/promises'
 
@@ -9,20 +9,20 @@ import fs from 'fs/promises'
 		<h grow>
 			<list [items]="files()"
 				  (selectedItem)="selectedFile.$ = $event"
-				  [s]="{width: '50%'}"
+				  [s]="{width: '33%'}"
 				  focus>
 				<h *item="let file; type: files()"
 					>{{file.isDirectory() ? '>' : ' '}}{{file.name}}
 				</h>
 			</list>
-			<h scroll focus [s]="{width: '50%', borderLeftCharacter: '|'}"
+			<h scroll focus [s]="{width: '67%', borderLeftCharacter: '|'}"
 				>{{selectedFileContent()}}
 			</h>
 		</h>
 	`,
 	hostDirectives: [GrowDirective],
 	standalone: true,
-	imports: [H, List, ListItem, StyleDirective, FocusDirective, ScrollDirective, GrowDirective, VGrowDirective]
+	imports: [H, List, ListItem, StyleDirective, FocusDirective, ScrollDirective, GrowDirective, VGrowDirective, DomLogDirective]
 })
 export class Main {
 	tasks = inject(Tasks)
@@ -42,6 +42,7 @@ export class Main {
 	selectedFileContent = signal2('')
 
 	constructor() {
+		// inject(TermScreen).debugPaintRects = true
 		this.selectedFile.subscribe(file => {
 			if (!file) return
 			const path = this.selectedFilePath()
@@ -64,7 +65,7 @@ export class Main {
 			if (stat.size > 1024 * 1024) {
 				return 'File too big'
 			}
-			return await fs.readFile(path, 'utf-8')
+			return (await fs.readFile(path, 'utf-8')).replaceAll('\t', '  ')
 		}
 
 		registerShortcuts(this.shortcuts)
@@ -94,5 +95,9 @@ export class Main {
 	})
 }
 
-bootstrapApplication(Main)
-	.catch((err) => console.error(err))
+bootstrapApplication(AppShell, {
+	providers: [
+		provideView({ name: 'Files', component: Main }),
+		provideView({ name: 'Logs', component: Logs, tags: ['hidden'] }),
+	]
+}).catch((err) => console.error(err))

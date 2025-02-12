@@ -1,9 +1,9 @@
 import { Component, ElementRef, Signal, ViewChild, computed, signal } from '@angular/core'
 import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing'
-import { H } from '../../components/1-basics/h'
-import { V } from '../../components/1-basics/v'
 import { GrowDirective } from '../../components/1-basics/grow.directive'
+import { H } from '../../components/1-basics/h'
 import { StyleDirective } from '../../components/1-basics/style'
+import { V } from '../../components/1-basics/v'
 import { setupTest } from '../../tests/utils'
 import { Element, TermScreen, TermText2 } from './sources'
 import { StyleHandler, StyleValue, diff } from './sources/core/dom/StyleHandler'
@@ -35,6 +35,50 @@ describe('Style - ', () => {
 		parent.style.add({ width: 3 })
 		screen.triggerUpdates()
 		expect(parent.style.get('width')).toEqual(3)
+	})
+
+	it('multiple layers combine, latest added wins', () => {
+		let { screen, parent } = setup()
+		expect(parent.style.get('width')).toEqual('auto')
+
+		parent.style.add({ width: 3 })
+		parent.style.add({ width: 4 })
+		screen.triggerUpdates()
+		expect(parent.style.get('width')).toEqual(4)
+	})
+
+	describe('childLayers', () => {
+
+		it('should apply `childLayers` to the children', () => {
+			let { screen, parent, textNode } = setup()
+			expect(textNode.style.get('width')).toEqual('auto')
+
+			parent.style.addChildLayer({ width: 3 })
+			screen.triggerUpdates()
+			expect(textNode.style.get('width')).toEqual(3)
+		})
+
+		it('childLayers can be overriden by child layer', () => {
+			let { screen, parent, textNode } = setup()
+			expect(textNode.style.get('width')).toEqual('auto')
+
+			parent.style.addChildLayer({ width: 3 })
+			textNode.style.add({ width: 4 })
+			screen.triggerUpdates()
+			expect(textNode.style.get('width')).toEqual(4)
+		})
+
+		it('parent childLayers can be overriden after children', () => {
+			let { screen, parent, textNode } = setup()
+
+			screen.triggerUpdates()
+			expect(textNode.style.get('width')).toEqual('auto')
+
+			parent.style.addChildLayer({ width: 3 })
+			screen.triggerUpdates()
+			expect(textNode.style.get('width')).toEqual(3)
+		})
+
 	})
 
 	it('adds a func layer', () => {
@@ -110,11 +154,11 @@ describe('Style - ', () => {
 
 	it('component with computed signal layer', fakeAsync(() => {
 		@Component({
-    imports: [H, V, StyleDirective, GrowDirective],
-    template: `
+			imports: [H, V, StyleDirective, GrowDirective],
+			template: `
 				<h #parent [s]="[cond(eq(value, true), {width: 3})]"></h>
 			`
-})
+		})
 		class Test {
 			@ViewChild('parent') parent: ElementRef<Element>
 			cond = cond
@@ -143,13 +187,13 @@ describe('Style - ', () => {
 
 	it('component with inherited computed signal style', fakeAsync(() => {
 		@Component({
-    imports: [H, V, StyleDirective, GrowDirective],
-    template: `
+			imports: [H, V, StyleDirective, GrowDirective],
+			template: `
 				<h #parent [s]="[cond(eq(value, true), {color: 'red'})]">
 					<h #child></h>
 				</h>
 			`
-})
+		})
 		class Test {
 			@ViewChild('parent') parent: ElementRef<Element>
 			@ViewChild('child') child: ElementRef<Element>
@@ -187,7 +231,6 @@ describe('Style - ', () => {
 		expect(parent.childNodes[0].style.get('wrap')).toEqual('wrap')
 	})
 
-
 	it('stored depth info', () => {
 		let { screen, parent, textNode } = setup()
 
@@ -195,8 +238,6 @@ describe('Style - ', () => {
 		expect(parent.depth).toEqual(1)
 		expect(textNode.depth).toEqual(2)
 	})
-
-	xit('multiple layers combine, latest added wins', () => { })
 
 })
 

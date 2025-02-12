@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/main.mjs",
     "build": "rg --prod",
-    "dev": "rg --watch --sourcemap"
+    "dev": "rg"
   },
   "author": "David Marshall",
   "license": "MIT",

@@ -49,7 +49,7 @@ export const RECTANGULR_MODULE_PROVIDERS: (Provider | EnvironmentProviders)[] = 
 					debugYoga: debugYoga,
 				})
 
-				if (RECTANGULR_TARGET == 'node' && inject(REDIRECT_CONSOLE_LOG)) {
+				if (RECTANGULR_TARGET == 'node' && injector.get(REDIRECT_CONSOLE_LOG)) {
 					patchNodeConsole(globalInject)
 				}
 			}

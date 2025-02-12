@@ -5,32 +5,26 @@ import { Element, GrowDirective, H, HGrowDirective, ScrollDirective, StyleDirect
 @Component({
 	template: `
 		<h hgrow [s]="S.title">header</h>
-		<v scroll [s]="{backgroundColor: 'lightgrey', flexShrink: 1}">
+		<v scroll [s]="{backgroundColor: 'lightgrey', color: '#2b2b2b'}">
 			<h>aaaa</h>
 			<h>{{text}}</h>
 		</v>
 		<h [s]="{ vgrow: true }"/>
-		<h [s]="S.title">footer</h>
+		<h hgrow [s]="S.title">footer</h>
 	`,
 	imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective, HGrowDirective]
 })
 class TestComponent {
 	text = Array.from({ length: 30 }, (_, i) => i + 1).join('\n')
 	constructor() {
-		addStyle({ backgroundColor: 'green' })
-
 		const ref = inject(ElementRef).nativeElement as Element
 		globalThis['ref'] = ref
 	}
 
 	S = {
-		title: { backgroundColor: 'grey', width: '100%' },
+		title: { backgroundColor: 'grey' },
 	}
 }
 
 bootstrapApplication(TestComponent)
 	.catch(e => console.error(e))
-
-function assert(condition: any, msg?: string): asserts condition {
-	if (!condition) throw new Error(msg)
-}

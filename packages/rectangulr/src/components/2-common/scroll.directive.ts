@@ -16,6 +16,7 @@ export class ScrollDirective {
 
 	constructor() {
 		this.element.style.add({ scrollF: 'y' })
+		this.element.style.addChildLayer({ flexShrink: 0 })
 		fromEvent(this.element, 'mousewheel')
 			.pipe(
 				takeUntilDestroyed(),

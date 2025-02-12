@@ -12,24 +12,31 @@ type StyleValueOrSignal = StyleValue | Signal<StyleValue>
  */
 @Directive({
   standalone: true,
-  selector: '[s],[st],[stv]',
+  selector: '[s],[st],[stv],[sc]',
 })
 export class StyleDirective {
   element = inject<ElementRef<Element>>(ElementRef);
 
   /**
    * Styles, one or multiple, to be applied in order.
-   * Prefer putting signals at the end to simplify recomputing the aggregate style.
+   * s = style
    * @example
    * Value: {color: 'red'}
-   * Signal: computed(() => ({color: color()}))
+   * Signal: computed(() => ({color: darkOrLight()}))
    */
   readonly s = input<StyleValueOrSignal | StyleValueOrSignal[]>([])
+
+  /**
+   * Styles the children of this element.
+   * sc = style children
+   */
+  readonly sc = input<StyleValueOrSignal | StyleValueOrSignal[]>([])
 
   /**
    * Template styles.
    * Used for now to have styles than can react to $index in a @for (template variables).
    * Angular doesnt expose the index as a signal for now.
+   * st = style template
   */
   readonly st = input<TemplateStyle[]>([])
 
@@ -37,6 +44,7 @@ export class StyleDirective {
    * Template style variables : {key: value}
    * Example: {index: 3}
    * Passes them to their corresponding signal via key.
+   * stv = style template variables
    * Example: signals[index].set(3)
    */
   // TODO: breaks if made into a signal
@@ -52,6 +60,15 @@ export class StyleDirective {
       }
     } else {
       this.element.nativeElement.style.add(s)
+    }
+
+    const sc = this.sc()
+    if (Array.isArray(sc)) {
+      for (const style of sc) {
+        this.element.nativeElement.style.addChildLayer(style)
+      }
+    } else {
+      this.element.nativeElement.style.addChildLayer(sc)
     }
 
     // Create template variables signals

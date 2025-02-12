@@ -55,8 +55,8 @@ export class TermScreen extends TermElement {
       scroll: null,
       flexShrink: 0,
       flexGrow: 0,
-      maxHeight: '100%',
-      maxWidth: '100%',
+      // maxHeight: '100%',
+      // maxWidth: '100%',
     })
 
     this.parser = new Parser(input => {

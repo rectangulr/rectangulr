@@ -26,8 +26,6 @@ export class LogPointService implements Logger {
 					this.lpSelectorString.$ = process.env.LOGPOINTS
 				}
 			}
-
-			globalThis['lp'] = this
 		} else {
 			this.root = this.parent.root
 		}

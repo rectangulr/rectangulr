@@ -12,22 +12,55 @@ type SignalLayer = Signal<StyleValue>
 
 export class StyleHandler {
 
-	initialized = false
-
+	/**
+	 * Style layers that are added to the element.
+	 */
 	layers: Layer[] = []
+
+	/**
+	 * Whether the style has been modified since the last update.
+	 */
 	dirty = false
+
+	childLayerDirty = false
+
+	/**
+	 * Whether the style has been queued for updating in the root TermScreen.
+	 * See TermScreen.queueDirtyStyle and TermScreen.computeStyles.
+	 */
 	wasQueued = false
 
+	/**
+	 * Properties that are defined on the current element.
+	 * It is the result of adding all the layers together in order.
+	 * It can contain the value 'inherit' which then need to be resolved to the parent value.
+	 */
 	self: StyleValue = {}
+
+	/**
+	 * Properties that are inherited from the parent element.
+	 */
 	inherited: StyleValue = {}
 
-	previousSignalValue = new WeakMap()
+	/**
+	 * Layers that are gonna be used by each child as their *first* layer.
+	 */
+	childLayers: Layer[] = []
+
+	/**
+	 * Functions that will be called when the style handler is disposed.
+	 */
 	onDispose: (() => void)[] = []
 
 	constructor(public element: TermElement, public injector: Injector) {
 		this.init()
 	}
 
+	/**
+	 * Adds a style layer.
+	 * It can be a simple object, a function that returns an object, or a signal.
+	 *
+	 */
 	add(layer: Layer) {
 		{
 			const maybeComputeds = convertComputedKeysToFunctions(layer)
@@ -38,24 +71,29 @@ export class StyleHandler {
 		}
 
 		this.layers.push(layer)
-		this.dirtyLayer()
+		this.markDirtyAndQueue()
 
 		if (isSignal(layer)) {
 			const e = effect(() => {
 				layer()
-				this.dirtyLayer()
+				this.markDirtyAndQueue()
 			}, { injector: this.injector, manualCleanup: true })
 			this.onDispose.push(() => e.destroy())
 		}
 
 	}
 
-	dirtyLayer() {
-		this.dirty = true
-		this.queueDirty()
+	addChildLayer(layer: Layer) {
+		this.childLayers.push(layer)
+		this.childLayerDirty = true
+		for (const c of this.element.childNodes) {
+			c.style.dirty = true
+		}
+		this.markDirtyAndQueue()
 	}
 
-	queueDirty() {
+	markDirtyAndQueue() {
+		this.dirty = true
 		if (this.element.rootNode) {
 			this.wasQueued = this.element.rootNode.queueDirtyStyle(this.element)
 		}
@@ -112,16 +150,18 @@ export class StyleHandler {
 			inherit(key, styleInfo.initial, parentGet, this.inherited)
 			runTriggers(this.element, key, this.get(key as any))
 		}
-		this.initialized = true
 	}
 
-	update(parentModified: StyleValue = {}) {
+	update(parentModified: StyleValue = {}, childLayers: Layer[] = []) {
 		const modified = {}
 		let newSelf = this.self
 
 		if (this.dirty) {
-			newSelf = resolveStyle(this, this.layers)
-			diff(this.self, newSelf, modified)
+			const res = {}
+			resolveStyle(this, childLayers, res)
+			resolveStyle(this, this.layers, res)
+			diff(this.self, res, modified)
+			newSelf = res
 		}
 
 		const parentGet = (key) => { return getParentKey(this.element, key) }
@@ -146,8 +186,8 @@ export class StyleHandler {
 
 		for (const [key, value] of Object.entries(modified)) {
 			// TODO: if value really changed
-			const safeValue = inherit(key, value, parentGet, this.inherited)
-			runTriggers(this.element, key, safeValue)
+			const realValue = inherit(key, value, parentGet, this.inherited)
+			runTriggers(this.element, key, realValue)
 		}
 
 		// total = inherit(self) + inherited
@@ -157,18 +197,18 @@ export class StyleHandler {
 		this.self = newSelf
 
 		for (const child of this.element.childNodes) {
-			if (Object.keys(modified).some(key => key in child.style.inherited)) {
-				child.style.update(modified)
+			if (this.childLayerDirty || Object.keys(modified).some(key => key in child.style.inherited)) {
+				child.style.update(modified, this.childLayers)
 			}
 		}
+
+		this.childLayerDirty = false
 	}
 
 	reset() {
 		this.layers = []
 		this.dirty = false
-		this.initialized = false
 		this.self = {}
-		this.previousSignalValue = new WeakMap()
 		this.inherited = {}
 	}
 
@@ -202,6 +242,16 @@ function getParentKey(element: TermElement, key: StyleKey) {
 	return element.parentNode.style.get(key)
 }
 
+/**
+ * If the selfValue is inherit, gets the real value from the parent.
+ * Updates the `inherited` object.
+ * @param key - The style property key to handle
+ * @param selfValue - The value of the style property on the current element
+ * @param parentGet - A function that retrieves the value of a style property from the parent element
+ * @param inherited - An object tracking which properties are inherited from parent
+ * @returns The resolved value after handling inheritance
+ * @throws {AssertionError} If the inherited value is 'inherit'
+ */
 function inherit(key, selfValue, parentGet, inherited) {
 	let value = selfValue
 	if (selfValue == 'inherit') {
@@ -227,8 +277,7 @@ function runTriggers(element: TermElement, key: string, value: any) {
 	})
 }
 
-function resolveStyle(style, layers) {
-	const res = {}
+function resolveStyle(style: StyleHandler, layers: Layer[], res: StyleValue) {
 	for (const layer of layers) {
 		let layerValue = layer
 		if (_.isFunction(layer)) {
@@ -239,10 +288,24 @@ function resolveStyle(style, layers) {
 			res[key] = value
 		}
 	}
-	return res
 }
 
-
+/**
+ * Compares two objects and generates a diff object containing only the changed values.
+ * If a property exists in 'b' but not in 'a', it's added to the result.
+ * If a property exists in both 'a' and 'b' with different values, the value from 'b' is added to the result.
+ * If a property exists in 'a' but not in 'b', it's set to undefined in the result.
+ *
+ * @param a - The source object to compare against
+ * @param b - The object containing new values to compare with
+ * @param res - The result object where differences will be stored
+ *
+ * @example
+ * const a = { foo: 1, bar: 2, qux: 5 };
+ * const b = { foo: 1, bar: 3, baz: 4 };
+ * const result = {};
+ * diff(a, b, result)  // result = { bar: 3, baz: 4, qux: undefined }
+ */
 export function diff(a: { [key: string]: any }, b: { [key: string]: any }, res: AnyObject) {
 	for (const [key, value] of Object.entries(b)) {
 		if (key in a) {
