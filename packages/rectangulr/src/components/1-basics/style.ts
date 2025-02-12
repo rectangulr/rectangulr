@@ -1,4 +1,4 @@
-import { Directive, ElementRef, input, Input, Signal, signal, WritableSignal, inject } from '@angular/core'
+import { Directive, ElementRef, inject, input, Input, Signal, signal, WritableSignal } from '@angular/core'
 import { Element } from '../../angular-terminal/dom-terminal'
 import { StyleValue } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { onChange } from '../../utils/reactivity'
@@ -14,7 +14,7 @@ type StyleValueOrSignal = StyleValue | Signal<StyleValue>
   standalone: true,
   selector: '[s],[st],[stv],[sc]',
 })
-export class StyleDirective {
+export class Style {
   element = inject<ElementRef<Element>>(ElementRef);
 
   /**

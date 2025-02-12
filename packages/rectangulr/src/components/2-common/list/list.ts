@@ -28,7 +28,7 @@ import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { Deferred } from '../../../utils/Deferred'
 import { patchInputSignal, signal2 } from '../../../utils/Signal2'
-import { StyleDirective } from '../../1-basics/style'
+import { Style } from '../../1-basics/style'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
 
@@ -70,7 +70,7 @@ import { ListItem } from './list-item'
     },
   ],
   standalone: true,
-  imports: [NgTemplateOutlet, BasicObjectDisplay, V, StyleDirective]
+  imports: [NgTemplateOutlet, BasicObjectDisplay, V, Style]
 })
 export class List<T> {
   /**

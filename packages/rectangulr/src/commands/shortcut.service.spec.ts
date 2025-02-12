@@ -6,7 +6,7 @@ import { cond } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHan
 import { LOGGER } from '../angular-terminal/logger'
 import { H } from '../components/1-basics/h'
 import { V } from '../components/1-basics/v'
-import { StyleDirective } from '../components/1-basics/style'
+import { Style } from '../components/1-basics/style'
 import { TextInput } from '../components/1-basics/text-input'
 import { List } from '../components/2-common/list/list'
 import { ListItem } from '../components/2-common/list/list-item'
@@ -447,7 +447,7 @@ describe('FocusDirective -', () => {
 
 @Component({
   selector: 'component-data-display',
-  imports: [H, List, ListItem, FocusDirective, StyleDirective],
+  imports: [H, List, ListItem, FocusDirective, Style],
   template: `
     <h [s]="cond(shortcutService.isFocused(), s.selected)"> {{ data().name }}</h>
     <list

@@ -3,7 +3,7 @@ import { last } from '@s-libs/micro-dash'
 import { Subject } from 'rxjs'
 import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../angular-terminal/logger'
-import { StyleDirective } from '../components/1-basics/style'
+import { Style } from '../components/1-basics/style'
 import { V } from '../components/1-basics/v'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
@@ -17,8 +17,8 @@ import { Command, ShortcutService } from './shortcut.service'
  * Popup to discover commands and pick one.
  */
 @Component({
-    selector: 'command-picker',
-    template: `
+  selector: 'command-picker',
+  template: `
     <search-list
       #searchList
       [items]="listOfCommands()"
@@ -28,13 +28,13 @@ import { Command, ShortcutService } from './shortcut.service'
       </v>
     </search-list>
   `,
-    providers: [
-        {
-            // This creates a ShortcutService to store separately the shortcuts of this component.
-            provide: ShortcutService,
-        },
-    ],
-    imports: [SearchList, ListItem, StyleDirective, V]
+  providers: [
+    {
+      // This creates a ShortcutService to store separately the shortcuts of this component.
+      provide: ShortcutService,
+    },
+  ],
+  imports: [SearchList, ListItem, Style, V]
 })
 export class CommandPicker {
   readonly shortcutService = input<ShortcutService>(null)

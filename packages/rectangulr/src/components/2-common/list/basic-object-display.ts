@@ -2,13 +2,13 @@ import { Component, computed, forwardRef, inject, input } from '@angular/core'
 import json5 from 'json5'
 import { H } from '../../../components/1-basics/h'
 import { mapKeyValue, stringifyReplacer } from '../../../utils/utils'
-import { StyleDirective } from '../../1-basics/style'
+import { Style } from '../../1-basics/style'
 import { List } from './list'
 
 @Component({
   selector: 'basic-object-display',
   template: `<h [s]="{ height: 1 }">{{ text }}</h>`,
-  imports: [H, StyleDirective]
+  imports: [H, Style]
 })
 export class BasicObjectDisplay {
   readonly data = input<any>(undefined);

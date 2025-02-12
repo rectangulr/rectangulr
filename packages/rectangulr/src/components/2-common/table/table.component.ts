@@ -12,7 +12,7 @@ import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { computed2, signal2 } from '../../../utils/Signal2'
 import { TODO } from '../../../utils/utils'
-import { StyleDirective } from '../../1-basics/style'
+import { Style } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 
@@ -84,8 +84,8 @@ interface Column {
 }
 
 @Component({
-    selector: 'table',
-    template: `
+  selector: 'table',
+  template: `
     <h [s]="s.header">{{ $headers() }}</h>
     <list
       #list
@@ -100,14 +100,14 @@ interface Column {
       <row [data]="item" [s]="{ flexShrink: 0 }"></row>
     </ng-template>
   `,
-    imports: [H, List, Row, ListItem, StyleDirective],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useFactory: (table: Table<any>) => table.controlValueAccessor,
-            deps: [Table],
-        },
-    ]
+  imports: [H, List, Row, ListItem, Style],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useFactory: (table: Table<any>) => table.controlValueAccessor,
+      deps: [Table],
+    },
+  ]
 })
 export class Table<T> {
   shortcutService = inject(ShortcutService)

@@ -19,7 +19,7 @@ import { FocusDirective } from '../../commands/focus.directive'
 import { makeObservable } from '../../utils/reactivity'
 import { patchInputSignal } from '../../utils/Signal2'
 import { V } from '../1-basics/v'
-import { StyleDirective } from '../1-basics/style'
+import { Style } from '../1-basics/style'
 import { TextInput } from '../1-basics/text-input'
 import { NotificationsService } from './app-shell/notifications.service'
 import { List } from './list/list'
@@ -27,8 +27,8 @@ import { ListItem } from './list/list-item'
 import { borderTop } from './styles'
 
 @Component({
-    selector: 'search-list',
-    template: `
+  selector: 'search-list',
+  template: `
     <v>
       @if (searchInputVisible()) {
         <text-input
@@ -46,16 +46,16 @@ import { borderTop } from './styles'
       </list>
     </v>
   `,
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useFactory: () => {
-                const searchList = inject(SearchList);
-                return searchList.$list;
-            },
-        },
-    ],
-    imports: [V, TextInput, FocusDirective, List, StyleDirective]
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useFactory: () => {
+        const searchList = inject(SearchList)
+        return searchList.$list
+      },
+    },
+  ],
+  imports: [V, TextInput, FocusDirective, List, Style]
 })
 export class SearchList<T> {
   items = input.required<T[]>()

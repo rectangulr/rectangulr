@@ -2,7 +2,7 @@ import { Component, ElementRef, signal, viewChild } from "@angular/core"
 import { TestBed } from "@angular/core/testing"
 import { GrowDirective } from '../components/1-basics/grow.directive'
 import { H } from '../components/1-basics/h'
-import { StyleDirective } from "../components/1-basics/style"
+import { Style } from "../components/1-basics/style"
 import { V } from '../components/1-basics/v'
 import { VGrowDirective } from "../components/1-basics/vgrow.directive"
 import { ScrollDirective } from "../components/2-common/scroll.directive"
@@ -12,7 +12,7 @@ import { bootstrapApplication } from "../angular-terminal/platform"
 it('TermText2 - should resize when the content changes', () => {
 	@Component({
 		template: '<h [s]="{flexShrink: 1}">{{text()}}</h>',
-		imports: [H, StyleDirective]
+		imports: [H, Style]
 	})
 	class TestComponent {
 		text = signal('aaa')
@@ -38,7 +38,7 @@ it('TermText2 - should resize when the content changes (in a flexbox)', () => {
 				<h [s]="{vgrow: true}">{{text()}}</h>
 			</v>
 		`,
-		imports: [H, V, StyleDirective]
+		imports: [H, V, Style]
 	})
 	class TestComponent {
 		text = signal('aaa')
@@ -66,7 +66,7 @@ it('TermText2 - scroll', () => {
 				</v>
 			</v>
 		`,
-		imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective]
+		imports: [H, V, Style, ScrollDirective, GrowDirective, VGrowDirective]
 	})
 	class TestComponent {
 		text = signal("bbbb\nbbbb\nbbbb\nbbbb\nbbbb\n")
@@ -88,7 +88,7 @@ it('snapshot', () => {
 			<h>aaaa</h>
 			<h>bbbb</h>
 		`,
-		imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective]
+		imports: [H, V, Style, ScrollDirective, GrowDirective, VGrowDirective]
 	})
 	class TestComponent { }
 
@@ -101,7 +101,7 @@ xit('text too big for screen / container', () => {
 			<h>bbbb</h>
 			<!-- <h>{{text}}</h> -->
 		`,
-		imports: [H, V, StyleDirective, ScrollDirective, GrowDirective, VGrowDirective]
+		imports: [H, V, Style, ScrollDirective, GrowDirective, VGrowDirective]
 	})
 	class TestComponent {
 		text = 'aaaa\n'.repeat(100)

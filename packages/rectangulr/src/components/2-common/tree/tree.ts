@@ -4,7 +4,7 @@ import { Subject } from 'rxjs'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { signal2 } from '../../../utils/Signal2'
-import { StyleDirective } from '../../1-basics/style'
+import { Style } from '../../1-basics/style'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 import { TreeNode } from './tree-node'
@@ -12,8 +12,8 @@ import { TreeNode } from './tree-node'
 export interface NodeData { name: any, children: any[] }
 
 @Component({
-    selector: 'tree',
-    template: `
+	selector: 'tree',
+	template: `
 		@if (!multi()) {
 		  <ng-container
 		    [ngTemplateOutlet]="nodeTemplate() || nodeTemplate2() || defaultTemplate"
@@ -41,7 +41,7 @@ export interface NodeData { name: any, children: any[] }
 		  </list>
 		}
 	`,
-    imports: [List, ListItem, FocusDirective, NgTemplateOutlet, StyleDirective]
+	imports: [List, ListItem, FocusDirective, NgTemplateOutlet, Style]
 })
 export class Tree<T> {
 	shortcutService = inject(ShortcutService)

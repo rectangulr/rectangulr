@@ -8,7 +8,7 @@ import { V } from './components/1-basics/v'
 import { VGrowDirective } from './components/1-basics/vgrow.directive'
 import { HGrowDirective } from './components/1-basics/hgrow.directive'
 import { GrowDirective } from './components/1-basics/grow.directive'
-import { StyleDirective, } from './components/1-basics/style'
+import { Style, } from './components/1-basics/style'
 import { TextInput } from './components/1-basics/text-input'
 import { AppShell } from './components/2-common/app-shell/app-shell.component'
 import { Logs } from './components/2-common/app-shell/logs.component'
@@ -49,7 +49,7 @@ const TEMPLATE_COMPONENTS = [
   BasicObjectDisplay,
   Table,
   Row,
-  StyleDirective,
+  Style,
   FocusDirective,
   DetachedCommandServiceDirective,
   KeyValueEditor,

@@ -5,13 +5,13 @@ import { subscribe } from '../../../utils/reactivity'
 import { signal2 } from '../../../utils/Signal2'
 import { H } from '../../../components/1-basics/h'
 import { V } from '../../../components/1-basics/v'
-import { StyleDirective } from '../../1-basics/style'
+import { Style } from '../../1-basics/style'
 import { ObjectDisplay } from '../object-display'
 import { Notification, NotificationsService } from './notifications.service'
 
 @Component({
-    selector: 'notifications',
-    template: `
+  selector: 'notifications',
+  template: `
     @if (notification()) {
       <v
         [s]="{ display: notification ? 'flex' : 'none', border: 'rounded', hgrow: true }">
@@ -23,7 +23,7 @@ import { Notification, NotificationsService } from './notifications.service'
       </v>
     }
     `,
-    imports: [V, H, ObjectDisplay, StyleDirective]
+  imports: [V, H, ObjectDisplay, Style]
 })
 export class Notifications {
   notificationsService = inject(NotificationsService)

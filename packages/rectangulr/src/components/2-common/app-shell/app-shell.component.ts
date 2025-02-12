@@ -8,7 +8,7 @@ import { CommandPicker } from '../../../commands/command-picker.component'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { signal2 } from '../../../utils/Signal2'
-import { StyleDirective } from '../../1-basics/style'
+import { Style } from '../../1-basics/style'
 import { blackOnWhite, whiteOnGray } from '../styles'
 import { Notifications } from './notifications.component'
 import { ViewService } from './view.service'
@@ -53,7 +53,7 @@ import { ViewService } from './view.service'
     <!-- Popup to show notifications -->
     <notifications [focusOnInit]="false"/>
   `,
-  imports: [H, V, FocusDirective, NgComponentOutlet, Notifications, CommandPicker, GrowDirective, StyleDirective]
+  imports: [H, V, FocusDirective, NgComponentOutlet, Notifications, CommandPicker, GrowDirective, Style]
 })
 export class AppShell {
   readonly showCommands = signal2(false)

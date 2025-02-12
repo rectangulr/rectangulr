@@ -2,7 +2,7 @@ import { Component, ElementRef, Signal, ViewChild, computed, signal } from '@ang
 import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing'
 import { GrowDirective } from '../../components/1-basics/grow.directive'
 import { H } from '../../components/1-basics/h'
-import { StyleDirective } from '../../components/1-basics/style'
+import { Style } from '../../components/1-basics/style'
 import { V } from '../../components/1-basics/v'
 import { setupTest } from '../../tests/utils'
 import { Element, TermScreen, TermText2 } from './sources'
@@ -154,7 +154,7 @@ describe('Style - ', () => {
 
 	it('component with computed signal layer', fakeAsync(() => {
 		@Component({
-			imports: [H, V, StyleDirective, GrowDirective],
+			imports: [H, V, Style, GrowDirective],
 			template: `
 				<h #parent [s]="[cond(eq(value, true), {width: 3})]"></h>
 			`
@@ -187,7 +187,7 @@ describe('Style - ', () => {
 
 	it('component with inherited computed signal style', fakeAsync(() => {
 		@Component({
-			imports: [H, V, StyleDirective, GrowDirective],
+			imports: [H, V, Style, GrowDirective],
 			template: `
 				<h #parent [s]="[cond(eq(value, true), {color: 'red'})]">
 					<h #child></h>

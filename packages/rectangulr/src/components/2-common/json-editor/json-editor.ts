@@ -26,7 +26,7 @@ import { subscribe } from '../../../utils/reactivity'
 import { patchInputSignal, patchWritableSignal, signal2 } from '../../../utils/Signal2'
 import { AnyObject } from '../../../utils/utils'
 import { H } from '../../../components/1-basics/h'
-import { StyleDirective } from '../../1-basics/style'
+import { Style } from '../../1-basics/style'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
 import { List } from '../list/list'
@@ -34,8 +34,8 @@ import { ListItem } from '../list/list-item'
 import { LogPointService } from '../../../logs/LogPointService'
 
 @Component({
-    selector: 'json-editor',
-    template: `
+  selector: 'json-editor',
+  template: `
     @if (visibleKey()) {
       <h focusName="key" [focusIf]="focused() == 'key'" [s]="{ flexShrink: 0 }">
         <text-input [(text)]="valueRef().key"/>:
@@ -65,23 +65,23 @@ import { LogPointService } from '../../../logs/LogPointService'
       }
     </ng-container>
     `,
-    imports: [
-        H,
-        TextInput,
-        List,
-        ListItem,
-        FocusDirective,
-        StyleDirective
-    ],
-    providers: [
-        ShortcutService,
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useFactory: (json: JsonEditor) => json.controlValueAccessor,
-            deps: [JsonEditor],
-            multi: true,
-        },
-    ]
+  imports: [
+    H,
+    TextInput,
+    List,
+    ListItem,
+    FocusDirective,
+    Style
+  ],
+  providers: [
+    ShortcutService,
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useFactory: (json: JsonEditor) => json.controlValueAccessor,
+      deps: [JsonEditor],
+      multi: true,
+    },
+  ]
 })
 export class JsonEditor {
   readonly data = input(undefined)
