@@ -101,7 +101,7 @@ xit('text too big for screen / container', () => {
 			<h>bbbb</h>
 			<!-- <h>{{text}}</h> -->
 		`,
-		imports: [H, V, Style, Scroll, Grow, VGrow]
+		imports: [H, V, Style, Scroll, Grow]
 	})
 	class TestComponent {
 		text = 'aaaa\n'.repeat(100)

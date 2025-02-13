@@ -12,7 +12,7 @@ import { Element, Grow, H, HGrow, Scroll, Style, V, VGrow, bootstrapApplication 
 		<h vgrow/>
 		<h hgrow [s]="S.title">footer</h>
 	`,
-	imports: [H, V, Style, Scroll, Grow, VGrow, HGrow]
+	imports: [H, V, Style, Scroll, VGrow, HGrow]
 })
 class TestComponent {
 	text = Array.from({ length: 30 }, (_, i) => i + 1).join('\n')

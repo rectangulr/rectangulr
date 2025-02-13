@@ -9,9 +9,9 @@ describe('JsonEditor - ', () => {
 
   it(`should edit a string`, keyboardTest(() => {
     @Component({
-    imports: [H, FocusDirective, JsonEditor],
-    template: `<json-editor data="string"/>`
-})
+      imports: [H, FocusDirective, JsonEditor],
+      template: `<json-editor data="string"/>`
+    })
     class Test {
       @ViewChild(JsonEditor) jsonEditor: JsonEditor
     }
@@ -24,7 +24,7 @@ describe('JsonEditor - ', () => {
   @Component({
     imports: [H, FocusDirective, JsonEditor],
     template: `<json-editor [data]="{ test: 'a' }"/>`
-})
+  })
   class Test2 {
     @ViewChild(JsonEditor) jsonEditor: JsonEditor
   }
@@ -56,9 +56,9 @@ describe('JsonEditor - ', () => {
 
   it(`should edit a number`, keyboardTest(() => {
     @Component({
-    imports: [H, FocusDirective, JsonEditor],
-    template: `<json-editor [data]="1"/>`
-})
+      imports: [H, FocusDirective, JsonEditor],
+      template: `<json-editor [data]="1"/>`
+    })
     class Test3 {
       @ViewChild(JsonEditor) jsonEditor: JsonEditor
     }
@@ -70,12 +70,12 @@ describe('JsonEditor - ', () => {
 
   it(`should focus`, keyboardTest(() => {
     @Component({
-    selector: 'test-json-editor-4',
-    imports: [H, FocusDirective, JsonEditor],
-    template: `
+      selector: 'test-json-editor-4',
+      imports: [H, FocusDirective, JsonEditor],
+      template: `
         <json-editor [data]="{ key1: 'value1', key2: 'value2', key3: 'value3' }"/>
       `
-})
+    })
     class Test4 {
       @ViewChild(JsonEditor) jsonEditor: JsonEditor
     }
