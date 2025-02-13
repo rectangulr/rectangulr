@@ -1,6 +1,6 @@
 import { Component, inject, input, model } from "@angular/core"
 import { FormGroup, ReactiveFormsModule } from "@angular/forms"
-import { Style } from "../1-basics/style"
+import { Style } from "../1-basics/Style.directive"
 import { TextInput } from "../1-basics/text-input"
 import { blackOnWhite } from "./styles"
 import { ShortcutService } from "../../commands/shortcut.service"
@@ -14,6 +14,7 @@ import { ShortcutService } from "../../commands/shortcut.service"
       <text-input [formControlName]="keyValue().key" [text]="keyValue().value"/>
     </v>
     `,
+	standalone: true,
 	imports: [TextInput, ReactiveFormsModule, Style]
 })
 export class KeyValueEditor {

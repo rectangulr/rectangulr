@@ -1,5 +1,5 @@
 import { Directive, ElementRef, inject, input, Input, Signal, signal, WritableSignal } from '@angular/core'
-import { Element } from '../../angular-terminal/dom-terminal'
+import { TermElement } from '../../angular-terminal/dom-terminal'
 import { StyleValue } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { onChange } from '../../utils/reactivity'
 
@@ -15,7 +15,7 @@ type StyleValueOrSignal = StyleValue | Signal<StyleValue>
   selector: '[s],[st],[stv],[sc]',
 })
 export class Style {
-  element = inject<ElementRef<Element>>(ElementRef);
+  element = inject<ElementRef<TermElement>>(ElementRef);
 
   /**
    * Styles, one or multiple, to be applied in order.
@@ -65,10 +65,10 @@ export class Style {
     const sc = this.sc()
     if (Array.isArray(sc)) {
       for (const style of sc) {
-        this.element.nativeElement.style.addChildLayer(style)
+        this.element.nativeElement.style.addChildren(style)
       }
     } else {
-      this.element.nativeElement.style.addChildLayer(sc)
+      this.element.nativeElement.style.addChildren(sc)
     }
 
     // Create template variables signals

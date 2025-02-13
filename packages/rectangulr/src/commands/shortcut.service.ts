@@ -2,17 +2,16 @@ import { DestroyRef, Injectable, Injector, inject } from '@angular/core'
 import * as _ from 'lodash-es'
 import { Subject } from 'rxjs'
 import { NiceView } from '../angular-terminal/debug'
-import { Element } from '../angular-terminal/dom-terminal'
+import { TermElement } from '../angular-terminal/dom-terminal'
 import { LOGGER } from '../angular-terminal/logger'
 import { ScreenService } from '../angular-terminal/screen-service'
+import { LogPointService } from '../logs/LogPointService'
 import { addToGlobalRg } from '../utils/addToGlobalRg'
 import { assert } from '../utils/Assert'
 import { signal2 } from '../utils/Signal2'
 import { last, removeLastMatch } from '../utils/utils'
 import { Disposable } from './disposable'
 import { Key } from './keypress-parser'
-import { logFocus } from "./symbols"
-import { LogPointService } from '../logs/LogPointService'
 
 /**
  * Commands are a function with an `id`.
@@ -57,7 +56,7 @@ export class ShortcutService {
 
   readonly receivedCaretRequestRecently = signal2(false)
   readonly askedForFocusThisTick = signal2<{ child: ShortcutService; source: ShortcutService; reason: string }[]>([])
-  readonly caretElement = signal2<Element>(null)
+  readonly caretElement = signal2<TermElement>(null)
 
   readonly isFocused = signal2(false)
   readonly isInFocusPath = signal2(false)

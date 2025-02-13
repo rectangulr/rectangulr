@@ -10,7 +10,7 @@ import { Grow } from '../1-basics/grow.directive'
 import { List } from "./list/list"
 import { blackOnWhite } from './styles'
 import { ListItem } from './list/list-item'
-import { Style } from '../1-basics/style'
+import { Style } from '../1-basics/Style.directive'
 
 @Component({
   selector: 'object-display',
@@ -26,6 +26,7 @@ import { Style } from '../1-basics/style'
       </h>
     </list>
   `,
+  standalone: true,
   imports: [H, List, ListItem, Style]
 })
 export class ObjectDisplay<T> {

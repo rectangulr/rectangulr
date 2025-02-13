@@ -19,7 +19,7 @@ import { FocusDirective } from '../../commands/focus.directive'
 import { makeObservable } from '../../utils/reactivity'
 import { patchInputSignal } from '../../utils/Signal2'
 import { V } from '../1-basics/v'
-import { Style } from '../1-basics/style'
+import { Style } from '../1-basics/Style.directive'
 import { TextInput } from '../1-basics/text-input'
 import { NotificationsService } from './app-shell/notifications.service'
 import { List } from './list/list'
@@ -55,6 +55,7 @@ import { borderTop } from './styles'
       },
     },
   ],
+  standalone: true,
   imports: [V, TextInput, FocusDirective, List, Style]
 })
 export class SearchList<T> {

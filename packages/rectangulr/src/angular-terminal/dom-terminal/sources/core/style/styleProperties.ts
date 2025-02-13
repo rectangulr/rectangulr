@@ -242,7 +242,7 @@ export let styles: { [key: string]: StyleProperty } = {
     parsers: [_.pick(StyleOverflow, 'visible', 'hidden')],
     triggers: [dirtyClipping],
     initial: 'inherit',
-    default: 'visible',
+    default: 'hidden',
   },
 
   borderLeftCharacter: {

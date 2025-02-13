@@ -26,7 +26,7 @@ import { subscribe } from '../../../utils/reactivity'
 import { patchInputSignal, patchWritableSignal, signal2 } from '../../../utils/Signal2'
 import { AnyObject } from '../../../utils/utils'
 import { H } from '../../../components/1-basics/h'
-import { Style } from '../../1-basics/style'
+import { Style } from '../../1-basics/Style.directive'
 import { TextInput } from '../../1-basics/text-input'
 import { ExternalTextEditor } from '../external-text-editor'
 import { List } from '../list/list'
@@ -65,6 +65,7 @@ import { LogPointService } from '../../../logs/LogPointService'
       }
     </ng-container>
     `,
+  standalone: true,
   imports: [
     H,
     TextInput,

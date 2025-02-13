@@ -4,7 +4,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
 import * as _ from 'lodash-es'
 import { Subject } from 'rxjs'
-import { Element } from '../../../angular-terminal/dom-terminal'
+import { TermElement } from '../../../angular-terminal/dom-terminal'
 import { addStyle } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { H } from '../../../components/1-basics/h'
@@ -12,7 +12,7 @@ import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { computed2, signal2 } from '../../../utils/Signal2'
 import { TODO } from '../../../utils/utils'
-import { Style } from '../../1-basics/style'
+import { Style } from '../../1-basics/Style.directive'
 import { List } from '../list/list'
 import { ListItem } from '../list/list-item'
 
@@ -100,6 +100,7 @@ interface Column {
       <row [data]="item" [s]="{ flexShrink: 0 }"></row>
     </ng-template>
   `,
+  standalone: true,
   imports: [H, List, Row, ListItem, Style],
   providers: [
     {
@@ -111,7 +112,7 @@ interface Column {
 })
 export class Table<T> {
   shortcutService = inject(ShortcutService)
-  elementRef = inject<ElementRef<Element>>(ElementRef)
+  elementRef = inject<ElementRef<TermElement>>(ElementRef)
   injector = inject(Injector)
 
   items = input.required<T[]>()

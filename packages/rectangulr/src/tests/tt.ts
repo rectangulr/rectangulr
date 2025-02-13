@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject } from "@angular/core"
-import { Element, Grow, H, HGrow, Scroll, Style, V, VGrow, bootstrapApplication } from "@rectangulr/rectangulr"
+import { H, HGrow, Scroll, Style, TermElement, V, VGrow, bootstrapApplication } from "@rectangulr/rectangulr"
 
 
 @Component({
@@ -17,7 +17,7 @@ import { Element, Grow, H, HGrow, Scroll, Style, V, VGrow, bootstrapApplication 
 class TestComponent {
 	text = Array.from({ length: 30 }, (_, i) => i + 1).join('\n')
 	constructor() {
-		const ref = inject(ElementRef).nativeElement as Element
+		const ref = inject(ElementRef).nativeElement as TermElement
 		globalThis['ref'] = ref
 	}
 

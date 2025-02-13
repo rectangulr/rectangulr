@@ -1,11 +1,11 @@
-import { Component, ElementRef, NO_ERRORS_SCHEMA, ViewChild } from '@angular/core'
+import { Component, ElementRef, ViewChild } from '@angular/core'
 import * as Yoga from 'typeflex'
-import { H } from '../../components/1-basics/h'
-import { V } from '../../components/1-basics/v'
 import { Grow } from '../../components/1-basics/grow.directive'
-import { Style } from '../../components/1-basics/style'
+import { H } from '../../components/1-basics/h'
+import { Style } from '../../components/1-basics/Style.directive'
+import { V } from '../../components/1-basics/v'
 import { setupTest } from '../../tests/utils'
-import { Element } from './sources'
+import { TermElement } from './sources'
 
 describe('DOM - ', () => {
   it('child should be bigger than parent', () => {
@@ -18,8 +18,8 @@ describe('DOM - ', () => {
       imports: [H, V, Grow, Style]
     })
     class Test {
-      @ViewChild('parent') parent: ElementRef<Element>
-      @ViewChild('child') child: ElementRef<Element>
+      @ViewChild('parent') parent: ElementRef<TermElement>
+      @ViewChild('child') child: ElementRef<TermElement>
     }
 
     const { fixture, component, shortcuts } = setupTest(Test)
@@ -39,7 +39,7 @@ describe('DOM - ', () => {
       template: ` <h #parent>aaaaaaaaaa</h> `
     })
     class Test {
-      @ViewChild('parent') parent: ElementRef<Element>
+      @ViewChild('parent') parent: ElementRef<TermElement>
     }
 
     const { fixture, component, shortcuts } = setupTest(Test)
@@ -60,9 +60,9 @@ describe('DOM - ', () => {
       `
     })
     class Test {
-      @ViewChild('parent') parent: ElementRef<Element>
-      @ViewChild('child1') child1: ElementRef<Element>
-      @ViewChild('child2') child2: ElementRef<Element>
+      @ViewChild('parent') parent: ElementRef<TermElement>
+      @ViewChild('child1') child1: ElementRef<TermElement>
+      @ViewChild('child2') child2: ElementRef<TermElement>
     }
 
     const { fixture, component, shortcuts } = setupTest(Test)
@@ -91,9 +91,9 @@ describe('DOM - ', () => {
       `
     })
     class Test {
-      @ViewChild('parent') parent: ElementRef<Element>
-      @ViewChild('child1') child1: ElementRef<Element>
-      @ViewChild('child2') child2: ElementRef<Element>
+      @ViewChild('parent') parent: ElementRef<TermElement>
+      @ViewChild('child1') child1: ElementRef<TermElement>
+      @ViewChild('child2') child2: ElementRef<TermElement>
     }
 
     const { fixture, component, shortcuts } = setupTest(Test)
@@ -122,9 +122,9 @@ describe('DOM - ', () => {
       `
     })
     class Test {
-      @ViewChild('parent') parent: ElementRef<Element>
-      @ViewChild('child1') child1: ElementRef<Element>
-      @ViewChild('child2') child2: ElementRef<Element>
+      @ViewChild('parent') parent: ElementRef<TermElement>
+      @ViewChild('child1') child1: ElementRef<TermElement>
+      @ViewChild('child2') child2: ElementRef<TermElement>
     }
     const { fixture, component, shortcuts } = setupTest(Test)
 
@@ -156,8 +156,8 @@ describe('DOM - ', () => {
       `
     })
     class Test {
-      @ViewChild('parent') parent: ElementRef<Element>
-      @ViewChild('child1') child1: ElementRef<Element>
+      @ViewChild('parent') parent: ElementRef<TermElement>
+      @ViewChild('child1') child1: ElementRef<TermElement>
     }
     const { fixture, component, shortcuts } = setupTest(Test)
 

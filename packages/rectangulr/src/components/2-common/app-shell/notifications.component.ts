@@ -5,7 +5,7 @@ import { subscribe } from '../../../utils/reactivity'
 import { signal2 } from '../../../utils/Signal2'
 import { H } from '../../../components/1-basics/h'
 import { V } from '../../../components/1-basics/v'
-import { Style } from '../../1-basics/style'
+import { Style } from '../../1-basics/Style.directive'
 import { ObjectDisplay } from '../object-display'
 import { Notification, NotificationsService } from './notifications.service'
 
@@ -23,6 +23,7 @@ import { Notification, NotificationsService } from './notifications.service'
       </v>
     }
     `,
+  standalone: true,
   imports: [V, H, ObjectDisplay, Style]
 })
 export class Notifications {

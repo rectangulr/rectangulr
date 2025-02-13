@@ -1,7 +1,7 @@
 import { Directive, ElementRef, inject } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { fromEvent } from 'rxjs'
-import { Element as RgElement } from '../../angular-terminal/dom-terminal'
+import { TermElement } from '../../angular-terminal/dom-terminal'
 import { LogPointService } from '../../logs/LogPointService'
 import { Mouse } from '../../term-strings/parse'
 
@@ -12,15 +12,14 @@ import { Mouse } from '../../term-strings/parse'
 })
 export class Scroll {
 	private lp = inject(LogPointService)
-	private element = inject<ElementRef<RgElement & Element>>(ElementRef).nativeElement
+	private element = inject<ElementRef<TermElement & Element>>(ElementRef).nativeElement
 
 	constructor() {
 		this.element.style.add({ scrollF: 'y' })
-		this.element.style.addChildLayer({ flexShrink: 0 })
+		this.element.style.addChildren({ flexShrink: 0 })
 		fromEvent(this.element, 'mousewheel')
 			.pipe(
 				takeUntilDestroyed(),
-				// debounceTime(20)
 			)
 			.subscribe(e => {
 				const event = e['mouse'] as Mouse

@@ -2,7 +2,7 @@ import { Component, ElementRef, signal, viewChild } from "@angular/core"
 import { TestBed } from "@angular/core/testing"
 import { Grow } from '../components/1-basics/grow.directive'
 import { H } from '../components/1-basics/h'
-import { Style } from "../components/1-basics/style"
+import { Style } from "../components/1-basics/Style.directive"
 import { V } from '../components/1-basics/v'
 import { VGrow } from "../components/1-basics/vgrow.directive"
 import { Scroll } from "../components/2-common/scroll.directive"

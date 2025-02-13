@@ -1,5 +1,5 @@
 import { Directive, ElementRef, inject } from '@angular/core'
-import { Element, TermText2 } from '../angular-terminal/dom-terminal/index'
+import { TermElement, TermText2 } from '../angular-terminal/dom-terminal/index'
 import { traverse } from '../angular-terminal/dom-terminal/sources/core/dom/Node'
 import { LogPointService } from './LogPointService'
 
@@ -8,7 +8,7 @@ import { LogPointService } from './LogPointService'
 	standalone: true,
 })
 export class DomLog {
-	protected element = inject(ElementRef<Element>).nativeElement
+	protected element = inject(ElementRef<TermElement>).nativeElement
 	protected logPointService = inject(LogPointService)
 
 	ngOnInit() {

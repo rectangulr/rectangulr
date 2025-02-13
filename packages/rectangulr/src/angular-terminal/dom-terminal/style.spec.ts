@@ -2,20 +2,20 @@ import { Component, ElementRef, Signal, ViewChild, computed, signal } from '@ang
 import { TestBed, fakeAsync, flush, tick } from '@angular/core/testing'
 import { Grow } from '../../components/1-basics/grow.directive'
 import { H } from '../../components/1-basics/h'
-import { Style } from '../../components/1-basics/style'
+import { Style } from '../../components/1-basics/Style.directive'
 import { V } from '../../components/1-basics/v'
 import { setupTest } from '../../tests/utils'
-import { Element, TermScreen, TermText2 } from './sources'
+import { TermElement, TermScreen, TermText2 } from './sources'
 import { StyleHandler, StyleValue, diff, ifEq } from './sources/core/dom/StyleHandler'
 
 function setup() {
 	let screen: TermScreen
-	let parent: Element
+	let parent: TermElement
 	let textNode: TermText2
 
 	TestBed.runInInjectionContext(() => {
 		screen = new TermScreen()
-		parent = new Element()
+		parent = new TermElement()
 		screen.appendChild(parent)
 
 		textNode = new TermText2()
@@ -53,7 +53,7 @@ describe('Style - ', () => {
 			let { screen, parent, textNode } = setup()
 			expect(textNode.style.get('width')).toEqual('auto')
 
-			parent.style.addChildLayer({ width: 3 })
+			parent.style.addChildren({ width: 3 })
 			screen.triggerUpdates()
 			expect(textNode.style.get('width')).toEqual(3)
 		})
@@ -62,7 +62,7 @@ describe('Style - ', () => {
 			let { screen, parent, textNode } = setup()
 			expect(textNode.style.get('width')).toEqual('auto')
 
-			parent.style.addChildLayer({ width: 3 })
+			parent.style.addChildren({ width: 3 })
 			textNode.style.add({ width: 4 })
 			screen.triggerUpdates()
 			expect(textNode.style.get('width')).toEqual(4)
@@ -74,7 +74,7 @@ describe('Style - ', () => {
 			screen.triggerUpdates()
 			expect(textNode.style.get('width')).toEqual('auto')
 
-			parent.style.addChildLayer({ width: 3 })
+			parent.style.addChildren({ width: 3 })
 			screen.triggerUpdates()
 			expect(textNode.style.get('width')).toEqual(3)
 		})
@@ -160,7 +160,7 @@ describe('Style - ', () => {
 			`
 		})
 		class Test {
-			@ViewChild('parent') parent: ElementRef<Element>
+			@ViewChild('parent') parent: ElementRef<TermElement>
 			ifEq = ifEq
 			value = signal(true)
 		}
@@ -194,8 +194,8 @@ describe('Style - ', () => {
 			`
 		})
 		class Test {
-			@ViewChild('parent') parent: ElementRef<Element>
-			@ViewChild('child') child: ElementRef<Element>
+			@ViewChild('parent') parent: ElementRef<TermElement>
+			@ViewChild('child') child: ElementRef<TermElement>
 			value = signal(false)
 			ifEq = ifEq
 		}

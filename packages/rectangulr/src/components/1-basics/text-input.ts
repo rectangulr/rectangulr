@@ -3,18 +3,18 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as _ from '@s-libs/micro-dash'
 import { combineLatestWith, debounceTime } from 'rxjs/operators'
-import { Element, Point } from '../../angular-terminal/dom-terminal'
+import { Point, TermElement } from '../../angular-terminal/dom-terminal'
 import { addStyle } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../../angular-terminal/logger'
 import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
+import { assert } from '../../utils/Assert'
 import { Completion, CompletionProvider } from '../../utils/CompletionProvider'
 import { patchInputSignal, signal2 } from '../../utils/Signal2'
 import { List } from '../2-common/list/list'
 import { ListItem } from '../2-common/list/list-item'
 import { H } from './h'
+import { Style } from './Style.directive'
 import { V } from './v'
-import { Style } from './style'
-import { assert } from '../../utils/Assert'
 
 
 let globalId = 0
@@ -45,6 +45,7 @@ let globalId = 0
     },
     { provide: ShortcutService },
   ],
+  standalone: true,
   imports: [H, V, Style, List, ListItem]
 })
 export class TextInput implements ControlValueAccessor {
@@ -58,7 +59,7 @@ export class TextInput implements ControlValueAccessor {
   readonly focusOnInit = input(true)
 
   readonly caretIndex = model(0)
-  readonly domElement = signal2<Element | undefined>(undefined)
+  readonly domElement = signal2<TermElement | undefined>(undefined)
   readonly firstTextInput = signal2(true)
 
   // Completions
@@ -71,7 +72,7 @@ export class TextInput implements ControlValueAccessor {
   })
 
   shortcutService = inject(ShortcutService)
-  elementRef = inject(ElementRef<Element>)
+  elementRef = inject(ElementRef<TermElement>)
   logger = inject(LOGGER)
 
   constructor() {

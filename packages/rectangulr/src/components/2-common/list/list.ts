@@ -15,20 +15,22 @@ import {
   untracked,
   viewChildren
 } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import { clamp, clone, isNil, isObject } from 'lodash-es'
-import { Subject } from 'rxjs'
-import { Element } from '../../../angular-terminal/dom-terminal'
+import { Subject, fromEvent } from 'rxjs'
+import { TermElement } from '../../../angular-terminal/dom-terminal'
 import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
-import { V } from '../../../components/1-basics/v'
+import { Mouse } from '../../../term-strings/parse'
 import { assert } from '../../../utils/Assert'
 import { BaseControlValueAccessor } from '../../../utils/base-control-value-accessor'
 import { Deferred } from '../../../utils/Deferred'
 import { patchInputSignal, signal2 } from '../../../utils/Signal2'
-import { Style } from '../../1-basics/style'
+import { Style } from '../../1-basics/Style.directive'
+import { V } from '../../1-basics/v'
 import { BasicObjectDisplay } from './basic-object-display'
 import { ListItem } from './list-item'
 
@@ -39,24 +41,23 @@ import { ListItem } from './list-item'
 @Component({
   selector: 'list',
   template: `
-    <v [s]="{ flexShrink: 0, scrollF: 'y' }">
-      @for (item of visibleItems(); track trackByFn()($index,item)) {
-        <v
-          #elementRef
-          (mousedown)="selectVisibleIndex($index)"
-          [st]="[this.itemStyle]"
-          [stv]="{index: $index}"
-          >
-          <ng-container
-            [ngTemplateOutlet]="template() || template2() || defaultTemplate"
-            [ngTemplateOutletContext]="{
-              $implicit: item,
-              index: $index,
-              selected: eq($index, selectedIndex)
-          }"/>
-        </v>
-      }
-    </v>
+    @for (item of visibleItems(); track trackByFn()($index,item)) {
+      <v
+        #elementRef
+        (mousedown)="selectVisibleIndex($index)"
+        [s]="{flexShrink: 0}"
+        [st]="[this.itemStyle]"
+        [stv]="{index: $index}"
+        >
+        <ng-container
+          [ngTemplateOutlet]="template() || template2() || defaultTemplate"
+          [ngTemplateOutletContext]="{
+            $implicit: item,
+            index: $index,
+            selected: eq($index, selectedIndex)
+        }"/>
+      </v>
+    }
 
     <ng-template #defaultTemplate let-item let-selected>
       <basic-object-display [data]="item" />
@@ -178,8 +179,9 @@ export class List<T> {
   // itemComponentInjected = inject('itemComponent', {optional: true})
   injector = inject(Injector)
 
-  constructor(
-  ) {
+  protected el = inject<ElementRef<TermElement & Element>>(ElementRef).nativeElement
+
+  constructor() {
     // inputToSignal(this, 'focusPath', '$focusPath')
 
     // effect(() => {
@@ -205,6 +207,16 @@ export class List<T> {
       this.elementRefs()
       untracked(() => { this.afterViewUpdate() })
     })
+
+    this.el.style.add({ scrollF: 'y' })
+
+    fromEvent(this.el, 'mousewheel')
+      .pipe(takeUntilDestroyed())
+      .subscribe(e => {
+        debugger
+        const event = e['mouse'] as Mouse
+        this.el.scrollTop += event.d * 2
+      })
   }
 
   ngOnInit() {
@@ -303,18 +315,18 @@ export class List<T> {
     if (this.selectedIndex.$ !== undefined) {
       // RequestFocus
       if (this.focusRefs().length > 0) {
-        const selectedFocusDirective = this.focusRefs().at(this.selectedVisibleIndex())
-        if (!selectedFocusDirective) {
+        const selectedFocus = this.focusRefs().at(this.selectedVisibleIndex())
+        if (!selectedFocus) {
           debugger
         }
-        assert(selectedFocusDirective)
-        selectedFocusDirective.shortcutService.requestFocus({ reason: 'List selectIndex' })
+        assert(selectedFocus)
+        selectedFocus.shortcutService.requestFocus({ reason: 'List selectIndex' })
       }
 
       // ScrollIntoView
       if (this.elementRefs().length > 0) {
         assert(this.selectedIndex.$ !== undefined)
-        const element: Element = this.elementRefs().at(
+        const element: TermElement = this.elementRefs().at(
           this.selectedVisibleIndex()
         )?.nativeElement
         element?.scrollIntoView({ direction: 'y' })

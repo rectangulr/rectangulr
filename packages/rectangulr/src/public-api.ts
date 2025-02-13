@@ -3,7 +3,7 @@
  */
 
 // Basics
-export { Element, Event, TermScreen } from './angular-terminal/dom-terminal/'
+export { TermElement, Event, TermScreen } from './angular-terminal/dom-terminal/'
 export { LOGGER, Logger } from './angular-terminal/logger'
 
 // Platform
@@ -18,7 +18,7 @@ export { V } from './components/1-basics/v'
 export { HGrow } from './components/1-basics/hgrow.directive'
 export { VGrow } from './components/1-basics/vgrow.directive'
 export { Grow } from './components/1-basics/grow.directive'
-export { Style } from './components/1-basics/style'
+export { Style } from './components/1-basics/Style.directive'
 export { TAGS, Tags } from './logs/Tags'
 export type { StyleValue } from './angular-terminal/dom-terminal/sources/core/dom/StyleHandler.ts'
 export { cond, eq, neq, addStyle } from './angular-terminal/dom-terminal/sources/core/dom/StyleHandler'

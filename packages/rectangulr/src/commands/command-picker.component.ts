@@ -3,7 +3,7 @@ import { last } from '@s-libs/micro-dash'
 import { Subject } from 'rxjs'
 import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
 import { LOGGER } from '../angular-terminal/logger'
-import { Style } from '../components/1-basics/style'
+import { Style } from '../components/1-basics/Style.directive'
 import { V } from '../components/1-basics/v'
 import { ListItem } from '../components/2-common/list/list-item'
 import { SearchList } from '../components/2-common/search-list'
@@ -34,6 +34,7 @@ import { Command, ShortcutService } from './shortcut.service'
       provide: ShortcutService,
     },
   ],
+  standalone: true,
   imports: [SearchList, ListItem, Style, V]
 })
 export class CommandPicker {

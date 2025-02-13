@@ -1,5 +1,5 @@
 import { Component, computed, inject, resource, viewChild } from '@angular/core'
-import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, FocusDirective, Grow, H, List, ListItem, Logs, provideView, registerShortcuts, Scroll, ɵsignal2 as signal2, Style, Tasks } from '@rectangulr/rectangulr'
+import { AppShell, bootstrapApplication, Command, ɵcomputed2 as computed2, FocusDirective, Grow, H, List, ListItem, Logs, provideView, registerShortcuts, Scroll, ɵsignal2 as signal2, Style, Tags, Tasks } from '@rectangulr/rectangulr'
 import { Dirent, Stats } from 'fs'
 import fs from 'fs/promises'
 
@@ -10,7 +10,8 @@ import fs from 'fs/promises'
 			<list [items]="files()"
 				  (selectedItem)="selectedFile.$ = $event"
 				  [s]="{width: '33%'}"
-				  focus>
+				  focus
+				  >
 				<h *item="let file; type: files()"
 					>{{file.isDirectory() ? '>' : ' '}}{{file.name}}
 				</h>

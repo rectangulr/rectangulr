@@ -83,7 +83,7 @@ export class StyleHandler {
 
 	}
 
-	addChildLayer(layer: Layer) {
+	addChildren(layer: Layer) {
 		this.childLayers.push(layer)
 		this.childLayerDirty = true
 		for (const c of this.element.childNodes) {
