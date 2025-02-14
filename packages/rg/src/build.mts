@@ -59,6 +59,7 @@ async function main() {
 			mergeOptions(esbuildOptions, {
 				define: { 'ngDevMode': 'false' },
 				sourcemap: false,
+				minify: true,
 			})
 			watch = false
 			compiler = false
@@ -68,7 +69,7 @@ async function main() {
 					'ngDevMode': 'ngDevMode'
 				},
 				sourcemap: 'linked',
-				metafile: opt('meta'),
+				metafile: true,
 			})
 			watch = true
 			compiler = true
@@ -87,17 +88,10 @@ async function main() {
 					}, null, 2),
 				},
 			})
-		} else if (opt('target') == 'node') {
-			mergeOptions(esbuildOptions, {
-
-			})
 		}
 
-		if (opt('sourcemap') !== undefined) {
-			mergeOptions(esbuildOptions, {
-				sourcemap: opt('sourcemap'),
-			})
-		}
+		if (opt('meta') !== undefined) esbuildOptions.metafile = opt('meta')
+		if (opt('sourcemap') !== undefined) esbuildOptions.sourcemap = opt('sourcemap')
 
 		if (opt('compiler') !== undefined) {
 			compiler = opt('compiler')
