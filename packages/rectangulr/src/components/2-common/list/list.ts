@@ -216,6 +216,9 @@ export class List<T> {
         debugger
         const event = e['mouse'] as Mouse
         this.el.scrollTop += event.d * 2
+        this.visibleRange.update(range => {
+          return moveRange(range, event.d * 2, 0, this.items().length)
+        })
       })
   }
 
@@ -420,4 +423,9 @@ function clampRange(range: { start: number; end: number }, min: number, max: num
   if (newRange.start < min) newRange.start = min
   if (newRange.end > max) newRange.end = max
   return newRange
+}
+
+function moveRange(range: Range, delta: number, min: number, max: number) {
+  let clampedDelta = clamp(delta, -range.start, max - range.end)
+  return { start: range.start + clampedDelta, end: range.end + clampedDelta }
 }
