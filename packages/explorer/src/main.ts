@@ -7,16 +7,15 @@ import fs from 'fs/promises'
 	template: `
 		<h [s]="S.title">Explorer: {{dir()}}</h>
 		<h grow>
-			<list [items]="files()"
+			<list grow [items]="files()"
 				  (selectedItem)="selectedFile.$ = $event"
-				  [s]="{width: '33%'}"
 				  focus
 				  >
 				<h *item="let file; type: files()"
 					>{{file.isDirectory() ? '>' : ' '}}{{file.name}}
 				</h>
 			</list>
-			<h scroll focus [s]="{width: '67%', borderLeftCharacter: '|'}"
+			<h grow scroll focus [s]="{width: '66%', borderLeftCharacter: '|'}"
 				>{{selectedFileContent()}}
 			</h>
 		</h>
