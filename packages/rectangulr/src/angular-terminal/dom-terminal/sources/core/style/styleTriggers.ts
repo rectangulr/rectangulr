@@ -1,5 +1,5 @@
 import * as Yoga from 'typeflex'
-import { TermElement } from '../../core/dom/Element'
+import { TermElement } from '../dom/TermElement'
 import { TermText2 } from '../../term'
 
 export function dirtyLayout(node: TermElement) {

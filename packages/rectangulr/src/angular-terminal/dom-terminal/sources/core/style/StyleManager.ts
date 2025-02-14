@@ -13,7 +13,7 @@ import { EasyComputedStyle } from './EasyComputedStyle'
 import { EasyStyle } from './EasyStyle'
 import { Ruleset } from './Ruleset'
 import { styles } from './styleProperties'
-import { TermElement } from '../dom/Element'
+import { TermElement } from '../dom/TermElement'
 
 export class StyleManager {
   static RULESET_NATIVE = `RULESET_NATIVE`

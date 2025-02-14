@@ -1,7 +1,7 @@
 import { Injectable, Injector, runInInjectionContext, inject } from "@angular/core"
 import { assert } from "../../../../../utils/utils"
 import { LOGGER } from "../../../../logger"
-import { TermElement } from '../../core/dom/Element'
+import { TermElement } from '../../core/dom/TermElement'
 import { TermText2 } from "./TermText2"
 
 type ElementConstructor = typeof TermElement

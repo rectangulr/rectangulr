@@ -7,7 +7,7 @@ import { StyleDisplay } from '../style/types/StyleDisplay'
 import { StyleLength } from '../style/types/StyleLength'
 import { StylePosition } from '../style/types/StylePosition'
 
-import { TermElement } from './Element'
+import { TermElement } from './TermElement'
 
 describe(`Element`, () => {
     describe(`#scrollIntoView`, () => {

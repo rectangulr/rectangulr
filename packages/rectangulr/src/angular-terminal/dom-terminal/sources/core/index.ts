@@ -1,4 +1,4 @@
-export { TermElement } from './dom/Element'
+export { TermElement } from './dom/TermElement'
 export { Node } from './dom/Node'
 export * from './dom/traverse'
 

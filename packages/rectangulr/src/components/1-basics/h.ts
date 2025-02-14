@@ -1,5 +1,5 @@
 import { Directive, inject, ElementRef } from '@angular/core'
-import { TermElement as Element } from '../../angular-terminal/dom-terminal/sources/core/dom/Element'
+import { TermElement as Element } from '../../angular-terminal/dom-terminal/sources/core/dom/TermElement'
 
 /**
  * Think of it as `div` for the terminal. The basic building block for templates.

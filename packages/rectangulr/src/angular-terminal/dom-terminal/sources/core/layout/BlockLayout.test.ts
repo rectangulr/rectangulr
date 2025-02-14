@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { expect } from 'chai'
 
-import { TermElement } from '../dom/Element'
+import { TermElement } from '../dom/TermElement'
 import { Screen } from '../elements/Screen'
 
 describe(`BlockLayout`, () => {

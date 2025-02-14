@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA, Type } from '@angular/core'
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
 import { Key } from '../commands/keypress-parser'
 import { ShortcutService } from '../commands/shortcut.service'
-import { TermElement as Element } from '../angular-terminal/dom-terminal/sources/core/dom/Element'
+import { TermElement as Element } from '../angular-terminal/dom-terminal/sources/core/dom/TermElement'
 
 export function setupTest<T>(componentClass: Type<T>) {
   TestBed.resetTestingModule()

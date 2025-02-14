@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { TermElement } from '../dom/Element'
+import { TermElement } from '../dom/TermElement'
 
 export class Screen extends TermElement {
   constructor(props) {

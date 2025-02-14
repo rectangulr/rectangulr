@@ -1,7 +1,7 @@
 import { Signal } from '@angular/core'
 import * as _ from 'lodash-es'
 import * as Yoga from 'typeflex'
-import { TermElement } from '../dom/Element'
+import { TermElement } from '../dom/TermElement'
 import { StyleHandler, StyleValue, } from '../dom/StyleHandler'
 import { character, color, length, number } from './styleParsers'
 import {

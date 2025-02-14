@@ -3,7 +3,7 @@ import * as _ from '@s-libs/micro-dash'
 import { AnyObject, assert, unwrapIfFunction } from "../../../../../utils/utils"
 import { computedStyles, isComputedStyle, styles } from "../style/styleProperties"
 import { parsePropertyValue } from "../style/tools/parsePropertyValue"
-import { TermElement } from './Element'
+import { TermElement } from './TermElement'
 
 type StyleKey = keyof StyleValue
 export type Layer = SimpleLayer | ((StyleHandler) => StyleValue) | SignalLayer

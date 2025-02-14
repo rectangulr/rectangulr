@@ -4,7 +4,7 @@ import wrapAnsi from 'wrap-ansi'
 import { LogPointService } from '../../../../../logs/LogPointService'
 import { onChange } from '../../../../../utils/reactivity'
 import { AnyObject, assert } from '../../../../../utils/utils'
-import { TermElement } from "../../core/dom/Element"
+import { TermElement } from "../../core/dom/TermElement"
 import { flags } from '../../core/dom/flags'
 
 export class TermText2 extends TermElement {
