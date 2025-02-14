@@ -903,7 +903,7 @@ export class TermElement extends Node<TermElement> {
           BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))
         ) {
           const backgroundColor = this.style.get('backgroundColor')
-          const backgroundAnsi = Color.front(backgroundColor)
+          const backgroundAnsi = Color.back(backgroundColor)
           data = backgroundAnsi + data
         }
 
