@@ -6,31 +6,11 @@ import markdown from 'markdown-it'
 import hljs from 'highlight.js'
 $.verbose = true
 
-const md = markdown({
-	html: true,
-	highlight: function (str, lang) {
-		if (lang && hljs.getLanguage(lang)) {
-			try {
-				return (
-					'<pre><code class="hljs">' +
-					hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
-					"</code></pre>"
-				)
-			} catch (__) { }
-		}
-		return (
-			'<pre><code class="hljs">' +
-			md.utils.escapeHtml(str) +
-			"</code></pre>"
-		)
-	},
-})
-
 async function main() {
 	try {
-		fs.access('../starter/rg-web')
+		fs.access('../starter/dist-web')
 	} catch (e) {
-		console.error('../starter/rg-web does not exist.')
+		console.error('../starter/dist-web does not exist.')
 		return
 	}
 	await $`mkdir -p ./dist`.catch(() => { })
@@ -53,8 +33,28 @@ async function main() {
 	}
 
 	// Copy example app
-	await $`cp -r ../starter/rg-web ./dist/starter/`
+	await $`cp -r ../starter/dist-web ./dist/starter/`
 }
+
+const md = markdown({
+	html: true,
+	highlight: function (str, lang) {
+		if (lang && hljs.getLanguage(lang)) {
+			try {
+				return (
+					'<pre><code class="hljs">' +
+					hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+					"</code></pre>"
+				)
+			} catch (__) { }
+		}
+		return (
+			'<pre><code class="hljs">' +
+			md.utils.escapeHtml(str) +
+			"</code></pre>"
+		)
+	},
+})
 
 function replacePlaceholder(shell: string, page: string) {
 	const shellHtml = html.parse(shell)
@@ -91,7 +91,7 @@ async function readFile(path: string) {
 }
 
 if (argv['watch']) {
-	const inputs = ['./src', '../starter/rg-web/*.mjs', './dev/empty.js']
+	const inputs = ['./src', '../starter/dist-web/*.mjs', './dev/empty.js']
 	chokidar.watch(inputs).on('change', _.debounce(() => {
 		main()
 	}, 100))
