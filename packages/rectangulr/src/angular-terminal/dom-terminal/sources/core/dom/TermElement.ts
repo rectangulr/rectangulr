@@ -900,11 +900,10 @@ export class TermElement extends Node<TermElement> {
 
         if (
           !this.rootNode.debugPaintRects &&
-          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))
+          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip')) &&
+          this.style.get('backgroundColor')
         ) {
-          const backgroundColor = this.style.get('backgroundColor')
-          const backgroundAnsi = Color.back(backgroundColor)
-          data = backgroundAnsi + data
+          data = Color.back(this.style.get('backgroundColor')) + data
         }
 
         if (!this.rootNode.debugPaintRects && this.style.get('borderColor')) {
@@ -937,7 +936,8 @@ export class TermElement extends Node<TermElement> {
 
         if (
           !this.rootNode.debugPaintRects &&
-          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip'))
+          BackgroundClip.doesIncludeBorders(this.style.get('backgroundClip')) &&
+          this.style.get('backgroundColor')
         ) {
           data = Color.back(this.style.get('backgroundColor')) + data
         }
