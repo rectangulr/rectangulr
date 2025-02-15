@@ -50,9 +50,9 @@ async function main() {
 			platform: 'node',
 			sourcemap: false,
 			format: 'esm',
-			inject: [
-				scriptDir + '../files/inject-require.js',
-			],
+			// inject: [
+			// 	scriptDir + '../files/inject-require.js',
+			// ],
 		})
 
 		if (opt('prod')) {
