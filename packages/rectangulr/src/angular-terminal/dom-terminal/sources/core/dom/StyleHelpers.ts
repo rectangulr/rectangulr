@@ -1,8 +1,8 @@
 import { style } from '../../../../../term-strings/core'
 import { StyleValue } from './StyleHandler'
 
-export namespace Position {
-  export function isAbsolutelyPositioned(value: StyleValue['position']) {
+export const Position = {
+  isAbsolutelyPositioned(value: StyleValue['position']) {
     switch (value) {
       case 'absolute':
         return true
@@ -14,18 +14,18 @@ export namespace Position {
   }
 }
 
-export namespace Color {
-  export function front(value): string {
+export const Color = {
+  front(value): string {
     return style.color.front(value)
-  }
+  },
 
-  export function back(value): string {
+  back(value): string {
     return style.color.back(value)
   }
 }
 
-export namespace BackgroundClip {
-  export function doesIncludeBorders(value) {
+export const BackgroundClip = {
+  doesIncludeBorders(value) {
     switch (value) {
       case 'borderBox':
         return true
