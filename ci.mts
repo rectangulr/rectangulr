@@ -18,3 +18,7 @@ await $`cd packages/smoke-test &&
 await $`cd packages/starter &&
 npm i &&
 npx tsx dev/ci.mts`
+
+await $`cd packages/website &&
+npm i &&
+npx tsx dev/ci.mts`
