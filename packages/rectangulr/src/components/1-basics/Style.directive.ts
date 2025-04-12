@@ -1,6 +1,6 @@
 import { Directive, ElementRef, inject, input, Input, Signal, signal, WritableSignal } from '@angular/core'
 import { TermElement } from '../../angular-terminal/dom-terminal'
-import { StyleValue } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { StyleValue } from '../../angular-terminal/dom-terminal/style/StyleHandler'
 import { onChange } from '../../utils/reactivity'
 
 type StyleValueOrSignal = StyleValue | Signal<StyleValue>

@@ -12,9 +12,9 @@ import {
 } from '@angular/core'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
-import * as _ from 'lodash-es'
+import * as _ from '@s-libs/micro-dash'
 import { Observable, Subject } from 'rxjs'
-import { addStyle, cond } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { addStyle, cond } from '../../../angular-terminal/dom-terminal/style/StyleHandler'
 import { LOGGER } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, registerShortcuts, ShortcutService } from '../../../commands/shortcut.service'
@@ -371,7 +371,7 @@ function valueFromText(text: string): any {
     return null
   } else if (jsonNumber.test(text)) {
     const number = Number(text)
-    if (_.isNaN(number)) debugger
+    if (Number.isNaN(number)) debugger
     return number
   } else {
     return text

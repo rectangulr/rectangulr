@@ -1,24 +1,12 @@
 import { Injector, ProviderToken, effect, inject, isSignal } from '@angular/core'
-import * as _ from 'lodash-es'
+import * as _ from '@s-libs/micro-dash'
 import { Observable, isObservable } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
-import { Logger, LOGGER } from '../angular-terminal/logger'
+import { Logger } from '../angular-terminal/logger'
 import { onChange, subscribe } from './reactivity'
+import { assert } from '../utils/Assert'
 
 export type TODO = any
-
-/**
- * @example
- * TODO: use Assert.ts instead
- * assert(false, "throw this error message")
- * assert(true, "nothing happens")
- * @deprecated
- */
-export function assert(condition?, message?) {
-  if (!condition) {
-    throw new Error(message || 'assert failed')
-  }
-}
 
 /**
  * Stops the execution and opens the debugger.
@@ -85,7 +73,7 @@ export function mapKeyValue(object, func: (key, value) => [key: string, value: a
 }
 
 export interface AnyObject {
-  [prop: string]: any
+  [prop: string | symbol]: any
 }
 
 /**

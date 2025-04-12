@@ -1,7 +1,7 @@
 import type { Terminal as XtermRef } from "xterm"
 import { EventDispatch } from "../../utils/event-handler"
 import { Disposable, Queue } from "../../utils/queue"
-import { Input } from "../dom-terminal/sources/term/elements/TermScreen"
+import { Input } from "../dom-terminal/dom/TermScreen"
 import { TERMINAL, Terminal } from './Terminal'
 import { StaticProvider } from "@angular/core"
 import { TODO } from "../../utils/utils"

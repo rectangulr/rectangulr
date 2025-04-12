@@ -1,6 +1,6 @@
 import { NgComponentOutlet } from '@angular/common'
 import { Component, inject } from '@angular/core'
-import { ifEq, ifNeq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { ifEq, ifNeq } from '../../../angular-terminal/dom-terminal/style/StyleHandler'
 import { CommandPicker } from '../../../commands/command-picker.component'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
@@ -38,8 +38,7 @@ import { ViewService } from './view.service'
         <h
           [s]="[{ paddingLeft: 1, paddingRight: 1, flexShrink: 0 }, ifEq(view, this.viewService.currentTab, s.blackOnWhite)]"
           (mousedown)="viewService.switchTo(view.name)"
-          >{{ view.name }}
-        </h>
+          >{{ view.name }}</h>
       }
       <h [s]="{ hgrow: true }"/>
       <h [s]="{ flexShrink: 0 }" (mousedown)="toggleCommands()">Help: alt+p</h>

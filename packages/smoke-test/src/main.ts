@@ -9,7 +9,8 @@ class Main {
 	screen = inject(TermScreen)
 	constructor() {
 		setTimeout(() => {
-			this.screen.exit()
+			this.screen.detachTerminal()
+			process.exit(0)
 		}, 20)
 	}
 }

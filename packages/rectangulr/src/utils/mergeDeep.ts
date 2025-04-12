@@ -1,12 +1,15 @@
-import { isArray, mergeWith } from "lodash-es"
+export function mergeDeep<T>(object: T, other: Partial<T>): T {
+	const result = { ...object }
 
-export function mergeDeep(object, other) {
-	function customizer(objValue, srcValue) {
-		if (isArray(objValue)) {
-			return objValue.concat(srcValue)
+	for (const key in other) {
+		if (Array.isArray(result[key]) && Array.isArray(other[key])) {
+			result[key] = [...result[key], ...other[key]] as T[Extract<keyof T, string>]
+		} else if (other[key] !== null && typeof other[key] === 'object') {
+			result[key] = mergeDeep(result[key], other[key])
+		} else {
+			result[key] = other[key]
 		}
 	}
 
-	return mergeWith(object, other, customizer)
+	return result
 }
-

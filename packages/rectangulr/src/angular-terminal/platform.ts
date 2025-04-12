@@ -8,13 +8,20 @@ import {
   createPlatformFactory,
   platformCore,
   ɵinternalCreateApplication,
+  ɵsetDocument,
 } from '@angular/core'
 import { RECTANGULR_MODULE_PROVIDERS } from '../rectangulr-module-providers'
 
 export const INTERNAL_RECTANGULR_PLATFORM_PROVIDERS = [
   { provide: PLATFORM_ID, useValue: 'rectangulr' },
   { provide: PLATFORM_INITIALIZER, useValue: () => { }, multi: true },
-  { provide: DOCUMENT, useValue: {}, deps: [] },
+  {
+    provide: DOCUMENT, useFactory: () => {
+      const doc = {}
+      ɵsetDocument(doc as any)
+      return doc
+    }
+  },
 ]
 
 export const platformRectangulr = createPlatformFactory(platformCore, 'rectangulr', [

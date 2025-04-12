@@ -51,7 +51,7 @@ export class Tasks {
 		group.tasks.length = 0
 		group.timeoutHandle = undefined
 
-		// if we just ran the fastGroup tasks, reset the timeouts
+		// if we just ran the debounce=0 tasks, reset the timeouts
 		if (debounce === 0) {
 			this.resetTimeouts()
 		}

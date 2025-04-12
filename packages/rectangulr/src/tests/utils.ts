@@ -1,13 +1,17 @@
 import { NO_ERRORS_SCHEMA, Type } from '@angular/core'
-import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, flush, tick } from '@angular/core/testing'
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing'
+import { TermElement } from '../angular-terminal/dom-terminal'
+import { LOGGER } from '../angular-terminal/logger'
 import { Key } from '../commands/keypress-parser'
 import { ShortcutService } from '../commands/shortcut.service'
-import { TermElement as Element } from '../angular-terminal/dom-terminal/sources/core/dom/TermElement'
 
 export function setupTest<T>(componentClass: Type<T>) {
   TestBed.resetTestingModule()
   TestBed.configureTestingModule({
-    providers: [ShortcutService],
+    providers: [
+      ShortcutService,
+      { provide: LOGGER, useValue: { log: () => { } } }
+    ],
     schemas: [NO_ERRORS_SCHEMA]
   })
 
@@ -49,10 +53,19 @@ export function keyboardTest(func: () => void) {
   })
 }
 
-export function renderToString(comp: any) {
+export function renderToAnsiCodes(comp: any) {
   const fixture = TestBed.createComponent(comp)
-  const el: Element = fixture.elementRef.nativeElement
+  const el: TermElement = fixture.elementRef.nativeElement
   fixture.detectChanges()
-  // el.triggerUpdates()
-  return el.rootNode.renderToString()
+  el.rootNode.render('full', el.rootNode.frame)
+  return el.rootNode.frame.renderAnsiCodes('full')
+}
+
+export function renderToPlainText(comp: any) {
+  const fixture = TestBed.createComponent(comp)
+  const el: TermElement = fixture.elementRef.nativeElement
+  fixture.detectChanges()
+  el.rootNode.updateDirtyNodes()
+  el.rootNode.render('full', el.rootNode.frame)
+  return el.rootNode.frame.renderToPlainText()
 }

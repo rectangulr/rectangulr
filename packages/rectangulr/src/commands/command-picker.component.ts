@@ -1,7 +1,7 @@
 import { Component, inject, input, output, viewChild } from '@angular/core'
 import { last } from '@s-libs/micro-dash'
 import { Subject } from 'rxjs'
-import { addStyle } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { addStyle } from '../angular-terminal/dom-terminal/style/StyleHandler'
 import { LOGGER } from '../angular-terminal/logger'
 import { Style } from '../components/1-basics/Style.directive'
 import { V } from '../components/1-basics/v'

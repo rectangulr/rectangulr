@@ -1,11 +1,11 @@
 import { Component, ViewChild } from '@angular/core'
 import { keyboardTest, sendKeyAndDetectChanges, setupTest } from '../../tests/utils'
 import { FormEditor } from './form-editor'
-import { discardPeriodicTasks, fakeAsync } from '@angular/core/testing'
 
 @Component({
-    imports: [FormEditor],
-    template: `<form-editor [object]="object"/>`
+  template: `<form-editor [object]="object"/>`,
+  standalone: true,
+  imports: [FormEditor],
 })
 export class Test1 {
   object = { name: 'James', age: 25 }

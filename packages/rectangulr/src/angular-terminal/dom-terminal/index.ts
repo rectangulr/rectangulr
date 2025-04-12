@@ -1,1 +1,7 @@
-export * from './sources'
+export { ElementPool } from "./dom/element-pool"
+export { Node } from "./dom/Node"
+export { TermElement } from "./dom/TermElement"
+export { TermScreen } from "./dom/TermScreen"
+export { TermText } from "./dom/TermText"
+export { Event } from "./dom/Event"
+export { Point } from "./dom/Point"

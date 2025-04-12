@@ -1,6 +1,6 @@
 import { ErrorHandler, Injectable, inject } from '@angular/core'
 import { LOGGER } from './logger'
-import { ScreenService } from './screen-service'
+import { ScreenService } from './ScreenService'
 
 
 
@@ -35,6 +35,6 @@ export class RectangulrErrorHandler implements ErrorHandler {
     // Release terminal and exit
     // this.screen.termScreen.releaseScreen()
     ; (globalThis as any).original_console.log(error)
-    process.exit(1)
+    // process.exit(1)
   }
 }

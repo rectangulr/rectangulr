@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core'
 import * as child_process from 'child_process'
 import fs from 'fs'
 import { Subject } from 'rxjs'
-import { ScreenService } from '../../angular-terminal/screen-service'
+import { ScreenService } from '../../angular-terminal/ScreenService'
 
 @Injectable({
   providedIn: 'root',
@@ -38,7 +38,7 @@ export class ExternalTextEditor {
       stream.complete()
       watcher.close()
       if (this.releaseScreen) {
-        this.screenService.attachScreen()
+        this.screenService.releaseScreen()
       }
     })
 

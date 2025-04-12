@@ -3,22 +3,25 @@ import { $ } from 'zx'
 (process as any).env.FORCE_COLOR = 3
 $.verbose = true
 
+await $`cd packages/rg &&
+ bun i`
+
 await $`cd packages/rectangulr &&
- npm i &&
+ bun i &&
  npx tsx dev/ci.mts`
 
 await $`cd packages/buildr &&
- npm i &&
- npx tsx dev/ci.mts`
+ bun i &&
+ bun dev/ci.mts`
 
 await $`cd packages/smoke-test &&
- npm i &&
- npx tsx dev/ci.mts`
+ bun i &&
+ bun dev/ci.mts`
 
 await $`cd packages/starter &&
-npm i &&
-npx tsx dev/ci.mts`
+ bun i &&
+ bun dev/ci.mts`
 
 await $`cd packages/website &&
-npm i &&
-npx tsx dev/ci.mts`
+ bun i &&
+ bun dev/build.mts`

@@ -1,24 +1,24 @@
 import { Component, ElementRef, signal, viewChild } from "@angular/core"
 import { TestBed } from "@angular/core/testing"
+import { bootstrapApplication } from "../angular-terminal/platform"
 import { Grow } from '../components/1-basics/grow.directive'
 import { H } from '../components/1-basics/h'
 import { Style } from "../components/1-basics/Style.directive"
 import { V } from '../components/1-basics/v'
 import { VGrow } from "../components/1-basics/vgrow.directive"
 import { Scroll } from "../components/2-common/scroll.directive"
-import { expectSnapshot } from "./expectSnapshot"
-import { bootstrapApplication } from "../angular-terminal/platform"
+
+@Component({
+	template: '<h [s]="{flexShrink: 1}">{{text()}}</h>',
+	standalone: true,
+	imports: [H, Style]
+})
+class TestComponent {
+	text = signal('aaa')
+	h = viewChild(H, { read: ElementRef })
+}
 
 it('TermText2 - should resize when the content changes', () => {
-	@Component({
-		template: '<h [s]="{flexShrink: 1}">{{text()}}</h>',
-		imports: [H, Style]
-	})
-	class TestComponent {
-		text = signal('aaa')
-		h = viewChild(H, { read: ElementRef })
-	}
-
 	const fixture = TestBed.createComponent(TestComponent)
 	const component = fixture.componentInstance
 
@@ -80,19 +80,6 @@ it('TermText2 - scroll', () => {
 	fixture.detectChanges()
 	expect(component.scroll().nativeElement.yogaNode.getComputedHeight()).toEqual(8)
 	expect(component.h().nativeElement.yogaNode.getComputedHeight()).toEqual(6)
-})
-
-it('snapshot', () => {
-	@Component({
-		template: `
-			<h>aaaa</h>
-			<h>bbbb</h>
-		`,
-		imports: [H, V, Style, Scroll, Grow, VGrow]
-	})
-	class TestComponent { }
-
-	expectSnapshot('snapshot', TestComponent)
 })
 
 xit('text too big for screen / container', () => {

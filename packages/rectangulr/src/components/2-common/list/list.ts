@@ -17,10 +17,10 @@ import {
 } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { NG_VALUE_ACCESSOR } from '@angular/forms'
-import { clamp, clone, isNil, isObject } from 'lodash-es'
+import { clamp, clone, isNil, isObject } from '@s-libs/micro-dash'
 import { Subject, fromEvent } from 'rxjs'
 import { TermElement } from '../../../angular-terminal/dom-terminal'
-import { cond, eq } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { cond, eq } from '../../../angular-terminal/dom-terminal/style/StyleHandler'
 import { LOGGER } from '../../../angular-terminal/logger'
 import { FocusDirective } from '../../../commands/focus.directive'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
@@ -213,7 +213,6 @@ export class List<T> {
     fromEvent(this.el, 'mousewheel')
       .pipe(takeUntilDestroyed())
       .subscribe(e => {
-        debugger
         const event = e['mouse'] as Mouse
         this.el.scrollTop += event.d * 2
         this.visibleRange.update(range => {

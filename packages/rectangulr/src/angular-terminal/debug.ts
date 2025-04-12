@@ -1,4 +1,4 @@
-import { assert } from '../utils/utils'
+import { assert } from '../utils/Assert'
 
 // Copied from: https://github.com/angular/angular/blob/main/packages/core/src/render3/interfaces/view.ts
 //              https://github.com/angular/angular/blob/main/packages/core/src/render3/interfaces/container.ts

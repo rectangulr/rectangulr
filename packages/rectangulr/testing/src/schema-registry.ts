@@ -14,6 +14,7 @@ export class TerminalElementSchemaRegistry extends ElementSchemaRegistry {
     }
 
     hasElement(_tagName: string, _schemaMetas: SchemaMetadata[]): boolean {
+        debugger
         switch (_tagName) {
             case 'div':
             case 'text':

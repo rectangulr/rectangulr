@@ -4,7 +4,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import * as _ from '@s-libs/micro-dash'
 import { combineLatestWith, debounceTime } from 'rxjs/operators'
 import { Point, TermElement } from '../../angular-terminal/dom-terminal'
-import { addStyle } from '../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { addStyle } from '../../angular-terminal/dom-terminal/style/StyleHandler'
 import { LOGGER } from '../../angular-terminal/logger'
 import { Command, ShortcutService, registerShortcuts } from '../../commands/shortcut.service'
 import { assert } from '../../utils/Assert'
@@ -76,7 +76,7 @@ export class TextInput implements ControlValueAccessor {
   logger = inject(LOGGER)
 
   constructor() {
-    addStyle({ flexDirection: 'row', scrollF: 'x', overflow: 'visible' })
+    addStyle({ flexDirection: 'row', scrollF: 'x' })
 
     patchInputSignal(this.textInput).subscribe(value => {
       assert(typeof value == 'string')

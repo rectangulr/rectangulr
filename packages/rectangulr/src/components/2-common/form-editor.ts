@@ -1,8 +1,9 @@
 import { Component, computed, inject, input, Output, viewChild } from '@angular/core'
 import { FormBuilder, FormGroup } from '@angular/forms'
+import * as _ from '@s-libs/micro-dash'
 import json5 from 'json5'
-import * as _ from 'lodash-es'
 import { Subject } from 'rxjs'
+import { LOGGER } from '../../angular-terminal/logger'
 import { FocusDirective } from '../../commands/focus.directive'
 import { registerShortcuts, ShortcutService } from '../../commands/shortcut.service'
 import { longest, mapKeyValue } from '../../utils/utils'
@@ -10,7 +11,6 @@ import { KeyValueEditor } from './KeyValueEditor'
 import { List } from './list/list'
 import { ListItem } from './list/list-item'
 import { blackOnWhite } from './styles'
-import { LOGGER } from '../../angular-terminal/logger'
 
 @Component({
   selector: 'form-editor',
@@ -67,7 +67,7 @@ export class FormEditor {
     registerShortcuts(this.keybinds)
   }
 
-  getValue() {
+  getValue(): Record<string, any> {
     const value = mapBackToOriginalTypes({
       formObject: this.form().value,
       originalObject: this.object()
@@ -91,10 +91,10 @@ function simplifyObject(object) {
   })
 }
 
-function mapBackToOriginalTypes(args: { formObject: any; originalObject: any }) {
+function mapBackToOriginalTypes(args: { formObject: any; originalObject: Object }) {
   const { formObject, originalObject } = args
   return _.mapValues(formObject, (value, key) => {
-    if (_.has(originalObject, key)) {
+    if (originalObject.hasOwnProperty(key)) {
       const originalValue = originalObject[key]
       const originalType = typeof originalValue
       if (originalValue === null && ['', 'null'].includes(value)) {

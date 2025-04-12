@@ -2,7 +2,7 @@ import { inject, InjectionToken } from '@angular/core'
 import { Terminal } from './Terminal'
 
 
-export const TERMINAL_SIZE = new InjectionToken('TERMINAL_SIZE', {
+export const VOID_TERMINAL_SIZE = new InjectionToken('TERMINAL_SIZE', {
 	providedIn: 'root',
 	factory: () => ({ width: 150, height: 40 }),
 })
@@ -16,7 +16,7 @@ export const VoidTerminal: Terminal = {
 	},
 	screen: {
 		write: text => true,
-		size: () => (inject(TERMINAL_SIZE)),
+		size: () => (inject(VOID_TERMINAL_SIZE)),
 		on: (event, func) => { },
 	},
 }

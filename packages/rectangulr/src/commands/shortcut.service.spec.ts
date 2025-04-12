@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output, QueryList, ViewChild, ViewChildren, in
 import { TestBed, discardPeriodicTasks, flush, tick } from '@angular/core/testing'
 import { Subject } from 'rxjs'
 import { keyboardTest } from "../tests/utils"
-import { cond } from '../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { cond } from '../angular-terminal/dom-terminal/style/StyleHandler'
 import { LOGGER } from '../angular-terminal/logger'
 import { H } from '../components/1-basics/h'
 import { V } from '../components/1-basics/v'
@@ -23,6 +23,9 @@ describe('ShortcutService Class', () => {
     TestBed.resetTestingModule()
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        { provide: LOGGER, useValue: { log: () => { } } },
+      ]
     })
     shortcuts = TestBed.inject(ShortcutService)
   })
@@ -56,7 +59,6 @@ describe('ShortcutService Class', () => {
 //
 
 @Component({
-  imports: [V, FocusDirective],
   template: `
     @if (showFirst()) {
       <v
@@ -71,6 +73,8 @@ describe('ShortcutService Class', () => {
         ></v>
     }
     `,
+  standalone: true,
+  imports: [V, FocusDirective],
   providers: [ShortcutService]
 })
 export class Test1 {
@@ -362,7 +366,6 @@ export class Test6Comp {
   constructor() {
     this.spy2 = { handler: () => { } }
     spyOn(this.spy2, 'handler')
-    debugger
     registerShortcuts([
       {
         keys: 'a',
@@ -386,7 +389,6 @@ export class Test6 {
   constructor() {
     this.spy1 = { handler: () => { } }
     spyOn(this.spy1, 'handler')
-    debugger
     registerShortcuts([
       {
         keys: 'a',

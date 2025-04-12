@@ -85,34 +85,49 @@ export const hexToRgbMemo = memo(hexToRgb)
 export const hexTo256ColorsMemo = memo((color: string) => getClosestColor256(hexToRgb(color)))
 export const hexTo16ColorsMemo = memo((color: string) => getClosestColor256(hexToRgb(color)))
 
-export const getHexColorSequence = doesSupportTrueColors
-  ? (color: string, target: Target) => getTrueColorSequence(hexToRgbMemo(color), target)
-  : doesSupport256Colors
-    ? (color: string, target: Target) => get256ColorsSequence(hexTo256ColorsMemo(color), target)
-    : doesSupport16Colors
-      ? (color: string, target: Target) => get16ColorsSequence(hexTo16ColorsMemo(color), target)
-      : () => ``
+export function getHexColorSequence(color: string, target: Target): string {
+  if (doesSupportTrueColors) {
+    return getTrueColorSequence(hexToRgbMemo(color), target)
+  }
+  if (doesSupport256Colors) {
+    return get256ColorsSequence(hexTo256ColorsMemo(color), target)
+  }
+  if (doesSupport16Colors) {
+    return get16ColorsSequence(hexTo16ColorsMemo(color), target)
+  }
+  return ''
+}
 
-export const getNamedColorSequence = doesSupportTrueColors
-  ? (name: ColorName, target: Target) => getTrueColorSequence(colorNames[name].rgb, target)
-  : doesSupport256Colors
-    ? (name: ColorName, target: Target) => get256ColorsSequence(colorNames[name].c256, target)
-    : doesSupport16Colors
-      ? (name: ColorName, target: Target) => get16ColorsSequence(colorNames[name].c16, target)
-      : () => ``
+export function getNamedColorSequence(name: ColorName, target: Target): string {
+  if (doesSupportTrueColors) {
+    return getTrueColorSequence(colorNames[name].rgb, target)
+  }
+  if (doesSupport256Colors) {
+    return get256ColorsSequence(colorNames[name].c256, target)
+  }
+  if (doesSupport16Colors) {
+    return get16ColorsSequence(colorNames[name].c16, target)
+  }
+  return ''
+}
 
 export function resolveColorToRgb(color: ColorName | string) {
-  return Object.prototype.hasOwnProperty.call(colorNames, color)
-    ? colorNames[color as ColorName].rgb
-    : hexToRgbMemo(color)
+  if (Object.prototype.hasOwnProperty.call(colorNames, color)) {
+    return colorNames[color as ColorName].rgb
+  }
+  return hexToRgbMemo(color)
 }
 
 export function getColorSequence(color: ColorName | string, target: Target) {
-  return Object.prototype.hasOwnProperty.call(colorNames, color)
-    ? getNamedColorSequence(color as ColorName, target)
-    : getHexColorSequence(color, target)
+  if (Object.prototype.hasOwnProperty.call(colorNames, color)) {
+    return getNamedColorSequence(color as ColorName, target)
+  }
+  return getHexColorSequence(color, target)
 }
 
-export const getColorResetSequence = doesSupportTrueColors || doesSupport256Colors || doesSupport16Colors
-  ? (target: Target) => `\x1b[${39 + target}m`
-  : () => ``
+export function getColorResetSequence(target: Target) {
+  if (doesSupportTrueColors || doesSupport256Colors || doesSupport16Colors) {
+    return `\x1b[${39 + target}m`
+  }
+  return ''
+}

@@ -32,7 +32,7 @@
             "index": "src/index.html",
             "optimization": false,
             "buildOptimizer": false,
-            "sourceMap": true
+            "sourceMap": false
           }
         },
         "lint": {

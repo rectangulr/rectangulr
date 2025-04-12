@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core'
-import { Input } from '../dom-terminal/sources/term/elements/TermScreen'
+import { Input } from '../dom-terminal/dom/TermScreen'
 import { Disposable } from '../../utils/queue'
 
 export interface TerminalInputs {

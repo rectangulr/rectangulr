@@ -1,6 +1,7 @@
 import { ApplicationInitStatus, COMPILER_OPTIONS, NgModule, NO_ERRORS_SCHEMA } from '@angular/core'
 import { TestComponentRenderer } from '@angular/core/testing'
-import { ɵRECTANGULR_MODULE_PROVIDERS, ɵTERMINAL, ɵvoidTerminal } from '@rectangulr/rectangulr'
+import { LOGGER, ɵRECTANGULR_MODULE_PROVIDERS, ɵTERMINAL, ɵVOID_TERMINAL_SIZE, ɵvoidTerminal } from '@rectangulr/rectangulr'
+
 
 class EmptyTestComponentRenderer implements TestComponentRenderer {
   insertRootElement(rootElementId: string): void { }
@@ -13,6 +14,9 @@ export const RECTANGULR_TEST_PROVIDERS = [
   { provide: TestComponentRenderer, useClass: EmptyTestComponentRenderer },
   { provide: ApplicationInitStatus },
   { provide: ɵTERMINAL, useValue: ɵvoidTerminal },
+  { provide: LOGGER, useValue: console },
+  { provide: 'TESTING', useValue: true },
+  { provide: ɵVOID_TERMINAL_SIZE, useValue: { width: 10, height: 10 } }
 ]
 
 @NgModule({

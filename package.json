@@ -7,6 +7,7 @@
   "private": true,
   "workspaces": [
     "packages/rectangulr",
+    "packages/rectangulr-tests",
     "packages/rg",
     "packages/smoke-test",
     "packages/starter",

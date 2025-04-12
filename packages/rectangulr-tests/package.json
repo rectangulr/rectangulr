@@ -1,0 +1,13 @@
+{
+  "name": "rectangulr-tests",
+  "description": "",
+  "scripts": {
+    "test": "rg"
+  },
+  "dependencies": {
+    "@rectangulr/rectangulr": "workspace:*",
+    "@rectangulr/rg": "workspace:*",
+    "jasmine": "^4.5.0",
+    "jasmine-core": "^4.6.0"
+  }
+}

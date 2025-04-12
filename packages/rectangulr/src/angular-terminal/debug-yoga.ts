@@ -1,10 +1,11 @@
-import { Node } from 'typeflex'
+import { AnyObject } from "../utils/utils"
+import { Yoga } from "./dom-terminal/layout/typeflex"
 
-function diff(a, b) {
-	if (typeof a == 'object') {
-		const res = {}
-		Object.entries(a).forEach(([key, value]) => {
-			const difference = diff(a[key], b[key])
+export function diff(a: AnyObject | null, b: AnyObject | null): AnyObject | undefined {
+	if (typeof a === 'object' && a !== null && typeof b === 'object' && b !== null) {
+		const res: AnyObject = {}
+		Object.entries(a).forEach(([key, _]) => {
+			const difference = diff(a[key] as AnyObject, b[key] as AnyObject)
 			if (difference !== undefined) {
 				res[key] = difference
 			}
@@ -13,12 +14,12 @@ function diff(a, b) {
 		return res
 	} else {
 		if (a != b) {
-			return b
+			return b as AnyObject
 		}
 	}
 }
 
-export function debugYoga(node: any, cleanNode = Node.create().node) {
+export function debugYoga(node: any, cleanNode = Yoga.Node.create()) {
 
 	if ('node' in node) return debugYoga(node.node, cleanNode)
 
@@ -26,6 +27,7 @@ export function debugYoga(node: any, cleanNode = Node.create().node) {
 	if (node.children_.length > 0) {
 		res.children = node.children_.map(child => debugYoga(child, cleanNode))
 	}
-	res.style = diff(cleanNode.style_, node.style_)
+	// @ts-ignore
+	res.style = diff(cleanNode.node.style_, node.style_)
 	return res
 }

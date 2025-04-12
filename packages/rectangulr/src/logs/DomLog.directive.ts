@@ -1,6 +1,6 @@
 import { Directive, ElementRef, inject } from '@angular/core'
-import { TermElement, TermText2 } from '../angular-terminal/dom-terminal/index'
-import { traverse } from '../angular-terminal/dom-terminal/sources/core/dom/Node'
+import { TermElement, TermText, } from '../angular-terminal/dom-terminal'
+import { traverse } from '../angular-terminal/dom-terminal/dom/Node'
 import { LogPointService } from './LogPointService'
 
 @Directive({
@@ -8,13 +8,13 @@ import { LogPointService } from './LogPointService'
 	standalone: true,
 })
 export class DomLog {
-	protected element = inject(ElementRef<TermElement>).nativeElement
+	protected element: TermElement = inject(ElementRef).nativeElement
 	protected logPointService = inject(LogPointService)
 
 	ngOnInit() {
 		traverse(this.element, node => {
-			if (node.nodeName == 'TermText2') {
-				(node as TermText2).lp = this.logPointService
+			if (node.name == 'text') {
+				(node as unknown as TermText).lp = this.logPointService
 			}
 		})
 	}

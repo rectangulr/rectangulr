@@ -1,6 +1,6 @@
 import { NgComponentOutlet } from '@angular/common'
 import { Directive, input, inject } from '@angular/core'
-import { assert } from './utils'
+import { assert } from './Assert'
 
 @Directive({
   standalone: true,

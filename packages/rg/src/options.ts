@@ -5,7 +5,7 @@ export type Option = { id: string, description: string, default: any }
 export const opts: { [k: string]: { id: string, description: string, default: any } } = {
 	'i': { id: 'i', description: 'Input files', default: 'src/main.ts', },
 	'o': { id: 'o', description: 'Output directory', default: 'dist' },
-	'compiler': { id: 'compiler', description: `Disable Angular AOT, use @angular/compiler at runtime instead`, default: undefined },
+	'aot': { id: 'aot', description: `AOT: if true(AOT), if false(inject @angular/compiler) and use at runtime`, default: undefined },
 	'tsconfig': { id: 'tsconfig', description: 'Tsconfig path', default: 'tsconfig.json' },
 	'meta': { id: 'meta', description: 'Enable esbuild bundle size analyzer', default: false },
 	'watch': { id: 'watch', description: 'Watch mode', default: undefined },

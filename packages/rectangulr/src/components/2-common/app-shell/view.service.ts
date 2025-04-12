@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, InjectionToken, Signal, signal, StaticProvider, WritableSignal } from '@angular/core'
-import { AnyObject, assert } from '../../../utils/utils'
+import { assert } from '../../../utils/Assert'
+import { AnyObject } from '../../../utils/utils'
 
 export class View {
   name: string
@@ -43,7 +44,7 @@ export class ViewService {
     this.visibleViews = computed(() => {
       const visibleViews = this.views().filter(v => !v.tags.includes('hidden'))
       if (!visibleViews.includes(this.currentTab())) {
-        if (!this.currentTab()) debugger
+        assert(this.currentTab(), 'currentTab is not set')
         visibleViews.push(this.currentTab())
       }
       return visibleViews

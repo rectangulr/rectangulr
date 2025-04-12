@@ -8,7 +8,8 @@
     "declarationMap": true,
     "inlineSources": true,
     "types": [
-      "node"
+      "node",
+      "jasmine"
     ],
     "lib": [
       "es2020"

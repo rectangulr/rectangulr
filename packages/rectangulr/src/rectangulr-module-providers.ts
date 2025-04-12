@@ -1,10 +1,9 @@
 import { APP_INITIALIZER, EnvironmentProviders, ErrorHandler, inject, InjectionToken, Injector, provideExperimentalZonelessChangeDetection, Provider, RendererFactory2, ɵINJECTOR_SCOPE } from "@angular/core"
 import { global_rgComponent, global_rgLView } from "./angular-terminal/debug"
-import { debugYoga } from "./angular-terminal/debug-yoga"
 import { RectangulrErrorHandler } from "./angular-terminal/error-handler"
 import { global_logs, patchNodeConsole, REDIRECT_CONSOLE_LOG } from "./angular-terminal/logger"
 import { RectangulrRendererFactory2 } from "./angular-terminal/renderer"
-import { ScreenService } from "./angular-terminal/screen-service"
+import { ScreenService } from "./angular-terminal/ScreenService"
 import { ProcessTerminal } from "./angular-terminal/terminals/ProcessTerminal"
 import { TERMINAL } from "./angular-terminal/terminals/Terminal"
 import { addToGlobalRg } from './utils/addToGlobalRg'
@@ -46,7 +45,6 @@ export const RECTANGULR_MODULE_PROVIDERS: (Provider | EnvironmentProviders)[] = 
 					component: global_rgComponent,
 					logs: global_logs,
 					inject: globalInject,
-					debugYoga: debugYoga,
 				})
 
 				if (RECTANGULR_TARGET == 'node' && injector.get(REDIRECT_CONSOLE_LOG)) {

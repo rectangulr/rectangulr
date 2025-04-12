@@ -11,67 +11,17 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
 
     steps:
 
       # Setup
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # - name: Use Node.js ${{ matrix.node-version }}
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: ${{ matrix.node-version }}
-      #     cache: 'npm'
-      #     registry-url: 'https://registry.npmjs.org/'
+      - uses: oven-sh/setup-bun@v2
 
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      # Install / Build
-
+      - name: "Install Dependencies"
+        run: "bun i --include=dev"
       - name: "Rectangulr CI"
-        run: "npm i tsx zx && npx tsx ci.mts"
-
-      # - name: "Package: Rectangulr"
-      #   run: npm ci --include=dev
-      #   working-directory: ./packages/rectangulr
-      # - run: bash dev/checks-source.sh
-      #   working-directory: ./packages/rectangulr
-      # - run: npm run build
-      #   working-directory: ./packages/rectangulr
-      # - run: bash dev/checks-build.sh
-      #   working-directory: ./packages/rectangulr
-      # - run: npm run test
-      #   working-directory: ./packages/rectangulr
-
-      # packages/buildr
-
-      # - name: "Package: Buildr"
-      #   run: npm i --include=dev
-      #   working-directory: ./packages/buildr
-      # - run: npm run build
-      #   working-directory: ./packages/buildr
-      # - run: npm run test
-      #   working-directory: ./packages/buildr
-
-      # packages/smoke-test
-
-      # - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr ../buildr
-      #   working-directory: ./packages/smoke-test
-      # # - name: "Package: Smoke Test"
-      # #   run: npm i --include=dev
-      # #   working-directory: ./packages/smoke-test
-      # - run: npm run build
-      #   working-directory: ./packages/smoke-test
-      # - run: npm run test
-      #   working-directory: ./packages/smoke-test
-
-      # packages/starter
-
-      # - run: cp -r ../rectangulr/dist ./rectangulr && npm link ./rectangulr
-      #   working-directory: ./packages/starter
-      # - run: npm run build
-      #   working-directory: ./packages/starter
+        run: "bun i zx && bun ci.mts"

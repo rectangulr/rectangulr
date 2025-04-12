@@ -2,10 +2,10 @@ import { Component, ElementRef, Injector, Output, Signal, TemplateRef, computed,
 import { toObservable } from '@angular/core/rxjs-interop'
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import json5 from 'json5'
-import * as _ from 'lodash-es'
+import * as _ from '@s-libs/micro-dash'
 import { Subject } from 'rxjs'
 import { TermElement } from '../../../angular-terminal/dom-terminal'
-import { addStyle } from '../../../angular-terminal/dom-terminal/sources/core/dom/StyleHandler'
+import { addStyle } from '../../../angular-terminal/dom-terminal/style/StyleHandler'
 import { Command, ShortcutService, registerShortcuts } from '../../../commands/shortcut.service'
 import { H } from '../../../components/1-basics/h'
 import { assert } from '../../../utils/Assert'
@@ -223,7 +223,7 @@ export class Table<T> {
         }
         return String(item[key]).length
       })
-      const max = _.max(valuesWidth)
+      const max = Math.max(...valuesWidth)
       assert(max)
       return _.clamp(max, key.length, 50)
     }

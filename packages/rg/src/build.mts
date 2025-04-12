@@ -37,7 +37,7 @@ async function main() {
 	let esbuildOptions: esbuild.BuildOptions = {}
 	let esbuildCtx: esbuild.BuildContext
 	let watch = false
-	let compiler = false
+	let aot = true
 	{
 		mergeOptions(esbuildOptions, {
 			entryPoints: entryPoints,
@@ -50,9 +50,12 @@ async function main() {
 			platform: 'node',
 			sourcemap: false,
 			format: 'esm',
-			// inject: [
-			// 	scriptDir + '../files/inject-require.js',
-			// ],
+			preserveSymlinks: true,
+
+			// breaks bun
+			inject: [
+				scriptDir + '../files/inject-require.js',
+			],
 		})
 
 		if (opt('prod')) {
@@ -62,17 +65,18 @@ async function main() {
 				minify: true,
 			})
 			watch = false
-			compiler = false
+			aot = true
 		} else {
 			mergeOptions(esbuildOptions, {
 				define: {
 					'ngDevMode': 'ngDevMode'
 				},
 				sourcemap: 'linked',
+				sourcesContent: false,
 				metafile: true,
 			})
 			watch = true
-			compiler = true
+			aot = false
 		}
 
 		if (opt('target') == 'web') {
@@ -93,19 +97,22 @@ async function main() {
 		if (opt('meta') !== undefined) esbuildOptions.metafile = opt('meta')
 		if (opt('sourcemap') !== undefined) esbuildOptions.sourcemap = opt('sourcemap')
 
-		if (opt('compiler') !== undefined) {
-			compiler = opt('compiler')
+		if (opt('aot') !== undefined) {
+			aot = toBoolean(opt('aot'))
 		}
-		if (compiler) {
+		if (opt('watch') !== undefined) {
+			watch = toBoolean(opt('watch'))
+		}
+		if (aot) {
+			plugins.push(
+				angularCompilerPlugin({ tsconfig: opt('tsconfig') }))
+		} else {
 			mergeOptions(esbuildOptions, {
 				inject: [
 					...esbuildOptions.inject ?? [],
 					scriptDir + '../files/inject-compiler.js',
 				]
 			})
-		} else {
-			plugins.push(
-				angularCompilerPlugin({ tsconfig: opt('tsconfig') }))
 		}
 
 		if (opt('customEsbuild')) {
@@ -118,7 +125,7 @@ async function main() {
 
 		if (opt('print')) {
 			console.log(esbuildOptions)
-			console.log({ watch, compiler, plugins })
+			console.log({ watch, aot })
 			process.exit(0)
 		}
 
@@ -148,4 +155,11 @@ async function main() {
 
 function mergeOptions(options: esbuild.BuildOptions, newOptions: esbuild.BuildOptions) {
 	merge(options, newOptions)
+}
+
+function toBoolean(value: string | boolean): boolean {
+	if (typeof value === 'boolean') return value
+	if (value === 'true') return true
+	if (value === 'false') return false
+	throw new Error(`Invalid boolean value: ${value}`)
 }

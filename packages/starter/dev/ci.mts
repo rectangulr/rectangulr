@@ -4,4 +4,5 @@ import { $ } from 'zx'
 $.verbose = true
 
 await $`npm run build`
+await $`npm run web`
 // await $`npm run test`

@@ -10,7 +10,8 @@
 			"request": "attach",
 			"smartStep": false,
 			"skipFiles": [
-				"<node_internals>/**"
+				"<node_internals>/**",
+				"${workspaceFolder}/node_modules/**/*.js",
 			],
 			"type": "node",
 			"continueOnAttach": true,

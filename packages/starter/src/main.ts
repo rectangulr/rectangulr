@@ -1,4 +1,4 @@
-import '@angular/compiler'
+// import '@angular/compiler'
 import { AppShell, bootstrapApplication, provideView, provideXtermJs } from '@rectangulr/rectangulr'
 import { AppComponent } from './app/app.component'
 
@@ -7,6 +7,8 @@ if (RECTANGULR_TARGET == 'node') {
 }
 
 export function main(args: { xterm?: any } = {}) {
+  // @ts-ignore
+  globalThis.document = {}
   bootstrapApplication(AppShell, {
     providers: [
       RECTANGULR_TARGET == 'web' ? provideXtermJs(args.xterm) : [],

@@ -1,6 +1,6 @@
 {
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
   ],
   "exclude": [
     "node_modules/**"
@@ -8,6 +8,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./dist",
+    "strict": false,
     "sourceRoot": ".",
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -31,7 +32,6 @@
   },
   "angularCompilerOptions": {
     "strictTemplates": true,
-    // standalone
     "strictStandalone": true
   }
 }

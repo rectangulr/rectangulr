@@ -4,27 +4,22 @@ import json5 from 'json5'
 import { addToGlobalRg } from '../utils/addToGlobalRg'
 import { mergeDeep } from '../utils/mergeDeep'
 import { assertDebug } from '../utils/utils'
-import { TermScreen } from './dom-terminal'
-import { TermElement } from './dom-terminal/sources/core/dom/TermElement'
-import { ElementPool } from './dom-terminal/sources/term/elements/element-pool'
+import { ElementPool, TermElement, TermScreen } from './dom-terminal'
 import { LOGGER } from './logger'
-import { ScreenService } from './screen-service'
+import { ScreenService } from './ScreenService'
+import { assert } from '../utils/Assert'
 
 @Injectable({
   providedIn: 'root'
 })
 export class RectangulrRendererFactory2 implements RendererFactory2 {
   private screen = inject(ScreenService)
-
-  protected renderer: Renderer2
-
-  constructor() {
-    this.renderer = inject(RectangulrRenderer2)
-  }
+  protected renderer = inject(RectangulrRenderer2)
 
   end() {
     if (this.screen.termScreen.terminal.screen) {
-      this.screen.selectRootElement().renderScreen()
+      assert(this.screen.termScreen.frame.size.width != 0)
+      this.screen.selectRootElement().renderToTerminal('full')
     }
   }
 
@@ -189,7 +184,7 @@ function stringifyDomNode(node, options?: StringifyOptions) {
         width: node.style.get('width'),
       }
     )
-    res.infos = mergeDeep(res.infos, _.pick(node, 'elementRect', 'scrollRect'))
+    res.infos = mergeDeep(res.infos, _.pick(node, 'elementRect', 'elementWorldRect', 'elementClipRect'))
     res.ref = node
     res.name = node.name
 
