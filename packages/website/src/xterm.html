@@ -1,0 +1,33 @@
+<script type="module">
+  import { Terminal } from 'https://cdn.jsdelivr.net/npm/xterm@5.3.0/+esm'
+  import { WebglAddon } from 'https://cdn.jsdelivr.net/npm/xterm-addon-webgl@0.16.0/+esm'
+  import { FitAddon } from 'https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/+esm'
+
+  const term = new Terminal({
+    fontSize: 16,
+    fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
+    theme: {
+      foreground: '#d2d2d2',
+      background: '#2b2b2b',
+      cursor: '#adadad',
+    },
+  })
+  term.loadAddon(new WebglAddon())
+  const fitAddon = new FitAddon()
+  term.loadAddon(fitAddon)
+  term.open(document.querySelector('#terminal'))
+  fitAddon.fit()
+
+  globalThis['xterm'] = term
+</script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+
+<style>
+  body {
+    .xterm .xterm-viewport {
+      overflow-y: hidden;
+    }
+  }
+
+</style>

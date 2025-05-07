@@ -1,32 +1,87 @@
-<h1>Playground - Try it yourself</h1>
+<script type="importmap">
+  {
+    "imports": {
+      "@angular/core": "https://esm.sh/@angular/core?dev",
+      "@angular/core/rxjs-interop": "https://esm.sh/@angular/core/rxjs-interop?dev",
+      "@angular/compiler": "https://esm.sh/@angular/compiler",
+      "typescript": "https://esm.sh/typescript@5.2.2",
+      "@rectangulr/rectangulr": "./rectangulr.mjs"
+    }
+  }
+</script>
 
-<iframe style="height: 90vh; width: 100%"
-        src="https://stackblitz.com/edit/vitejs-vite-6x2qgk?terminalHeight=50&embed=1&file=src%2Fapp%2Fapp.component.ts&view=editor">
-</iframe>
+<div>
+  <h1>Playground</h1>
+  <div style="display: flex; column-gap: 10px;">
+    <div style="flex: 1;">
+      <h2>Editor</h2>
+      <textarea name="source" id="source" style="width: 100%; height: 400px;">
+<build src="src/pages/playground/placeholder.ts"></build>
+      </textarea>
+    </div>
 
-<!--
-<div id="embed" style="height: 90vh;"></div>
+    <div style="flex: 1; display: flex; flex-direction: column; column-gap: 10px;">
+      <h2>Terminal</h2>
+      <div id="terminal" style="flex: 1; min-height: 200px;"></div>
+      <div id="compiledCode" style="display: none;"></div>
+      <div id="buildError" style="flex: 1; border: 1px solid red; padding: 5px; overflow: auto;">
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="module">
-        import sdk from 'https://cdn.jsdelivr.net/npm/@stackblitz/sdk@1.9.0/+esm'
+  import * as ts from "typescript"
 
-        async function start() {
-                // Embeds a project and keeps track of the VM
-                const vm = await sdk.embedGithubProject('embed', 'rectangulr/rectangulr/tree/main/packages/starter', {
-                        startScript: 'build'
-                })
+  const sourceEl = document.getElementById('source')
+  const resultEl = document.getElementById('compiledCode')
 
-                // Performs an action with VM
-                const deps = await vm.getDependencies()
-                console.log(deps)
-                // await vm.applyFsDiff({
-                //         create: {
-                //                 'hello.txt': 'Hello, this is a new file!',
-                //                 'deps.txt': JSON.stringify(deps, null, 2),
-                //         },
-                //         destroy: [],
-                // })
-        }
+  async function compile(sourceCode) {
+    console.log('Compiling...')
 
-        start();
-</script> -->
+    try {
+      // Compile TypeScript to JavaScript
+      const jsCode = ts.transpile(sourceCode, {
+        module: ts.ModuleKind.ESNext,
+        target: ts.ScriptTarget.ES2022
+      })
+
+      // Remove previous compiled output
+      while (resultEl.firstChild) {
+        resultEl.removeChild(resultEl.firstChild)
+      }
+      // Remove error message
+      document.getElementById('buildError').innerHTML = ''
+
+      // Add compiled output to page
+      const script = document.createElement('script')
+      script.type = 'module'
+      script.textContent = jsCode
+      resultEl.appendChild(script)
+    } catch (error) {
+      resultEl.innerHTML = `Error: ${error.message}`
+    }
+  }
+
+  // debounce textarea input 1 second, then compile
+  let timeout
+  sourceEl.addEventListener('input', () => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      compile(sourceEl.value)
+    }, 1000)
+  })
+  sourceEl.dispatchEvent(new Event('input'))
+</script>
+
+<script type="importmap">
+  {
+    "imports": {
+      "fs": "./empty.js",
+      "os": "./empty.js",
+      "child_process": "./empty.js"
+    }
+  }
+</script>
+
+<build src="src/xterm.html"></build>

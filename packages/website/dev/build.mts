@@ -4,15 +4,14 @@ import { $, fs, argv } from 'zx'
 import * as html from 'node-html-parser'
 import markdown from 'markdown-it'
 import hljs from 'highlight.js'
+import esbuild from 'esbuild'
+
 $.verbose = true
 
 async function main() {
-	try {
-		fs.access('../starter/dist-web')
-	} catch (e) {
-		console.error('../starter/dist-web does not exist.')
-		return
-	}
+	fs.access('../starter/dist-web')
+	fs.access('../rectangulr/dist')
+
 	await $`mkdir -p ./dist`.catch(() => { })
 
 	// Copy website files
@@ -21,20 +20,39 @@ async function main() {
 	await $`cp -r ./src/images ./dist/`
 
 	// Generate pages
-	let shell = await readFile('./src/shell.html')
+	let shell: Html = await readFile('./src/shell.html')
 	shell = await render(shell)
 
 	for (let filePath of await fs.readdir('./src/pages')) {
-		let pageContent = await readFile(`./src/pages/${filePath}`)
-		const page = await render(pageContent)
-		const fullPage = await replacePlaceholder(shell, page)
-		filePath = filePath.replace(/\.md$/, '.html')
-		await fs.writeFile(`./dist/${filePath}`, fullPage)
+		const fullPath = `./src/pages/${filePath}`
+		const stat = await fs.stat(fullPath)
+		if (stat.isFile()) {
+			let pageContent = await readFile(fullPath)
+			const page = await render(pageContent)
+			const fullPage = await replacePlaceholder(shell, page)
+			const newFilePath = filePath.replace(/\.md$/, '.html')
+			await fs.writeFile(`./dist/${newFilePath}`, fullPage)
+		}
 	}
 
 	// Copy example app
 	await $`cp -r ../starter/dist-web ./dist/starter/`
+	await esbuild.build({
+		entryPoints: ['../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs'],
+		outfile: 'dist/rectangulr.mjs',
+		bundle: true,
+		format: 'esm',
+		external: ['@angular/core', '@angular/core/rxjs-interop'],
+		platform: 'node',
+		banner: {
+			js: `globalThis.process = {env: {}}`
+		}
+	})
+
 }
+
+type Html = string
+type Path = string
 
 const md = markdown({
 	html: true,
@@ -56,7 +74,7 @@ const md = markdown({
 	},
 })
 
-function replacePlaceholder(shell: string, page: string) {
+function replacePlaceholder(shell: string, page: Html): Html {
 	const shellHtml = html.parse(shell)
 	const placeholderTag = shellHtml.querySelector('build[placeholder]')!
 	if (!placeholderTag) return shell
@@ -65,7 +83,7 @@ function replacePlaceholder(shell: string, page: string) {
 	return shell
 }
 
-async function render(page: string) {
+async function render(page: Html): Promise<Html> {
 	const pageHtml = html.parse(page)
 	const buildTags = pageHtml.querySelectorAll('build[src]')
 	const replacements = buildTags.map(buildTag => {
@@ -82,12 +100,12 @@ async function render(page: string) {
 	return page
 }
 
-async function readFile(path: string) {
+async function readFile(path: Path): Promise<Html> {
 	let content = await fs.readFile(path).then((buffer) => buffer.toString())
 	if (path.endsWith('.md')) {
 		content = md.render(content)
 	}
-	return content
+	return content as Html
 }
 
 if (argv['watch']) {
