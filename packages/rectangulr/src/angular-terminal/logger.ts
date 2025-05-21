@@ -46,7 +46,7 @@ export class FileLogger implements Logger {
     }
 
     // Store in memory (max 200)
-    untracked(() => {
+    setTimeout(() => {
       this.$logs.update(logs => {
         logs.push(logObject)
         if (logs.length > 200) {
