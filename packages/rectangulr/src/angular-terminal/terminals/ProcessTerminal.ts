@@ -1,6 +1,6 @@
 import { streamToObservable } from '../../term-strings/parse/getCursorPosition'
 import { Queue } from '../../utils/queue'
-import { Input } from '../dom-terminal/dom/TermScreen'
+import { Input } from '../dom-terminal/dom/InputTypes'
 import { Terminal, TerminalInputs, TerminalScreen } from './Terminal'
 
 
