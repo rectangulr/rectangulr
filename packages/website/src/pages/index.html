@@ -3,7 +3,7 @@
   <blockquote>Powerful terminal apps</blockquote>
 
   <div style="margin: auto; width: 800px; padding-top: 20px; padding-bottom: 20px;">
-    <app-root></app-root>
+    <div id="terminal"></div>
   </div>
 
   <div>
@@ -24,6 +24,27 @@
   </div>
 </div>
 
+<style>
+  main {
+    padding-top: 40px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 60px;
+    line-height: 40px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  blockquote {
+    font-size: 16px;
+    text-align: center;
+    font-style: italic;
+  }
+
+</style>
+
 <script type="importmap">
   {
     "imports": {
@@ -34,7 +55,7 @@
   }
 </script>
 
-<!-- XTerm -->
+<!-- XTerm + Starter -->
 <script type="module">
   import { Terminal } from 'https://cdn.jsdelivr.net/npm/xterm@5.3.0/+esm'
   import { WebglAddon } from 'https://cdn.jsdelivr.net/npm/xterm-addon-webgl@0.16.0/+esm'
@@ -52,32 +73,19 @@
   term.loadAddon(new WebglAddon())
   const fitAddon = new FitAddon()
   term.loadAddon(fitAddon)
-  term.open(document.querySelector('app-root'))
+  term.open(document.querySelector('#terminal'))
   fitAddon.fit()
 
   globalThis['xterm'] = term
+
+  import { main } from './starter/main.mjs'
+  debugger
+  main({ xterm: term })
 </script>
 
-<!-- Rectangulr Todo  -->
-<!-- <script src="polyfills.js" type="module"></script> -->
-<script src="main.mjs" type="module"></script>
-
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+
 <style>
-  h1 {
-    text-align: center;
-    font-size: 60px;
-    line-height: 40px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
-
-  blockquote {
-    font-size: 16px;
-    text-align: center;
-    font-style: italic;
-  }
-
   body {
     .xterm .xterm-viewport {
       overflow-y: hidden;
@@ -85,3 +93,5 @@
   }
 
 </style>
+
+</script>

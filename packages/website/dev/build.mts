@@ -1,9 +1,9 @@
 import * as _ from '@s-libs/micro-dash'
 import chokidar from 'chokidar'
-import { $, fs, argv } from 'zx'
-import * as html from 'node-html-parser'
-import markdown from 'markdown-it'
 import hljs from 'highlight.js'
+import markdown from 'markdown-it'
+import * as html from 'node-html-parser'
+import { $, argv, fs } from 'zx'
 import esbuild from 'esbuild'
 
 $.verbose = true
@@ -12,31 +12,43 @@ async function main() {
 	fs.access('../starter/dist-web')
 	fs.access('../rectangulr/dist')
 
-	await $`mkdir -p ./dist`.catch(() => { })
+	await $`mkdir -p dist`.catch(() => { })
 
 	// Copy website files
-	await $`cp ./src/style.css ./dist/`
-	await $`cp ./src/website.js ./dist/`
-	await $`cp -r ./src/images ./dist/`
+	await $`cp ./src/style.css dist/`
+	await $`cp -r ./src/images dist/`
+	await $`cp src/pages/playground/placeholder.ts dist/`
+	await $`cp dev/empty.js dist/`
 
 	// Generate pages
 	let shell: Html = await readFile('./src/shell.html')
 	shell = await render(shell)
 
+	const noWrap = [
+		// 'playground.html'
+	]
+
+	console.log('Generating:')
 	for (let filePath of await fs.readdir('./src/pages')) {
 		const fullPath = `./src/pages/${filePath}`
 		const stat = await fs.stat(fullPath)
 		if (stat.isFile()) {
-			let pageContent = await readFile(fullPath)
-			const page = await render(pageContent)
-			const fullPage = await replacePlaceholder(shell, page)
 			const newFilePath = filePath.replace(/\.md$/, '.html')
-			await fs.writeFile(`./dist/${newFilePath}`, fullPage)
+			const shouldWrap = noWrap.filter(f => filePath.includes(f)).length == 0
+			console.log(`  ${newFilePath} ` + (shouldWrap ? '' : '(no shell)'))
+
+			let pageContent = await readFile(fullPath)
+			let page = await render(pageContent)
+			if (shouldWrap) {
+				page = await replacePlaceholder(shell, page)
+			}
+			await fs.writeFile(`dist/${newFilePath}`, page)
 		}
 	}
 
 	// Copy example app
-	await $`cp -r ../starter/dist-web ./dist/starter/`
+	await $`rm -r dist/starter; cp -r ../starter/dist-web dist/starter`
+	// await $`npx rg -i ../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs -o dist --watch=false`
 	await esbuild.build({
 		entryPoints: ['../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs'],
 		outfile: 'dist/rectangulr.mjs',
@@ -44,9 +56,16 @@ async function main() {
 		format: 'esm',
 		external: ['@angular/core', '@angular/core/rxjs-interop'],
 		platform: 'node',
-		banner: {
-			js: `globalThis.process = {env: {}}`
-		}
+		mainFields: ['module', 'browser', 'main'],
+		treeShaking: true,
+		define: {
+			'RECTANGULR_TARGET': "'web'",
+			'process': JSON.stringify({
+				env: {
+					TERM: 'xterm-256color',
+				}
+			}, null, 2)
+		},
 	})
 
 }
@@ -64,7 +83,7 @@ const md = markdown({
 					hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
 					"</code></pre>"
 				)
-			} catch (__) { }
+			} catch (e) { }
 		}
 		return (
 			'<pre><code class="hljs">' +

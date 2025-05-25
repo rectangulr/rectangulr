@@ -1,7 +1,7 @@
 {
 	"scripts": {
-		"build": "tsx dev/build.mts",
-		"dev": "tsx dev/build.mts --watch",
+		"build": "node dev/build.mts",
+		"dev": "node dev/build.mts --watch",
 		"serve": "live-server dist",
 		"test": "node src/scripts/check.js"
 	},

@@ -10,33 +10,47 @@
   }
 </script>
 
-<div>
+<script type="importmap">
+  {
+    "imports": {
+      "fs": "./empty.js",
+      "os": "./empty.js",
+      "child_process": "./empty.js"
+    }
+  }
+</script>
+
+<link rel="stylesheet" data-name="vs/editor/editor.main"
+      href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.min.css">
+
+<div style="height: 100vh;">
   <h1>Playground</h1>
-  <div style="display: flex; column-gap: 10px;">
-    <div style="flex: 1;">
+  <div style="height: 100%; display: flex; column-gap: 10px;">
+    <div style="flex: 1">
       <h2>Editor</h2>
-      <textarea name="source" id="source" style="width: 100%; height: 400px;">
-<build src="src/pages/playground/placeholder.ts"></build>
-      </textarea>
+      <div id="editor" style="border: solid 1px black; height: 100%"></div>
     </div>
 
-    <div style="flex: 1; display: flex; flex-direction: column; column-gap: 10px;">
+    <div style="flex: 1">
       <h2>Terminal</h2>
-      <div id="terminal" style="flex: 1; min-height: 200px;"></div>
+      <div id="terminal"></div>
       <div id="compiledCode" style="display: none;"></div>
-      <div id="buildError" style="flex: 1; border: 1px solid red; padding: 5px; overflow: auto;">
+      <div id="buildError" style="flex: 1; border: 1px solid red; overflow: auto;">
       </div>
     </div>
   </div>
 </div>
 
-<script type="module">
-  import * as ts from "typescript"
 
-  const sourceEl = document.getElementById('source')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/loader.min.js"></script>
+
+<script type="module">
+  const editorEl = document.getElementById('editor')
   const resultEl = document.getElementById('compiledCode')
+  const errorEl = document.getElementById('buildError')
 
   async function compile(sourceCode) {
+    const ts = await import('typescript')
     console.log('Compiling...')
 
     try {
@@ -46,12 +60,11 @@
         target: ts.ScriptTarget.ES2022
       })
 
-      // Remove previous compiled output
+      // Remove previous
       while (resultEl.firstChild) {
         resultEl.removeChild(resultEl.firstChild)
       }
-      // Remove error message
-      document.getElementById('buildError').innerHTML = ''
+      errorEl.innerHTML = ''
 
       // Add compiled output to page
       const script = document.createElement('script')
@@ -59,29 +72,50 @@
       script.textContent = jsCode
       resultEl.appendChild(script)
     } catch (error) {
-      resultEl.innerHTML = `Error: ${error.message}`
+      errorEl.innerHTML = `Error: ${error.message}`
     }
   }
 
-  // debounce textarea input 1 second, then compile
-  let timeout
-  sourceEl.addEventListener('input', () => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      compile(sourceEl.value)
-    }, 1000)
+  require.config({ paths: { "vs": "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.29.1/min/vs/" } })
+
+  window.MonacoEnvironment = {
+    getWorkerUrl: function (workerId, label) {
+      return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+            self.MonacoEnvironment = { baseUrl: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.29.1/min/" };
+            importScripts("https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.29.1/min/vs/base/worker/workerMain.min.js");`
+      )}`
+    }
+  }
+
+  require(["vs/editor/editor.main"], async () => {
+    // fetch code from src/pages/playground/placeholder.ts
+    const placeholder = await (await fetch('placeholder.ts')).text()
+
+    const editor = monaco.editor.create(editorEl, {
+      value: placeholder,
+      language: "typescript",
+      minimap: {
+        enabled: false,
+      },
+    })
+
+    // Set TypeScript compiler options
+    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+      noLib: true,
+      target: monaco.languages.typescript.ScriptTarget.ES6,
+      module: monaco.languages.typescript.ModuleKind.CommonJS
+    })
+
+    let debounceTimeout
+    editor.onDidChangeModelContent(() => {
+      clearTimeout(debounceTimeout)
+      debounceTimeout = setTimeout(() => {
+        compile(editor.getValue())
+      }, 500)
+    })
+    compile(editor.getValue())
   })
-  sourceEl.dispatchEvent(new Event('input'))
-</script>
 
-<script type="importmap">
-  {
-    "imports": {
-      "fs": "./empty.js",
-      "os": "./empty.js",
-      "child_process": "./empty.js"
-    }
-  }
 </script>
 
 <build src="src/xterm.html"></build>
