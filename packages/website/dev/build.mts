@@ -2,9 +2,10 @@ import * as _ from '@s-libs/micro-dash'
 import chokidar from 'chokidar'
 import hljs from 'highlight.js'
 import markdown from 'markdown-it'
-import * as html from 'node-html-parser'
+import * as parser from 'node-html-parser'
 import { $, argv, fs } from 'zx'
 import esbuild from 'esbuild'
+import { assert } from 'console'
 
 $.verbose = true
 
@@ -35,7 +36,7 @@ async function main() {
 		if (stat.isFile()) {
 			const newFilePath = filePath.replace(/\.md$/, '.html')
 			const shouldWrap = noWrap.filter(f => filePath.includes(f)).length == 0
-			console.log(`  ${newFilePath} ` + (shouldWrap ? '' : '(no shell)'))
+			console.log(`  ${newFilePath}`)
 
 			let pageContent = await readFile(fullPath)
 			let page = await render(pageContent)
@@ -47,7 +48,8 @@ async function main() {
 	}
 
 	// Copy example app
-	await $`rm -r dist/starter; cp -r ../starter/dist-web dist/starter`
+	await $`rm -r dist/starter`.catch(() => { })
+	await $`cp -r ../starter/dist-web dist/starter`.catch(() => { })
 	// await $`npx rg -i ../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs -o dist --watch=false`
 	await esbuild.build({
 		entryPoints: ['../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs'],
@@ -63,6 +65,7 @@ async function main() {
 			'process': JSON.stringify({
 				env: {
 					TERM: 'xterm-256color',
+					COLORTERM: 'truecolor',
 				}
 			}, null, 2)
 		},
@@ -94,7 +97,7 @@ const md = markdown({
 })
 
 function replacePlaceholder(shell: string, page: Html): Html {
-	const shellHtml = html.parse(shell)
+	const shellHtml = parser.parse(shell)
 	const placeholderTag = shellHtml.querySelector('build[placeholder]')!
 	if (!placeholderTag) return shell
 	const original = shell.slice(...placeholderTag.range)
@@ -102,8 +105,15 @@ function replacePlaceholder(shell: string, page: Html): Html {
 	return shell
 }
 
-async function render(page: Html): Promise<Html> {
-	const pageHtml = html.parse(page)
+async function render(page: Html, depth = 0): Promise<Html> {
+	assert(depth < 20, 'Recursion depth exceeded in render function')
+	page = await processBuildSrcTags(page, depth)
+	page = await processPreviewTags(page)
+	return page
+}
+
+async function processBuildSrcTags(page: Html, depth): Promise<Html> {
+	const pageHtml = parser.parse(page)
 	const buildTags = pageHtml.querySelectorAll('build[src]')
 	const replacements = buildTags.map(buildTag => {
 		const original = page.slice(...buildTag.range)
@@ -113,11 +123,49 @@ async function render(page: Html): Promise<Html> {
 
 	for (const rep of replacements) {
 		let replaceWith = await fs.readFile(rep.src, 'utf-8')
+		replaceWith = await render(replaceWith, depth + 1)
 		page = page.replace(rep.original, replaceWith)
 	}
 
 	return page
 }
+
+let previewId = 0
+
+async function processPreviewTags(page: Html): Promise<Html> {
+	const pageHtml = parser.parse(page)
+	const previewTags = pageHtml.querySelectorAll('preview[src]')
+	const replacements = previewTags.map(previewTag => {
+		const original = page.slice(...previewTag.range)
+		const src = previewTag.getAttribute('src')!
+		return { original, src }
+	})
+
+	for (const rep of replacements) {
+		await $`rg --watch=false -i ${rep.src} -o dist/examples --customEsbuild "{external: ['@angular/core', '@rectangulr/rectangulr', '@angular/compiler']}" --target=web`
+		const outputFile = `examples/${rep.src.split('/').pop()!.replace('.ts', '.mjs')}`
+		const id = `preview-${previewId++}`
+		const replaceWith = html`
+			<div id="${id}"></div>
+			<script type="module">
+				import Component from './${outputFile}'
+				import { bootstrapApplication, provideXtermJs } from '@rectangulr/rectangulr'
+
+				const xterm = createTerminal('#${id}')
+				bootstrapApplication(Component, {
+					providers: [
+						provideXtermJs(xterm)
+					]
+				}).catch((err) => console.error(err))
+			</script>
+		`
+		page = page.replace(rep.original, replaceWith)
+	}
+
+	return page
+}
+
+const html = String.raw
 
 async function readFile(path: Path): Promise<Html> {
 	let content = await fs.readFile(path).then((buffer) => buffer.toString())

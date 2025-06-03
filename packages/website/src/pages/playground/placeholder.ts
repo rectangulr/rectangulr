@@ -1,4 +1,3 @@
-import '@angular/compiler'
 import { Component, signal } from '@angular/core'
 import { bootstrapApplication, List, ListItem, provideXtermJs, Style } from '@rectangulr/rectangulr'
 
