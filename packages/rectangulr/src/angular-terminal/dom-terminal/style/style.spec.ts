@@ -15,7 +15,7 @@ function setup() {
 
 	TestBed.runInInjectionContext(() => {
 		screen = new TermScreen()
-		parent = new TermElement()
+		parent = new TermContainer()
 		screen.appendChild(parent)
 
 		textNode = new TermText()
