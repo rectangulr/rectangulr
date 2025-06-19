@@ -1,12 +1,12 @@
 import { merge } from '@s-libs/micro-dash'
 import * as esbuild from 'esbuild'
 import json5 from 'json5'
-import { dirname } from 'path'
+import path from 'path'
 import { fileURLToPath } from 'url'
-import { angularPlugin as angularCompilerPlugin, rebuildNotifyPlugin } from './esbuildPlugins'
+import { angularPlugin, rebuildNotifyPlugin } from './esbuildPlugins'
 import { checkOptions, opt } from './options'
 
-const scriptDir = dirname(fileURLToPath(import.meta.url)) + '/'
+const scriptDir = path.dirname(fileURLToPath(import.meta.url)) + '/'
 
 main()
 async function main() {
@@ -22,14 +22,8 @@ async function main() {
 	/**
 	 * Esbuild Plugins
 	 */
-	let entryPoints: string[] = (opt('i') as string).split(',')
-	let plugins: esbuild.Plugin[] = [
-		rebuildNotifyPlugin({
-			entryPoints: entryPoints,
-			outDir: opt('o'),
-			printMetaFile: opt('meta')
-		})
-	]
+	let entryPoints: string[] = (opt('i', 'src/main.ts') as string).split(',')
+	let plugins: esbuild.Plugin[] = []
 
 	/**
 	 * Esbuild build options
@@ -41,9 +35,9 @@ async function main() {
 	{
 		mergeOptions(esbuildOptions, {
 			entryPoints: entryPoints,
-			outdir: opt('o'),
+			outdir: opt('o', 'dist'),
 			outExtension: { '.js': '.mjs' },
-			mainFields: ['module', 'browser', 'main'],
+			// mainFields: ['module', 'main', 'browser'],
 			bundle: true,
 			treeShaking: true,
 			minify: false,
@@ -51,14 +45,13 @@ async function main() {
 			sourcemap: false,
 			format: 'esm',
 			preserveSymlinks: true,
-
-			// breaks bun
-			inject: [
-				scriptDir + '../files/inject-require.js',
-			],
+			tsconfig: path.resolve(scriptDir, '../files/tsconfig.json'),
 		})
 
-		if (opt('prod')) {
+		let useRequire = false
+
+		const prod = opt('prod', false)
+		if (prod) {
 			mergeOptions(esbuildOptions, {
 				define: { 'ngDevMode': 'false' },
 				sourcemap: false,
@@ -79,18 +72,32 @@ async function main() {
 			aot = false
 		}
 
-		if (opt('target') == 'web') {
+		const target = opt('target', 'node')
+		if (target == 'web') {
 			mergeOptions(esbuildOptions, {
 				// platform: 'browser',
-				outdir: 'dist-web',
+				outdir: opt('o', 'dist-web'),
 				define: {
 					'RECTANGULR_TARGET': '"web"',
 					'process': JSON.stringify({
 						env: {
 							TERM: 'xterm-256color',
+							COLORTERM: 'truecolor',
 						}
 					}, null, 2),
 				},
+			})
+			useRequire = false
+		} else {
+			useRequire = true
+		}
+
+		if (opt('useRequire') !== undefined) { useRequire = toBoolean(opt('useRequire')) }
+		if (useRequire) {
+			mergeOptions(esbuildOptions, {
+				inject: [
+					path.resolve(scriptDir, '../files/inject-require.js'),
+				],
 			})
 		}
 
@@ -103,29 +110,36 @@ async function main() {
 		if (opt('watch') !== undefined) {
 			watch = toBoolean(opt('watch'))
 		}
+		plugins.push(rebuildNotifyPlugin({
+			entryPoints: entryPoints,
+			outDir: opt('o', 'dist'),
+			printMetaFile: opt('meta', false),
+			watch
+		}))
 		if (aot) {
 			plugins.push(
-				angularCompilerPlugin({ tsconfig: opt('tsconfig') }))
+				angularPlugin({ tsconfig: opt('tsconfig', 'tsconfig.json') })
+			)
 		} else {
 			mergeOptions(esbuildOptions, {
 				inject: [
 					...esbuildOptions.inject ?? [],
-					scriptDir + '../files/inject-compiler.js',
+					path.resolve(scriptDir, '../files/inject-compiler.js'),
 				]
 			})
 		}
 
 		if (opt('customEsbuild')) {
 			mergeOptions(esbuildOptions, {
-				...json5.parse(opt('customEsbuild')),
+				...json5.parse(opt('customEsbuild', {})),
 			})
 		}
 
 		mergeOptions(esbuildOptions, { plugins })
 
-		if (opt('print')) {
+		if (opt('print', false)) {
 			console.log(esbuildOptions)
-			console.log({ watch, aot })
+			console.log({ watch, aot, useRequire, prod, target })
 			process.exit(0)
 		}
 

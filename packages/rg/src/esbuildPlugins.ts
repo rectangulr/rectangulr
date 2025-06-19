@@ -4,15 +4,23 @@ import { type Plugin } from 'esbuild'
 import { $, fs } from 'zx'
 
 export function angularPlugin(args: { tsconfig: string }) {
-	return createCompilerPlugin({
+	const plugin = createCompilerPlugin({
 		sourcemap: false,
 		tsconfig: args.tsconfig,
-		incremental: true,
+		incremental: false,
+		browserOnlyBuild: true,
+		// @ts-ignore
 		// advancedOptimizations: true,
 	}, {} as any)
+	return plugin
 }
 
-export function rebuildNotifyPlugin(args: { entryPoints: string[], outDir: string, printMetaFile: boolean }): Plugin {
+export function rebuildNotifyPlugin(args: {
+	entryPoints: string[],
+	outDir: string,
+	printMetaFile: boolean,
+	watch: boolean,
+}): Plugin {
 	return {
 		name: 'rebuild-notify',
 		setup(build) {
@@ -21,7 +29,9 @@ export function rebuildNotifyPlugin(args: { entryPoints: string[], outDir: strin
 					console.error('Build failed:', result.errors)
 				} else {
 					console.log(`Build succeeded: ${args.outDir}`)
-					console.log(`Watching ${args.entryPoints}...`)
+					if (args.watch) {
+						console.log(`Watching ${args.entryPoints}...`)
+					}
 					if (args.printMetaFile) {
 						assert(result.metafile)
 						const meta = await esbuild.analyzeMetafile(result.metafile)

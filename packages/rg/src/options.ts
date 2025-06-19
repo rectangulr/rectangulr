@@ -1,38 +1,42 @@
 import { argv } from 'zx'
 
-export type Option = { id: string, description: string, default: any }
+export type Option = { id: string, description: string, defaultValue: any }
 
-export const opts: { [k: string]: { id: string, description: string, default: any } } = {
-	'i': { id: 'i', description: 'Input files', default: 'src/main.ts', },
-	'o': { id: 'o', description: 'Output directory', default: 'dist' },
-	'aot': { id: 'aot', description: `AOT: if true(AOT), if false(inject @angular/compiler) and use at runtime`, default: undefined },
-	'tsconfig': { id: 'tsconfig', description: 'Tsconfig path', default: 'tsconfig.json' },
-	'meta': { id: 'meta', description: 'Enable esbuild bundle size analyzer', default: false },
-	'watch': { id: 'watch', description: 'Watch mode', default: undefined },
-	'prod': { id: 'prod', description: 'Production mode', default: false },
-	'sourcemap': { id: 'sourcemap', description: 'Enable sourcemaps', default: undefined },
-	'help': { id: 'help', description: 'Print the options', default: false },
-	'customEsbuild': { id: 'customEsbuild', description: 'Custom esbuild options', default: '{}' },
-	'target': { id: 'target', description: 'Target platform: (web/node)', default: 'node' },
-	'print': { id: 'print', description: 'Print esbuild options and exit', default: false },
+export const opts: { [k: string]: { id: string, description: string } } = {
+	'i': { id: 'i', description: 'Input files' },
+	'o': { id: 'o', description: 'Output directory' },
+	'aot': { id: 'aot', description: `AOT: if true(AOT), if false(inject @angular/compiler) and use at runtime` },
+	'tsconfig': { id: 'tsconfig', description: 'Tsconfig path' },
+	'meta': { id: 'meta', description: 'Enable esbuild bundle size analyzer' },
+	'watch': { id: 'watch', description: 'Watch mode' },
+	'prod': { id: 'prod', description: 'Production mode' },
+	'sourcemap': { id: 'sourcemap', description: 'Enable sourcemaps' },
+	'help': { id: 'help', description: 'Print the options' },
+	'customEsbuild': { id: 'customEsbuild', description: 'Custom esbuild options' },
+	'target': { id: 'target', description: 'Target platform: (web/node)' },
+	'print': { id: 'print', description: 'Print esbuild options and exit' },
+	'useRequire': { id: 'useRequire', description: 'Inject require shim (CJS compatibility)' },
 }
-export function opt(name: keyof typeof opts) {
-	if (argv[name] === undefined) {
-		if ('default' in opts[name]) {
-			return opts[name].default
-		} else {
-			return undefined
-		}
+
+export function opt(name: keyof typeof opts, defaultValue: any = undefined) {
+	const value = argv[name]
+	if (value === undefined) {
+		return defaultValue
 	} else {
-		return argv[name]
+		if (value == 'false') {
+			return false
+		} else if (value == 'true') {
+			return true
+		}
+		return value
 	}
 }
 
 export function checkOptions(): 'error' | 'ok' | 'help' {
-	if (opt('help')) {
+	if (opt('help', false)) {
 		console.log('Options:')
 		for (const [name, opt] of Object.entries(opts)) {
-			console.log(`  --${name}: ${opt.description} (default: ${opt.default})`)
+			console.log(`  --${name}: ${opt.description}`)
 		}
 		return 'help'
 	}
@@ -48,8 +52,7 @@ export function checkOptions(): 'error' | 'ok' | 'help' {
 		const key2 = key as keyof typeof opts
 		const value = opt(key2)
 		const description = opts[key2].description
-		const isDefault = value === opts[key2].default
-		if (!isDefault) {
+		if (value !== undefined) {
 			console.log(`  ${description} (${key}): ${value}`)
 		}
 	}
