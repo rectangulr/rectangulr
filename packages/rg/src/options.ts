@@ -5,11 +5,12 @@ export type Option = { id: string, description: string, defaultValue: any }
 export const opts: { [k: string]: { id: string, description: string } } = {
 	'i': { id: 'i', description: 'Input files' },
 	'o': { id: 'o', description: 'Output directory' },
-	'aot': { id: 'aot', description: `AOT: if true(AOT), if false(inject @angular/compiler) and use at runtime` },
+	'jit': { id: 'jit', description: `Inject @angular/compiler and use it at runtime` },
 	'tsconfig': { id: 'tsconfig', description: 'Tsconfig path' },
 	'meta': { id: 'meta', description: 'Enable esbuild bundle size analyzer' },
 	'watch': { id: 'watch', description: 'Watch mode' },
 	'prod': { id: 'prod', description: 'Production mode' },
+	'dev': { id: 'prod', description: 'Dev mode' },
 	'sourcemap': { id: 'sourcemap', description: 'Enable sourcemaps' },
 	'help': { id: 'help', description: 'Print the options' },
 	'customEsbuild': { id: 'customEsbuild', description: 'Custom esbuild options' },

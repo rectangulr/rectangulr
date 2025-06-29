@@ -15,11 +15,9 @@ export function angularPlugin(args: { tsconfig: string }, queue: Queue<E>): Plug
 	const plugin = createCompilerPlugin({
 		sourcemap: false,
 		tsconfig: args.tsconfig,
-		incremental: false,
-		// @ts-ignore
+		incremental: true,
 		browserOnlyBuild: true,
-		// @ts-ignore
-		// advancedOptimizations: true,
+		advancedOptimizations: true,
 	}, queue)
 
 	return plugin

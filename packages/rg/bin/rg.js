@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-import('../dist/main.cjs')
+import('../dist/main.js')

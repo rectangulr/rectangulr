@@ -4,7 +4,7 @@ import * as esbuild from 'esbuild'
 import fs from 'fs/promises'
 import json5 from 'json5'
 import path from 'path'
-import { angularPlugin, E } from './esbuildPlugins'
+import { angularPlugin, assert, E } from './esbuildPlugins'
 import { checkOptions, opt } from './options'
 import { Queue } from './Queue'
 
@@ -34,7 +34,7 @@ async function main() {
 	let esbuildOptions: esbuild.BuildOptions = {}
 	let esbuildCtx: esbuild.BuildContext
 	let watch = false
-	let aot = true
+	let jit = false
 	const queue = new Queue<E>()
 	{
 		mergeOptions(esbuildOptions, {
@@ -63,8 +63,11 @@ async function main() {
 				minify: true,
 			})
 			watch = false
-			aot = true
-		} else {
+			jit = false
+		}
+
+		const dev = opt('dev', false)
+		if (dev) {
 			mergeOptions(esbuildOptions, {
 				define: {
 					'ngDevMode': 'ngDevMode'
@@ -74,7 +77,6 @@ async function main() {
 				metafile: true,
 			})
 			watch = true
-			aot = false
 		}
 
 		const target = opt('target', 'node')
@@ -108,29 +110,26 @@ async function main() {
 
 		if (opt('meta') !== undefined) esbuildOptions.metafile = opt('meta')
 		if (opt('sourcemap') !== undefined) esbuildOptions.sourcemap = opt('sourcemap')
+		if (opt('jit') !== undefined) { jit = toBoolean(opt('jit')) }
+		if (opt('watch') !== undefined) { watch = toBoolean(opt('watch')) }
 
-		if (opt('aot') !== undefined) {
-			aot = toBoolean(opt('aot'))
-		}
-		if (opt('watch') !== undefined) {
-			watch = toBoolean(opt('watch'))
-		}
 		// plugins.push(rebuildNotifyPlugin({
 		// 	entryPoints: entryPoints,
 		// 	outDir: opt('o', 'dist'),
 		// 	printMetaFile: opt('meta', false),
 		// 	watch: watch,
 		// }))
-		if (aot) {
-			const angular = angularPlugin({ tsconfig: opt('tsconfig', 'tsconfig.json') }, queue)
-			plugins.push(angular)
-		} else {
+
+		if (jit) {
 			mergeOptions(esbuildOptions, {
 				inject: [
 					...esbuildOptions.inject ?? [],
 					path.resolve(scriptDir, '../files/inject-compiler.js'),
 				]
 			})
+		} else {
+			const angular = angularPlugin({ tsconfig: opt('tsconfig', 'tsconfig.json') }, queue)
+			plugins.push(angular)
 		}
 
 		if (opt('customEsbuild')) {
@@ -143,16 +142,18 @@ async function main() {
 
 		if (opt('print', false)) {
 			console.log(esbuildOptions)
-			console.log({ watch, aot, useRequire, prod, target })
+			console.log({ watch, jit, useRequire, prod, target })
 			process.exit(0)
 		}
 
 		esbuildCtx = await esbuild.context(esbuildOptions)
 
 		const watcher = chokidar.watch([], { ignoreInitial: true })
-		watcher.on('all', (event, path) => {
-			queue.send({ type: 'fileChange', path })
-		})
+		if (watch) {
+			watcher.on('all', (event, path) => {
+				queue.send({ type: 'fileChange', path })
+			})
+		}
 
 		queue.subscribe(async event => {
 			if (event.type == 'bundle') {
@@ -164,9 +165,9 @@ async function main() {
 			}
 		})
 
-		queue.subscribe(async event => {
-			console.log(event)
-		})
+		// queue.subscribe(async event => {
+		// 	console.log(event)
+		// })
 
 		let filesToWatch: string[] = []
 		let watchTimeout: NodeJS.Timeout | null = null
@@ -201,6 +202,11 @@ async function main() {
 	/**
 	 * Start build
 	 */
+	const res = await bundle()
+	if (watch == false) {
+		process.exit(res)
+	}
+
 	async function bundle() {
 		const res = await esbuildCtx.rebuild()
 		if (res.errors.length) {
@@ -208,17 +214,40 @@ async function main() {
 			for (const err of res.errors) {
 				console.error(err)
 			}
+			return 1
 		} else {
 			if (res.outputFiles) {
 				for (const file of res.outputFiles) {
 					await fs.mkdir(path.dirname(file.path), { recursive: true })
 					await fs.writeFile(file.path, file.contents)
-					console.log('Write', file.path)
+					const size = formatFileSize(file.contents.length)
+					console.log('Write', file.path, `(${size})`)
+				}
+				if (opt('printMetaFile')) {
+					assert(res.metafile)
+					const meta = await esbuild.analyzeMetafile(res.metafile)
+					console.log(meta)
+					await fs.writeFile('meta.json', JSON.stringify(res.metafile))
+					console.log('meta saved: meta.json')
 				}
 			}
+			return 0
 		}
 	}
-	bundle()
+
+}
+
+function formatFileSize(bytes: number): string {
+	const units = ['B', 'KB', 'MB', 'GB', 'TB']
+	let size = bytes
+	let unitIndex = 0
+
+	while (size >= 1024 && unitIndex < units.length - 1) {
+		size /= 1024
+		unitIndex++
+	}
+
+	return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`
 }
 
 function mergeOptions(options: esbuild.BuildOptions, newOptions: esbuild.BuildOptions) {
