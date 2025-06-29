@@ -2,7 +2,7 @@
   "name": "rectangulr-tests",
   "description": "",
   "scripts": {
-    "test": "rg"
+    "test": "rg --aot"
   },
   "dependencies": {
     "@rectangulr/rectangulr": "workspace:*",

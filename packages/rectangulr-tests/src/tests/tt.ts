@@ -9,13 +9,13 @@ import { H, HGrow, Scroll, Style, TermElement, V, VGrow, bootstrapApplication } 
 			<h>{{text}}</h>
 		</v>
 	`,
-	imports: [H, V, Style, Scroll, VGrow, HGrow]
+	imports: [H, V, Style]
 })
 class TestComponent {
 	text = Array.from({ length: 20 }, (_, i) => i + 1).join('\n')
 	constructor() {
 		const ref = inject(ElementRef).nativeElement as TermElement
-		globalThis['ref'] = ref
+		// globalThis['ref'] = ref
 	}
 
 	S = {

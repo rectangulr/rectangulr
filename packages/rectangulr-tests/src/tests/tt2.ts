@@ -1,5 +1,5 @@
 import { Component } from "@angular/core"
-import { H, HGrow, Scroll, Style, V, VGrow, bootstrapApplication } from "@rectangulr/rectangulr"
+import { H, Style, V, bootstrapApplication } from "@rectangulr/rectangulr"
 
 @Component({
 	template: `
@@ -8,7 +8,7 @@ import { H, HGrow, Scroll, Style, V, VGrow, bootstrapApplication } from "@rectan
 			<h>{{text}}</h>
 		</v>
 	`,
-	imports: [H, V, Style, Scroll, VGrow, HGrow]
+	imports: [H, V, Style]
 })
 class TestComponent {
 	text = Array.from({ length: 22 }, (_, i) => i + 1).join('\n')

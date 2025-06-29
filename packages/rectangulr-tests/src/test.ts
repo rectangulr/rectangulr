@@ -30,7 +30,7 @@ it('should hgrow', () => {
 	// expectSnapshotComponentText('hgrow', TestComponent)
 })
 
-fit('bug first line doesnt show', () => {
+it('bug first line doesnt show', () => {
 	@Component({
 		template: `
 			<h>Title1</h>
@@ -38,6 +38,7 @@ fit('bug first line doesnt show', () => {
 			<h>word</h>
 			<h>word2</h>
 		`,
+		imports: [H]
 	})
 	class Test { }
 

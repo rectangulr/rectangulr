@@ -1,5 +1,5 @@
 import { Component, inject } from "@angular/core"
-import { bootstrapApplication, DomLog, H, HGrow, LogPointService, Scroll, Style, TermScreen, V, VGrow } from "@rectangulr/rectangulr"
+import { bootstrapApplication, DomLog, H, LogPointService, Scroll, Style, TermScreen, V } from "@rectangulr/rectangulr"
 
 
 @Component({
@@ -8,10 +8,10 @@ import { bootstrapApplication, DomLog, H, HGrow, LogPointService, Scroll, Style,
 			<h>{{text}}</h>
 		</v>
 	`,
-	imports: [H, V, Style, Scroll, VGrow, HGrow, DomLog]
+	imports: [H, V, Style, Scroll, DomLog]
 })
 class TestComponent {
-	text = Array.from({ length: 20 }, (_, i) => i + 1).join('\n')
+	text = Array.from({ length: 10 }, (_, i) => i + 1).join('\n')
 	screen = inject(TermScreen)
 	lp = inject(LogPointService)
 
