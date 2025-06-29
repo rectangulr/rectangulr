@@ -4,11 +4,12 @@ import { $ } from 'zx'
 $.verbose = true
 
 await $`cd packages/rg &&
- bun i`
+ bun i &&
+ bun dev/build.mts`
 
 await $`cd packages/rectangulr &&
  bun i &&
- npx tsx dev/ci.mts`
+ bun dev/ci.mts`
 
 await $`cd packages/buildr &&
  bun i &&
