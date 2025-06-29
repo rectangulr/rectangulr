@@ -51,7 +51,7 @@ async function main() {
 	// Copy example app
 	await $`rm -r dist/starter`.catch(() => { })
 	await $`cp -r ../starter/dist-web dist/starter`.catch(() => { })
-	// await $`npx rg -i ../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs -o dist --watch=false`
+	// await $`npx rg -i ../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs -o dist`
 	const opts: esbuild.BuildOptions = {
 		bundle: true,
 		format: 'esm',
@@ -151,7 +151,7 @@ async function processPreviewTags(page: Html): Promise<Html> {
 	})
 
 	for (const rep of replacements) {
-		await $`rg --watch=false -i ${rep.src} -o dist/examples --customEsbuild "{external: ['@angular/core', '@rectangulr/rectangulr', '@angular/compiler']}" --target=web`
+		await $`rg -i ${rep.src} -o dist/examples --customEsbuild "{external: ['@angular/core', '@rectangulr/rectangulr', '@angular/compiler']}" --target=web`
 		const outputFile = `examples/${rep.src.split('/').pop()!.replace('.ts', '.mjs')}`
 		const id = `preview-${previewId++}`
 		const code = await fs.readFile(rep.src, 'utf-8')
