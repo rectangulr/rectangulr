@@ -18,18 +18,7 @@
 
   </style>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "fs": "./empty.js",
-      "os": "./empty.js",
-      "child_process": "./empty.js"
-    }
-  }
-</script>
-
 </head>
-
 
 <script type="module">
   import { Terminal } from 'https://cdn.jsdelivr.net/npm/xterm@5.3.0/+esm'
@@ -52,6 +41,10 @@
   <app-root></app-root>
 </body>
 
-<script src="main.mjs" type="module"></script>
+<script type="module">
+  import { main } from 'starter/main.mjs'
+  const xterm = globalThis['xterm']
+  main({ xterm })
+</script>
 
 </html>
