@@ -151,7 +151,7 @@ async function processPreviewTags(page: Html): Promise<Html> {
 	})
 
 	for (const rep of replacements) {
-		await $`rg -i ${rep.src} -o dist/examples --customEsbuild "{external: ['@angular/core', '@rectangulr/rectangulr', '@angular/compiler']}" --target=web`
+		await $`npx rg -i ${rep.src} -o dist/examples --customEsbuild "{external: ['@angular/core', '@rectangulr/rectangulr', '@angular/compiler']}" --target=web`
 		const outputFile = `examples/${rep.src.split('/').pop()!.replace('.ts', '.mjs')}`
 		const id = `preview-${previewId++}`
 		const code = await fs.readFile(rep.src, 'utf-8')

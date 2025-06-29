@@ -11,7 +11,8 @@
     "packages/rg",
     "packages/smoke-test",
     "packages/starter",
-    "packages/explorer"
+    "packages/explorer",
+    "packages/website"
   ],
   "devDependencies": {
     "@types/node": "^22.13.1",

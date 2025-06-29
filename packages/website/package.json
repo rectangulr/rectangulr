@@ -1,4 +1,6 @@
 {
+	"name": "@rectangulr/website",
+	"version": "0.0.1",
 	"scripts": {
 		"build": "node dev/build.mts",
 		"dev": "node dev/build.mts --watch",
@@ -16,6 +18,7 @@
 	},
 	"dependencies": {
 		"@rectangulr/rectangulr": "^0.0.7",
+		"@rectangulr/rg": "workspace:*",
 		"highlight.js": "^11.9.0",
 		"xterm": "5.3.0",
 		"xterm-addon-fit": "0.8.0",
