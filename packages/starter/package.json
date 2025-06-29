@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "rg --prod",
-    "dev": "rg",
+    "dev": "rg --dev",
     "start": "node dist/main.mjs",
     "web": "rg --target=web -o dist-web",
     "serve": "live-server dist-web"
