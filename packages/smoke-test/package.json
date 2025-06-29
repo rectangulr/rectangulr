@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/main.mjs",
     "build": "rg --prod",
-    "dev": "rg",
+    "dev": "rg --dev",
     "test": "node dist/main.mjs"
   },
   "devDependencies": {
