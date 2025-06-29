@@ -85,7 +85,7 @@ export class StyleHandler {
 	addChildren(layer: Layer) {
 		this.childLayers.push(layer)
 		for (const c of this.element.childNodes) {
-			c.style.dirty = true
+			c.style.markDirtyAndQueue()
 		}
 		this.markDirtyAndQueue()
 	}

@@ -185,7 +185,6 @@ export class TermElement extends Node<TermElement> {
     if (previousScrollLeft !== newScrollLeft) {
       this.scrollRect.x = newScrollLeft
 
-      this.dirtyClip = true
       this.queueDirtyClip()
 
       this.dispatchEvent(new Event('scroll'))
@@ -210,7 +209,6 @@ export class TermElement extends Node<TermElement> {
     if (previousScrollTop !== newScrollTop) {
       this.scrollRect.y = newScrollTop
 
-      this.dirtyClip = true
       this.queueDirtyClip()
 
       this.dispatchEvent(new Event('scroll'))
@@ -350,7 +348,7 @@ export class TermElement extends Node<TermElement> {
     this.dirtyLayout = false
   }
 
-  updateClip() {
+  updateClip({ relativeClipRect = null } = {}) {
     this.lp?.logPoint('Update.Clip', { name: this.name })
 
     let doesScrollChange = false
@@ -394,28 +392,33 @@ export class TermElement extends Node<TermElement> {
     let doesClipRectChange = false
     {
       let prev = this.elementClipRect ? this.elementClipRect.clone() : null
-      this.elementClipRect = Rect.getIntersectingRect(this.elementWorldRect, this.parentNode?.elementClipRect ?? this.elementWorldRect)
-      this.contentClipRect = Rect.getIntersectingRect(this.contentWorldRect, this.parentNode?.elementClipRect ?? this.contentWorldRect)
+      this.elementClipRect = relativeClipRect ? Rect.getIntersectingRect(this.elementWorldRect, relativeClipRect) : this.elementWorldRect
+      this.contentClipRect = relativeClipRect ? Rect.getIntersectingRect(this.contentWorldRect, relativeClipRect) : this.contentWorldRect
       doesClipRectChange = !Rect.areEqual(this.elementClipRect, prev)
 
-      if (this.parentNode && this.parentNode.elementClipRect && this.elementClipRect) {
-        assert(includesRect(this.parentNode.elementClipRect, this.elementClipRect))
-      }
+      // if (this.parentNode && this.parentNode.elementClipRect && this.elementClipRect) {
+      //   assert(includesRect(this.parentNode.elementClipRect, this.elementClipRect))
+      // }
     }
 
     if (doesScrollChange || doesElementRectChange || doesContentRectChange || doesClipRectChange) {
       this.queueDirtyRender()
+      if (!relativeClipRect) {
+        relativeClipRect = this.elementClipRect
+      }
       for (const child of this.childNodes) {
-        child.updateClip()
+        child.updateClip({ relativeClipRect })
       }
     }
   }
 
   queueDirtyStyle(): boolean {
+    this.dirtyStyle = true
     if (this.dirtyStyleQueued == false) {
       if (this.rootNode) {
         this.rootNode.dirtyStyleSet.add(this)
         this.dirtyStyleQueued = true
+        this.rootNode.requestRender()
         return true
       } else {
         return false
@@ -425,10 +428,12 @@ export class TermElement extends Node<TermElement> {
   }
 
   queueDirtyLayout(): boolean {
+    this.dirtyLayout = true
     if (this.dirtyLayoutQueued == false) {
       if (this.rootNode) {
         this.rootNode.dirtyLayoutSet.add(this)
         this.dirtyLayoutQueued = true
+        this.rootNode.requestRender()
         return true
       } else {
         return false
@@ -438,10 +443,12 @@ export class TermElement extends Node<TermElement> {
   }
 
   queueDirtyClip(): boolean {
+    this.dirtyClip = true
     if (this.dirtyClipQueued == false) {
       if (this.rootNode) {
         this.rootNode.dirtyClipSet.add(this)
         this.dirtyClipQueued = true
+        this.rootNode.requestRender()
         return true
       } else {
         return false
@@ -451,10 +458,12 @@ export class TermElement extends Node<TermElement> {
   }
 
   queueDirtyRender(): boolean {
+    this.dirtyRender = true
     if (this.dirtyRenderQueued == false) {
       if (this.rootNode) {
         this.rootNode.dirtyRenderSet.add(this)
         this.dirtyRenderQueued = true
+        this.rootNode.requestRender()
         return true
       } else {
         return false

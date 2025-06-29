@@ -7,6 +7,7 @@ import { H } from '../../../components/1-basics/h'
 import { V } from '../../../components/1-basics/v'
 import { Style } from '../../../components/1-basics/Style.directive'
 import { Grow } from '../../../components/1-basics/grow.directive'
+import { TermContainer } from '../dom/TermContainer'
 
 function setup() {
 	let screen: TermScreen

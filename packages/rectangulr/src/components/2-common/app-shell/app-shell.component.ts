@@ -19,7 +19,7 @@ import { ViewService } from './view.service'
   host: { 's': '{width: "100%", height: "100%"}' },
   template: `
     <!-- Display the currentTab. The others are styled 'display: none'. -->
-    @for (view of viewService.views(); track view) {
+    @for (view of viewService.views(); track view.name) {
       <v
         [focusPropagateUp]="false"
         [focusIf]="view == this.viewService.currentTab()"

@@ -1,5 +1,4 @@
 import { inject, Injectable, NgZone, signal } from '@angular/core'
-import z from 'zod'
 import { LogPointService } from '../../../logs/LogPointService'
 import { Tasks } from '../../../tasks/Tasks'
 import { cursor, feature, screen, style } from '../../../term-strings/core'
@@ -13,6 +12,7 @@ import { AnsiCode, ansiCodesToString } from '../paint/AnsiCodes'
 import { Frame } from '../paint/Frame'
 import { ElementPool } from './element-pool'
 import { Event } from './Event'
+import { DataInputType, Input, KeyInputType, MouseInputType, RawInputType } from './InputTypes'
 import { Point } from './Point'
 import { TermContainer } from './TermContainer'
 import { TermElement } from './TermElement'
@@ -151,7 +151,7 @@ export class TermScreen extends TermContainer {
     if (targetElement === this.mouseOverElement) return
 
     if (this.mouseOverElement) {
-      let event = new Event(`mouseout`)
+      let event = new Event('mouseout')
       event.mouse = e.mouse
 
       event.worldCoordinates = e.worldCoordinates
@@ -163,7 +163,7 @@ export class TermScreen extends TermContainer {
     this.mouseOverElement = targetElement
 
     if (this.mouseOverElement) {
-      let event = new Event(`mouseover`)
+      let event = new Event('mouseover')
       event.mouse = e.mouse
 
       event.worldCoordinates = e.worldCoordinates
@@ -216,46 +216,26 @@ export class TermScreen extends TermContainer {
       removedElements[t].dispatchEvent(event)
     }
 
-    for (let t = 0; t < addedElements.length; ++t) {
+    for (const element of addedElements) {
       let event = new Event(`mouseenter`, { bubbles: false })
       event.mouse = e.mouse
 
       event.worldCoordinates = e.worldCoordinates
       event.contentCoordinates = e.contentCoordinates
 
-      addedElements[t].dispatchEvent(event)
+      element.dispatchEvent(event)
     }
   }
 
   getElementAt(position) {
     this.updateDirtyNodes()
 
-    let { x, y } = position
-
-    // for (let element of this.renderList) {
-    //   if (!element.elementClipRect) continue
-
-    //   if (
-    //     x < element.elementClipRect.x ||
-    //     x >= element.elementClipRect.x + element.elementClipRect.width
-    //   )
-    //     continue
-
-    //   if (
-    //     y < element.elementClipRect.y ||
-    //     y >= element.elementClipRect.y + element.elementClipRect.height
-    //   )
-    //     continue
-
-    //   return element
-    // }
-
-    return null
+    return getElementAt(this.rootNode, position)
   }
 
   requestRender() {
-    this.tasks.queue({
-      func: () => { this.renderToAnsiCodes('diff') },
+    this.tasks.queueOnce({
+      func: () => { this.renderToAnsiCodes('full') },
       debounce: Tasks.UI,
       name: 'rg.renderScreen',
     })
@@ -277,6 +257,7 @@ export class TermScreen extends TermContainer {
         node.dirtyStyleQueued = false
       }
     }
+    this.dirtyStyleSet.clear()
   }
 
   updateDirtyLayout() {
@@ -290,6 +271,7 @@ export class TermScreen extends TermContainer {
         node.dirtyLayoutQueued = false
       }
     }
+    this.dirtyLayoutSet.clear()
   }
 
   updateDirtyClip() {
@@ -302,6 +284,7 @@ export class TermScreen extends TermContainer {
         node.dirtyClipQueued = false
       }
     }
+    this.dirtyClipSet.clear()
   }
 
   renderToAnsiCodes(renderMode: 'diff' | 'full'): AnsiCode[] {
@@ -387,7 +370,11 @@ export class TermScreen extends TermContainer {
 
       let targetElement = this.getElementAt(worldCoordinates)
 
-      if (!targetElement) return // Some envs (xterm.js) sometimes send mouse coordinates outside of the possible range
+      if (!targetElement) {
+        // Some envs (xterm.js) sometimes send mouse coordinates outside of the possible range
+        debugger
+        return
+      }
 
       let contentCoordinates = new Point({
         x: worldCoordinates.x - targetElement.contentWorldRect.x,
@@ -471,62 +458,32 @@ export class TermScreen extends TermContainer {
   }
 }
 
+/**
+ * Recursively retrieves the terminal element located at a specific position within a given node.
+ *
+ * @param node - The root terminal element to search within.
+ * @param position - The point (x, y) to locate within the terminal element hierarchy.
+ * @returns The terminal element at the specified position, or `null` if no element is found.
+ */
+function getElementAt(node: TermElement, position: Point): TermElement | null {
+  for (const c of node.childNodes) {
+    if (c.elementClipRect.includesPoint(position)) {
+      const res = getElementAt(c, position)
+      if (res) {
+        return res
+      } else {
+        return node
+      }
+    }
+  }
+
+  if (node.elementClipRect.includesPoint(position)) {
+    return node
+  } else {
+    return null
+  }
+}
+
 // We will iterate through those colors when rendering if the debugPaintRects option is set
 const DEBUG_COLORS = [`red`, `green`, `blue`, `magenta`, `yellow`]
 let currentDebugColorIndex = 0
-
-type DataInput = {
-  type: 'data',
-  buffer: any
-}
-
-const DataInputType = z.object({
-  type: z.literal('data')
-})
-
-type MouseInput = {
-  type: 'mouse'
-  name: string
-  start: any
-  end: any
-  x: any
-  y: any
-}
-
-const MouseInputType = z.object({
-  type: z.literal('mouse'),
-  name: z.string().nullable(),
-  start: z.boolean(),
-  end: z.boolean(),
-  x: z.number(),
-  y: z.number(),
-})
-
-type KeyInput = {
-  type: 'key'
-  name: string,
-  alt: boolean
-  ctrl: boolean
-  meta: boolean
-  shift: boolean
-}
-
-const KeyInputType = z.object({
-  type: z.literal('key'),
-  name: z.string(),
-  alt: z.boolean(),
-  ctrl: z.boolean(),
-  meta: z.boolean(),
-  shift: z.boolean(),
-})
-
-type RawInput = {
-  type: 'raw',
-  buffer: Uint8Array
-}
-
-const RawInputType = z.object({
-  type: z.literal('raw')
-})
-
-export type Input = KeyInput | MouseInput | DataInput | RawInput

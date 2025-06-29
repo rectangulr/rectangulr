@@ -55,6 +55,7 @@ export { RectangulrModule } from './rectangulr.module'
 export { ComponentOutletInputs } from './utils/componentOutletInput'
 export { KeyValue } from './utils/interfaces'
 export { StorageService } from './components/2-common/storage.service'
+export { LogPointService } from './logs/LogPointService'
 
 export { Tasks } from './tasks/Tasks'
 export { provideXtermJs } from './angular-terminal/terminals/XtermTerminal'
@@ -73,6 +74,7 @@ export {
   makeIntoSignal,
 } from './utils/reactivity'
 export { DataFormat, CheckReturn, Completion } from './utils/data-format'
+export { Ref, viewRef } from './ref.directive'
 
 export * as globals from './globals'
 

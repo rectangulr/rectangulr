@@ -47,11 +47,13 @@ export class TermText extends TermElement {
     const fg = this.style.get('color')
     if (this.elementClipRect) {
       for (let y = 0; y < this.elementClipRect.height; y++) {
+        const ry = y + this.scrollRect.y
         const line = this.lines[y]
         for (let x = 0; x < this.elementClipRect.width; x++) {
+          const rx = x + this.scrollRect.x
           let char = ' '
-          if (y >= 0 && y < this.lines.length && x >= 0 && x < line.length) {
-            char = line[x]
+          if (ry >= 0 && ry < this.lines.length && rx >= 0 && rx < line.length) {
+            char = line[rx]
           }
           frame.updateCellWithBounds({ bounds: this.elementClipRect, x, y, props: { char, bg, fg } })
         }
@@ -61,7 +63,6 @@ export class TermText extends TermElement {
 
   setDirtyTextLayout() {
     this.lp?.logPoint('DirtyTextLayout')
-    this.dirtyLayout = true
     this.queueDirtyLayout()
     this.yogaNode.markDirty()
     this.dirtyTextLayout = true
