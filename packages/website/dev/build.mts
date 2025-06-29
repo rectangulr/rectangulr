@@ -11,7 +11,8 @@ $.verbose = true
 
 async function main() {
 	fs.access('../starter/dist-web')
-	fs.access('../rectangulr/dist')
+
+	previewId = 0
 
 	await $`mkdir -p dist`.catch(() => { })
 
@@ -23,7 +24,7 @@ async function main() {
 
 	// Generate pages
 	let shell: Html = await readFile('./src/shell.html')
-	shell = await render(shell)
+	shell = await build(shell)
 
 	const noWrap = [
 		// 'playground.html'
@@ -39,7 +40,7 @@ async function main() {
 			console.log(`  ${newFilePath}`)
 
 			let pageContent = await readFile(fullPath)
-			let page = await render(pageContent)
+			let page = await build(pageContent)
 			if (shouldWrap) {
 				page = await replacePlaceholder(shell, page)
 			}
@@ -51,9 +52,7 @@ async function main() {
 	await $`rm -r dist/starter`.catch(() => { })
 	await $`cp -r ../starter/dist-web dist/starter`.catch(() => { })
 	// await $`npx rg -i ../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs -o dist --watch=false`
-	await esbuild.build({
-		entryPoints: ['../rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs'],
-		outfile: 'dist/rectangulr.mjs',
+	const opts: esbuild.BuildOptions = {
 		bundle: true,
 		format: 'esm',
 		external: ['@angular/core', '@angular/core/rxjs-interop'],
@@ -69,6 +68,16 @@ async function main() {
 				}
 			}, null, 2)
 		},
+	}
+	await esbuild.build({
+		...opts,
+		entryPoints: ['node_modules/@rectangulr/rectangulr/fesm2022/rectangulr-rectangulr.mjs'],
+		outfile: 'dist/rectangulr.mjs',
+	})
+	await esbuild.build({
+		...opts,
+		entryPoints: ['./src/xterm.ts'],
+		outfile: 'dist/xterm.mjs',
 	})
 
 }
@@ -105,7 +114,7 @@ function replacePlaceholder(shell: string, page: Html): Html {
 	return shell
 }
 
-async function render(page: Html, depth = 0): Promise<Html> {
+async function build(page: Html, depth = 0): Promise<Html> {
 	assert(depth < 20, 'Recursion depth exceeded in render function')
 	page = await processBuildSrcTags(page, depth)
 	page = await processPreviewTags(page)
@@ -122,8 +131,8 @@ async function processBuildSrcTags(page: Html, depth): Promise<Html> {
 	})
 
 	for (const rep of replacements) {
-		let replaceWith = await fs.readFile(rep.src, 'utf-8')
-		replaceWith = await render(replaceWith, depth + 1)
+		let replaceWith = await readFile(rep.src)
+		replaceWith = await build(replaceWith, depth + 1)
 		page = page.replace(rep.original, replaceWith)
 	}
 
@@ -145,18 +154,33 @@ async function processPreviewTags(page: Html): Promise<Html> {
 		await $`rg --watch=false -i ${rep.src} -o dist/examples --customEsbuild "{external: ['@angular/core', '@rectangulr/rectangulr', '@angular/compiler']}" --target=web`
 		const outputFile = `examples/${rep.src.split('/').pop()!.replace('.ts', '.mjs')}`
 		const id = `preview-${previewId++}`
+		const code = await fs.readFile(rep.src, 'utf-8')
+		const highlighted = hljs.highlightAuto(code).value
 		const replaceWith = html`
-			<div id="${id}"></div>
+			<div style="display: flex; flex-direction: row; gap: 16px; align-items: flex-start;">
+				<div style="flex: 2 1 0">
+					<pre style="margin:0; padding:0; color:#eee">
+						<code class="hljs">${highlighted}</code>
+					</pre>
+				</div>
+				<div style="flex: 1 1 0">
+					<div id="${id}" style="height: 300px"></div>
+				</div>
+			</div>
 			<script type="module">
-				import Component from './${outputFile}'
+				import main from './${outputFile}'
 				import { bootstrapApplication, provideXtermJs } from '@rectangulr/rectangulr'
 
 				const xterm = createTerminal('#${id}')
-				bootstrapApplication(Component, {
-					providers: [
-						provideXtermJs(xterm)
-					]
-				}).catch((err) => console.error(err))
+				if (main.toString().startsWith('class')) {
+					bootstrapApplication(main, {
+						providers: [
+							provideXtermJs(xterm)
+						]
+					}).catch((err) => console.error(err))
+				} else {
+					main(xterm)
+				}
 			</script>
 		`
 		page = page.replace(rep.original, replaceWith)
@@ -182,7 +206,7 @@ if (argv['watch']) {
 	}, 100))
 	main()
 	if (argv['serve']) {
-		$`npx live-server dist`
+		$`npx live-server dist --no-browser`
 	}
 	console.log(`Watching ${inputs.join(', ')}`)
 } else {
