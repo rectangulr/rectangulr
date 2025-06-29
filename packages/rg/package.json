@@ -1,17 +1,21 @@
 {
   "name": "@rectangulr/rg",
   "version": "0.0.1",
-  "type": "module",
+  "type": "commonjs",
   "description": "Rectangulr command-line tools",
   "bin": {
-    "rg": "rg.js"
+    "rg": "bin/rg.js"
   },
-  "keywords": [],
+  "scripts": {
+    "build": "node dev/build.mts",
+    "dev": "node dev/build.mts --watch"
+  },
   "author": "David Marshall",
   "license": "UNLICENSED",
   "dependencies": {
-    "esbuild": "^0.24.2",
-    "tsx": "^4.19.2",
+    "@babel/preset-typescript": "^7.27.1",
+    "@rectangulr/rg": "workspace:*",
+    "esbuild": "^0.25.5",
     "zx": "^8.3.0"
   },
   "peerDependencies": {
@@ -20,14 +24,7 @@
   "devDependencies": {
     "@s-libs/micro-dash": "^18.0.0",
     "@types/node": "^22.10.10",
-    "json5": "^2.2.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rectangulr/rectangulr.git"
-  },
-  "bugs": {
-    "url": "https://github.com/rectangulr/rectangulr/issues"
-  },
-  "homepage": "https://github.com/rectangulr/rectangulr#readme"
+    "json5": "^2.2.3",
+    "tsup": "^8.5.0"
+  }
 }

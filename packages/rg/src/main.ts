@@ -1,12 +1,15 @@
 import { merge } from '@s-libs/micro-dash'
+import chokidar from 'chokidar'
 import * as esbuild from 'esbuild'
+import fs from 'fs/promises'
 import json5 from 'json5'
 import path from 'path'
-import { fileURLToPath } from 'url'
-import { angularPlugin, rebuildNotifyPlugin } from './esbuildPlugins'
+import { angularPlugin, E } from './esbuildPlugins'
 import { checkOptions, opt } from './options'
+import { Queue } from './Queue'
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url)) + '/'
+const scriptDir = __dirname + '/'
+
 
 main()
 async function main() {
@@ -32,6 +35,7 @@ async function main() {
 	let esbuildCtx: esbuild.BuildContext
 	let watch = false
 	let aot = true
+	const queue = new Queue<E>()
 	{
 		mergeOptions(esbuildOptions, {
 			entryPoints: entryPoints,
@@ -46,6 +50,7 @@ async function main() {
 			format: 'esm',
 			preserveSymlinks: true,
 			tsconfig: path.resolve(scriptDir, '../files/tsconfig.json'),
+			write: false,
 		})
 
 		let useRequire = false
@@ -110,16 +115,15 @@ async function main() {
 		if (opt('watch') !== undefined) {
 			watch = toBoolean(opt('watch'))
 		}
-		plugins.push(rebuildNotifyPlugin({
-			entryPoints: entryPoints,
-			outDir: opt('o', 'dist'),
-			printMetaFile: opt('meta', false),
-			watch
-		}))
+		// plugins.push(rebuildNotifyPlugin({
+		// 	entryPoints: entryPoints,
+		// 	outDir: opt('o', 'dist'),
+		// 	printMetaFile: opt('meta', false),
+		// 	watch: watch,
+		// }))
 		if (aot) {
-			plugins.push(
-				angularPlugin({ tsconfig: opt('tsconfig', 'tsconfig.json') })
-			)
+			const angular = angularPlugin({ tsconfig: opt('tsconfig', 'tsconfig.json') }, queue)
+			plugins.push(angular)
 		} else {
 			mergeOptions(esbuildOptions, {
 				inject: [
@@ -144,27 +148,77 @@ async function main() {
 		}
 
 		esbuildCtx = await esbuild.context(esbuildOptions)
+
+		const watcher = chokidar.watch([], { ignoreInitial: true })
+		watcher.on('all', (event, path) => {
+			queue.send({ type: 'fileChange', path })
+		})
+
+		queue.subscribe(async event => {
+			if (event.type == 'bundle') {
+				await bundle()
+			} else if (event.type == 'watchFile') {
+				batchWatch(event.path)
+			} else if (event.type == 'fileChange') {
+				batchFileChange(event.path)
+			}
+		})
+
+		queue.subscribe(async event => {
+			console.log(event)
+		})
+
+		let filesToWatch: string[] = []
+		let watchTimeout: NodeJS.Timeout | null = null
+		function batchWatch(filePath: string) {
+			filesToWatch.push(filePath)
+			if (watchTimeout) clearTimeout(watchTimeout)
+			watchTimeout = setTimeout(() => {
+				watcher.add(filesToWatch)
+				filesToWatch = []
+				watchTimeout = null
+			}, 100)
+		}
+
+		let filesThatChanged = new Set<string>()
+		let fileChangeTimeout: NodeJS.Timeout | null = null
+		function batchFileChange(filePath: string) {
+			filesThatChanged.add(filePath)
+			if (fileChangeTimeout) clearTimeout(fileChangeTimeout)
+			fileChangeTimeout = setTimeout(async () => {
+				if (filesThatChanged.size > 0) {
+					console.log('Compile files:', filesThatChanged)
+					queue.send({ type: 'invalidate', files: [...filesThatChanged] })
+					queue.send({ type: 'bundle' })
+					filesThatChanged.clear()
+				}
+				fileChangeTimeout = null
+			}, 100)
+		}
+
 	}
 
 	/**
 	 * Start build
 	 */
-	{
-		if (watch) {
-			await esbuildCtx.watch()
+	async function bundle() {
+		const res = await esbuildCtx.rebuild()
+		if (res.errors.length) {
+			console.error('Build failed with errors:')
+			for (const err of res.errors) {
+				console.error(err)
+			}
 		} else {
-			const res = await esbuildCtx.rebuild()
-			if (res.errors.length) {
-				console.error('Build failed with errors:')
-				for (const err of res.errors) {
-					console.error(err)
+			if (res.outputFiles) {
+				for (const file of res.outputFiles) {
+					await fs.mkdir(path.dirname(file.path), { recursive: true })
+					await fs.writeFile(file.path, file.contents)
+					console.log('Write', file.path)
 				}
-				process.exit(1)
-			} else {
-				process.exit(0)
 			}
 		}
 	}
+	bundle()
 }
 
 function mergeOptions(options: esbuild.BuildOptions, newOptions: esbuild.BuildOptions) {

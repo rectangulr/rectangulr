@@ -1,17 +1,27 @@
-import { createCompilerPlugin } from '@angular/build/private'
 import * as esbuild from 'esbuild'
 import { type Plugin } from 'esbuild'
-import { $, fs } from 'zx'
+import { fs } from 'zx'
+import { createCompilerPlugin } from './angular-build/src/tools/esbuild/angular/compiler-plugin'
+import { Queue } from './Queue'
 
-export function angularPlugin(args: { tsconfig: string }) {
+export type E =
+	{ type: 'watchFile', path: string } |
+	{ type: 'fileChange', path: string } |
+	{ type: 'invalidate', files: string[] } |
+	{ type: 'bundle' }
+
+export function angularPlugin(args: { tsconfig: string }, queue: Queue<E>): Plugin {
+
 	const plugin = createCompilerPlugin({
 		sourcemap: false,
 		tsconfig: args.tsconfig,
 		incremental: false,
+		// @ts-ignore
 		browserOnlyBuild: true,
 		// @ts-ignore
 		// advancedOptimizations: true,
-	}, {} as any)
+	}, queue)
+
 	return plugin
 }
 
@@ -39,7 +49,7 @@ export function rebuildNotifyPlugin(args: {
 						fs.writeFileSync('meta.json', JSON.stringify(result.metafile))
 						console.log('meta saved: meta.json')
 					}
-					await $`ls -lh ${args.outDir}`
+					// console.log((await $`ls -lh ${args.outDir}`).stdout)
 				}
 			})
 		},

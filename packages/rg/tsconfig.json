@@ -1,6 +1,7 @@
 {
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.mts"
   ],
   "compilerOptions": {
     "target": "ESNext",
