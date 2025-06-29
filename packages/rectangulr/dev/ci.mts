@@ -6,4 +6,4 @@ $.verbose = true
 await $`bash dev/checks-source.sh`
 await $`npm run build`
 await $`bash dev/checks-build.sh`
-await $`npm run test -- --watch=false`
+await $`npm run test`

@@ -5,7 +5,7 @@
   "scripts": {
     "build": "wireit",
     "dev": "ng build --watch",
-    "test": "rg -i src/tests/test.ts -o dist-test --aot",
+    "test": "rg -i src/tests/test.ts -o dist-test",
     "publish": "bash dev/publish.sh"
   },
   "module": "dist/fesm2022/rectangulr-rectangulr.mjs",
@@ -27,6 +27,19 @@
     "test:watch": {
       "command": "ng test --watch",
       "service": true
+    }
+  },
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/fesm2022/rectangulr-rectangulr.mjs"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "default": "./dist/fesm2022/rectangulr-rectangulr-testing.mjs"
     }
   },
   "dependencies": {
