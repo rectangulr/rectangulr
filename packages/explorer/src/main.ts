@@ -96,7 +96,7 @@ export class Main {
 }
 
 // @ts-ignore
-globalThis.document = {}
+globalThis.document ??= {}
 bootstrapApplication(AppShell, {
 	providers: [
 		provideView({ name: 'Files', component: Main }),
