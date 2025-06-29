@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject } from "@angular/core"
-import { H, HGrow, Scroll, Style, TermElement, V, VGrow, bootstrapApplication } from "@rectangulr/rectangulr"
+import { H, Style, TermElement, V, bootstrapApplication } from "@rectangulr/rectangulr"
 
 
 @Component({
