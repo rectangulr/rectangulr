@@ -8,7 +8,7 @@ import { StyleHandler } from "../style/StyleHandler"
 import { Event } from './Event'
 import { Node } from './Node'
 import { Point } from './Point'
-import { includesRect, Rect } from './Rect'
+import { Rect } from './Rect'
 
 const yogaConfig = Yoga.Config.create() as Yoga.Config
 
