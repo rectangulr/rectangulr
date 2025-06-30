@@ -467,7 +467,7 @@ export class TermScreen extends TermContainer {
  */
 function getElementAt(node: TermElement, position: Point): TermElement | null {
   for (const c of node.childNodes) {
-    if (c.elementClipRect.includesPoint(position)) {
+    if (c.elementClipRect?.includesPoint(position)) {
       const res = getElementAt(c, position)
       if (res) {
         return res
