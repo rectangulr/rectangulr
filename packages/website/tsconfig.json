@@ -1,5 +1,7 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
+	"include": [
+		"src/**/*.ts"
+	],
 	"compileOnSave": false,
 	"compilerOptions": {
 		"baseUrl": "./",
@@ -15,14 +17,14 @@
 		"sourceMap": true,
 		"declaration": false,
 		"experimentalDecorators": true,
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"importHelpers": true,
 		"lib": [
 			"es2022",
 			"dom"
 		],
 		"types": [
-			"node",
+			"node"
 		]
 	},
 	"angularCompilerOptions": {

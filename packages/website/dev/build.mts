@@ -71,7 +71,7 @@ async function main() {
 	}
 	await esbuild.build({
 		...opts,
-		entryPoints: ['node_modules/@rectangulr/rectangulr/fesm2022/rectangulr-rectangulr.mjs'],
+		entryPoints: ['../../node_modules/@rectangulr/rectangulr/dist/fesm2022/rectangulr-rectangulr.mjs'],
 		outfile: 'dist/rectangulr.mjs',
 	})
 	await esbuild.build({

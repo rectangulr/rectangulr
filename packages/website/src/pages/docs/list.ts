@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core'
-import { H, List } from '@rectangulr/rectangulr'
+import { List } from '@rectangulr/rectangulr'
 
 @Component({
 	template: `
 		<list [items]="items()"/>
 	`,
-	imports: [H, List]
+	imports: [List]
 })
 export default class ListExample {
 	items = signal([

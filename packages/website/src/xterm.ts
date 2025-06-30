@@ -2,7 +2,7 @@ import { Terminal } from 'xterm'
 import { WebglAddon } from 'xterm-addon-webgl'
 import { FitAddon } from 'xterm-addon-fit'
 
-function createTerminal(selector) {
+function createTerminal(selector: string) {
 	const term = new Terminal({
 		fontSize: 16,
 		fontFamily: '"Menlo for Powerline", Menlo, Consolas, "Liberation Mono", Courier, monospace',
@@ -16,7 +16,7 @@ function createTerminal(selector) {
 	const fitAddon = new FitAddon()
 	term.loadAddon(fitAddon)
 	const container = document.querySelector(selector)
-	term.open(container)
+	term.open(container as any)
 
 	fitAddon.fit()
 	const resizeObserver = new ResizeObserver(() => {
@@ -27,4 +27,5 @@ function createTerminal(selector) {
 	return term
 }
 
+// @ts-ignore
 globalThis['createTerminal'] = createTerminal

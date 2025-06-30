@@ -57,15 +57,6 @@ export function checkOptions(): 'error' | 'ok' | 'help' {
 			console.log(`  ${description} (${key}): ${value}`)
 		}
 	}
-	// console.log('  Defaults:')
-	// for (const key of Object.keys(opts)) {
-	// 	const key2 = key as keyof typeof opts
-	// 	const value = opt(key2)
-	// 	const description = opts[key2].description
-	// 	const isDefault = value === opts[key2].default
-	// 	if (isDefault) {
-	// 		console.log(`    ${description} (${key}): ${value}`)
-	// 	}
-	// }
+
 	return 'ok'
 }

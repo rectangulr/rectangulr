@@ -27,7 +27,7 @@ import { logCumulativeDurations, profileAsync, resetCumulativeDurations } from '
 import { SharedTSCompilationState, getSharedCompilationState } from './compilation-state'
 import { FileReferenceTracker } from './file-reference-tracker'
 import { SourceFileCache } from './source-file-cache'
-import { E } from '../../../../../esbuildPlugins'
+import { E } from '../../../../../angularPlugin'
 import { Queue } from '../../../../../Queue'
 
 

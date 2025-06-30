@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core'
-import { bootstrapApplication, List, ListItem, provideXtermJs, Style } from '@rectangulr/rectangulr'
+import { bootstrapApplication, H, List, provideXtermJs, Style } from '@rectangulr/rectangulr'
 
 @Component({
 	template: `
@@ -7,7 +7,7 @@ import { bootstrapApplication, List, ListItem, provideXtermJs, Style } from '@re
 		<h>Page links:</h>
 		<list [items]="links()" [s]="{paddingLeft: 2}"></list>
 	`,
-	imports: [List, ListItem, Style],
+	imports: [List, Style, H],
 })
 class Main {
 	name = signal('rectangulr')
@@ -19,6 +19,7 @@ class Main {
 
 bootstrapApplication(Main, {
 	providers: [
+		//@ts-ignore
 		provideXtermJs(globalThis['xterm'])
 	]
 }).catch((err) => console.error(err))

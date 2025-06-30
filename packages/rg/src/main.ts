@@ -4,7 +4,7 @@ import * as esbuild from 'esbuild'
 import fs from 'fs/promises'
 import json5 from 'json5'
 import path from 'path'
-import { angularPlugin, assert, E } from './esbuildPlugins'
+import { angularPlugin, E } from './angularPlugin'
 import { checkOptions, opt } from './options'
 import { Queue } from './Queue'
 
@@ -35,6 +35,17 @@ async function main() {
 	let esbuildCtx: esbuild.BuildContext
 	let watch = false
 	let jit = false
+
+	let tsconfigPath = opt('tsconfig')
+	if (tsconfigPath === undefined) {
+		try {
+			await fs.access('./tsconfig.json')
+			tsconfigPath = './tsconfig.json'
+		} catch {
+			tsconfigPath = path.resolve(scriptDir, '../files/tsconfig.json')
+		}
+	}
+
 	const queue = new Queue<E>()
 	{
 		mergeOptions(esbuildOptions, {
@@ -49,7 +60,7 @@ async function main() {
 			sourcemap: false,
 			format: 'esm',
 			preserveSymlinks: true,
-			tsconfig: path.resolve(scriptDir, '../files/tsconfig.json'),
+			tsconfig: tsconfigPath,
 			write: false,
 		})
 
@@ -113,13 +124,6 @@ async function main() {
 		if (opt('jit') !== undefined) { jit = toBoolean(opt('jit')) }
 		if (opt('watch') !== undefined) { watch = toBoolean(opt('watch')) }
 
-		// plugins.push(rebuildNotifyPlugin({
-		// 	entryPoints: entryPoints,
-		// 	outDir: opt('o', 'dist'),
-		// 	printMetaFile: opt('meta', false),
-		// 	watch: watch,
-		// }))
-
 		if (jit) {
 			mergeOptions(esbuildOptions, {
 				inject: [
@@ -128,7 +132,7 @@ async function main() {
 				]
 			})
 		} else {
-			const angular = angularPlugin({ tsconfig: opt('tsconfig', 'tsconfig.json') }, queue)
+			const angular = angularPlugin({ tsconfig: tsconfigPath }, queue)
 			plugins.push(angular)
 		}
 
@@ -145,7 +149,9 @@ async function main() {
 			console.log({ watch, jit, useRequire, prod, target })
 			process.exit(0)
 		}
+	}
 
+	{
 		esbuildCtx = await esbuild.context(esbuildOptions)
 
 		const watcher = chokidar.watch([], { ignoreInitial: true })
@@ -196,7 +202,6 @@ async function main() {
 				fileChangeTimeout = null
 			}, 100)
 		}
-
 	}
 
 	/**
@@ -259,4 +264,15 @@ function toBoolean(value: string | boolean): boolean {
 	if (value === 'true') return true
 	if (value === 'false') return false
 	throw new Error(`Invalid boolean value: ${value}`)
+}
+
+/**
+ * @example
+ * assert(false, "throw this error message")
+ * assert(true, "nothing happens")
+ */
+export function assert(condition?: any, message?: string): asserts condition {
+	if (!condition) {
+		throw new Error(message || 'assert failed')
+	}
 }
