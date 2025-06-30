@@ -155,7 +155,7 @@ describe('Style - ', () => {
 
 	it('component with computed signal layer', fakeAsync(() => {
 		@Component({
-			imports: [H, V, Style, Grow],
+			imports: [H, Style],
 			template: `
 				<h #parent [s]="ifEq(value, true, {width: 3})"></h>
 			`
@@ -187,7 +187,7 @@ describe('Style - ', () => {
 
 	it('component with inherited computed signal style', fakeAsync(() => {
 		@Component({
-			imports: [H, V, Style, Grow],
+			imports: [H, Style],
 			template: `
 				<h #parent [s]="ifEq(value, true, {color: 'red'})">
 					<h #child></h>

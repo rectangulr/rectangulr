@@ -15,7 +15,7 @@ describe('DOM - ', () => {
           <h #child [s]="{ flexShrink: 0, alignSelf: 'flexStart' }">aaaaaaaaaa</h>
         </v>
       `,
-      imports: [H, V, Grow, Style]
+      imports: [H, V, Style]
     })
     class Test {
       @ViewChild('parent') parent: ElementRef<TermElement>
@@ -34,7 +34,7 @@ describe('DOM - ', () => {
 
   it('text should stretch the parent', async () => {
     @Component({
-      imports: [Grow, V, H],
+      imports: [H],
       template: ` <h #parent>aaaaaaaaaa</h> `
     })
     class Test {
@@ -50,7 +50,7 @@ describe('DOM - ', () => {
 
   it('<v>', async () => {
     @Component({
-      imports: [H, V, Grow, Style],
+      imports: [H, V, Style],
       template: `
         <v #parent [s]="{ width: 10 }">
           <h #child1>Test</h>
@@ -81,7 +81,7 @@ describe('DOM - ', () => {
 
   it('v hgrow', async () => {
     @Component({
-      imports: [H, V, Grow, Style],
+      imports: [H, V, Style],
       template: `
         <v #parent [s]="{ width: 10 }">
           <h #child1 [s]="{ hgrow: true }">Test</h>
@@ -112,7 +112,7 @@ describe('DOM - ', () => {
 
   it('hbox vgrow', async () => {
     @Component({
-      imports: [H, V, Style],
+      imports: [H, Style],
       template: `
         <h #parent [s]="{ height: 10 }">
           <h #child1 [s]="{ vgrow: true }">Test</h>
@@ -147,7 +147,7 @@ describe('DOM - ', () => {
 
   it('h grow', async () => {
     @Component({
-      imports: [H, V, Style, Grow],
+      imports: [H, Style, Grow],
       template: `
         <h #parent [s]="{ height: 10, width: 10 }">
           <h grow #child1></h>

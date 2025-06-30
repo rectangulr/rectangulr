@@ -16,7 +16,7 @@
     "declaration": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "ES2022",
+    "target": "esnext",
     "module": "ESNext",
     "moduleResolution": "node",
     "types": [

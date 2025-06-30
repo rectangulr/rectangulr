@@ -93,7 +93,7 @@ describe('TermScreen', () => {
 			template: `
 				<h [s]="{}">Hello this is a test to test this thing</h>
 			`,
-			imports: [VGrow, HGrow, Style]
+			imports: [Style]
 		})
 		class Test { }
 
@@ -106,7 +106,7 @@ describe('TermScreen', () => {
 				<h domLog>aaaa</h>
 				<h>bbbb</h>
 			`,
-			imports: [H, V, Style, Scroll, Grow, VGrow, DomLog]
+			imports: [H, DomLog]
 		})
 		class TestComponent { }
 
@@ -121,7 +121,7 @@ describe('TermScreen', () => {
 				<h domLog>{{text()}}</h>
 				<h>cccc</h>
 			`,
-			imports: [H, V, Style, Scroll, Grow, VGrow, DomLog]
+			imports: [H, DomLog]
 		})
 		class TestComponent {
 			text = signal('aaaa')
@@ -153,7 +153,7 @@ describe('TermScreen', () => {
 					<h #c>c</h>
 				</h>
 			`,
-			imports: [H, V, Style, Scroll, Grow, VGrow, HGrow]
+			imports: [H, Style, HGrow]
 		})
 		class TestComponent {
 			a = viewChild.required('a', { read: ElementRef })

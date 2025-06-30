@@ -9,7 +9,7 @@ describe('JsonEditor - ', () => {
 
   it(`should edit a string`, keyboardTest(() => {
     @Component({
-      imports: [H, FocusDirective, JsonEditor],
+      imports: [JsonEditor],
       template: `<json-editor data="string"/>`
     })
     class Test {
@@ -22,7 +22,7 @@ describe('JsonEditor - ', () => {
   }))
 
   @Component({
-    imports: [H, FocusDirective, JsonEditor],
+    imports: [JsonEditor],
     template: `<json-editor [data]="{ test: 'a' }"/>`
   })
   class Test2 {
@@ -56,7 +56,7 @@ describe('JsonEditor - ', () => {
 
   it(`should edit a number`, keyboardTest(() => {
     @Component({
-      imports: [H, FocusDirective, JsonEditor],
+      imports: [JsonEditor],
       template: `<json-editor [data]="1"/>`
     })
     class Test3 {
@@ -71,7 +71,7 @@ describe('JsonEditor - ', () => {
   it(`should focus`, keyboardTest(() => {
     @Component({
       selector: 'test-json-editor-4',
-      imports: [H, FocusDirective, JsonEditor],
+      imports: [JsonEditor],
       template: `
         <json-editor [data]="{ key1: 'value1', key2: 'value2', key3: 'value3' }"/>
       `

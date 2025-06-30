@@ -66,7 +66,7 @@ it('TermText2 - scroll', () => {
 				</v>
 			</v>
 		`,
-		imports: [H, V, Style, Scroll, Grow, VGrow]
+		imports: [H, V, Style, Scroll]
 	})
 	class TestComponent {
 		text = signal("bbbb\nbbbb\nbbbb\nbbbb\nbbbb\n")
@@ -88,7 +88,7 @@ xit('text too big for screen / container', () => {
 			<h>bbbb</h>
 			<!-- <h>{{text}}</h> -->
 		`,
-		imports: [H, V, Style, Scroll, Grow]
+		imports: [H]
 	})
 	class TestComponent {
 		text = 'aaaa\n'.repeat(100)
