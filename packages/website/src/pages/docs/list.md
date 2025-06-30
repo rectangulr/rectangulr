@@ -3,6 +3,8 @@
 *List* is a component for displaying and interacting with lists, supporting keyboard navigation, item highlighting, and
 customizable rendering.
 
+<preview src="src/pages/docs/list.ts" />
+
 - **Keyboard Navigation:** Use arrow keys, Page Up/Down to move selection.
 - **Current Item Highlighting:** Visually highlights the selected item.
 - **Custom Rendering:** Supports custom templates or components for list items.
@@ -35,4 +37,3 @@ customizable rendering.
 Provide a custom template or component for item rendering. Adjust `windowSize` for virtualization. Use the `S` input to style the selected item.
 
 
-<preview src="src/pages/docs/list.ts" />

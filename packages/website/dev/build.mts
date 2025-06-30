@@ -158,13 +158,13 @@ async function processPreviewTags(page: Html): Promise<Html> {
 		const highlighted = hljs.highlightAuto(code).value
 		const replaceWith = html`
 			<div style="display: flex; flex-direction: row; gap: 16px; align-items: flex-start;">
+				<div style="flex: 1 1 0">
+					<div id="${id}" style="height: 300px"></div>
+				</div>
 				<div style="flex: 2 1 0">
 					<pre style="margin:0; padding:0; color:#eee">
 						<code class="hljs">${highlighted}</code>
 					</pre>
-				</div>
-				<div style="flex: 1 1 0">
-					<div id="${id}" style="height: 300px"></div>
 				</div>
 			</div>
 			<script type="module">
