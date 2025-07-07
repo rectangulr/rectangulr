@@ -74,7 +74,7 @@ describe('addNonce', () => {
     expect(result).toContain('<style nonce="{% nonce %}">.a {color: red;}</style>');
   });
 
-  it('should to all script tags', async () => {
+  it('should add nonce to all script tags', async () => {
     const result = await addNonce(`
       <html>
         <head>
@@ -91,5 +91,39 @@ describe('addNonce', () => {
     expect(result).toContain(`<script nonce="{% nonce %}">console.log('foo');</script>`);
     expect(result).toContain('<script src="./main.js" nonce="{% nonce %}"></script>');
     expect(result).toContain(`<script nonce="{% nonce %}">console.log('bar');</script>`);
+  });
+
+  it('should return unchanged HTML when no nonce attribute is found', async () => {
+    const input = `
+      <html>
+        <head>
+          <style>.a {color: red;}</style>
+        </head>
+        <body>
+          <app></app>
+          <script>console.log('foo');</script>
+        </body>
+      </html>
+    `;
+    const result = await addNonce(input);
+
+    expect(result).toBe(input);
+  });
+
+  it('should return unchanged HTML when nonce attribute has empty value', async () => {
+    const input = `
+      <html>
+        <head>
+          <style>.a {color: red;}</style>
+        </head>
+        <body>
+          <app ngCspNonce=""></app>
+          <script>console.log('foo');</script>
+        </body>
+      </html>
+    `;
+    const result = await addNonce(input);
+
+    expect(result).toBe(input);
   });
 });
